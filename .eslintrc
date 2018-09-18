@@ -1,0 +1,65 @@
+{
+	"parser": "babel-eslint",
+	"extends": "airbnb",
+	"env": {
+		"browser": true,
+		"node": true,
+		"jasmine": true,
+		"jest": true
+	},
+	"rules": {
+		"semi": "off",
+		"curly": "off",
+		"indent": [
+			"error",
+			"tab",
+			{
+				"SwitchCase": 1
+			}
+		],
+		"no-tabs": "off",
+		"comma-dangle": "off",
+		"linebreak-style": "off",
+		"no-nested-ternary": "off",
+		"prefer-template": "off",
+		"react/jsx-indent": [
+			"error",
+			"tab"
+		],
+		"no-mixed-operators": "off",
+		"no-restricted-globals": "off",
+		"react/jsx-indent-props": [
+			"error",
+			"tab"
+		],
+		"react/jsx-filename-extension": "off",
+		"react/jsx-first-prop-new-line": "off",
+		"react/no-unused-prop-types": "warn",
+		"object-curly-newline": [
+			"warn",
+			{
+				"ObjectExpression": {
+					"multiline": true,
+					"minProperties": 3
+				},
+				"ObjectPattern": {
+					"multiline": true,
+					"minProperties": 5
+				}
+			}
+		],
+		"no-unneeded-ternary": "off",
+		"no-unused-vars": "warn",
+		"camelcase": "warn",
+		"consistent-return": "warn",
+		"react/require-default-props": 1,
+		"padded-blocks": "off",
+		"react/forbid-prop-types": "off",
+		"no-useless-return": "warn",
+		"jsx-a11y/no-static-element-interactions": "warn",
+		"jsx-a11y/click-events-have-key-events": "warn",
+		"jsx-a11y/label-has-for": "off",
+		"jsx-a11y/anchor-is-valid": "warn",
+		"jsx-a11y/no-noninteractive-element-interactions": "warn"
+	}
+}
