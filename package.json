@@ -1,6 +1,6 @@
 {
 	"name": "sm-string-helper",
-	"version": "1.1.1",
+	"version": "1.1.2",
 	"description": "Common frontend components for SM",
 	"main": "dist/index.js",
 	"repository": {
