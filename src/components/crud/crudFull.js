@@ -4,8 +4,7 @@ import {connect} from 'react-redux'
 import actions from '../../redux/actions';
 import CrudView from './crudView'
 import CreateModelView from './createModel'
-import Button from "../../../components/uielements/button";
-import IntlMessages from '../../../components/utility/intlMessages';
+import {Button} from "antd";
 
 const {
 	toggleCreateModelModal,
@@ -67,7 +66,7 @@ class CrudFull extends Component {
 			isModalOpen,
 			modelName,
 			crudRead,
-			createButtonTitleId,
+			createButtonTitle,
 			createFormOptions,
 			createDisabled
 		} = this.props;
@@ -76,7 +75,7 @@ class CrudFull extends Component {
 
 		return <div>
 			{!createDisabled ? <Button type="primary" onClick={this.toggleModal} style={{marginBottom: '20px'}}>
-				<IntlMessages id={createButtonTitleId}/>
+				{createButtonTitle}
 			</Button> : null}
 			<CrudView
 				modelName={modelName}
@@ -120,7 +119,7 @@ CrudFull.propTypes = {
 	crudRead: PropTypes.string.isRequired,
 	modelName: PropTypes.string.isRequired,
 	customActionsFunc: PropTypes.func,
-	createButtonTitleId: PropTypes.string,
+	createButtonTitle: PropTypes.oneOfType[PropTypes.object, PropTypes.node, PropTypes.string],
 	createFormOptions: PropTypes.shape({
 		fields: PropTypes.array.isRequired
 	}),

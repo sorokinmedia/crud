@@ -5,13 +5,12 @@ import {push} from 'react-router-redux'
 import {Icon} from 'antd';
 
 import styled from 'styled-components';
-import WithDirection from '../../../settings/withDirection';
 
-const ActionStyled = WithDirection(styled.span`
+const ActionStyled = styled.span`
 	.crud-action {
 		font-size: 20px
 	}
-`);
+`;
 
 class Action extends Component {
 

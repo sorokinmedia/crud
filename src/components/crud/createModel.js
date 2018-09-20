@@ -1,13 +1,9 @@
 import React, {Component} from 'react'
 import PropTypes from 'prop-types'
 import {connect} from 'react-redux'
-import isoModal from '../../../components/feedback/modal';
-import WithDirection from '../../../settings/withDirection';
+import {Modal} from 'antd';
 import {reduxForm, Field} from 'redux-form'
-import {renderField} from "../../../helpers/renderField"
-import Button from "../../../components/uielements/button";
-
-const Modal = WithDirection(isoModal);
+import {renderField} from "../../helpers/renderField"
 
 class CreateModalForm extends Component {
 

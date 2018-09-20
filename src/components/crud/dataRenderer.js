@@ -1,11 +1,9 @@
 import {
 	DateCell,
-	ImageCell,
-	LinkCell,
 	TextCell,
 	ArrTextCell,
 	ActionsCell
-} from '../../../components/tables/helperCells';
+} from '../tables/helperCells';
 
 
 export default (row, column, modelName) => {

@@ -1,11 +1,11 @@
 import {all, takeEvery, put, select} from 'redux-saga/effects';
 import actions from './actions';
-import appActions from '../../../redux/app/actions'
+import appActions from 'sm-redux-saga-request/actions'
 import {buildUrlSearch, buildUrlSearchForArray} from 'sm-string-helper'
-import {SITE, SORT_ASC, SORT_DESC, SUCCESS, ERROR, SUCCESS_REQ} from "../../../constants";
+import {SITE, SORT_ASC, SORT_DESC, SUCCESS, ERROR, SUCCESS_REQ} from "../constants";
 import moment from 'moment'
 import {stopSubmit} from 'redux-form';
-import notification from '../../../components/notification'
+import {notification} from 'antd';
 
 function getFiltersValues(filters, columns) {
 

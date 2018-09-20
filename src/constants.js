@@ -1,0 +1,5 @@
+export const
+	SORT_DESC = 'SORT_DESC',
+	START = '_START',
+	SUCCESS = '_SUCCESS',
+	ERROR = '_ERROR';

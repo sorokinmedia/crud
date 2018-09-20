@@ -1,5 +1,5 @@
 import actions from './actions'
-import {ERROR, SORT_DESC, SUCCESS, START} from "../../../constants";
+import {ERROR, SORT_DESC, SUCCESS, START} from "../constants";
 
 export const crudModelsReducer = (state = {}, action) => {
 	const {type, response, error, payload} = action;
