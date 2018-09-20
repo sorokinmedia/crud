@@ -57,9 +57,15 @@ export default {
 			namedExports: {
 				'draft-js': [
 					'ContentState', 'EditorState','SelectionState',
-					'CompositeDecorator', 'convertToRaw',
-					'decode'
-				]
+					'CompositeDecorator', 'convertToRaw', 'Modifier',
+					'KeyBindingUtil', 'DefaultDraftBlockRenderMap',
+					'getDefaultKeyBinding', 'Editor', 'genKey',
+					'CharacterMetadata', 'ContentBlock', 'convertFromHTML',
+					'BlockMapBuilder', 'DefaultDraftInlineStyle'
+				],
+				'draft-js/lib/DraftOffsetKey': ['decode'],
+				'immutable': ['Map', 'List', 'fromJS', 'OrderedSet', 'Repeat', 'is'],
+				'fbjs/lib/ExecutionEnvironment': ['canUseDOM']
 			},  // Default: undefined
 		}),
 		json()
