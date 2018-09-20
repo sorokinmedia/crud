@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import TableWrapper from '../../../containers/Tables/antTables/antTable.style';
 import IntlMessages from '../../../components/utility/intlMessages';
 import {Icon, Input, Button, Pagination} from 'antd';
-import crudActions from '../../redux/crud/actions'
+import crudActions from '../../redux/actions'
 import filterRenderer from './filterRenderer'
 import dataRenderer from './dataRenderer'
 
