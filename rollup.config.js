@@ -55,7 +55,11 @@ export default {
 			// explicitly specify unresolvable named exports
 			// (see below for more details)
 			namedExports: {
-				'draft-js': ['ContentState', 'EditorState','SelectionState', 'CompositeDecorator']
+				'draft-js': [
+					'ContentState', 'EditorState','SelectionState',
+					'CompositeDecorator', 'convertToRaw',
+					'decode'
+				]
 			},  // Default: undefined
 		}),
 		json()
