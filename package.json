@@ -1,23 +1,23 @@
 {
-	"name": "sm-string-helper",
+	"name": "crud",
 	"version": "1.1.2",
-	"description": "Common frontend components for SM",
+	"description": "Common frontend CRUD components for SM",
 	"main": "dist/index.js",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/varenik163/sm-string-helper.git"
+		"url": "git+https://github.com/varenik163/crud.git"
 	},
 	"keywords": [
 		"react",
 		"components",
-		"string"
+		"crud"
 	],
 	"author": "varenik163",
 	"license": "BSD-3-Clause",
 	"bugs": {
-		"url": "https://github.com/varenik163/sm-string-helper/issues"
+		"url": "https://github.com/varenik163/crud/issues"
 	},
-	"homepage": "https://github.com/varenik163/sm-string-helper#readme",
+	"homepage": "https://github.com/varenik163/crud#readme",
 	"peerDependencies": {},
 	"devDependencies": {
 		"babel-core": "^6.26.0",
