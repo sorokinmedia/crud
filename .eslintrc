@@ -49,6 +49,8 @@
 			}
 		],
 		"no-unneeded-ternary": "off",
+		"max-len": 120,
+		"no-plusplus": "off",
 		"no-unused-vars": "warn",
 		"camelcase": "warn",
 		"consistent-return": "warn",

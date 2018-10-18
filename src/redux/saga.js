@@ -1,7 +1,7 @@
 import { all, takeEvery, put, select } from 'redux-saga/effects';
 import { buildUrlSearch, buildUrlSearchForArray } from 'sm-string-helper'
 import { SITE, SORT_ASC, SORT_DESC, SUCCESS, ERROR, SUCCESS_REQ } from '../constants';
-import { request} from 'sm-redux-saga-request'
+import { request } from 'sm-redux-saga-request'
 import { stopSubmit } from 'redux-form';
 import { notification } from 'antd';
 import actions from './actions';
@@ -65,7 +65,7 @@ export function* fetchCrudModelsSaga(action) {
 		return acc + start + delimiter + e
 	}, '');
 
-	yield put(appActions.request({
+	yield put(request({
 		...action,
 		method: 'GET',
 		auth: true,
