@@ -1,20 +1,20 @@
-import React, {Component} from 'react'
+import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import {connect} from 'react-redux'
-import {push} from 'react-router-redux'
-import {Icon} from 'antd';
+import { connect } from 'react-redux'
+import { push } from 'react-router-redux'
+import { Icon } from 'antd';
 
-import styled from 'styled-components';
+/* import styled from 'styled-components';
 
 const ActionStyled = styled.span`
 	.crud-action {
 		font-size: 20px
 	}
-`;
+`; */
 
 class Action extends Component {
 
-	getIcon = id => {
+	getIcon = (id) => {
 		switch (id) {
 			case 'update':
 				return 'edit';
@@ -38,16 +38,16 @@ class Action extends Component {
 		}
 	};
 
-	handleClick = ev => {
-		const {data, row} = this.props;
+	handleClick = (ev) => {
+		const { data, row } = this.props;
 
-		switch(data.type) {
+		switch (data.type) {
 			case 'query':
 				ev.preventDefault();
 				this.props.actionsFunc(data, row);
 				break;
 			case 'link':
-				if(data.method === '_blank') return null;
+				if (data.method === '_blank') return null;
 				ev.preventDefault();
 				this.props.push(data.url);
 				break;
@@ -57,15 +57,13 @@ class Action extends Component {
 	};
 
 	render() {
-		const {data, row} = this.props;
+		const { data, row } = this.props;
 
-		return <p>
-			<ActionStyled>
-				<a title={data.name} href={data.url} target='_blank' className={'crud-action'}>
-					<Icon type={this.getIcon(data.id)} onClick={this.handleClick}  />
-				</a>
-			</ActionStyled>
-		</p>
+		return (<p>
+			<a title={data.name} href={data.url} target="_blank" className="crud-action">
+				<Icon type={this.getIcon(data.id)} onClick={this.handleClick} />
+			</a>
+		</p>)
 	}
 }
 
@@ -75,8 +73,4 @@ Action.propTypes = {
 	modelName: PropTypes.string
 };
 
-export default connect((state, props) => ({
-	actionsFunc: state.crudActionsFunc[props.modelName]
-}), {
-	push
-})(Action)
+export default connect((state, props) => ({ actionsFunc: state.crudActionsFunc[props.modelName] }), { push })(Action)
