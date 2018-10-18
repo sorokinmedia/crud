@@ -7,7 +7,7 @@ import crudReducers from './redux/reducer'
 import crudView from './components/crud/crudView'*/
 
 export const reducer = crudReducers;
-//export const saga = crudSagas;
+export const saga = crudSagas;
 //export const actions = crudActions;
 //export const CrudView = crudView;
 //export const CrudFull = crudFull;
