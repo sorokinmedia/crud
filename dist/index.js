@@ -106898,10 +106898,9 @@ function rootSaga() {
 import crudView from './components/crud/crudView'*/
 
 var reducer$1 = crudReducers;
-var saga = rootSaga;
+//export const saga = crudSagas;
 //export const actions = crudActions;
 //export const CrudView = crudView;
 //export const CrudFull = crudFull;
 
 exports.reducer = reducer$1;
-exports.saga = saga;
