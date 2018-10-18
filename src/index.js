@@ -1,5 +1,5 @@
 import React from 'react';
-import 'antd/dist/antd.css';
+//import 'antd/dist/antd.css';
 import crudReducers from './redux/reducer'
 import crudSagas from './redux/saga'
 import crudActions from './redux/actions'
