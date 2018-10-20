@@ -1,5 +1,5 @@
 import React from 'react'
-import {Icon, Input, Button, Pagination, Checkbox, Select} from 'antd';
+import { Input, Button, Checkbox, Select } from 'antd';
 
 const {Option} = Select;
 
