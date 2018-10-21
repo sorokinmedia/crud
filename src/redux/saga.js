@@ -167,7 +167,7 @@ export function* submitModelsModalFormFailSaga(action) {
 	yield notification('error', action.error.message)
 }
 
-export function* notifySaga(action) {
+export function* 	notifySaga(action) {
 	if (action.error) yield notification('error', action.error.message)
 	if (action.response.status === SUCCESS_REQ) yield notification('success', action.response.message)
 }

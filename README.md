@@ -34,7 +34,7 @@ disables create mode
 import createFormFileds from './createFormFileds
 import {crudFull} from 'sm-react-crud'
 
-<CrudFull
+const objects = <CrudFull
     crudRead={'https://api/object/list'}
     crudCreate={'https://api/object/create'}
     modelName={'objectsName'}
