@@ -29,8 +29,9 @@ disables create mode
 #### Example
 ```
 import createFormFileds from './createFormFileds
+import {crudFull} from 'crud'
 
-<CruFull
+<CrudFull
     crudRead={'https://api/object/list'}
     crudCreate={'https://api/object/create'}
     modelName={'objectsName'}
