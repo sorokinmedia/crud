@@ -1,5 +1,8 @@
 This library contains few components to Create, Read, Update and Delete data.
 
+#### Installing
+``` npm i sm-react-crud ```
+
 #### CrudFull
 Renders a list of items with a button to create new one. Items can be sorted/filtred by the each sorted/filtred column.
 
