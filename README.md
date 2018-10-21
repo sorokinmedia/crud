@@ -32,7 +32,7 @@ disables create mode
 #### Example
 ```
 import createFormFileds from './createFormFileds
-import {crudFull} from 'crud'
+import {crudFull} from 'sm-react-crud'
 
 <CrudFull
     crudRead={'https://api/object/list'}
