@@ -5,7 +5,7 @@ import 'moment/locale/ru'
 import locale from 'antd/lib/date-picker/locale/ru_RU'
 
 const {Option : SelectOption} = Select;
-const Search = AntInput.Search;
+const Search = Input.Search;
 
 export const renderField = ({
     input,

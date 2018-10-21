@@ -111605,7 +111605,7 @@ var locale$3 = unwrapExports(ru_RU$4);
 
 var SelectOption = Select$1.Option;
 
-var Search$2 = AntInput.Search;
+var Search$2 = Input.Search;
 
 var renderField = function renderField(_ref) {
 	var input = _ref.input,
