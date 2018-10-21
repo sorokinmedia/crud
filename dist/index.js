@@ -102320,6 +102320,13 @@ var Dragger = function (_React$Component) {
 
 Upload$1.Dragger = Dragger;
 
+var createNotification = function createNotification(type, message, description) {
+    api[type]({
+        message: message,
+        description: description
+    });
+};
+
 var runtime = createCommonjsModule(function (module) {
 /**
  * Copyright (c) 2014-present, Facebook, Inc.
@@ -103411,7 +103418,7 @@ function submitModelsModalFormFailSaga(action) {
 
 				case 3:
 					_context10.next = 5;
-					return api('error', action.error.message);
+					return createNotification('error', action.error.message);
 
 				case 5:
 				case 'end':
@@ -103432,7 +103439,7 @@ function notifySaga(action) {
 					}
 
 					_context11.next = 3;
-					return api('error', action.error.message);
+					return createNotification('error', action.error.message);
 
 				case 3:
 					if (!(action.response.status === SUCCESS_REQ)) {
@@ -103441,7 +103448,7 @@ function notifySaga(action) {
 					}
 
 					_context11.next = 6;
-					return api('success', action.response.message);
+					return createNotification('success', action.response.message);
 
 				case 6:
 				case 'end':

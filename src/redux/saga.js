@@ -3,7 +3,7 @@ import { buildUrlSearch, buildUrlSearchForArray } from 'sm-string-helper'
 import { SITE, SORT_ASC, SORT_DESC, SUCCESS, ERROR, SUCCESS_REQ } from '../constants';
 import { request } from 'sm-redux-saga-request'
 import { stopSubmit } from 'redux-form';
-import { notification } from 'antd';
+import notification from '../notification';
 import actions from './actions';
 import moment from 'moment'
 import regeneratorRuntime from 'regenerator-runtime'
@@ -167,7 +167,7 @@ export function* submitModelsModalFormFailSaga(action) {
 	yield notification('error', action.error.message)
 }
 
-export function* 	notifySaga(action) {
+export function* notifySaga(action) {
 	if (action.error) yield notification('error', action.error.message)
 	if (action.response.status === SUCCESS_REQ) yield notification('success', action.response.message)
 }
