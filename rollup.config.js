@@ -55,6 +55,9 @@ export default {
 			// explicitly specify unresolvable named exports
 			// (see below for more details)
 			namedExports: {
+				'react-dom': [
+					'findDOMNode', 'createPortal', 'unstable_renderSubtreeIntoContainer'
+				],
 				'draft-js': [
 					'ContentState', 'EditorState','SelectionState',
 					'CompositeDecorator', 'convertToRaw', 'Modifier',
