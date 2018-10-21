@@ -12,11 +12,11 @@ an URL to make a creating item request.
 ##### modelName 
 a name of model, unique identification key for this component.
 ##### customActionsFunc
-a func for customazing action handling
+provides a function to customazing action handling
 ##### createButtonTitle
 create button label
 ##### createFormOptions:
-options for create form - fields key is required
+options to create form - fields key is required
 ##### submitShape
 a shape of submit payload, form => {data: form, user: form.name}
 ##### createDisabled
