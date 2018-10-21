@@ -18,7 +18,11 @@ create button label
 ##### createFormOptions:
 options to create form - fields key is required
 ##### submitShape
-a shape of submit payload, form => {data: form, user: form.name}
+a shape of submit payload 
+```form => {data: form, model: 'modelName'}```
+##### updateShape
+a shape of update payload 
+```form => {data: form, model: 'updateModelName'}```
 ##### createDisabled
 disables create mode
 
@@ -41,5 +45,17 @@ import createFormFileds from './createFormFileds
         name: form.name.toUpperCase(), 
         description: form.description.toLowerCase()
     })}
+    customActionsFunc={(action, object) => {
+        switch(action.id) {
+            case 'took':
+                this.props.setKeyModal(action.id, object.id);
+                break;
+            case 'return':
+                this.props.setKeyModal(action.id, object.id);
+                break;
+            default:
+                return null;
+        }
+    }}
 />
 ```
