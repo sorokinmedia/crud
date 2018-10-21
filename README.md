@@ -18,10 +18,10 @@ create button label
 ##### createFormOptions:
 options to create form - fields key is required
 ##### submitShape
-a shape of submit payload 
+provides a function to set a shape of submit payload 
 ```form => {data: form, model: 'modelName'}```
 ##### updateShape
-a shape of update payload 
+provides a function to set a shape of update payload 
 ```form => {data: form, model: 'updateModelName'}```
 ##### createDisabled
 disables create mode
