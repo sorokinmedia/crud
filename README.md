@@ -1,24 +1,45 @@
-###CRUD components
 This library contains few components to Create, Read, Update and Delete data.
 
 #### CrudFull
 Renders a list of items with a button to create new one. Items can be sorted/filtred by the each sorted/filtred column.
 
 ##### API
-######crudCreate
+#####crudCreate
 an URL to make a creating item request.
 
-######crudRead
+#####crudRead
  an URL to fetch items.
-######modelName 
+#####modelName 
 a name of model, unique identification key for this component.
-######customActionsFunc
+#####customActionsFunc
 a func for customazing action handling
-######createButtonTitle
+#####createButtonTitle
 create button label
-######createFormOptions:
+#####createFormOptions:
 options for create form - fields key is required
-######submitShape
+#####submitShape
 a shape of submit payload, form => {data: form, user: form.name}
-######createDisabled
+#####createDisabled
 disables create mode
+
+####Example
+```
+import createFormFileds from './createFormFileds
+
+<CruFull
+    crudRead={'https://api/object/list'}
+    crudCreate={'https://api/object/create'}
+    modelName={'objectsName'}
+    createDisabled={false}
+    createButtonTitleId={"sidebar.objects.type.new"}
+    createFormOptions={{
+        fields: createFormFileds,
+        title: 'Create new',
+        editTitle: 'Edit object',
+    }}
+    submitShape={form => ({
+        name: form.name.toUpperCase(), 
+        description: form.description.toLowerCase()
+    })}
+/>
+```
