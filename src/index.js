@@ -5,6 +5,7 @@ import crudSagas from './redux/saga'
 import crudActions from './redux/actions'
 import crudFull from './components/crud/crudFull'
 import crudView from './components/crud/crudView'
+import regeneratorRuntime from 'regenerator-runtime'
 
 export const reducer = crudReducers;
 export const saga = crudSagas;

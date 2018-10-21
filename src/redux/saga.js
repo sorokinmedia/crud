@@ -6,7 +6,7 @@ import { stopSubmit } from 'redux-form';
 import { notification } from 'antd';
 import actions from './actions';
 import moment from 'moment'
-
+import regeneratorRuntime from 'regenerator-runtime'
 
 export const selecrCrudParams = state => state.crudParams;
 
