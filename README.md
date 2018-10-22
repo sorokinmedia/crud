@@ -101,7 +101,7 @@ const objects = <CrudFull
     crudCreate={'https://api/object/create'}
     modelName={'objectsName'}
     createDisabled={false}
-    createButtonTitleId={"sidebar.objects.type.new"}
+    createButtonTitle={"New object"}
     createFormOptions={{
         fields: createFormFileds,
         title: 'Create new',
