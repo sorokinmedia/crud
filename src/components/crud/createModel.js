@@ -34,7 +34,7 @@ class CreateModalForm extends Component {
 	};
 
 	render() {
-		const {modalType, title, titleEdit, fields} = this.props;
+		const {modalType, title, titleEdit, fields, crudCreateModalLoading} = this.props;
 
 		return <div>
 			<Modal

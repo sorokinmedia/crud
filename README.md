@@ -56,7 +56,7 @@ export default [
 	component: props => <Status {...props} />
 }]
 ```
-
+Use case
 ```
 import createFormFileds from './createFormFileds
 import {crudFull} from 'sm-react-crud'

@@ -111758,7 +111758,8 @@ var CreateModalForm = function (_Component) {
 			    modalType = _props.modalType,
 			    title = _props.title,
 			    titleEdit = _props.titleEdit,
-			    fields = _props.fields;
+			    fields = _props.fields,
+			    crudCreateModalLoading = _props.crudCreateModalLoading;
 
 
 			return React__default.createElement(
@@ -111771,6 +111772,7 @@ var CreateModalForm = function (_Component) {
 						visible: true,
 						onCancel: this.handleCancel,
 						cancelText: '\u041E\u0442\u043C\u0435\u043D\u0430',
+						confirmLoading: crudCreateModalLoading,
 						onOk: this.props.handleSubmit(this.handleSubmit),
 						okText: modalType === 'edit' ? 'Сохранить' : 'Создать'
 					},
@@ -111809,7 +111811,9 @@ CreateModalForm = reduxForm({
 })(CreateModalForm);
 
 CreateModalForm = connect(function (state, props) {
-	return {};
+	return {
+		crudCreateModalLoading: state.crudCreateModalLoading
+	};
 }, {})(CreateModalForm);
 
 var CreateModelView = CreateModalForm;
