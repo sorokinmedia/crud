@@ -31,9 +31,8 @@ const store = createStore(
     export default function* devSaga() {
     	yield all([
     	    ...
-    	    
-    		crudSagas(),
-    		...
+            crudSagas(),
+            ...
     	]);
     }
 ```
