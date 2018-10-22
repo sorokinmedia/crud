@@ -79,10 +79,10 @@ const objects = <CrudFull
     customActionsFunc={(action, object) => {
         switch(action.id) {
             case 'took':
-                this.props.setKeyModal(action.id, object.id);
+                //some action
                 break;
             case 'return':
-                this.props.setKeyModal(action.id, object.id);
+                //some action
                 break;
             default:
                 return null;
