@@ -42,6 +42,7 @@ class CreateModalForm extends Component {
 				visible={true}
 				onCancel={this.handleCancel}
 				cancelText="Отмена"
+                confirmLoading={crudCreateModalLoading}
 				onOk={this.props.handleSubmit(this.handleSubmit)}
 				okText={modalType === 'edit' ? 'Сохранить' : 'Создать'}
 			>
@@ -76,7 +77,7 @@ CreateModalForm = reduxForm({
 })(CreateModalForm);
 
 CreateModalForm =  connect((state, props) => ({
-
+    crudCreateModalLoading: state.crudCreateModalLoading
 }), {})(CreateModalForm);
 
 export default CreateModalForm

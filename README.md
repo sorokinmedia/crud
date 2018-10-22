@@ -30,6 +30,33 @@ provides a function to set a shape of update payload
 disables create mode
 
 #### Example
+./createFormFields
+
+```
+export default [
+{
+	name: 'name',
+	type: 'text',
+	placeholder: 'Enter a name',
+	label: <strong>Name</strong>,
+	validateFunc: (values, errors) => {
+		if(!values.name) errors.name = 'You shoul fill this field';
+		return errors;
+	},
+}, {
+	name: 'description',
+	type: 'text',
+	placeholder: 'Enter a description',
+	label: <strong>Description</strong>,
+}, {
+	name: 'status_id',
+	type: 'select',
+	placeholder: 'Enter a status',
+	label: <strong>Status</strong>,
+	component: props => <Status {...props} />
+}]
+```
+
 ```
 import createFormFileds from './createFormFileds
 import {crudFull} from 'sm-react-crud'
