@@ -46,7 +46,7 @@ class CreateModalForm extends Component {
 				onOk={this.props.handleSubmit(this.handleSubmit)}
 				okText={modalType === 'edit' ? 'Сохранить' : 'Создать'}
 			>
-				<form>
+				<form onSubmit={this.props.handleSubmit(this.handleSubmit)}>
 					{this.mapFields(fields)}
 				</form>
 			</Modal>

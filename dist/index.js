@@ -111778,7 +111778,7 @@ var CreateModalForm = function (_Component) {
 					},
 					React__default.createElement(
 						'form',
-						null,
+						{ onSubmit: this.props.handleSubmit(this.handleSubmit) },
 						this.mapFields(fields)
 					)
 				)
