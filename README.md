@@ -1,12 +1,48 @@
 This library contains few components to Create, Read, Update and Delete data.
 
-#### Installing
+## Installing
 ``` npm i sm-react-crud ```
 
-#### CrudFull
+Then you have to connect reducer and saga from the package
+```
+import {reducer as crudReducers} from 'sm-react-crud'
+
+...
+
+const store = createStore(
+	combineReducers({
+		...reducers,
+		...crudReducers
+	}),
+	composeEnhancers(applyMiddleware(...middlewares))
+);
+
+...
+
+```
+
+```
+    ...
+    
+    import {saga as crudSagas} from 'sm-react-crud'
+    
+    ...
+    
+    export default function* devSaga() {
+    	yield all([
+    	    ...
+    	    
+    		crudSagas(),
+    		...
+    	]);
+    }
+```
+
+
+## CrudFull
 Renders a list of items with a button to create new one. Items can be sorted/filtred by the each sorted/filtred column.
 
-#### API
+## API
 ##### crudCreate
 an URL to make a creating item request.
 
