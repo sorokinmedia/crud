@@ -90,6 +90,7 @@ class CrudFull extends Component {
 				url={crudRead}
 				tableStyle={tableStyle}
 				TableWrapper={tableWrapper}
+                fixActionColumn={fixActionColumn}
 			/>
 			{isModalOpen && !createDisabled ? <CreateModelView
 				title={title || 'Создать'}
@@ -99,7 +100,6 @@ class CrudFull extends Component {
 				onCreate={objectModal.modalType === 'edit' ? this.handleUpdate : this.handleCreate}
 				fields={fields}
 				initialValues={objectModal.initialValues}
-                fixActionColumn={fixActionColumn}
 			/> : '' }
 		</div>
 	}
@@ -138,7 +138,7 @@ CrudFull.propTypes = {
 	createDisabled: PropTypes.bool,
 	btnStyle: PropTypes.object,
 	tableStyle: PropTypes.object,
-	tableWrapper: PropTypes.oneOfType([PropTypes.object, PropTypes.node])
+	tableWrapper: PropTypes.oneOfType([PropTypes.object, PropTypes.node]),
     fixActionColumn: PropTypes.bool
 };
 
