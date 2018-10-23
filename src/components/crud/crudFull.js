@@ -137,6 +137,7 @@ CrudFull.propTypes = {
 	btnStyle: PropTypes.object,
 	tableStyle: PropTypes.object,
 	tableWrapper: PropTypes.oneOfType([PropTypes.object, PropTypes.node])
+    fixActionColumn: PropTypes.bool
 };
 
 CrudFull.defaultProps = {

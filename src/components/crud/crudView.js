@@ -7,6 +7,7 @@ import filterRenderer from './filterRenderer'
 import dataRenderer from './dataRenderer'
 
 const {fetchCrudModels} = crudActions;
+const isBigDesctop = window.document.documentElement.scrollWidth > 1646;
 
 class CrudView extends Component {
 
@@ -38,7 +39,7 @@ class CrudView extends Component {
 	};
 
 	render() {
-		const {items, modelName, tableStyle, TableWrapper} = this.props;
+		const {items, modelName, tableStyle, TableWrapper, fixActionColumn} = this.props;
 		if(!items || !items.data) return null;
 
 		const listItems = items.data.items.map((elem) => ({
@@ -46,13 +47,12 @@ class CrudView extends Component {
 			key: elem.id,
 		}));
 
-		const width = '25%';
 
 		const columns = items.data.columns.map(col => ({
 			title: col.title,//<IntlMessages id="antTable.title.id"/>,
 			key: col.id,
-			//fixed: col.id === 'actions' ? 'right' : null,
-			width: width,
+            fixed: col.id === 'actions' && !isBigDesctop && fixActionColumn ? 'right' : null,
+            width: col.id === 'actions' && !isBigDesctop && fixActionColumn ? 100 : 'auto',
 			render: object => dataRenderer(object, col, modelName),
 			filters: this.getFiterValues(col),
 			filterIcon: col.filter.can ?
@@ -76,14 +76,19 @@ class CrudView extends Component {
                 hideOnSinglePage: true
             }}
             loading={items.loading}
-			//scroll={{ x: 1300 }}
+            scroll={!isBigDesctop && fixActionColumn ? { x: 1300 } : {} }
         />;
 	}
 }
 
 CrudView.propTypes = {
 	modelName: PropTypes.string.isRequired,
-	url: PropTypes.string.isRequired
+	url: PropTypes.string.isRequired,
+    fixActionColumn: PropTypes.bool
+};
+
+CrudView.defaultProps = {
+    fixActionColumn: true
 };
 
 export default connect((state, props) => {
