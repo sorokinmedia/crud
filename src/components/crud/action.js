@@ -4,13 +4,13 @@ import { connect } from 'react-redux'
 import { push } from 'react-router-redux'
 import { Icon } from 'antd';
 
-/* import styled from 'styled-components';
+ import styled from 'styled-components';
 
 const ActionStyled = styled.span`
 	.crud-action {
 		font-size: 20px
 	}
-`; */
+`;
 
 class Action extends Component {
 
@@ -60,9 +60,11 @@ class Action extends Component {
 		const { data, row } = this.props;
 
 		return (<p>
-			<a title={data.name} href={data.url} target="_blank" className="crud-action">
-				<Icon type={this.getIcon(data.id)} onClick={this.handleClick} />
-			</a>
+			<ActionStyled>
+				<a title={data.name} href={data.url} target="_blank" className="crud-action">
+					<Icon type={this.getIcon(data.id)} onClick={this.handleClick} />
+				</a>
+			</ActionStyled>
 		</p>)
 	}
 }
