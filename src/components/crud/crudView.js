@@ -62,7 +62,9 @@ class CrudView extends Component {
 			sorter: col.order.can ? () => {} : null//(a, b) => Number(a.id) - Number(b.id),
 		}));
 
-		const table = <Table
+		const TableComponent = TableWrapper || Table;
+
+		return <TableComponent
             columns={columns}
             dataSource={listItems}
             className="isoSortingTable"
@@ -76,10 +78,6 @@ class CrudView extends Component {
             loading={items.loading}
 			//scroll={{ x: 1300 }}
         />;
-
-		return TableWrapper ? <TableWrapper>
-			{table}
-		</TableWrapper> : table
 	}
 }
 

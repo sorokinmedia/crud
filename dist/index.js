@@ -106808,7 +106808,9 @@ var CrudView = function (_Component) {
 				};
 			});
 
-			var table = React__default.createElement(Table$1, {
+			var TableComponent = TableWrapper || Table$1;
+
+			return React__default.createElement(TableComponent, {
 				columns: columns,
 				dataSource: listItems,
 				className: 'isoSortingTable',
@@ -106822,12 +106824,6 @@ var CrudView = function (_Component) {
 				loading: items.loading
 				//scroll={{ x: 1300 }}
 			});
-
-			return TableWrapper ? React__default.createElement(
-				TableWrapper,
-				null,
-				table
-			) : table;
 		}
 	}]);
 	return CrudView;
