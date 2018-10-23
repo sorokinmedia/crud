@@ -6,6 +6,7 @@ function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'defau
 
 var React = require('react');
 var React__default = _interopDefault(React);
+require('stream');
 
 var actions = {
     FETCH_CRUD_FILTER_VALUES: 'FETCH_CRUD_FILTER_VALUES',
@@ -142,6 +143,14 @@ var possibleConstructorReturn = function (self, call) {
   }
 
   return call && (typeof call === "object" || typeof call === "function") ? call : self;
+};
+
+var taggedTemplateLiteral = function (strings, raw) {
+  return Object.freeze(Object.defineProperties(strings, {
+    raw: {
+      value: Object.freeze(raw)
+    }
+  }));
 };
 
 var crudModelsReducer = function crudModelsReducer() {
@@ -103954,13 +103963,2093 @@ var lib_9 = lib$5.routerReducer;
 var lib_10 = lib$5.LOCATION_CHANGE;
 var lib_11 = lib$5.syncHistoryWithStore;
 
-/* import styled from 'styled-components';
+var stylis_min = createCommonjsModule(function (module, exports) {
+!function(e){module.exports=e(null);}(function e(a){var c=/^\0+/g,r=/[\0\r\f]/g,s=/: */g,t=/zoo|gra/,i=/([,: ])(transform)/g,f=/,+\s*(?![^(]*[)])/g,n=/ +\s*(?![^(]*[)])/g,l=/ *[\0] */g,o=/,\r+?/g,h=/([\t\r\n ])*\f?&/g,u=/:global\(((?:[^\(\)\[\]]*|\[.*\]|\([^\(\)]*\))*)\)/g,d=/\W+/g,b=/@(k\w+)\s*(\S*)\s*/,k=/::(place)/g,p=/:(read-only)/g,g=/\s+(?=[{\];=:>])/g,A=/([[}=:>])\s+/g,C=/(\{[^{]+?);(?=\})/g,w=/\s{2,}/g,v=/([^\(])(:+) */g,m=/[svh]\w+-[tblr]{2}/,x=/\(\s*(.*)\s*\)/g,$=/([\s\S]*?);/g,y=/-self|flex-/g,O=/[^]*?(:[rp][el]a[\w-]+)[^]*/,j=/stretch|:\s*\w+\-(?:conte|avail)/,z=/([^-])(image-set\()/,F="-webkit-",N="-moz-",S="-ms-",B=59,W=125,q=123,D=40,E=41,G=91,H=93,I=10,J=13,K=9,L=64,M=32,P=38,Q=45,R=95,T=42,U=44,V=58,X=39,Y=34,Z=47,_=62,ee=43,ae=126,ce=0,re=12,se=11,te=107,ie=109,fe=115,ne=112,le=111,oe=105,he=99,ue=100,de=112,be=1,ke=1,pe=0,ge=1,Ae=1,Ce=1,we=0,ve=0,me=0,xe=[],$e=[],ye=0,Oe=null,je=-2,ze=-1,Fe=0,Ne=1,Se=2,Be=3,We=0,qe=1,De="",Ee="",Ge="";function He(e,a,s,t,i){for(var f,n,o=0,h=0,u=0,d=0,g=0,A=0,C=0,w=0,m=0,$=0,y=0,O=0,j=0,z=0,R=0,we=0,$e=0,Oe=0,je=0,ze=s.length,Je=ze-1,Re="",Te="",Ue="",Ve="",Xe="",Ye="";R<ze;){if(C=s.charCodeAt(R),R===Je)if(h+d+u+o!==0){if(0!==h)C=h===Z?I:Z;d=u=o=0,ze++,Je++;}if(h+d+u+o===0){if(R===Je){if(we>0)Te=Te.replace(r,"");if(Te.trim().length>0){switch(C){case M:case K:case B:case J:case I:break;default:Te+=s.charAt(R);}C=B;}}if(1===$e)switch(C){case q:case W:case B:case Y:case X:case D:case E:case U:$e=0;case K:case J:case I:case M:break;default:for($e=0,je=R,g=C,R--,C=B;je<ze;)switch(s.charCodeAt(je++)){case I:case J:case B:++R,C=g,je=ze;break;case V:if(we>0)++R,C=g;case q:je=ze;}}switch(C){case q:for(g=(Te=Te.trim()).charCodeAt(0),y=1,je=++R;R<ze;){switch(C=s.charCodeAt(R)){case q:y++;break;case W:y--;break;case Z:switch(A=s.charCodeAt(R+1)){case T:case Z:R=Qe(A,R,Je,s);}break;case G:C++;case D:C++;case Y:case X:for(;R++<Je&&s.charCodeAt(R)!==C;);}if(0===y)break;R++;}if(Ue=s.substring(je,R),g===ce)g=(Te=Te.replace(c,"").trim()).charCodeAt(0);switch(g){case L:if(we>0)Te=Te.replace(r,"");switch(A=Te.charCodeAt(1)){case ue:case ie:case fe:case Q:f=a;break;default:f=xe;}if(je=(Ue=He(a,f,Ue,A,i+1)).length,me>0&&0===je)je=Te.length;if(ye>0)if(f=Ie(xe,Te,Oe),n=Pe(Be,Ue,f,a,ke,be,je,A,i,t),Te=f.join(""),void 0!==n)if(0===(je=(Ue=n.trim()).length))A=0,Ue="";if(je>0)switch(A){case fe:Te=Te.replace(x,Me);case ue:case ie:case Q:Ue=Te+"{"+Ue+"}";break;case te:if(Ue=(Te=Te.replace(b,"$1 $2"+(qe>0?De:"")))+"{"+Ue+"}",1===Ae||2===Ae&&Le("@"+Ue,3))Ue="@"+F+Ue+"@"+Ue;else Ue="@"+Ue;break;default:if(Ue=Te+Ue,t===de)Ve+=Ue,Ue="";}else Ue="";break;default:Ue=He(a,Ie(a,Te,Oe),Ue,t,i+1);}Xe+=Ue,O=0,$e=0,z=0,we=0,Oe=0,j=0,Te="",Ue="",C=s.charCodeAt(++R);break;case W:case B:if((je=(Te=(we>0?Te.replace(r,""):Te).trim()).length)>1){if(0===z)if((g=Te.charCodeAt(0))===Q||g>96&&g<123)je=(Te=Te.replace(" ",":")).length;if(ye>0)if(void 0!==(n=Pe(Ne,Te,a,e,ke,be,Ve.length,t,i,t)))if(0===(je=(Te=n.trim()).length))Te="\0\0";switch(g=Te.charCodeAt(0),A=Te.charCodeAt(1),g){case ce:break;case L:if(A===oe||A===he){Ye+=Te+s.charAt(R);break}default:if(Te.charCodeAt(je-1)===V)break;Ve+=Ke(Te,g,A,Te.charCodeAt(2));}}O=0,$e=0,z=0,we=0,Oe=0,Te="",C=s.charCodeAt(++R);}}switch(C){case J:case I:if(h+d+u+o+ve===0)switch($){case E:case X:case Y:case L:case ae:case _:case T:case ee:case Z:case Q:case V:case U:case B:case q:case W:break;default:if(z>0)$e=1;}if(h===Z)h=0;else if(ge+O===0&&t!==te&&Te.length>0)we=1,Te+="\0";if(ye*We>0)Pe(Fe,Te,a,e,ke,be,Ve.length,t,i,t);be=1,ke++;break;case B:case W:if(h+d+u+o===0){be++;break}default:switch(be++,Re=s.charAt(R),C){case K:case M:if(d+o+h===0)switch(w){case U:case V:case K:case M:Re="";break;default:if(C!==M)Re=" ";}break;case ce:Re="\\0";break;case re:Re="\\f";break;case se:Re="\\v";break;case P:if(d+h+o===0&&ge>0)Oe=1,we=1,Re="\f"+Re;break;case 108:if(d+h+o+pe===0&&z>0)switch(R-z){case 2:if(w===ne&&s.charCodeAt(R-3)===V)pe=w;case 8:if(m===le)pe=m;}break;case V:if(d+h+o===0)z=R;break;case U:if(h+u+d+o===0)we=1,Re+="\r";break;case Y:case X:if(0===h)d=d===C?0:0===d?C:d;break;case G:if(d+h+u===0)o++;break;case H:if(d+h+u===0)o--;break;case E:if(d+h+o===0)u--;break;case D:if(d+h+o===0){if(0===O)switch(2*w+3*m){case 533:break;default:y=0,O=1;}u++;}break;case L:if(h+u+d+o+z+j===0)j=1;break;case T:case Z:if(d+o+u>0)break;switch(h){case 0:switch(2*C+3*s.charCodeAt(R+1)){case 235:h=Z;break;case 220:je=R,h=T;}break;case T:if(C===Z&&w===T&&je+2!==R){if(33===s.charCodeAt(je+2))Ve+=s.substring(je,R+1);Re="",h=0;}}}if(0===h){if(ge+d+o+j===0&&t!==te&&C!==B)switch(C){case U:case ae:case _:case ee:case E:case D:if(0===O){switch(w){case K:case M:case I:case J:Re+="\0";break;default:Re="\0"+Re+(C===U?"":"\0");}we=1;}else switch(C){case D:if(z+7===R&&108===w)z=0;O=++y;break;case E:if(0==(O=--y))we=1,Re+="\0";}break;case K:case M:switch(w){case ce:case q:case W:case B:case U:case re:case K:case M:case I:case J:break;default:if(0===O)we=1,Re+="\0";}}if(Te+=Re,C!==M&&C!==K)$=C;}}m=w,w=C,R++;}if(je=Ve.length,me>0)if(0===je&&0===Xe.length&&0===a[0].length==false)if(t!==ie||1===a.length&&(ge>0?Ee:Ge)===a[0])je=a.join(",").length+2;if(je>0){if(f=0===ge&&t!==te?function(e){for(var a,c,s=0,t=e.length,i=Array(t);s<t;++s){for(var f=e[s].split(l),n="",o=0,h=0,u=0,d=0,b=f.length;o<b;++o){if(0===(h=(c=f[o]).length)&&b>1)continue;if(u=n.charCodeAt(n.length-1),d=c.charCodeAt(0),a="",0!==o)switch(u){case T:case ae:case _:case ee:case M:case D:break;default:a=" ";}switch(d){case P:c=a+Ee;case ae:case _:case ee:case M:case E:case D:break;case G:c=a+c+Ee;break;case V:switch(2*c.charCodeAt(1)+3*c.charCodeAt(2)){case 530:if(Ce>0){c=a+c.substring(8,h-1);break}default:if(o<1||f[o-1].length<1)c=a+Ee+c;}break;case U:a="";default:if(h>1&&c.indexOf(":")>0)c=a+c.replace(v,"$1"+Ee+"$2");else c=a+c+Ee;}n+=c;}i[s]=n.replace(r,"").trim();}return i}(a):a,ye>0)if(void 0!==(n=Pe(Se,Ve,f,e,ke,be,je,t,i,t))&&0===(Ve=n).length)return Ye+Ve+Xe;if(Ve=f.join(",")+"{"+Ve+"}",Ae*pe!=0){if(2===Ae&&!Le(Ve,2))pe=0;switch(pe){case le:Ve=Ve.replace(p,":"+N+"$1")+Ve;break;case ne:Ve=Ve.replace(k,"::"+F+"input-$1")+Ve.replace(k,"::"+N+"$1")+Ve.replace(k,":"+S+"input-$1")+Ve;}pe=0;}}return Ye+Ve+Xe}function Ie(e,a,c){var r=a.trim().split(o),s=r,t=r.length,i=e.length;switch(i){case 0:case 1:for(var f=0,n=0===i?"":e[0]+" ";f<t;++f)s[f]=Je(n,s[f],c,i).trim();break;default:f=0;var l=0;for(s=[];f<t;++f)for(var h=0;h<i;++h)s[l++]=Je(e[h]+" ",r[f],c,i).trim();}return s}function Je(e,a,c,r){var s=a,t=s.charCodeAt(0);if(t<33)t=(s=s.trim()).charCodeAt(0);switch(t){case P:switch(ge+r){case 0:case 1:if(0===e.trim().length)break;default:return s.replace(h,"$1"+e.trim())}break;case V:switch(s.charCodeAt(1)){case 103:if(Ce>0&&ge>0)return s.replace(u,"$1").replace(h,"$1"+Ge);break;default:return e.trim()+s.replace(h,"$1"+e.trim())}default:if(c*ge>0&&s.indexOf("\f")>0)return s.replace(h,(e.charCodeAt(0)===V?"":"$1")+e.trim())}return e+s}function Ke(e,a,c,r){var l,o=0,h=e+";",u=2*a+3*c+4*r;if(944===u)return function(e){var a=e.length,c=e.indexOf(":",9)+1,r=e.substring(0,c).trim(),s=e.substring(c,a-1).trim();switch(e.charCodeAt(9)*qe){case 0:break;case Q:if(110!==e.charCodeAt(10))break;default:for(var t=s.split((s="",f)),i=0,c=0,a=t.length;i<a;c=0,++i){for(var l=t[i],o=l.split(n);l=o[c];){var h=l.charCodeAt(0);if(1===qe&&(h>L&&h<90||h>96&&h<123||h===R||h===Q&&l.charCodeAt(1)!==Q))switch(isNaN(parseFloat(l))+(-1!==l.indexOf("("))){case 1:switch(l){case"infinite":case"alternate":case"backwards":case"running":case"normal":case"forwards":case"both":case"none":case"linear":case"ease":case"ease-in":case"ease-out":case"ease-in-out":case"paused":case"reverse":case"alternate-reverse":case"inherit":case"initial":case"unset":case"step-start":case"step-end":break;default:l+=De;}}o[c++]=l;}s+=(0===i?"":",")+o.join(" ");}}if(s=r+s+";",1===Ae||2===Ae&&Le(s,1))return F+s+s;return s}(h);else if(0===Ae||2===Ae&&!Le(h,1))return h;switch(u){case 1015:return 97===h.charCodeAt(10)?F+h+h:h;case 951:return 116===h.charCodeAt(3)?F+h+h:h;case 963:return 110===h.charCodeAt(5)?F+h+h:h;case 1009:if(100!==h.charCodeAt(4))break;case 969:case 942:return F+h+h;case 978:return F+h+N+h+h;case 1019:case 983:return F+h+N+h+S+h+h;case 883:if(h.charCodeAt(8)===Q)return F+h+h;if(h.indexOf("image-set(",11)>0)return h.replace(z,"$1"+F+"$2")+h;return h;case 932:if(h.charCodeAt(4)===Q)switch(h.charCodeAt(5)){case 103:return F+"box-"+h.replace("-grow","")+F+h+S+h.replace("grow","positive")+h;case 115:return F+h+S+h.replace("shrink","negative")+h;case 98:return F+h+S+h.replace("basis","preferred-size")+h}return F+h+S+h+h;case 964:return F+h+S+"flex-"+h+h;case 1023:if(99!==h.charCodeAt(8))break;return l=h.substring(h.indexOf(":",15)).replace("flex-","").replace("space-between","justify"),F+"box-pack"+l+F+h+S+"flex-pack"+l+h;case 1005:return t.test(h)?h.replace(s,":"+F)+h.replace(s,":"+N)+h:h;case 1e3:switch(o=(l=h.substring(13).trim()).indexOf("-")+1,l.charCodeAt(0)+l.charCodeAt(o)){case 226:l=h.replace(m,"tb");break;case 232:l=h.replace(m,"tb-rl");break;case 220:l=h.replace(m,"lr");break;default:return h}return F+h+S+l+h;case 1017:if(-1===h.indexOf("sticky",9))return h;case 975:switch(o=(h=e).length-10,u=(l=(33===h.charCodeAt(o)?h.substring(0,o):h).substring(e.indexOf(":",7)+1).trim()).charCodeAt(0)+(0|l.charCodeAt(7))){case 203:if(l.charCodeAt(8)<111)break;case 115:h=h.replace(l,F+l)+";"+h;break;case 207:case 102:h=h.replace(l,F+(u>102?"inline-":"")+"box")+";"+h.replace(l,F+l)+";"+h.replace(l,S+l+"box")+";"+h;}return h+";";case 938:if(h.charCodeAt(5)===Q)switch(h.charCodeAt(6)){case 105:return l=h.replace("-items",""),F+h+F+"box-"+l+S+"flex-"+l+h;case 115:return F+h+S+"flex-item-"+h.replace(y,"")+h;default:return F+h+S+"flex-line-pack"+h.replace("align-content","").replace(y,"")+h}break;case 973:case 989:if(h.charCodeAt(3)!==Q||122===h.charCodeAt(4))break;case 931:case 953:if(true===j.test(e))if(115===(l=e.substring(e.indexOf(":")+1)).charCodeAt(0))return Ke(e.replace("stretch","fill-available"),a,c,r).replace(":fill-available",":stretch");else return h.replace(l,F+l)+h.replace(l,N+l.replace("fill-",""))+h;break;case 962:if(h=F+h+(102===h.charCodeAt(5)?S+h:"")+h,c+r===211&&105===h.charCodeAt(13)&&h.indexOf("transform",10)>0)return h.substring(0,h.indexOf(";",27)+1).replace(i,"$1"+F+"$2")+h}return h}function Le(e,a){var c=e.indexOf(1===a?":":"{"),r=e.substring(0,3!==a?c:10),s=e.substring(c+1,e.length-1);return Oe(2!==a?r:r.replace(O,"$1"),s,a)}function Me(e,a){var c=Ke(a,a.charCodeAt(0),a.charCodeAt(1),a.charCodeAt(2));return c!==a+";"?c.replace($," or ($1)").substring(4):"("+a+")"}function Pe(e,a,c,r,s,t,i,f,n,l){for(var o,h=0,u=a;h<ye;++h)switch(o=$e[h].call(Te,e,u,c,r,s,t,i,f,n,l)){case void 0:case false:case true:case null:break;default:u=o;}switch(u){case void 0:case false:case true:case null:case a:break;default:return u}}function Qe(e,a,c,r){for(var s=a+1;s<c;++s)switch(r.charCodeAt(s)){case Z:if(e===T)if(r.charCodeAt(s-1)===T&&a+2!==s)return s+1;break;case I:if(e===Z)return s+1}return s}function Re(e){for(var a in e){var c=e[a];switch(a){case"keyframe":qe=0|c;break;case"global":Ce=0|c;break;case"cascade":ge=0|c;break;case"compress":we=0|c;break;case"semicolon":ve=0|c;break;case"preserve":me=0|c;break;case"prefix":if(Oe=null,!c)Ae=0;else if("function"!=typeof c)Ae=1;else Ae=2,Oe=c;}}return Re}function Te(a,c){if(void 0!==this&&this.constructor===Te)return e(a);var s=a,t=s.charCodeAt(0);if(t<33)t=(s=s.trim()).charCodeAt(0);if(qe>0)De=s.replace(d,t===G?"":"-");if(t=1,1===ge)Ge=s;else Ee=s;var i,f=[Ge];if(ye>0)if(void 0!==(i=Pe(ze,c,f,f,ke,be,0,0,0,0))&&"string"==typeof i)c=i;var n=He(xe,f,c,0,0);if(ye>0)if(void 0!==(i=Pe(je,n,f,f,ke,be,n.length,0,0,0))&&"string"!=typeof(n=i))t=0;return De="",Ge="",Ee="",pe=0,ke=1,be=1,we*t==0?n:n.replace(r,"").replace(g,"").replace(A,"$1").replace(C,"$1").replace(w," ")}if(Te.use=function e(a){switch(a){case void 0:case null:ye=$e.length=0;break;default:switch(a.constructor){case Array:for(var c=0,r=a.length;c<r;++c)e(a[c]);break;case Function:$e[ye++]=a;break;case Boolean:We=0|!!a;}}return e},Te.set=Re,void 0!==a)Re(a);return Te});
 
-const ActionStyled = styled.span`
-	.crud-action {
-		font-size: 20px
+});
+
+var stylisRuleSheet = createCommonjsModule(function (module, exports) {
+(function (factory) {
+	module['exports'] = factory();
+}(function () {
+
+	return function (insertRule) {
+		var delimiter = '/*|*/';
+		var needle = delimiter+'}';
+
+		function toSheet (block) {
+			if (block)
+				try {
+					insertRule(block + '}');
+				} catch (e) {}
+		}
+
+		return function ruleSheet (context, content, selectors, parents, line, column, length, ns, depth, at) {
+			switch (context) {
+				// property
+				case 1:
+					// @import
+					if (depth === 0 && content.charCodeAt(0) === 64)
+						return insertRule(content+';'), ''
+					break
+				// selector
+				case 2:
+					if (ns === 0)
+						return content + delimiter
+					break
+				// at-rule
+				case 3:
+					switch (ns) {
+						// @font-face, @page
+						case 102:
+						case 112:
+							return insertRule(selectors[0]+content), ''
+						default:
+							return content + (at === 0 ? delimiter : '')
+					}
+				case -2:
+					content.split(needle).forEach(toSheet);
+			}
+		}
 	}
-`; */
+}));
+});
+
+var reactIs_production_min = createCommonjsModule(function (module, exports) {
+Object.defineProperty(exports,"__esModule",{value:!0});
+var b="function"===typeof Symbol&&Symbol.for,c=b?Symbol.for("react.element"):60103,d=b?Symbol.for("react.portal"):60106,e=b?Symbol.for("react.fragment"):60107,f=b?Symbol.for("react.strict_mode"):60108,g=b?Symbol.for("react.profiler"):60114,h=b?Symbol.for("react.provider"):60109,k=b?Symbol.for("react.context"):60110,l=b?Symbol.for("react.async_mode"):60111,m=b?Symbol.for("react.forward_ref"):60112,n=b?Symbol.for("react.placeholder"):60113;
+function q(a){if("object"===typeof a&&null!==a){var p=a.$$typeof;switch(p){case c:switch(a=a.type,a){case l:case e:case g:case f:return a;default:switch(a=a&&a.$$typeof,a){case k:case m:case h:return a;default:return p}}case d:return p}}}exports.typeOf=q;exports.AsyncMode=l;exports.ContextConsumer=k;exports.ContextProvider=h;exports.Element=c;exports.ForwardRef=m;exports.Fragment=e;exports.Profiler=g;exports.Portal=d;exports.StrictMode=f;
+exports.isValidElementType=function(a){return"string"===typeof a||"function"===typeof a||a===e||a===l||a===g||a===f||a===n||"object"===typeof a&&null!==a&&("function"===typeof a.then||a.$$typeof===h||a.$$typeof===k||a.$$typeof===m)};exports.isAsyncMode=function(a){return q(a)===l};exports.isContextConsumer=function(a){return q(a)===k};exports.isContextProvider=function(a){return q(a)===h};exports.isElement=function(a){return"object"===typeof a&&null!==a&&a.$$typeof===c};
+exports.isForwardRef=function(a){return q(a)===m};exports.isFragment=function(a){return q(a)===e};exports.isProfiler=function(a){return q(a)===g};exports.isPortal=function(a){return q(a)===d};exports.isStrictMode=function(a){return q(a)===f};
+});
+
+unwrapExports(reactIs_production_min);
+var reactIs_production_min_1 = reactIs_production_min.typeOf;
+var reactIs_production_min_2 = reactIs_production_min.AsyncMode;
+var reactIs_production_min_3 = reactIs_production_min.ContextConsumer;
+var reactIs_production_min_4 = reactIs_production_min.ContextProvider;
+var reactIs_production_min_5 = reactIs_production_min.Element;
+var reactIs_production_min_6 = reactIs_production_min.ForwardRef;
+var reactIs_production_min_7 = reactIs_production_min.Fragment;
+var reactIs_production_min_8 = reactIs_production_min.Profiler;
+var reactIs_production_min_9 = reactIs_production_min.Portal;
+var reactIs_production_min_10 = reactIs_production_min.StrictMode;
+var reactIs_production_min_11 = reactIs_production_min.isValidElementType;
+var reactIs_production_min_12 = reactIs_production_min.isAsyncMode;
+var reactIs_production_min_13 = reactIs_production_min.isContextConsumer;
+var reactIs_production_min_14 = reactIs_production_min.isContextProvider;
+var reactIs_production_min_15 = reactIs_production_min.isElement;
+var reactIs_production_min_16 = reactIs_production_min.isForwardRef;
+var reactIs_production_min_17 = reactIs_production_min.isFragment;
+var reactIs_production_min_18 = reactIs_production_min.isProfiler;
+var reactIs_production_min_19 = reactIs_production_min.isPortal;
+var reactIs_production_min_20 = reactIs_production_min.isStrictMode;
+
+var reactIs = createCommonjsModule(function (module) {
+
+{
+  module.exports = reactIs_production_min;
+}
+});
+var reactIs_1 = reactIs.isElement;
+var reactIs_2 = reactIs.isValidElementType;
+var reactIs_3 = reactIs.ForwardRef;
+
+var simpleIsEqual = function simpleIsEqual(a, b) {
+  return a === b;
+};
+
+function index$8 (resultFn, isEqual) {
+  if (isEqual === void 0) {
+    isEqual = simpleIsEqual;
+  }
+
+  var lastThis;
+  var lastArgs = [];
+  var lastResult;
+  var calledOnce = false;
+
+  var isNewArgEqualToLast = function isNewArgEqualToLast(newArg, index) {
+    return isEqual(newArg, lastArgs[index]);
+  };
+
+  var result = function result() {
+    for (var _len = arguments.length, newArgs = new Array(_len), _key = 0; _key < _len; _key++) {
+      newArgs[_key] = arguments[_key];
+    }
+
+    if (calledOnce && lastThis === this && newArgs.length === lastArgs.length && newArgs.every(isNewArgEqualToLast)) {
+      return lastResult;
+    }
+
+    lastResult = resultFn.apply(this, newArgs);
+    calledOnce = true;
+    lastThis = this;
+    lastArgs = newArgs;
+    return lastResult;
+  };
+
+  return result;
+}
+
+function memoize$2(fn) {
+  var cache = {};
+  return function (arg) {
+    if (cache[arg] === undefined) cache[arg] = fn(arg);
+    return cache[arg];
+  };
+}
+
+var reactPropsRegex = /^((children|dangerouslySetInnerHTML|key|ref|autoFocus|defaultValue|defaultChecked|innerHTML|suppressContentEditableWarning|valueLink|accept|acceptCharset|accessKey|action|allow|allowFullScreen|allowTransparency|alt|async|autoComplete|autoPlay|capture|cellPadding|cellSpacing|challenge|charSet|checked|cite|classID|className|cols|colSpan|content|contentEditable|contextMenu|controls|controlsList|coords|crossOrigin|data|dateTime|default|defer|dir|disabled|download|draggable|encType|form|formAction|formEncType|formMethod|formNoValidate|formTarget|frameBorder|headers|height|hidden|high|href|hrefLang|htmlFor|httpEquiv|id|inputMode|integrity|is|keyParams|keyType|kind|label|lang|list|loop|low|marginHeight|marginWidth|max|maxLength|media|mediaGroup|method|min|minLength|multiple|muted|name|nonce|noValidate|open|optimum|pattern|placeholder|playsInline|poster|preload|profile|radioGroup|readOnly|referrerPolicy|rel|required|reversed|role|rows|rowSpan|sandbox|scope|scoped|scrolling|seamless|selected|shape|size|sizes|slot|span|spellCheck|src|srcDoc|srcLang|srcSet|start|step|style|summary|tabIndex|target|title|type|useMap|value|width|wmode|wrap|about|datatype|inlist|prefix|property|resource|typeof|vocab|autoCapitalize|autoCorrect|autoSave|color|itemProp|itemScope|itemType|itemID|itemRef|results|security|unselectable|accentHeight|accumulate|additive|alignmentBaseline|allowReorder|alphabetic|amplitude|arabicForm|ascent|attributeName|attributeType|autoReverse|azimuth|baseFrequency|baselineShift|baseProfile|bbox|begin|bias|by|calcMode|capHeight|clip|clipPathUnits|clipPath|clipRule|colorInterpolation|colorInterpolationFilters|colorProfile|colorRendering|contentScriptType|contentStyleType|cursor|cx|cy|d|decelerate|descent|diffuseConstant|direction|display|divisor|dominantBaseline|dur|dx|dy|edgeMode|elevation|enableBackground|end|exponent|externalResourcesRequired|fill|fillOpacity|fillRule|filter|filterRes|filterUnits|floodColor|floodOpacity|focusable|fontFamily|fontSize|fontSizeAdjust|fontStretch|fontStyle|fontVariant|fontWeight|format|from|fr|fx|fy|g1|g2|glyphName|glyphOrientationHorizontal|glyphOrientationVertical|glyphRef|gradientTransform|gradientUnits|hanging|horizAdvX|horizOriginX|ideographic|imageRendering|in|in2|intercept|k|k1|k2|k3|k4|kernelMatrix|kernelUnitLength|kerning|keyPoints|keySplines|keyTimes|lengthAdjust|letterSpacing|lightingColor|limitingConeAngle|local|markerEnd|markerMid|markerStart|markerHeight|markerUnits|markerWidth|mask|maskContentUnits|maskUnits|mathematical|mode|numOctaves|offset|opacity|operator|order|orient|orientation|origin|overflow|overlinePosition|overlineThickness|panose1|paintOrder|pathLength|patternContentUnits|patternTransform|patternUnits|pointerEvents|points|pointsAtX|pointsAtY|pointsAtZ|preserveAlpha|preserveAspectRatio|primitiveUnits|r|radius|refX|refY|renderingIntent|repeatCount|repeatDur|requiredExtensions|requiredFeatures|restart|result|rotate|rx|ry|scale|seed|shapeRendering|slope|spacing|specularConstant|specularExponent|speed|spreadMethod|startOffset|stdDeviation|stemh|stemv|stitchTiles|stopColor|stopOpacity|strikethroughPosition|strikethroughThickness|string|stroke|strokeDasharray|strokeDashoffset|strokeLinecap|strokeLinejoin|strokeMiterlimit|strokeOpacity|strokeWidth|surfaceScale|systemLanguage|tableValues|targetX|targetY|textAnchor|textDecoration|textRendering|textLength|to|transform|u1|u2|underlinePosition|underlineThickness|unicode|unicodeBidi|unicodeRange|unitsPerEm|vAlphabetic|vHanging|vIdeographic|vMathematical|values|vectorEffect|version|vertAdvY|vertOriginX|vertOriginY|viewBox|viewTarget|visibility|widths|wordSpacing|writingMode|x|xHeight|x1|x2|xChannelSelector|xlinkActuate|xlinkArcrole|xlinkHref|xlinkRole|xlinkShow|xlinkTitle|xlinkType|xmlBase|xmlns|xmlnsXlink|xmlLang|xmlSpace|y|y1|y2|yChannelSelector|z|zoomAndPan|for|class)|(on[A-Z].*)|((data|aria|x)-.*))$/i;
+var index$9 = memoize$2(reactPropsRegex.test.bind(reactPropsRegex));
+
+// 
+
+var interleave = (function (strings, interpolations) {
+  var result = [strings[0]];
+
+  for (var i = 0, len = interpolations.length; i < len; i += 1) {
+    result.push(interpolations[i], strings[i + 1]);
+  }
+
+  return result;
+});
+
+var _typeof$7 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
+  return typeof obj;
+} : function (obj) {
+  return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
+};
+
+var classCallCheck$2 = function (instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError("Cannot call a class as a function");
+  }
+};
+
+var createClass$2 = function () {
+  function defineProperties(target, props) {
+    for (var i = 0; i < props.length; i++) {
+      var descriptor = props[i];
+      descriptor.enumerable = descriptor.enumerable || false;
+      descriptor.configurable = true;
+      if ("value" in descriptor) descriptor.writable = true;
+      Object.defineProperty(target, descriptor.key, descriptor);
+    }
+  }
+
+  return function (Constructor, protoProps, staticProps) {
+    if (protoProps) defineProperties(Constructor.prototype, protoProps);
+    if (staticProps) defineProperties(Constructor, staticProps);
+    return Constructor;
+  };
+}();
+
+var _extends$42 = Object.assign || function (target) {
+  for (var i = 1; i < arguments.length; i++) {
+    var source = arguments[i];
+
+    for (var key in source) {
+      if (Object.prototype.hasOwnProperty.call(source, key)) {
+        target[key] = source[key];
+      }
+    }
+  }
+
+  return target;
+};
+
+var inherits$2 = function (subClass, superClass) {
+  if (typeof superClass !== "function" && superClass !== null) {
+    throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+  }
+
+  subClass.prototype = Object.create(superClass && superClass.prototype, {
+    constructor: {
+      value: subClass,
+      enumerable: false,
+      writable: true,
+      configurable: true
+    }
+  });
+  if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+};
+
+var objectWithoutProperties$2 = function (obj, keys) {
+  var target = {};
+
+  for (var i in obj) {
+    if (keys.indexOf(i) >= 0) continue;
+    if (!Object.prototype.hasOwnProperty.call(obj, i)) continue;
+    target[i] = obj[i];
+  }
+
+  return target;
+};
+
+var possibleConstructorReturn$2 = function (self, call) {
+  if (!self) {
+    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+  }
+
+  return call && (typeof call === "object" || typeof call === "function") ? call : self;
+};
+
+// 
+var isPlainObject$2 = (function (x) {
+  return (typeof x === 'undefined' ? 'undefined' : _typeof$7(x)) === 'object' && x.constructor === Object;
+});
+
+// 
+var EMPTY_ARRAY$1 = Object.freeze([]);
+var EMPTY_OBJECT = Object.freeze({});
+
+// 
+function isFunction$7(test) {
+  return typeof test === 'function';
+}
+
+// 
+
+function getComponentName(target) {
+  return target.displayName || target.name || 'Component';
+}
+
+// 
+function isStyledComponent(target) {
+  return target && typeof target.styledComponentId === 'string';
+}
+
+// 
+
+
+var SC_ATTR = typeof process !== 'undefined' && process.env.SC_ATTR || 'data-styled';
+
+var SC_VERSION_ATTR = 'data-styled-version';
+
+var SC_STREAM_ATTR = 'data-styled-streamed';
+
+var IS_BROWSER = typeof window !== 'undefined' && 'HTMLElement' in window;
+
+var DISABLE_SPEEDY = "production" !== 'production';
+
+/**
+ * Create an error file out of errors.md for development and a simple web link to the full errors
+ * in production mode.
+ */
+
+var StyledComponentsError = function (_Error) {
+  inherits$2(StyledComponentsError, _Error);
+
+  function StyledComponentsError(code) {
+    classCallCheck$2(this, StyledComponentsError);
+
+    for (var _len2 = arguments.length, interpolations = Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
+      interpolations[_key2 - 1] = arguments[_key2];
+    }
+
+    if (true) {
+      var _this = possibleConstructorReturn$2(this, _Error.call(this, 'An error occurred. See https://github.com/styled-components/styled-components/blob/master/src/utils/errors.md#' + code + ' for more information. ' + (interpolations ? 'Additional arguments: ' + interpolations.join(', ') : '')));
+    } else {
+      var _this = possibleConstructorReturn$2(this, _Error.call(this, format$2.apply(undefined, [ERRORS[code]].concat(interpolations)).trim()));
+    }
+    return possibleConstructorReturn$2(_this);
+  }
+
+  return StyledComponentsError;
+}(Error);
+
+// 
+var SC_COMPONENT_ID = /^[^\S\n]*?\/\* sc-component-id:\s*(\S+)\s+\*\//gm;
+
+var extractComps = (function (maybeCSS) {
+  var css = '' + (maybeCSS || ''); // Definitely a string, and a clone
+  var existingComponents = [];
+  css.replace(SC_COMPONENT_ID, function (match, componentId, matchIndex) {
+    existingComponents.push({ componentId: componentId, matchIndex: matchIndex });
+    return match;
+  });
+  return existingComponents.map(function (_ref, i) {
+    var componentId = _ref.componentId,
+        matchIndex = _ref.matchIndex;
+
+    var nextComp = existingComponents[i + 1];
+    var cssFromDOM = nextComp ? css.slice(matchIndex, nextComp.matchIndex) : css.slice(matchIndex);
+    return { componentId: componentId, cssFromDOM: cssFromDOM };
+  });
+});
+
+// 
+
+var COMMENT_REGEX = /^\s*\/\/.*$/gm;
+
+// NOTE: This stylis instance is only used to split rules from SSR'd style tags
+var stylisSplitter = new stylis_min({
+  global: false,
+  cascade: true,
+  keyframe: false,
+  prefix: false,
+  compress: false,
+  semicolon: true
+});
+
+var stylis = new stylis_min({
+  global: false,
+  cascade: true,
+  keyframe: false,
+  prefix: true,
+  compress: false,
+  semicolon: false // NOTE: This means "autocomplete missing semicolons"
+});
+
+// Wrap `insertRulePlugin to build a list of rules,
+// and then make our own plugin to return the rules. This
+// makes it easier to hook into the existing SSR architecture
+
+var parsingRules = [];
+
+// eslint-disable-next-line consistent-return
+var returnRulesPlugin = function returnRulesPlugin(context) {
+  if (context === -2) {
+    var parsedRules = parsingRules;
+    parsingRules = [];
+    return parsedRules;
+  }
+};
+
+var parseRulesPlugin = stylisRuleSheet(function (rule) {
+  parsingRules.push(rule);
+});
+
+var _componentId = void 0;
+var _selector = void 0;
+var _selectorRegexp = void 0;
+
+var selfReferenceReplacer = function selfReferenceReplacer(match, offset, string) {
+  if (
+  // the first self-ref is always untouched
+  offset > 0 &&
+  // there should be at least two self-refs to do a replacement (.b > .b)
+  string.slice(0, offset).indexOf(_selector) !== -1 &&
+  // no consecutive self refs (.b.b); that is a precedence boost and treated differently
+  string.slice(offset - _selector.length, offset) !== _selector) {
+    return '.' + _componentId;
+  }
+
+  return match;
+};
+
+/**
+ * When writing a style like
+ *
+ * & + & {
+ *   color: red;
+ * }
+ *
+ * The second ampersand should be a reference to the static component class. stylis
+ * has no knowledge of static class so we have to intelligently replace the base selector.
+ */
+var selfReferenceReplacementPlugin = function selfReferenceReplacementPlugin(context, _, selectors) {
+  if (context === 2 && selectors.length && selectors[0].lastIndexOf(_selector) > 0) {
+    // eslint-disable-next-line no-param-reassign
+    selectors[0] = selectors[0].replace(_selectorRegexp, selfReferenceReplacer);
+  }
+};
+
+stylis.use([selfReferenceReplacementPlugin, parseRulesPlugin, returnRulesPlugin]);
+stylisSplitter.use([parseRulesPlugin, returnRulesPlugin]);
+
+var splitByRules = function splitByRules(css) {
+  return stylisSplitter('', css);
+};
+
+function stringifyRules(rules, selector, prefix) {
+  var componentId = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : '&';
+
+  var flatCSS = rules.join('').replace(COMMENT_REGEX, ''); // replace JS comments
+
+  var cssStr = selector && prefix ? prefix + ' ' + selector + ' { ' + flatCSS + ' }' : flatCSS;
+
+  // stylis has no concept of state to be passed to plugins
+  // but since JS is single=threaded, we can rely on that to ensure
+  // these properties stay in sync with the current stylis run
+  _componentId = componentId;
+  _selector = selector;
+  _selectorRegexp = new RegExp('\\' + _selector + '\\b', 'g');
+
+  return stylis(prefix || !selector ? '' : selector, cssStr);
+}
+
+// 
+/* eslint-disable camelcase, no-undef */
+
+var getNonce = (function () {
+  return typeof __webpack_nonce__ !== 'undefined' ? __webpack_nonce__ : null;
+});
+
+// 
+// Helper to call a given function, only once
+var once = (function (cb) {
+  var called = false;
+
+  return function () {
+    if (!called) {
+      called = true;
+      cb();
+    }
+  };
+});
+
+// 
+/* These are helpers for the StyleTags to keep track of the injected
+ * rule names for each (component) ID that they're keeping track of.
+ * They're crucial for detecting whether a name has already been
+ * injected.
+ * (This excludes rehydrated names) */
+
+/* adds a new ID:name pairing to a names dictionary */
+var addNameForId = function addNameForId(names, id, name) {
+  if (name) {
+    // eslint-disable-next-line no-param-reassign
+    var namesForId = names[id] || (names[id] = Object.create(null));
+    namesForId[name] = true;
+  }
+};
+
+/* resets an ID entirely by overwriting it in the dictionary */
+var resetIdNames = function resetIdNames(names, id) {
+  // eslint-disable-next-line no-param-reassign
+  names[id] = Object.create(null);
+};
+
+/* factory for a names dictionary checking the existance of an ID:name pairing */
+var hasNameForId = function hasNameForId(names) {
+  return function (id, name) {
+    return names[id] !== undefined && names[id][name];
+  };
+};
+
+/* stringifies names for the html/element output */
+var stringifyNames = function stringifyNames(names) {
+  var str = '';
+  // eslint-disable-next-line guard-for-in
+  for (var id in names) {
+    str += Object.keys(names[id]).join(' ') + ' ';
+  }
+  return str.trim();
+};
+
+/* clones the nested names dictionary */
+var cloneNames = function cloneNames(names) {
+  var clone = Object.create(null);
+  // eslint-disable-next-line guard-for-in
+  for (var id in names) {
+    clone[id] = _extends$42({}, names[id]);
+  }
+  return clone;
+};
+
+// 
+
+/* These are helpers that deal with the insertRule (aka speedy) API
+ * They are used in the StyleTags and specifically the speedy tag
+ */
+
+/* retrieve a sheet for a given style tag */
+var sheetForTag = function sheetForTag(tag) {
+  // $FlowFixMe
+  if (tag.sheet) return tag.sheet;
+
+  /* Firefox quirk requires us to step through all stylesheets to find one owned by the given tag */
+  var size = document.styleSheets.length;
+  for (var i = 0; i < size; i += 1) {
+    var sheet = document.styleSheets[i];
+    // $FlowFixMe
+    if (sheet.ownerNode === tag) return sheet;
+  }
+
+  /* we should always be able to find a tag */
+  throw new StyledComponentsError(10);
+};
+
+/* insert a rule safely and return whether it was actually injected */
+var safeInsertRule = function safeInsertRule(sheet, cssRule, index) {
+  /* abort early if cssRule string is falsy */
+  if (!cssRule) return false;
+
+  var maxIndex = sheet.cssRules.length;
+
+  try {
+    /* use insertRule and cap passed index with maxIndex (no of cssRules) */
+    sheet.insertRule(cssRule, index <= maxIndex ? index : maxIndex);
+  } catch (err) {
+    /* any error indicates an invalid rule */
+    return false;
+  }
+
+  return true;
+};
+
+/* deletes `size` rules starting from `removalIndex` */
+var deleteRules = function deleteRules(sheet, removalIndex, size) {
+  var lowerBound = removalIndex - size;
+  for (var i = removalIndex; i > lowerBound; i -= 1) {
+    sheet.deleteRule(i);
+  }
+};
+
+// 
+
+/* this marker separates component styles and is important for rehydration */
+var makeTextMarker = function makeTextMarker(id) {
+  return '\n/* sc-component-id: ' + id + ' */\n';
+};
+
+/* add up all numbers in array up until and including the index */
+var addUpUntilIndex = function addUpUntilIndex(sizes, index) {
+  var totalUpToIndex = 0;
+  for (var i = 0; i <= index; i += 1) {
+    totalUpToIndex += sizes[i];
+  }
+
+  return totalUpToIndex;
+};
+
+/* create a new style tag after lastEl */
+var makeStyleTag = function makeStyleTag(target, tagEl, insertBefore) {
+  var el = document.createElement('style');
+  el.setAttribute(SC_ATTR, '');
+  el.setAttribute(SC_VERSION_ATTR, "4.0.2");
+
+  var nonce = getNonce();
+  if (nonce) {
+    el.setAttribute('nonce', nonce);
+  }
+
+  /* Work around insertRule quirk in EdgeHTML */
+  el.appendChild(document.createTextNode(''));
+
+  if (target && !tagEl) {
+    /* Append to target when no previous element was passed */
+    target.appendChild(el);
+  } else {
+    if (!tagEl || !target || !tagEl.parentNode) {
+      throw new StyledComponentsError(6);
+    }
+
+    /* Insert new style tag after the previous one */
+    tagEl.parentNode.insertBefore(el, insertBefore ? tagEl : tagEl.nextSibling);
+  }
+
+  return el;
+};
+
+/* takes a css factory function and outputs an html styled tag factory */
+var wrapAsHtmlTag = function wrapAsHtmlTag(css, names) {
+  return function (additionalAttrs) {
+    var nonce = getNonce();
+    var attrs = [nonce && 'nonce="' + nonce + '"', SC_ATTR + '="' + stringifyNames(names) + '"', SC_VERSION_ATTR + '="' + "4.0.2" + '"', additionalAttrs];
+
+    var htmlAttr = attrs.filter(Boolean).join(' ');
+    return '<style ' + htmlAttr + '>' + css() + '</style>';
+  };
+};
+
+/* takes a css factory function and outputs an element factory */
+var wrapAsElement = function wrapAsElement(css, names) {
+  return function () {
+    var _props;
+
+    var props = (_props = {}, _props[SC_ATTR] = stringifyNames(names), _props[SC_VERSION_ATTR] = "4.0.2", _props);
+
+    var nonce = getNonce();
+    if (nonce) {
+      // $FlowFixMe
+      props.nonce = nonce;
+    }
+
+    // eslint-disable-next-line react/no-danger
+    return React__default.createElement('style', _extends$42({}, props, { dangerouslySetInnerHTML: { __html: css() } }));
+  };
+};
+
+var getIdsFromMarkersFactory = function getIdsFromMarkersFactory(markers) {
+  return function () {
+    return Object.keys(markers);
+  };
+};
+
+/* speedy tags utilise insertRule */
+var makeSpeedyTag = function makeSpeedyTag(el, getImportRuleTag) {
+  var names = Object.create(null);
+  var markers = Object.create(null);
+  var sizes = [];
+
+  var extractImport = getImportRuleTag !== undefined;
+  /* indicates whther getImportRuleTag was called */
+  var usedImportRuleTag = false;
+
+  var insertMarker = function insertMarker(id) {
+    var prev = markers[id];
+    if (prev !== undefined) {
+      return prev;
+    }
+
+    markers[id] = sizes.length;
+    sizes.push(0);
+    resetIdNames(names, id);
+
+    return markers[id];
+  };
+
+  var insertRules = function insertRules(id, cssRules, name) {
+    var marker = insertMarker(id);
+    var sheet = sheetForTag(el);
+    var insertIndex = addUpUntilIndex(sizes, marker);
+
+    var injectedRules = 0;
+    var importRules = [];
+    var cssRulesSize = cssRules.length;
+
+    for (var i = 0; i < cssRulesSize; i += 1) {
+      var cssRule = cssRules[i];
+      var mayHaveImport = extractImport; /* @import rules are reordered to appear first */
+      if (mayHaveImport && cssRule.indexOf('@import') !== -1) {
+        importRules.push(cssRule);
+      } else if (safeInsertRule(sheet, cssRule, insertIndex + injectedRules)) {
+        mayHaveImport = false;
+        injectedRules += 1;
+      }
+    }
+
+    if (extractImport && importRules.length > 0) {
+      usedImportRuleTag = true;
+      // $FlowFixMe
+      getImportRuleTag().insertRules(id + '-import', importRules);
+    }
+
+    sizes[marker] += injectedRules; /* add up no of injected rules */
+    addNameForId(names, id, name);
+  };
+
+  var removeRules = function removeRules(id) {
+    var marker = markers[id];
+    if (marker === undefined) return;
+
+    var size = sizes[marker];
+    var sheet = sheetForTag(el);
+    var removalIndex = addUpUntilIndex(sizes, marker) - 1;
+    deleteRules(sheet, removalIndex, size);
+    sizes[marker] = 0;
+    resetIdNames(names, id);
+
+    if (extractImport && usedImportRuleTag) {
+      // $FlowFixMe
+      getImportRuleTag().removeRules(id + '-import');
+    }
+  };
+
+  var css = function css() {
+    var _sheetForTag = sheetForTag(el),
+        cssRules = _sheetForTag.cssRules;
+
+    var str = '';
+
+    // eslint-disable-next-line guard-for-in
+    for (var id in markers) {
+      str += makeTextMarker(id);
+      var marker = markers[id];
+      var end = addUpUntilIndex(sizes, marker);
+      var size = sizes[marker];
+      for (var i = end - size; i < end; i += 1) {
+        var rule = cssRules[i];
+        if (rule !== undefined) {
+          str += rule.cssText;
+        }
+      }
+    }
+
+    return str;
+  };
+
+  return {
+    clone: function clone() {
+      throw new StyledComponentsError(5);
+    },
+
+    css: css,
+    getIds: getIdsFromMarkersFactory(markers),
+    hasNameForId: hasNameForId(names),
+    insertMarker: insertMarker,
+    insertRules: insertRules,
+    removeRules: removeRules,
+    sealed: false,
+    styleTag: el,
+    toElement: wrapAsElement(css, names),
+    toHTML: wrapAsHtmlTag(css, names)
+  };
+};
+
+var makeTextNode = function makeTextNode(id) {
+  return document.createTextNode(makeTextMarker(id));
+};
+
+var makeBrowserTag = function makeBrowserTag(el, getImportRuleTag) {
+  var names = Object.create(null);
+  var markers = Object.create(null);
+
+  var extractImport = getImportRuleTag !== undefined;
+
+  /* indicates whther getImportRuleTag was called */
+  var usedImportRuleTag = false;
+
+  var insertMarker = function insertMarker(id) {
+    var prev = markers[id];
+    if (prev !== undefined) {
+      return prev;
+    }
+
+    markers[id] = makeTextNode(id);
+    el.appendChild(markers[id]);
+    names[id] = Object.create(null);
+
+    return markers[id];
+  };
+
+  var insertRules = function insertRules(id, cssRules, name) {
+    var marker = insertMarker(id);
+    var importRules = [];
+    var cssRulesSize = cssRules.length;
+
+    for (var i = 0; i < cssRulesSize; i += 1) {
+      var rule = cssRules[i];
+      var mayHaveImport = extractImport;
+      if (mayHaveImport && rule.indexOf('@import') !== -1) {
+        importRules.push(rule);
+      } else {
+        mayHaveImport = false;
+        var separator = i === cssRulesSize - 1 ? '' : ' ';
+        marker.appendData('' + rule + separator);
+      }
+    }
+
+    addNameForId(names, id, name);
+
+    if (extractImport && importRules.length > 0) {
+      usedImportRuleTag = true;
+      // $FlowFixMe
+      getImportRuleTag().insertRules(id + '-import', importRules);
+    }
+  };
+
+  var removeRules = function removeRules(id) {
+    var marker = markers[id];
+    if (marker === undefined) return;
+
+    /* create new empty text node and replace the current one */
+    var newMarker = makeTextNode(id);
+    el.replaceChild(newMarker, marker);
+    markers[id] = newMarker;
+    resetIdNames(names, id);
+
+    if (extractImport && usedImportRuleTag) {
+      // $FlowFixMe
+      getImportRuleTag().removeRules(id + '-import');
+    }
+  };
+
+  var css = function css() {
+    var str = '';
+
+    // eslint-disable-next-line guard-for-in
+    for (var id in markers) {
+      str += markers[id].data;
+    }
+
+    return str;
+  };
+
+  return {
+    clone: function clone() {
+      throw new StyledComponentsError(5);
+    },
+
+    css: css,
+    getIds: getIdsFromMarkersFactory(markers),
+    hasNameForId: hasNameForId(names),
+    insertMarker: insertMarker,
+    insertRules: insertRules,
+    removeRules: removeRules,
+    sealed: false,
+    styleTag: el,
+    toElement: wrapAsElement(css, names),
+    toHTML: wrapAsHtmlTag(css, names)
+  };
+};
+
+var makeServerTag = function makeServerTag(namesArg, markersArg) {
+  var names = namesArg === undefined ? Object.create(null) : namesArg;
+  var markers = markersArg === undefined ? Object.create(null) : markersArg;
+
+  var insertMarker = function insertMarker(id) {
+    var prev = markers[id];
+    if (prev !== undefined) {
+      return prev;
+    }
+
+    return markers[id] = [''];
+  };
+
+  var insertRules = function insertRules(id, cssRules, name) {
+    var marker = insertMarker(id);
+    marker[0] += cssRules.join(' ');
+    addNameForId(names, id, name);
+  };
+
+  var removeRules = function removeRules(id) {
+    var marker = markers[id];
+    if (marker === undefined) return;
+    marker[0] = '';
+    resetIdNames(names, id);
+  };
+
+  var css = function css() {
+    var str = '';
+    // eslint-disable-next-line guard-for-in
+    for (var id in markers) {
+      var cssForId = markers[id][0];
+      if (cssForId) {
+        str += makeTextMarker(id) + cssForId;
+      }
+    }
+    return str;
+  };
+
+  var clone = function clone() {
+    var namesClone = cloneNames(names);
+    var markersClone = Object.create(null);
+
+    // eslint-disable-next-line guard-for-in
+    for (var id in markers) {
+      markersClone[id] = [markers[id][0]];
+    }
+
+    return makeServerTag(namesClone, markersClone);
+  };
+
+  var tag = {
+    clone: clone,
+    css: css,
+    getIds: getIdsFromMarkersFactory(markers),
+    hasNameForId: hasNameForId(names),
+    insertMarker: insertMarker,
+    insertRules: insertRules,
+    removeRules: removeRules,
+    sealed: false,
+    styleTag: null,
+    toElement: wrapAsElement(css, names),
+    toHTML: wrapAsHtmlTag(css, names)
+  };
+
+  return tag;
+};
+
+var makeTag = function makeTag(target, tagEl, forceServer, insertBefore, getImportRuleTag) {
+  if (IS_BROWSER && !forceServer) {
+    var el = makeStyleTag(target, tagEl, insertBefore);
+
+    if (DISABLE_SPEEDY) {
+      return makeBrowserTag(el, getImportRuleTag);
+    } else {
+      return makeSpeedyTag(el, getImportRuleTag);
+    }
+  }
+
+  return makeServerTag();
+};
+
+/* wraps a given tag so that rehydration is performed once when necessary */
+var makeRehydrationTag = function makeRehydrationTag(tag, els, extracted, immediateRehydration) {
+  /* rehydration function that adds all rules to the new tag */
+  var rehydrate = once(function () {
+    /* add all extracted components to the new tag */
+    for (var i = 0, len = extracted.length; i < len; i += 1) {
+      var _extracted$i = extracted[i],
+          componentId = _extracted$i.componentId,
+          cssFromDOM = _extracted$i.cssFromDOM;
+
+      var cssRules = splitByRules(cssFromDOM);
+      tag.insertRules(componentId, cssRules);
+    }
+
+    /* remove old HTMLStyleElements, since they have been rehydrated */
+    for (var _i = 0, _len = els.length; _i < _len; _i += 1) {
+      var el = els[_i];
+      if (el.parentNode) {
+        el.parentNode.removeChild(el);
+      }
+    }
+  });
+
+  if (immediateRehydration) rehydrate();
+
+  return _extends$42({}, tag, {
+
+    /* add rehydration hook to methods */
+    insertMarker: function insertMarker(id) {
+      rehydrate();
+      return tag.insertMarker(id);
+    },
+
+    insertRules: function insertRules(id, cssRules, name) {
+      rehydrate();
+      return tag.insertRules(id, cssRules, name);
+    },
+
+    removeRules: function removeRules(id) {
+      rehydrate();
+      return tag.removeRules(id);
+    }
+  });
+};
+
+// 
+
+var SPLIT_REGEX = /\s+/;
+
+/* determine the maximum number of components before tags are sharded */
+var MAX_SIZE = void 0;
+if (IS_BROWSER) {
+  /* in speedy mode we can keep a lot more rules in a sheet before a slowdown can be expected */
+  MAX_SIZE = DISABLE_SPEEDY ? 40 : 1000;
+} else {
+  /* for servers we do not need to shard at all */
+  MAX_SIZE = -1;
+}
+
+var sheetRunningId = 0;
+var master = void 0;
+
+var StyleSheet = function () {
+
+  /* a map from ids to tags */
+
+  /* deferred rules for a given id */
+
+  /* this is used for not reinjecting rules via hasNameForId() */
+
+  /* when rules for an id are removed using remove() we have to ignore rehydratedNames for it */
+
+  /* a list of tags belonging to this StyleSheet */
+
+  /* a tag for import rules */
+
+  /* current capacity until a new tag must be created */
+
+  /* children (aka clones) of this StyleSheet inheriting all and future injections */
+
+  function StyleSheet() {
+    var _this = this;
+
+    var target = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : IS_BROWSER ? document.head : null;
+    var forceServer = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+    classCallCheck$2(this, StyleSheet);
+
+    this.getImportRuleTag = function () {
+      var importRuleTag = _this.importRuleTag;
+
+      if (importRuleTag !== undefined) {
+        return importRuleTag;
+      }
+
+      var firstTag = _this.tags[0];
+      var insertBefore = true;
+
+      return _this.importRuleTag = makeTag(_this.target, firstTag ? firstTag.styleTag : null, _this.forceServer, insertBefore);
+    };
+
+    sheetRunningId += 1;
+    this.id = sheetRunningId;
+    this.forceServer = forceServer;
+    this.target = forceServer ? null : target;
+    this.tagMap = {};
+    this.deferred = {};
+    this.rehydratedNames = {};
+    this.ignoreRehydratedNames = {};
+    this.tags = [];
+    this.capacity = 1;
+    this.clones = [];
+  }
+
+  /* rehydrate all SSR'd style tags */
+
+
+  StyleSheet.prototype.rehydrate = function rehydrate() {
+    if (!IS_BROWSER || this.forceServer) {
+      return this;
+    }
+    var els = [];
+    var extracted = [];
+    var isStreamed = false;
+
+    /* retrieve all of our SSR style elements from the DOM */
+    var nodes = document.querySelectorAll('style[' + SC_ATTR + '][' + SC_VERSION_ATTR + '="' + "4.0.2" + '"]');
+    var nodesSize = nodes.length;
+
+    /* abort rehydration if no previous style tags were found */
+    if (nodesSize === 0) {
+      return this;
+    }
+
+    for (var i = 0; i < nodesSize; i += 1) {
+      // $FlowFixMe: We can trust that all elements in this query are style elements
+      var el = nodes[i];
+
+      /* check if style tag is a streamed tag */
+      if (!isStreamed) isStreamed = !!el.getAttribute(SC_STREAM_ATTR);
+
+      /* retrieve all component names */
+      var elNames = (el.getAttribute(SC_ATTR) || '').trim().split(SPLIT_REGEX);
+      var elNamesSize = elNames.length;
+      for (var j = 0; j < elNamesSize; j += 1) {
+        var name = elNames[j];
+        /* add rehydrated name to sheet to avoid readding styles */
+        this.rehydratedNames[name] = true;
+      }
+
+      /* extract all components and their CSS */
+      extracted.push.apply(extracted, extractComps(el.textContent));
+
+      /* store original HTMLStyleElement */
+      els.push(el);
+    }
+
+    /* abort rehydration if nothing was extracted */
+    var extractedSize = extracted.length;
+    if (extractedSize === 0) {
+      return this;
+    }
+
+    /* create a tag to be used for rehydration */
+    var tag = this.makeTag(null);
+    var rehydrationTag = makeRehydrationTag(tag, els, extracted, isStreamed);
+
+    /* reset capacity and adjust MAX_SIZE by the initial size of the rehydration */
+    this.capacity = Math.max(1, MAX_SIZE - extractedSize);
+    this.tags.push(rehydrationTag);
+
+    /* retrieve all component ids */
+    for (var _j = 0; _j < extractedSize; _j += 1) {
+      this.tagMap[extracted[_j].componentId] = rehydrationTag;
+    }
+
+    return this;
+  };
+
+  /* retrieve a "master" instance of StyleSheet which is typically used when no other is available
+   * The master StyleSheet is targeted by createGlobalStyle, keyframes, and components outside of any
+    * StyleSheetManager's context */
+
+
+  /* reset the internal "master" instance */
+  StyleSheet.reset = function reset() {
+    var forceServer = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+
+    master = new StyleSheet(undefined, forceServer).rehydrate();
+  };
+
+  /* adds "children" to the StyleSheet that inherit all of the parents' rules
+   * while their own rules do not affect the parent */
+
+
+  StyleSheet.prototype.clone = function clone() {
+    var sheet = new StyleSheet(this.target, this.forceServer);
+
+    /* add to clone array */
+    this.clones.push(sheet);
+
+    /* clone all tags */
+    sheet.tags = this.tags.map(function (tag) {
+      var ids = tag.getIds();
+      var newTag = tag.clone();
+
+      /* reconstruct tagMap */
+      for (var i = 0; i < ids.length; i += 1) {
+        sheet.tagMap[ids[i]] = newTag;
+      }
+
+      return newTag;
+    });
+
+    /* clone other maps */
+    sheet.rehydratedNames = _extends$42({}, this.rehydratedNames);
+    sheet.deferred = _extends$42({}, this.deferred);
+
+    return sheet;
+  };
+
+  /* force StyleSheet to create a new tag on the next injection */
+
+
+  StyleSheet.prototype.sealAllTags = function sealAllTags() {
+    this.capacity = 1;
+
+    this.tags.forEach(function (tag) {
+      // eslint-disable-next-line no-param-reassign
+      tag.sealed = true;
+    });
+  };
+
+  StyleSheet.prototype.makeTag = function makeTag$$1(tag) {
+    var lastEl = tag ? tag.styleTag : null;
+    var insertBefore = false;
+
+    return makeTag(this.target, lastEl, this.forceServer, insertBefore, this.getImportRuleTag);
+  };
+
+  /* get a tag for a given componentId, assign the componentId to one, or shard */
+  StyleSheet.prototype.getTagForId = function getTagForId(id) {
+    /* simply return a tag, when the componentId was already assigned one */
+    var prev = this.tagMap[id];
+    if (prev !== undefined && !prev.sealed) {
+      return prev;
+    }
+
+    var tag = this.tags[this.tags.length - 1];
+
+    /* shard (create a new tag) if the tag is exhausted (See MAX_SIZE) */
+    this.capacity -= 1;
+
+    if (this.capacity === 0) {
+      this.capacity = MAX_SIZE;
+      tag = this.makeTag(tag);
+      this.tags.push(tag);
+    }
+
+    return this.tagMap[id] = tag;
+  };
+
+  /* mainly for createGlobalStyle to check for its id */
+
+
+  StyleSheet.prototype.hasId = function hasId(id) {
+    return this.tagMap[id] !== undefined;
+  };
+
+  /* caching layer checking id+name to already have a corresponding tag and injected rules */
+
+
+  StyleSheet.prototype.hasNameForId = function hasNameForId(id, name) {
+    /* exception for rehydrated names which are checked separately */
+    if (this.ignoreRehydratedNames[id] === undefined && this.rehydratedNames[name]) {
+      return true;
+    }
+
+    var tag = this.tagMap[id];
+    return tag !== undefined && tag.hasNameForId(id, name);
+  };
+
+  /* registers a componentId and registers it on its tag */
+
+
+  StyleSheet.prototype.deferredInject = function deferredInject(id, cssRules) {
+    /* don't inject when the id is already registered */
+    if (this.tagMap[id] !== undefined) return;
+
+    var clones = this.clones;
+
+    for (var i = 0; i < clones.length; i += 1) {
+      clones[i].deferredInject(id, cssRules);
+    }
+
+    this.getTagForId(id).insertMarker(id);
+    this.deferred[id] = cssRules;
+  };
+
+  /* injects rules for a given id with a name that will need to be cached */
+
+
+  StyleSheet.prototype.inject = function inject(id, cssRules, name) {
+    var clones = this.clones;
+
+
+    for (var i = 0; i < clones.length; i += 1) {
+      clones[i].inject(id, cssRules, name);
+    }
+
+    var tag = this.getTagForId(id);
+
+    /* add deferred rules for component */
+    if (this.deferred[id] !== undefined) {
+      // Combine passed cssRules with previously deferred CSS rules
+      // NOTE: We cannot mutate the deferred array itself as all clones
+      // do the same (see clones[i].inject)
+      var rules = this.deferred[id].concat(cssRules);
+      tag.insertRules(id, rules, name);
+
+      this.deferred[id] = undefined;
+    } else {
+      tag.insertRules(id, cssRules, name);
+    }
+  };
+
+  /* removes all rules for a given id, which doesn't remove its marker but resets it */
+
+
+  StyleSheet.prototype.remove = function remove(id) {
+    var tag = this.tagMap[id];
+    if (tag === undefined) return;
+
+    var clones = this.clones;
+
+    for (var i = 0; i < clones.length; i += 1) {
+      clones[i].remove(id);
+    }
+
+    /* remove all rules from the tag */
+    tag.removeRules(id);
+
+    /* ignore possible rehydrated names */
+    this.ignoreRehydratedNames[id] = true;
+
+    /* delete possible deferred rules */
+    this.deferred[id] = undefined;
+  };
+
+  StyleSheet.prototype.toHTML = function toHTML() {
+    return this.tags.map(function (tag) {
+      return tag.toHTML();
+    }).join('');
+  };
+
+  StyleSheet.prototype.toReactElements = function toReactElements() {
+    var id = this.id;
+
+
+    return this.tags.map(function (tag, i) {
+      var key = 'sc-' + id + '-' + i;
+      return React.cloneElement(tag.toElement(), { key: key });
+    });
+  };
+
+  createClass$2(StyleSheet, null, [{
+    key: 'master',
+    get: function get$$1() {
+      return master || (master = new StyleSheet().rehydrate());
+    }
+
+    /* NOTE: This is just for backwards-compatibility with jest-styled-components */
+
+  }, {
+    key: 'instance',
+    get: function get$$1() {
+      return StyleSheet.master;
+    }
+  }]);
+  return StyleSheet;
+}();
+
+// 
+
+var Keyframes = function () {
+  function Keyframes(name, rules) {
+    var _this = this;
+
+    classCallCheck$2(this, Keyframes);
+
+    this.inject = function (styleSheet) {
+      if (!styleSheet.hasNameForId(_this.id, _this.name)) {
+        styleSheet.inject(_this.id, _this.rules, _this.name);
+      }
+    };
+
+    this.toString = function () {
+      throw new StyledComponentsError(12, String(_this.name));
+    };
+
+    this.name = name;
+    this.rules = rules;
+
+    this.id = 'sc-keyframes-' + name;
+  }
+
+  Keyframes.prototype.getName = function getName() {
+    return this.name;
+  };
+
+  return Keyframes;
+}();
+
+// 
+
+/**
+ * inlined version of
+ * https://github.com/facebook/fbjs/blob/master/packages/fbjs/src/core/hyphenateStyleName.js
+ */
+
+var uppercasePattern = /([A-Z])/g;
+var msPattern = /^ms-/;
+
+/**
+ * Hyphenates a camelcased CSS property name, for example:
+ *
+ *   > hyphenateStyleName('backgroundColor')
+ *   < "background-color"
+ *   > hyphenateStyleName('MozTransition')
+ *   < "-moz-transition"
+ *   > hyphenateStyleName('msTransition')
+ *   < "-ms-transition"
+ *
+ * As Modernizr suggests (http://modernizr.com/docs/#prefixed), an `ms` prefix
+ * is converted to `-ms-`.
+ *
+ * @param {string} string
+ * @return {string}
+ */
+function hyphenateStyleName(string) {
+  return string.replace(uppercasePattern, '-$1').toLowerCase().replace(msPattern, '-ms-');
+}
+
+// 
+
+var objToCss = function objToCss(obj, prevKey) {
+  var css = Object.keys(obj).filter(function (key) {
+    var chunk = obj[key];
+    return chunk !== undefined && chunk !== null && chunk !== false && chunk !== '';
+  }).map(function (key) {
+    if (isPlainObject$2(obj[key])) return objToCss(obj[key], key);
+    return hyphenateStyleName(key) + ': ' + obj[key] + ';';
+  }).join(' ');
+  return prevKey ? prevKey + ' {\n  ' + css + '\n}' : css;
+};
+
+/**
+ * It's falsish not falsy because 0 is allowed.
+ */
+var isFalsish = function isFalsish(chunk) {
+  return chunk === undefined || chunk === null || chunk === false || chunk === '';
+};
+
+function flatten(chunk, executionContext, styleSheet) {
+  if (Array.isArray(chunk)) {
+    var ruleSet = [];
+
+    for (var i = 0, len = chunk.length, result; i < len; i += 1) {
+      result = flatten(chunk[i], executionContext, styleSheet);
+
+      if (result === null) continue;else if (Array.isArray(result)) ruleSet.push.apply(ruleSet, result);else ruleSet.push(result);
+    }
+
+    return ruleSet;
+  }
+
+  if (isFalsish(chunk)) {
+    return null;
+  }
+
+  /* Handle other components */
+  if (isStyledComponent(chunk)) {
+    return '.' + chunk.styledComponentId;
+  }
+
+  /* Either execute or defer the function */
+  if (isFunction$7(chunk)) {
+    if (executionContext) {
+
+      return flatten(chunk(executionContext), executionContext, styleSheet);
+    } else return chunk;
+  }
+
+  if (chunk instanceof Keyframes) {
+    if (styleSheet) {
+      chunk.inject(styleSheet);
+      return chunk.getName();
+    } else return chunk;
+  }
+
+  /* Handle objects */
+  return isPlainObject$2(chunk) ? objToCss(chunk) : chunk.toString();
+}
+
+// 
+
+function css$2(styles) {
+  for (var _len = arguments.length, interpolations = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+    interpolations[_key - 1] = arguments[_key];
+  }
+
+  if (isFunction$7(styles) || isPlainObject$2(styles)) {
+    // $FlowFixMe
+    return flatten(interleave(EMPTY_ARRAY$1, [styles].concat(interpolations)));
+  }
+
+  // $FlowFixMe
+  return flatten(interleave(styles, interpolations));
+}
+
+// 
+
+function constructWithOptions(componentConstructor, tag) {
+  var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : EMPTY_OBJECT;
+
+  if (!reactIs_2(tag)) {
+    throw new StyledComponentsError(1, String(tag));
+  }
+
+  /* This is callable directly as a template function */
+  // $FlowFixMe: Not typed to avoid destructuring arguments
+  var templateFunction = function templateFunction() {
+    return componentConstructor(tag, options, css$2.apply(undefined, arguments));
+  };
+
+  /* If config methods are called, wrap up a new template function and merge options */
+  templateFunction.withConfig = function (config) {
+    return constructWithOptions(componentConstructor, tag, _extends$42({}, options, config));
+  };
+  templateFunction.attrs = function (attrs) {
+    return constructWithOptions(componentConstructor, tag, _extends$42({}, options, {
+      attrs: _extends$42({}, options.attrs || EMPTY_OBJECT, attrs)
+    }));
+  };
+
+  return templateFunction;
+}
+
+// 
+// Source: https://github.com/garycourt/murmurhash-js/blob/master/murmurhash2_gc.js
+function murmurhash(c) {
+  for (var e = c.length | 0, a = e | 0, d = 0, b; e >= 4;) {
+    b = c.charCodeAt(d) & 255 | (c.charCodeAt(++d) & 255) << 8 | (c.charCodeAt(++d) & 255) << 16 | (c.charCodeAt(++d) & 255) << 24, b = 1540483477 * (b & 65535) + ((1540483477 * (b >>> 16) & 65535) << 16), b ^= b >>> 24, b = 1540483477 * (b & 65535) + ((1540483477 * (b >>> 16) & 65535) << 16), a = 1540483477 * (a & 65535) + ((1540483477 * (a >>> 16) & 65535) << 16) ^ b, e -= 4, ++d;
+  }
+  switch (e) {
+    case 3:
+      a ^= (c.charCodeAt(d + 2) & 255) << 16;
+    case 2:
+      a ^= (c.charCodeAt(d + 1) & 255) << 8;
+    case 1:
+      a ^= c.charCodeAt(d) & 255, a = 1540483477 * (a & 65535) + ((1540483477 * (a >>> 16) & 65535) << 16);
+  }
+  a ^= a >>> 13;
+  a = 1540483477 * (a & 65535) + ((1540483477 * (a >>> 16) & 65535) << 16);
+  return (a ^ a >>> 15) >>> 0;
+}
+
+// 
+/* eslint-disable no-bitwise */
+
+/* This is the "capacity" of our alphabet i.e. 2x26 for all letters plus their capitalised
+ * counterparts */
+var charsLength = 52;
+
+/* start at 75 for 'a' until 'z' (25) and then start at 65 for capitalised letters */
+var getAlphabeticChar = function getAlphabeticChar(code) {
+  return String.fromCharCode(code + (code > 25 ? 39 : 97));
+};
+
+/* input a number, usually a hash and convert it to base-52 */
+function generateAlphabeticName(code) {
+  var name = '';
+  var x = void 0;
+
+  /* get a char and divide by alphabet-length */
+  for (x = code; x > charsLength; x = Math.floor(x / charsLength)) {
+    name = getAlphabeticChar(x % charsLength) + name;
+  }
+
+  return getAlphabeticChar(x % charsLength) + name;
+}
+
+// 
+
+function isStaticRules(rules, attrs) {
+  for (var i = 0; i < rules.length; i += 1) {
+    var rule = rules[i];
+
+    // recursive case
+    if (Array.isArray(rule) && !isStaticRules(rule)) {
+      return false;
+    } else if (isFunction$7(rule) && !isStyledComponent(rule)) {
+      // functions are allowed to be static if they're just being
+      // used to get the classname of a nested styled component
+      return false;
+    }
+  }
+
+  if (attrs !== undefined) {
+    // eslint-disable-next-line guard-for-in, no-restricted-syntax
+    for (var key in attrs) {
+      var value = attrs[key];
+      if (isFunction$7(value)) {
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
+
+//
+
+// 
+
+var isHMREnabled = "production" !== 'production';
+
+/* combines hashStr (murmurhash) and nameGenerator for convenience */
+var hasher = function hasher(str) {
+  return generateAlphabeticName(murmurhash(str));
+};
+
+/*
+ ComponentStyle is all the CSS-specific stuff, not
+ the React-specific stuff.
+ */
+
+var ComponentStyle = function () {
+  function ComponentStyle(rules, attrs, componentId) {
+    classCallCheck$2(this, ComponentStyle);
+
+    this.rules = rules;
+    this.isStatic = !isHMREnabled && isStaticRules(rules, attrs);
+    this.componentId = componentId;
+
+    if (!StyleSheet.master.hasId(componentId)) {
+      var placeholder = [];
+
+      StyleSheet.master.deferredInject(componentId, placeholder);
+    }
+  }
+
+  /*
+     * Flattens a rule set into valid CSS
+     * Hashes it, wraps the whole chunk in a .hash1234 {}
+     * Returns the hash to be injected on render()
+     * */
+
+
+  ComponentStyle.prototype.generateAndInjectStyles = function generateAndInjectStyles(executionContext, styleSheet) {
+    var isStatic = this.isStatic,
+        componentId = this.componentId,
+        lastClassName = this.lastClassName;
+
+    if (IS_BROWSER && isStatic && lastClassName !== undefined && styleSheet.hasNameForId(componentId, lastClassName)) {
+      return lastClassName;
+    }
+
+    var flatCSS = flatten(this.rules, executionContext, styleSheet);
+    var name = hasher(this.componentId + flatCSS.join(''));
+    if (!styleSheet.hasNameForId(componentId, name)) {
+      styleSheet.inject(this.componentId, stringifyRules(flatCSS, '.' + name, undefined, componentId), name);
+    }
+
+    this.lastClassName = name;
+    return name;
+  };
+
+  ComponentStyle.generateName = function generateName(str) {
+    return hasher(str);
+  };
+
+  return ComponentStyle;
+}();
+
+// 
+
+var determineTheme = (function (props, fallbackTheme) {
+  var defaultProps = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : EMPTY_OBJECT;
+
+  // Props should take precedence over ThemeProvider, which should take precedence over
+  // defaultProps, but React automatically puts defaultProps on props.
+
+  /* eslint-disable react/prop-types, flowtype-errors/show-errors */
+  var isDefaultTheme = defaultProps ? props.theme === defaultProps.theme : false;
+  var theme = props.theme && !isDefaultTheme ? props.theme : fallbackTheme || defaultProps.theme;
+  /* eslint-enable */
+
+  return theme;
+});
+
+// 
+var escapeRegex = /[[\].#*$><+~=|^:(),"'`-]+/g;
+var dashesAtEnds = /(^-|-$)/g;
+
+/**
+ * TODO: Explore using CSS.escape when it becomes more available
+ * in evergreen browsers.
+ */
+function escape(str) {
+  return str
+  // Replace all possible CSS selectors
+  .replace(escapeRegex, '-')
+
+  // Remove extraneous hyphens at the start and end
+  .replace(dashesAtEnds, '');
+}
+
+// 
+
+function isTag(target) /* : %checks */{
+  return typeof target === 'string';
+}
+
+// 
+
+function generateDisplayName(target) {
+  return isTag(target) ? 'styled.' + target : 'Styled(' + getComponentName(target) + ')';
+}
+
+var _TYPE_STATICS;
+
+var REACT_STATICS$1 = {
+  childContextTypes: true,
+  contextTypes: true,
+  defaultProps: true,
+  displayName: true,
+  getDerivedStateFromProps: true,
+  propTypes: true,
+  type: true
+};
+
+var KNOWN_STATICS$1 = {
+  name: true,
+  length: true,
+  prototype: true,
+  caller: true,
+  callee: true,
+  arguments: true,
+  arity: true
+};
+
+var TYPE_STATICS = (_TYPE_STATICS = {}, _TYPE_STATICS[reactIs_3] = {
+  $$typeof: true,
+  render: true
+}, _TYPE_STATICS);
+
+var defineProperty$1$1 = Object.defineProperty,
+    getOwnPropertyNames$1 = Object.getOwnPropertyNames,
+    _Object$getOwnPropert = Object.getOwnPropertySymbols,
+    getOwnPropertySymbols$2 = _Object$getOwnPropert === undefined ? function () {
+  return [];
+} : _Object$getOwnPropert,
+    getOwnPropertyDescriptor$4 = Object.getOwnPropertyDescriptor,
+    getPrototypeOf$4 = Object.getPrototypeOf,
+    objectPrototype$1 = Object.prototype;
+var arrayPrototype = Array.prototype;
+
+
+function hoistNonReactStatics$1(targetComponent, sourceComponent, blacklist) {
+  if (typeof sourceComponent !== 'string') {
+    // don't hoist over string (html) components
+
+    var inheritedComponent = getPrototypeOf$4(sourceComponent);
+
+    if (inheritedComponent && inheritedComponent !== objectPrototype$1) {
+      hoistNonReactStatics$1(targetComponent, inheritedComponent, blacklist);
+    }
+
+    var keys = arrayPrototype.concat(getOwnPropertyNames$1(sourceComponent),
+    // $FlowFixMe
+    getOwnPropertySymbols$2(sourceComponent));
+
+    var targetStatics = TYPE_STATICS[targetComponent.$$typeof] || REACT_STATICS$1;
+
+    var sourceStatics = TYPE_STATICS[sourceComponent.$$typeof] || REACT_STATICS$1;
+
+    var i = keys.length;
+    var descriptor = void 0;
+    var key = void 0;
+
+    // eslint-disable-next-line no-plusplus
+    while (i--) {
+      key = keys[i];
+
+      if (
+      // $FlowFixMe
+      !KNOWN_STATICS$1[key] && !(blacklist && blacklist[key]) && !(sourceStatics && sourceStatics[key]) &&
+      // $FlowFixMe
+      !(targetStatics && targetStatics[key])) {
+        descriptor = getOwnPropertyDescriptor$4(sourceComponent, key);
+
+        if (descriptor) {
+          try {
+            // Avoid failures from read-only properties
+            defineProperty$1$1(targetComponent, key, descriptor);
+          } catch (e) {
+            /* fail silently */
+          }
+        }
+      }
+    }
+
+    return targetComponent;
+  }
+
+  return targetComponent;
+}
+
+// 
+function isDerivedReactComponent(fn) {
+  return !!(fn && fn.prototype && fn.prototype.isReactComponent);
+}
+
+// 
+
+var ThemeContext = React.createContext();
+
+var ThemeConsumer = ThemeContext.Consumer;
+
+/**
+ * Provide a theme to an entire react component tree via context
+ */
+
+var ThemeProvider = function (_Component) {
+  inherits$2(ThemeProvider, _Component);
+
+  function ThemeProvider(props) {
+    classCallCheck$2(this, ThemeProvider);
+
+    var _this = possibleConstructorReturn$2(this, _Component.call(this, props));
+
+    _this.getContext = index$8(_this.getContext.bind(_this));
+    _this.renderInner = _this.renderInner.bind(_this);
+    return _this;
+  }
+
+  ThemeProvider.prototype.render = function render() {
+    if (!this.props.children) return null;
+
+    return React__default.createElement(
+      ThemeContext.Consumer,
+      null,
+      this.renderInner
+    );
+  };
+
+  ThemeProvider.prototype.renderInner = function renderInner(outerTheme) {
+    var context = this.getContext(this.props.theme, outerTheme);
+
+    return React__default.createElement(
+      ThemeContext.Provider,
+      { value: context },
+      React__default.Children.only(this.props.children)
+    );
+  };
+
+  /**
+   * Get the theme from the props, supporting both (outerTheme) => {}
+   * as well as object notation
+   */
+
+
+  ThemeProvider.prototype.getTheme = function getTheme(theme, outerTheme) {
+    if (isFunction$7(theme)) {
+      var mergedTheme = theme(outerTheme);
+
+      return mergedTheme;
+    }
+
+    if (theme === null || Array.isArray(theme) || (typeof theme === 'undefined' ? 'undefined' : _typeof$7(theme)) !== 'object') {
+      throw new StyledComponentsError(8);
+    }
+
+    return _extends$42({}, outerTheme, theme);
+  };
+
+  ThemeProvider.prototype.getContext = function getContext(theme, outerTheme) {
+    return this.getTheme(theme, outerTheme);
+  };
+
+  return ThemeProvider;
+}(React.Component);
+
+// 
+
+var StyleSheetContext = React.createContext();
+
+var StyleSheetConsumer = StyleSheetContext.Consumer;
+
+var StyleSheetManager = function (_Component) {
+  inherits$2(StyleSheetManager, _Component);
+
+  function StyleSheetManager(props) {
+    classCallCheck$2(this, StyleSheetManager);
+
+    var _this = possibleConstructorReturn$2(this, _Component.call(this, props));
+
+    _this.getContext = index$8(_this.getContext);
+    return _this;
+  }
+
+  StyleSheetManager.prototype.getContext = function getContext(sheet, target) {
+    if (sheet) {
+      return sheet;
+    } else if (target) {
+      return new StyleSheet(target);
+    } else {
+      throw new StyledComponentsError(4);
+    }
+  };
+
+  StyleSheetManager.prototype.render = function render() {
+    var _props = this.props,
+        children = _props.children,
+        sheet = _props.sheet,
+        target = _props.target;
+
+    var context = this.getContext(sheet, target);
+    return React__default.createElement(
+      StyleSheetContext.Provider,
+      { value: context },
+      React__default.Children.only(children)
+    );
+  };
+
+  return StyleSheetManager;
+}(React.Component);
+
+// 
+
+var identifiers = {};
+
+/* We depend on components having unique IDs */
+function generateId$1(_ComponentStyle, _displayName, parentComponentId) {
+  var displayName = typeof _displayName !== 'string' ? 'sc' : escape(_displayName);
+
+  /**
+   * This ensures uniqueness if two components happen to share
+   * the same displayName.
+   */
+  var nr = (identifiers[displayName] || 0) + 1;
+  identifiers[displayName] = nr;
+
+  var componentId = displayName + '-' + _ComponentStyle.generateName(displayName + nr);
+
+  return parentComponentId ? parentComponentId + '-' + componentId : componentId;
+}
+
+// $FlowFixMe
+
+var StyledComponent = function (_Component) {
+  inherits$2(StyledComponent, _Component);
+
+  function StyledComponent() {
+    classCallCheck$2(this, StyledComponent);
+
+    var _this = possibleConstructorReturn$2(this, _Component.call(this));
+
+    _this.attrs = {};
+
+    _this.renderOuter = _this.renderOuter.bind(_this);
+    _this.renderInner = _this.renderInner.bind(_this);
+    return _this;
+  }
+
+  StyledComponent.prototype.render = function render() {
+    return React__default.createElement(
+      StyleSheetConsumer,
+      null,
+      this.renderOuter
+    );
+  };
+
+  StyledComponent.prototype.renderOuter = function renderOuter(styleSheet) {
+    this.styleSheet = styleSheet;
+
+    return React__default.createElement(
+      ThemeConsumer,
+      null,
+      this.renderInner
+    );
+  };
+
+  StyledComponent.prototype.renderInner = function renderInner(theme) {
+    var _props$forwardedClass = this.props.forwardedClass,
+        componentStyle = _props$forwardedClass.componentStyle,
+        defaultProps = _props$forwardedClass.defaultProps,
+        styledComponentId = _props$forwardedClass.styledComponentId,
+        target = _props$forwardedClass.target;
+
+
+    var generatedClassName = void 0;
+    if (componentStyle.isStatic) {
+      generatedClassName = this.generateAndInjectStyles(EMPTY_OBJECT, this.props, this.styleSheet);
+    } else if (theme !== undefined) {
+      generatedClassName = this.generateAndInjectStyles(determineTheme(this.props, theme, defaultProps), this.props, this.styleSheet);
+    } else {
+      generatedClassName = this.generateAndInjectStyles(this.props.theme || EMPTY_OBJECT, this.props, this.styleSheet);
+    }
+    var elementToBeCreated = this.props.as || this.attrs.as || target;
+    var isTargetTag = isTag(elementToBeCreated);
+
+    var propsForElement = _extends$42({}, this.attrs);
+
+    var key = void 0;
+    // eslint-disable-next-line guard-for-in
+    for (key in this.props) {
+
+      if (key === 'forwardedClass' || key === 'as') continue;else if (key === 'forwardedRef') propsForElement.ref = this.props[key];else if (!isTargetTag || index$9(key)) {
+        // Don't pass through non HTML tags through to HTML elements
+        propsForElement[key] = key === 'style' && key in this.attrs ? _extends$42({}, this.attrs[key], this.props[key]) : this.props[key];
+      }
+    }
+
+    propsForElement.className = [this.props.className, styledComponentId, this.attrs.className, generatedClassName].filter(Boolean).join(' ');
+
+    return React.createElement(elementToBeCreated, propsForElement);
+  };
+
+  StyledComponent.prototype.buildExecutionContext = function buildExecutionContext(theme, props, attrs) {
+    var context = _extends$42({}, props, { theme: theme });
+
+    if (attrs === undefined) return context;
+
+    this.attrs = {};
+
+    var attr = void 0;
+    var key = void 0;
+
+    /* eslint-disable guard-for-in */
+    for (key in attrs) {
+      attr = attrs[key];
+
+      this.attrs[key] = isFunction$7(attr) && !isDerivedReactComponent(attr) && !isStyledComponent(attr) ? attr(context) : attr;
+    }
+    /* eslint-enable */
+
+    return _extends$42({}, context, this.attrs);
+  };
+
+  StyledComponent.prototype.generateAndInjectStyles = function generateAndInjectStyles(theme, props) {
+    var styleSheet = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : StyleSheet.master;
+    var _props$forwardedClass2 = props.forwardedClass,
+        attrs = _props$forwardedClass2.attrs,
+        componentStyle = _props$forwardedClass2.componentStyle,
+        warnTooManyClasses = _props$forwardedClass2.warnTooManyClasses;
+
+    // statically styled-components don't need to build an execution context object,
+    // and shouldn't be increasing the number of class names
+
+    if (componentStyle.isStatic && attrs === undefined) {
+      return componentStyle.generateAndInjectStyles(EMPTY_OBJECT, styleSheet);
+    }
+
+    var className = componentStyle.generateAndInjectStyles(this.buildExecutionContext(theme, props, props.forwardedClass.attrs), styleSheet);
+
+    if (warnTooManyClasses) {
+      warnTooManyClasses(className);
+    }
+
+    return className;
+  };
+
+  return StyledComponent;
+}(React.Component);
+
+function createStyledComponent(target, options, rules) {
+  var isTargetStyledComp = isStyledComponent(target);
+  var isClass = !isTag(target);
+
+  var _options$displayName = options.displayName,
+      displayName = _options$displayName === undefined ? generateDisplayName(target) : _options$displayName,
+      _options$componentId = options.componentId,
+      componentId = _options$componentId === undefined ? generateId$1(ComponentStyle, options.displayName, options.parentComponentId) : _options$componentId,
+      _options$ParentCompon = options.ParentComponent,
+      ParentComponent = _options$ParentCompon === undefined ? StyledComponent : _options$ParentCompon,
+      attrs = options.attrs;
+
+
+  var styledComponentId = options.displayName && options.componentId ? escape(options.displayName) + '-' + options.componentId : options.componentId || componentId;
+
+  // fold the underlying StyledComponent attrs up (implicit extend)
+  var finalAttrs =
+  // $FlowFixMe
+  isTargetStyledComp && target.attrs ? _extends$42({}, target.attrs, attrs) : attrs;
+
+  var componentStyle = new ComponentStyle(isTargetStyledComp ? // fold the underlying StyledComponent rules up (implicit extend)
+  // $FlowFixMe
+  target.componentStyle.rules.concat(rules) : rules, finalAttrs, styledComponentId);
+
+  /**
+   * forwardRef creates a new interim component, which we'll take advantage of
+   * instead of extending ParentComponent to create _another_ interim class
+   */
+  var WrappedStyledComponent = React__default.forwardRef(function (props, ref) {
+    return React__default.createElement(ParentComponent, _extends$42({}, props, { forwardedClass: WrappedStyledComponent, forwardedRef: ref }));
+  });
+
+  // $FlowFixMe
+  WrappedStyledComponent.attrs = finalAttrs;
+  // $FlowFixMe
+  WrappedStyledComponent.componentStyle = componentStyle;
+  WrappedStyledComponent.displayName = displayName;
+  // $FlowFixMe
+  WrappedStyledComponent.styledComponentId = styledComponentId;
+
+  // fold the underlying StyledComponent target up since we folded the styles
+  // $FlowFixMe
+  WrappedStyledComponent.target = isTargetStyledComp ? target.target : target;
+
+  // $FlowFixMe
+  WrappedStyledComponent.withComponent = function withComponent(tag) {
+    var previousComponentId = options.componentId,
+        optionsToCopy = objectWithoutProperties$2(options, ['componentId']);
+
+
+    var newComponentId = previousComponentId && previousComponentId + '-' + (isTag(tag) ? tag : escape(getComponentName(tag)));
+
+    var newOptions = _extends$42({}, optionsToCopy, {
+      attrs: finalAttrs,
+      componentId: newComponentId,
+      ParentComponent: ParentComponent
+    });
+
+    return createStyledComponent(tag, newOptions, rules);
+  };
+
+  if (isClass) {
+    hoistNonReactStatics$1(WrappedStyledComponent, target, {
+      // all SC-specific things should not be hoisted
+      attrs: true,
+      componentStyle: true,
+      displayName: true,
+      styledComponentId: true,
+      target: true,
+      warnTooManyClasses: true,
+      withComponent: true
+    });
+  }
+
+  return WrappedStyledComponent;
+}
+
+// 
+// Thanks to ReactDOMFactories for this handy list!
+
+var domElements = ['a', 'abbr', 'address', 'area', 'article', 'aside', 'audio', 'b', 'base', 'bdi', 'bdo', 'big', 'blockquote', 'body', 'br', 'button', 'canvas', 'caption', 'cite', 'code', 'col', 'colgroup', 'data', 'datalist', 'dd', 'del', 'details', 'dfn', 'dialog', 'div', 'dl', 'dt', 'em', 'embed', 'fieldset', 'figcaption', 'figure', 'footer', 'form', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'head', 'header', 'hgroup', 'hr', 'html', 'i', 'iframe', 'img', 'input', 'ins', 'kbd', 'keygen', 'label', 'legend', 'li', 'link', 'main', 'map', 'mark', 'marquee', 'menu', 'menuitem', 'meta', 'meter', 'nav', 'noscript', 'object', 'ol', 'optgroup', 'option', 'output', 'p', 'param', 'picture', 'pre', 'progress', 'q', 'rp', 'rt', 'ruby', 's', 'samp', 'script', 'section', 'select', 'small', 'source', 'span', 'strong', 'style', 'sub', 'summary', 'sup', 'table', 'tbody', 'td', 'textarea', 'tfoot', 'th', 'thead', 'time', 'title', 'tr', 'track', 'u', 'ul', 'var', 'video', 'wbr',
+
+// SVG
+'circle', 'clipPath', 'defs', 'ellipse', 'foreignObject', 'g', 'image', 'line', 'linearGradient', 'mask', 'path', 'pattern', 'polygon', 'polyline', 'radialGradient', 'rect', 'stop', 'svg', 'text', 'tspan'];
+
+// 
+
+var styled = function styled(tag) {
+  return constructWithOptions(createStyledComponent, tag);
+};
+
+// Shorthands for all valid HTML Elements
+domElements.forEach(function (domElement) {
+  styled[domElement] = styled(domElement);
+});
+
+// 
+
+// place our cache into shared context so it'll persist between HMRs
+if (IS_BROWSER) {
+  window.scCGSHMRCache = {};
+}
+
+var _templateObject = taggedTemplateLiteral(['\n\t.crud-action {\n\t\tfont-size: 20px\n\t}\n'], ['\n\t.crud-action {\n\t\tfont-size: 20px\n\t}\n']);
+
+var ActionStyled = styled.span(_templateObject);
 
 var Action = function (_Component) {
 	inherits(Action, _Component);
@@ -104032,9 +106121,13 @@ var Action = function (_Component) {
 				'p',
 				null,
 				React__default.createElement(
-					'a',
-					{ title: data.name, href: data.url, target: '_blank', className: 'crud-action' },
-					React__default.createElement(Icon, { type: this.getIcon(data.id), onClick: this.handleClick })
+					ActionStyled,
+					null,
+					React__default.createElement(
+						'a',
+						{ title: data.name, href: data.url, target: '_blank', className: 'crud-action' },
+						React__default.createElement(Icon, { type: this.getIcon(data.id), onClick: this.handleClick })
+					)
 				)
 			);
 		}
@@ -104211,7 +106304,7 @@ function resolvePathname(to) {
   return result;
 }
 
-var _typeof$7 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+var _typeof$8 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 function valueEqual(a, b) {
   if (a === b) return true;
@@ -104224,8 +106317,8 @@ function valueEqual(a, b) {
     });
   }
 
-  var aType = typeof a === 'undefined' ? 'undefined' : _typeof$7(a);
-  var bType = typeof b === 'undefined' ? 'undefined' : _typeof$7(b);
+  var aType = typeof a === 'undefined' ? 'undefined' : _typeof$8(a);
+  var bType = typeof b === 'undefined' ? 'undefined' : _typeof$8(b);
 
   if (aType !== bType) return false;
 
@@ -104307,7 +106400,7 @@ var createPath = function createPath(location) {
   return path;
 };
 
-var _extends$42 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$43 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 var createLocation = function createLocation(path, state, key, currentLocation) {
   var location = void 0;
@@ -104317,7 +106410,7 @@ var createLocation = function createLocation(path, state, key, currentLocation) 
     location.state = state;
   } else {
     // One-arg form: push(location)
-    location = _extends$42({}, path);
+    location = _extends$43({}, path);
 
     if (location.pathname === undefined) location.pathname = '';
 
@@ -104496,9 +106589,9 @@ var isExtraneousPopstateEvent = function isExtraneousPopstateEvent(event) {
   return event.state === undefined && navigator.userAgent.indexOf('CriOS') === -1;
 };
 
-var _typeof$8 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+var _typeof$9 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
-var _extends$43 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$44 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 var PopStateEvent = 'popstate';
 var HashChangeEvent = 'hashchange';
@@ -104562,7 +106655,7 @@ var createBrowserHistory = function createBrowserHistory() {
   var transitionManager = createTransitionManager();
 
   var setState = function setState(nextState) {
-    _extends$43(history, nextState);
+    _extends$44(history, nextState);
 
     history.length = globalHistory.length;
 
@@ -104632,7 +106725,7 @@ var createBrowserHistory = function createBrowserHistory() {
   };
 
   var push = function push(path, state) {
-    warning_1$10(!((typeof path === 'undefined' ? 'undefined' : _typeof$8(path)) === 'object' && path.state !== undefined && state !== undefined), 'You should avoid providing a 2nd state argument to push when the 1st ' + 'argument is a location-like object that already has state; it is ignored');
+    warning_1$10(!((typeof path === 'undefined' ? 'undefined' : _typeof$9(path)) === 'object' && path.state !== undefined && state !== undefined), 'You should avoid providing a 2nd state argument to push when the 1st ' + 'argument is a location-like object that already has state; it is ignored');
 
     var action = 'PUSH';
     var location = createLocation(path, state, createKey(), history.location);
@@ -104668,7 +106761,7 @@ var createBrowserHistory = function createBrowserHistory() {
   };
 
   var replace = function replace(path, state) {
-    warning_1$10(!((typeof path === 'undefined' ? 'undefined' : _typeof$8(path)) === 'object' && path.state !== undefined && state !== undefined), 'You should avoid providing a 2nd state argument to replace when the 1st ' + 'argument is a location-like object that already has state; it is ignored');
+    warning_1$10(!((typeof path === 'undefined' ? 'undefined' : _typeof$9(path)) === 'object' && path.state !== undefined && state !== undefined), 'You should avoid providing a 2nd state argument to replace when the 1st ' + 'argument is a location-like object that already has state; it is ignored');
 
     var action = 'REPLACE';
     var location = createLocation(path, state, createKey(), history.location);
@@ -104778,7 +106871,7 @@ var createBrowserHistory = function createBrowserHistory() {
   return history;
 };
 
-var _extends$44 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$45 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 var HashChangeEvent$1 = 'hashchange';
 
@@ -104852,7 +106945,7 @@ var createHashHistory = function createHashHistory() {
   var transitionManager = createTransitionManager();
 
   var setState = function setState(nextState) {
-    _extends$44(history, nextState);
+    _extends$45(history, nextState);
 
     history.length = globalHistory.length;
 
@@ -105077,9 +107170,9 @@ var createHashHistory = function createHashHistory() {
   return history;
 };
 
-var _typeof$9 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+var _typeof$10 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
-var _extends$45 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$46 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 var clamp = function clamp(n, lowerBound, upperBound) {
   return Math.min(Math.max(n, lowerBound), upperBound);
@@ -105102,7 +107195,7 @@ var createMemoryHistory = function createMemoryHistory() {
   var transitionManager = createTransitionManager();
 
   var setState = function setState(nextState) {
-    _extends$45(history, nextState);
+    _extends$46(history, nextState);
 
     history.length = history.entries.length;
 
@@ -105123,7 +107216,7 @@ var createMemoryHistory = function createMemoryHistory() {
   var createHref = createPath;
 
   var push = function push(path, state) {
-    warning_1$10(!((typeof path === 'undefined' ? 'undefined' : _typeof$9(path)) === 'object' && path.state !== undefined && state !== undefined), 'You should avoid providing a 2nd state argument to push when the 1st ' + 'argument is a location-like object that already has state; it is ignored');
+    warning_1$10(!((typeof path === 'undefined' ? 'undefined' : _typeof$10(path)) === 'object' && path.state !== undefined && state !== undefined), 'You should avoid providing a 2nd state argument to push when the 1st ' + 'argument is a location-like object that already has state; it is ignored');
 
     var action = 'PUSH';
     var location = createLocation(path, state, createKey(), history.location);
@@ -105151,7 +107244,7 @@ var createMemoryHistory = function createMemoryHistory() {
   };
 
   var replace = function replace(path, state) {
-    warning_1$10(!((typeof path === 'undefined' ? 'undefined' : _typeof$9(path)) === 'object' && path.state !== undefined && state !== undefined), 'You should avoid providing a 2nd state argument to replace when the 1st ' + 'argument is a location-like object that already has state; it is ignored');
+    warning_1$10(!((typeof path === 'undefined' ? 'undefined' : _typeof$10(path)) === 'object' && path.state !== undefined && state !== undefined), 'You should avoid providing a 2nd state argument to replace when the 1st ' + 'argument is a location-like object that already has state; it is ignored');
 
     var action = 'REPLACE';
     var location = createLocation(path, state, createKey(), history.location);
@@ -105228,7 +107321,7 @@ var createMemoryHistory = function createMemoryHistory() {
   return history;
 };
 
-var _extends$46 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$47 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 function _classCallCheck$45(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -105259,7 +107352,7 @@ var Router = function (_React$Component) {
 
   Router.prototype.getChildContext = function getChildContext() {
     return {
-      router: _extends$46({}, this.context.router, {
+      router: _extends$47({}, this.context.router, {
         history: this.props.history,
         route: {
           location: this.props.history.location,
@@ -105415,7 +107508,7 @@ HashRouter.propTypes = {
   children: propTypes.node
 };
 
-var _extends$47 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$48 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 function _objectWithoutProperties$15(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
@@ -105486,7 +107579,7 @@ var Link = function (_React$Component) {
     var location = typeof to === "string" ? createLocation(to, null, null, history.location) : to;
 
     var href = history.createHref(location);
-    return React__default.createElement("a", _extends$47({}, props, { onClick: this.handleClick, href: href, ref: innerRef }));
+    return React__default.createElement("a", _extends$48({}, props, { onClick: this.handleClick, href: href, ref: innerRef }));
   };
 
   return Link;
@@ -106060,7 +108153,7 @@ var matchPath = function matchPath(pathname) {
   };
 };
 
-var _extends$48 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$49 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 function _classCallCheck$50(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -106095,7 +108188,7 @@ var Route = function (_React$Component) {
 
   Route.prototype.getChildContext = function getChildContext() {
     return {
-      router: _extends$48({}, this.context.router, {
+      router: _extends$49({}, this.context.router, {
         route: {
           location: this.props.location || this.context.router.route.location,
           match: this.state.match
@@ -106193,9 +108286,9 @@ Route.childContextTypes = {
 
 // Written in this round about way for babel-transform-imports
 
-var _extends$49 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$50 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-var _typeof$10 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+var _typeof$11 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 function _objectWithoutProperties$16(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
@@ -106215,7 +108308,7 @@ var NavLink = function NavLink(_ref) {
       ariaCurrent = _ref["aria-current"],
       rest = _objectWithoutProperties$16(_ref, ["to", "exact", "strict", "location", "activeClassName", "className", "activeStyle", "style", "isActive", "aria-current"]);
 
-  var path = (typeof to === "undefined" ? "undefined" : _typeof$10(to)) === "object" ? to.pathname : to;
+  var path = (typeof to === "undefined" ? "undefined" : _typeof$11(to)) === "object" ? to.pathname : to;
 
   // Regex taken from: https://github.com/pillarjs/path-to-regexp/blob/master/index.js#L202
   var escapedPath = path && path.replace(/([.+*?=^!:${}()[\]|/\\])/g, "\\$1");
@@ -106231,12 +108324,12 @@ var NavLink = function NavLink(_ref) {
 
       var isActive = !!(getIsActive ? getIsActive(match, location) : match);
 
-      return React__default.createElement(Link, _extends$49({
+      return React__default.createElement(Link, _extends$50({
         to: to,
         className: isActive ? [className, activeClassName].filter(function (i) {
           return i;
         }).join(" ") : className,
-        style: isActive ? _extends$49({}, style, activeStyle) : style,
+        style: isActive ? _extends$50({}, style, activeStyle) : style,
         "aria-current": isActive && ariaCurrent || null
       }, rest));
     }
@@ -106370,7 +108463,7 @@ var generatePath = function generatePath() {
   return generator(params, { pretty: true });
 };
 
-var _extends$50 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$51 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 function _classCallCheck$52(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -106426,7 +108519,7 @@ var Redirect = function (_React$Component) {
       if (typeof to === "string") {
         return generatePath(to, computedMatch.params);
       } else {
-        return _extends$50({}, to, {
+        return _extends$51({}, to, {
           pathname: generatePath(to.pathname, computedMatch.params)
         });
       }
@@ -106476,7 +108569,7 @@ Redirect.contextTypes = {
 
 // Written in this round about way for babel-transform-imports
 
-var _extends$51 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$52 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 function _objectWithoutProperties$17(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
@@ -106493,7 +108586,7 @@ var addLeadingSlash$1 = function addLeadingSlash(path) {
 var addBasename = function addBasename(basename, location) {
   if (!basename) return location;
 
-  return _extends$51({}, location, {
+  return _extends$52({}, location, {
     pathname: addLeadingSlash$1(basename) + location.pathname
   });
 };
@@ -106505,7 +108598,7 @@ var stripBasename$1 = function stripBasename(basename, location) {
 
   if (location.pathname.indexOf(base) !== 0) return location;
 
-  return _extends$51({}, location, {
+  return _extends$52({}, location, {
     pathname: location.pathname.substr(base.length)
   });
 };
@@ -106598,7 +108691,7 @@ var StaticRouter = function (_React$Component) {
       block: this.handleBlock
     };
 
-    return React__default.createElement(Router, _extends$51({}, props, { history: history }));
+    return React__default.createElement(Router, _extends$52({}, props, { history: history }));
   };
 
   return StaticRouter;
@@ -106724,6 +108817,8 @@ var dataRenderer = (function (row, column, modelName) {
 
 var fetchCrudModels = actions.fetchCrudModels;
 
+var isBigDesctop = window.document.documentElement.scrollWidth > 1646;
+
 var CrudView = function (_Component) {
 	inherits(CrudView, _Component);
 
@@ -106778,7 +108873,8 @@ var CrudView = function (_Component) {
 			    items = _props2.items,
 			    modelName = _props2.modelName,
 			    tableStyle = _props2.tableStyle,
-			    TableWrapper = _props2.TableWrapper;
+			    TableWrapper = _props2.TableWrapper,
+			    fixActionColumn = _props2.fixActionColumn;
 
 			if (!items || !items.data) return null;
 
@@ -106787,15 +108883,14 @@ var CrudView = function (_Component) {
 					key: elem.id
 				});
 			});
-
-			var width = '25%';
+			//console.log(fixActionColumn, isBigDesctop)
 
 			var columns = items.data.columns.map(function (col) {
 				return {
 					title: col.title, //<IntlMessages id="antTable.title.id"/>,
 					key: col.id,
-					//fixed: col.id === 'actions' ? 'right' : null,
-					width: width,
+					fixed: col.id === 'actions' && !isBigDesctop && fixActionColumn ? 'right' : null,
+					width: col.id === 'actions' && !isBigDesctop && fixActionColumn ? 100 : 'auto',
 					render: function render(object) {
 						return dataRenderer(object, col, modelName);
 					},
@@ -106821,8 +108916,8 @@ var CrudView = function (_Component) {
 					total: items.data.count,
 					hideOnSinglePage: true
 				},
-				loading: items.loading
-				//scroll={{ x: 1300 }}
+				loading: items.loading,
+				scroll: !isBigDesctop && fixActionColumn ? { x: 1300 } : {}
 			});
 		}
 	}]);
@@ -106831,7 +108926,12 @@ var CrudView = function (_Component) {
 
 CrudView.propTypes = {
 	modelName: propTypes.string.isRequired,
-	url: propTypes.string.isRequired
+	url: propTypes.string.isRequired,
+	fixActionColumn: propTypes.bool
+};
+
+CrudView.defaultProps = {
+	fixActionColumn: true
 };
 
 var CrudView$1 = connect(function (state, props) {
@@ -111907,7 +114007,8 @@ var CrudFull = function (_Component) {
 			    createDisabled = _props.createDisabled,
 			    btnStyle = _props.btnStyle,
 			    tableStyle = _props.tableStyle,
-			    tableWrapper = _props.tableWrapper;
+			    tableWrapper = _props.tableWrapper,
+			    fixActionColumn = _props.fixActionColumn;
 
 			var _ref2 = createFormOptions || {},
 			    title = _ref2.title,
@@ -111930,7 +114031,8 @@ var CrudFull = function (_Component) {
 					modelName: modelName,
 					url: crudRead,
 					tableStyle: tableStyle,
-					TableWrapper: tableWrapper
+					TableWrapper: tableWrapper,
+					fixActionColumn: fixActionColumn
 				}),
 				isModalOpen && !createDisabled ? React__default.createElement(CreateModelView, {
 					title: title || 'Создать',
@@ -111960,7 +114062,8 @@ CrudFull.propTypes = {
 	createDisabled: propTypes.bool,
 	btnStyle: propTypes.object,
 	tableStyle: propTypes.object,
-	tableWrapper: propTypes.oneOfType([propTypes.object, propTypes.node])
+	tableWrapper: propTypes.oneOfType([propTypes.object, propTypes.node]),
+	fixActionColumn: propTypes.bool
 };
 
 CrudFull.defaultProps = {

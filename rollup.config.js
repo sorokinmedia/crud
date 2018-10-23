@@ -68,7 +68,10 @@ export default {
 				],
 				'draft-js/lib/DraftOffsetKey': ['decode'],
 				'immutable': ['Map', 'List', 'fromJS', 'OrderedSet', 'Repeat', 'is'],
-				'fbjs/lib/ExecutionEnvironment': ['canUseDOM']
+				'fbjs/lib/ExecutionEnvironment': ['canUseDOM'],
+				'react-is': [
+					'isElement', 'isValidElementType', 'ForwardRef'
+				]
 			},  // Default: undefined
 		}),
 		json()

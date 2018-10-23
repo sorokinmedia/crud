@@ -46,7 +46,7 @@ class CrudView extends Component {
 			...elem,
 			key: elem.id,
 		}));
-
+		//console.log(fixActionColumn, isBigDesctop)
 
 		const columns = items.data.columns.map(col => ({
 			title: col.title,//<IntlMessages id="antTable.title.id"/>,
