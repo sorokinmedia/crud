@@ -106776,7 +106776,9 @@ var CrudView = function (_Component) {
 
 			var _props2 = this.props,
 			    items = _props2.items,
-			    modelName = _props2.modelName;
+			    modelName = _props2.modelName,
+			    tableStyle = _props2.tableStyle,
+			    TableWrapper = _props2.TableWrapper;
 
 			if (!items || !items.data) return null;
 
@@ -106806,7 +106808,7 @@ var CrudView = function (_Component) {
 				};
 			});
 
-			return React__default.createElement(Table$1, {
+			var table = React__default.createElement(Table$1, {
 				columns: columns,
 				dataSource: listItems,
 				className: 'isoSortingTable',
@@ -106820,6 +106822,12 @@ var CrudView = function (_Component) {
 				loading: items.loading
 				//scroll={{ x: 1300 }}
 			});
+
+			return TableWrapper ? React__default.createElement(
+				TableWrapper,
+				null,
+				table
+			) : table;
 		}
 	}]);
 	return CrudView;
@@ -111900,7 +111908,10 @@ var CrudFull = function (_Component) {
 			    crudRead = _props.crudRead,
 			    createButtonTitle = _props.createButtonTitle,
 			    createFormOptions = _props.createFormOptions,
-			    createDisabled = _props.createDisabled;
+			    createDisabled = _props.createDisabled,
+			    btnStyle = _props.btnStyle,
+			    tableStyle = _props.tableStyle,
+			    tableWrapper = _props.tableWrapper;
 
 			var _ref2 = createFormOptions || {},
 			    title = _ref2.title,
@@ -111912,12 +111923,18 @@ var CrudFull = function (_Component) {
 				null,
 				!createDisabled ? React__default.createElement(
 					Button,
-					{ type: 'primary', onClick: this.toggleModal, style: { marginBottom: '20px' } },
+					{
+						type: 'primary',
+						onClick: this.toggleModal,
+						style: _extends({}, btnStyle, { marginBottom: '20px' })
+					},
 					createButtonTitle
 				) : null,
 				React__default.createElement(CrudView$1, {
 					modelName: modelName,
-					url: crudRead
+					url: crudRead,
+					tableStyle: tableStyle,
+					TableWrapper: tableWrapper
 				}),
 				isModalOpen && !createDisabled ? React__default.createElement(CreateModelView, {
 					title: title || 'Создать',
@@ -111944,7 +111961,10 @@ CrudFull.propTypes = {
 		fields: propTypes.array.isRequired
 	}),
 	submitShape: propTypes.func,
-	createDisabled: propTypes.bool
+	createDisabled: propTypes.bool,
+	btnStyle: propTypes.object,
+	tableStyle: propTypes.object,
+	tableWrapper: propTypes.oneOfType([propTypes.object, propTypes.node])
 };
 
 CrudFull.defaultProps = {
@@ -111952,7 +111972,10 @@ CrudFull.defaultProps = {
 	submitShape: function submitShape(form) {
 		return form;
 	},
-	createDisabled: true
+	createDisabled: true,
+	btnStyle: {},
+	tableStyle: {},
+	tableWrapper: null
 };
 
 var crudFull = connect(function (state) {

@@ -68,18 +68,27 @@ class CrudFull extends Component {
 			crudRead,
 			createButtonTitle,
 			createFormOptions,
-			createDisabled
+			createDisabled,
+            btnStyle,
+            tableStyle,
+            tableWrapper
 		} = this.props;
 
 		const {title, titleEdit, fields} = createFormOptions || {};
 
 		return <div>
-			{!createDisabled ? <Button type="primary" onClick={this.toggleModal} style={{marginBottom: '20px'}}>
+			{!createDisabled ? <Button
+				type="primary"
+				onClick={this.toggleModal}
+				style={{...btnStyle, marginBottom: '20px'}}
+			>
 				{createButtonTitle}
 			</Button> : null}
 			<CrudView
 				modelName={modelName}
 				url={crudRead}
+				tableStyle={tableStyle}
+				TableWrapper={tableWrapper}
 			/>
 			{isModalOpen && !createDisabled ? <CreateModelView
 				title={title || 'Создать'}
@@ -124,13 +133,19 @@ CrudFull.propTypes = {
 		fields: PropTypes.array.isRequired
 	}),
 	submitShape: PropTypes.func,
-	createDisabled: PropTypes.bool
+	createDisabled: PropTypes.bool,
+	btnStyle: PropTypes.object,
+	tableStyle: PropTypes.object,
+	tableWrapper: PropTypes.oneOfType([PropTypes.object, PropTypes.node])
 };
 
 CrudFull.defaultProps = {
 	createButtonTitleId: "crud.button.new",
 	submitShape: form => form,
-	createDisabled: true
+	createDisabled: true,
+    btnStyle: {},
+    tableStyle: {},
+    tableWrapper: null
 };
 
 export default connect(state => ({

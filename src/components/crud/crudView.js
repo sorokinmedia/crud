@@ -38,7 +38,7 @@ class CrudView extends Component {
 	};
 
 	render() {
-		const {items, modelName} = this.props;
+		const {items, modelName, tableStyle, TableWrapper} = this.props;
 		if(!items || !items.data) return null;
 
 		const listItems = items.data.items.map((elem) => ({
@@ -62,20 +62,24 @@ class CrudView extends Component {
 			sorter: col.order.can ? () => {} : null//(a, b) => Number(a.id) - Number(b.id),
 		}));
 
-		return <Table
-			columns={columns}
-			dataSource={listItems}
-			className="isoSortingTable"
-			onChange={this.handleTableChange}
-			pagination={{
-				defaultCurrent: 1,
-				pageSize: 20,
-				total: items.data.count,
-				hideOnSinglePage: true
-			}}
-			loading={items.loading}
+		const table = <Table
+            columns={columns}
+            dataSource={listItems}
+            className="isoSortingTable"
+            onChange={this.handleTableChange}
+            pagination={{
+                defaultCurrent: 1,
+                pageSize: 20,
+                total: items.data.count,
+                hideOnSinglePage: true
+            }}
+            loading={items.loading}
 			//scroll={{ x: 1300 }}
-		/>
+        />;
+
+		return TableWrapper ? <TableWrapper>
+			{table}
+		</TableWrapper> : table
 	}
 }
 
