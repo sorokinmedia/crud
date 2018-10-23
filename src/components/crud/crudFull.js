@@ -71,7 +71,8 @@ class CrudFull extends Component {
 			createDisabled,
             btnStyle,
             tableStyle,
-            tableWrapper
+            tableWrapper,
+            fixActionColumn
 		} = this.props;
 
 		const {title, titleEdit, fields} = createFormOptions || {};
@@ -98,6 +99,7 @@ class CrudFull extends Component {
 				onCreate={objectModal.modalType === 'edit' ? this.handleUpdate : this.handleCreate}
 				fields={fields}
 				initialValues={objectModal.initialValues}
+                fixActionColumn={fixActionColumn}
 			/> : '' }
 		</div>
 	}
