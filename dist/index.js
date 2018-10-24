@@ -114015,7 +114015,8 @@ var CrudFull = function (_Component) {
 			    btnStyle = _props.btnStyle,
 			    tableStyle = _props.tableStyle,
 			    tableWrapper = _props.tableWrapper,
-			    fixActionColumn = _props.fixActionColumn;
+			    fixActionColumn = _props.fixActionColumn,
+			    updateShape = _props.updateShape;
 
 			var _ref2 = createFormOptions || {},
 			    title = _ref2.title,
@@ -114066,6 +114067,7 @@ CrudFull.propTypes = {
 		fields: propTypes.array.isRequired
 	}),
 	submitShape: propTypes.func,
+	updateShape: propTypes.func,
 	createDisabled: propTypes.bool,
 	btnStyle: propTypes.object,
 	tableStyle: propTypes.object,
@@ -114077,6 +114079,9 @@ CrudFull.defaultProps = {
 	createButtonTitleId: "crud.button.new",
 	submitShape: function submitShape(form) {
 		return form;
+	},
+	updateShape: function updateShape(elem) {
+		return elem;
 	},
 	createDisabled: true,
 	btnStyle: {},
