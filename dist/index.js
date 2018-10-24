@@ -4,8 +4,8 @@ Object.defineProperty(exports, '__esModule', { value: true });
 
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
-var React = require('react');
-var React__default = _interopDefault(React);
+var React$1 = require('react');
+var React$1__default = _interopDefault(React$1);
 require('stream');
 
 var actions = {
@@ -1479,12 +1479,12 @@ var Form = function (_Component) {
   }, {
     key: 'render',
     value: function render() {
-      return React__default.createElement('form', this.props);
+      return React$1__default.createElement('form', this.props);
     }
   }]);
 
   return Form;
-}(React.Component);
+}(React$1.Component);
 
 Form.propTypes = {
   onSubmit: propTypes.func.isRequired
@@ -1558,18 +1558,18 @@ var FormSection = function (_Component) {
           component = _props.component,
           rest = _objectWithoutProperties(_props, ['children', 'name', 'component']);
 
-      if (React__default.isValidElement(children)) {
+      if (React$1__default.isValidElement(children)) {
         return children;
       }
 
-      return React.createElement(component, _extends$4({}, rest, {
+      return React$1.createElement(component, _extends$4({}, rest, {
         children: children
       }));
     }
   }]);
 
   return FormSection;
-}(React.Component);
+}(React$1.Component);
 
 FormSection.propTypes = {
   name: propTypes.string.isRequired,
@@ -1915,11 +1915,11 @@ function createProvider() {
     }
 
     Provider.prototype.render = function render() {
-      return React.Children.only(this.props.children);
+      return React$1.Children.only(this.props.children);
     };
 
     return Provider;
-  }(React.Component);
+  }(React$1.Component);
 
   Provider.propTypes = {
     store: storeShape.isRequired,
@@ -2325,12 +2325,12 @@ selectorFactory) {
         if (selector.error) {
           throw selector.error;
         } else {
-          return React.createElement(WrappedComponent, this.addExtraProps(selector.props));
+          return React$1.createElement(WrappedComponent, this.addExtraProps(selector.props));
         }
       };
 
       return Connect;
-    }(React.Component);
+    }(React$1.Component);
 
     Connect.WrappedComponent = WrappedComponent;
     Connect.displayName = displayName;
@@ -5442,7 +5442,7 @@ var customizer = function customizer(obj, other) {
 
   if (obj && other && obj._error !== other._error) return false;
   if (obj && other && obj._warning !== other._warning) return false;
-  if (React__default.isValidElement(obj) || React__default.isValidElement(other)) return false;
+  if (React$1__default.isValidElement(obj) || React$1__default.isValidElement(other)) return false;
 };
 
 var deepEqual = function deepEqual(a, b) {
@@ -5834,15 +5834,15 @@ var createConnectedField = function createConnectedField(structure$$1) {
  // eslint-disable-line no-unused-vars
           // flatten input into other props
 
-          return React.createElement(component, _extends$12({}, input, custom));
+          return React$1.createElement(component, _extends$12({}, input, custom));
         } else {
-          return React.createElement(component, _extends$12({}, props, custom));
+          return React$1.createElement(component, _extends$12({}, props, custom));
         }
       }
     }]);
 
     return ConnectedField;
-  }(React.Component);
+  }(React$1.Component);
 
   ConnectedField.propTypes = {
     component: propTypes.oneOfType([propTypes.func, propTypes.string, propTypes.node]).isRequired,
@@ -5996,7 +5996,7 @@ var createField = function createField(structure$$1) {
     }, {
       key: 'render',
       value: function render() {
-        return React.createElement(ConnectedField, _extends$13({}, this.props, {
+        return React$1.createElement(ConnectedField, _extends$13({}, this.props, {
           name: this.name,
           normalize: this.normalize,
           _reduxForm: this.context._reduxForm,
@@ -6026,7 +6026,7 @@ var createField = function createField(structure$$1) {
     }]);
 
     return Field;
-  }(React.Component);
+  }(React$1.Component);
 
   Field.propTypes = {
     name: propTypes.string.isRequired,
@@ -6251,12 +6251,12 @@ var createConnectedFields = function createConnectedFields(structure$$1) {
           props.ref = this.saveRef;
         }
 
-        return React.createElement(component, _extends$14({}, props, custom));
+        return React$1.createElement(component, _extends$14({}, props, custom));
       }
     }]);
 
     return ConnectedFields;
-  }(React.Component);
+  }(React$1.Component);
 
   ConnectedFields.propTypes = {
     component: propTypes.oneOfType([propTypes.func, propTypes.string, propTypes.node]).isRequired,
@@ -6398,7 +6398,7 @@ var createFields = function createFields(structure$$1) {
       value: function render() {
         var context = this.context;
 
-        return React.createElement(ConnectedFields, _extends$15({}, this.props, {
+        return React$1.createElement(ConnectedFields, _extends$15({}, this.props, {
           names: this.props.names.map(function (name) {
             return formatName(context, name);
           }),
@@ -6433,7 +6433,7 @@ var createFields = function createFields(structure$$1) {
     }]);
 
     return Fields;
-  }(React.Component);
+  }(React$1.Component);
 
   Fields.propTypes = {
     names: function names(props, propName) {
@@ -7181,7 +7181,7 @@ var createConnectedFieldArray = function createConnectedFieldArray(structure$$1)
         if (withRef) {
           props.ref = this.saveRef;
         }
-        return React.createElement(component, props);
+        return React$1.createElement(component, props);
       }
     }, {
       key: 'dirty',
@@ -7201,7 +7201,7 @@ var createConnectedFieldArray = function createConnectedFieldArray(structure$$1)
     }]);
 
     return ConnectedFieldArray;
-  }(React.Component);
+  }(React$1.Component);
 
   ConnectedFieldArray.propTypes = {
     component: propTypes.oneOfType([propTypes.func, propTypes.string, propTypes.node]).isRequired,
@@ -7363,7 +7363,7 @@ var createFieldArray = function createFieldArray(structure) {
     }, {
       key: 'render',
       value: function render() {
-        return React.createElement(ConnectedFieldArray, _extends$17({}, this.props, {
+        return React$1.createElement(ConnectedFieldArray, _extends$17({}, this.props, {
           name: this.name,
           _reduxForm: this.context._reduxForm,
           ref: this.saveRef
@@ -7392,7 +7392,7 @@ var createFieldArray = function createFieldArray(structure) {
     }]);
 
     return FieldArray;
-  }(React.Component);
+  }(React$1.Component);
 
   FieldArray.propTypes = {
     name: propTypes.string.isRequired,
@@ -7588,7 +7588,7 @@ var createValues = function createValues(_ref) {
           value: function render() {
             var Component = this.Component;
 
-            return React__default.createElement(Component
+            return React$1__default.createElement(Component
             // so that the connected component updates props when sectionPrefix has changed
             , _extends$18({ sectionPrefix: this.context._reduxForm.sectionPrefix
             }, this.props));
@@ -7643,13 +7643,13 @@ var createValues = function createValues(_ref) {
               var sectionPrefix = _ref3.sectionPrefix,
                   otherProps = _objectWithoutProperties$9(_ref3, ['sectionPrefix']);
 
-              return React__default.createElement(Component, otherProps);
+              return React$1__default.createElement(Component, otherProps);
             });
           }
         }]);
 
         return FormValues;
-      }(React__default.Component);
+      }(React$1__default.Component);
 
       FormValues.contextTypes = {
         _reduxForm: propTypes.object
@@ -9453,12 +9453,12 @@ var createReduxForm = function createReduxForm(structure$$1) {
             if (isClassComponent(WrappedComponent)) {
 propsToPass.ref = this.saveRef;
             }
-            return React.createElement(WrappedComponent, propsToPass);
+            return React$1.createElement(WrappedComponent, propsToPass);
           }
         }]);
 
         return Form;
-      }(React.Component);
+      }(React$1.Component);
 
       Form.displayName = 'Form(' + getDisplayName(WrappedComponent) + ')';
       Form.WrappedComponent = WrappedComponent;
@@ -9623,7 +9623,7 @@ propsToPass.ref = this.saveRef;
                 initialValues = _props10.initialValues,
                 rest = _objectWithoutProperties$10(_props10, ['initialValues']);
 
-            return React.createElement(ConnectedForm, _extends$20({}, rest, {
+            return React$1.createElement(ConnectedForm, _extends$20({}, rest, {
               ref: function ref(_ref3) {
                 _this5.ref = _ref3;
               },
@@ -9671,7 +9671,7 @@ propsToPass.ref = this.saveRef;
         }]);
 
         return ReduxForm;
-      }(React.Component);
+      }(React$1.Component);
 
       polyfill(ReduxForm);
       return hoistNonReactStatics_cjs(ReduxForm, WrappedComponent);
@@ -11795,7 +11795,7 @@ var schedule = createCommonjsModule(function (module) {
 });
 
 function ca(a,b,c,d,e,f,g,h){if(!a){a=void 0;if(void 0===b)a=Error("Minified exception occurred; use the non-minified dev environment for the full error message and additional helpful warnings.");else{var k=[c,d,e,f,g,h],l=0;a=Error(b.replace(/%s/g,function(){return k[l++]}));a.name="Invariant Violation";}a.framesToPop=1;throw a;}}
-function t(a){for(var b=arguments.length-1,c="https://reactjs.org/docs/error-decoder.html?invariant="+a,d=0;d<b;d++)c+="&args[]="+encodeURIComponent(arguments[d+1]);ca(!1,"Minified React error #"+a+"; visit %s for the full message or use the non-minified dev environment for full errors and additional helpful warnings. ",c);}React__default?void 0:t("227");function da(a,b,c,d,e,f,g,h,k){var l=Array.prototype.slice.call(arguments,3);try{b.apply(c,l);}catch(m){this.onError(m);}}
+function t(a){for(var b=arguments.length-1,c="https://reactjs.org/docs/error-decoder.html?invariant="+a,d=0;d<b;d++)c+="&args[]="+encodeURIComponent(arguments[d+1]);ca(!1,"Minified React error #"+a+"; visit %s for the full message or use the non-minified dev environment for full errors and additional helpful warnings. ",c);}React$1__default?void 0:t("227");function da(a,b,c,d,e,f,g,h,k){var l=Array.prototype.slice.call(arguments,3);try{b.apply(c,l);}catch(m){this.onError(m);}}
 var ea=!1,fa=null,ha=!1,ia=null,ja={onError:function(a){ea=!0;fa=a;}};function ka(a,b,c,d,e,f,g,h,k){ea=!1;fa=null;da.apply(ja,arguments);}function la(a,b,c,d,e,f,g,h,k){ka.apply(this,arguments);if(ea){if(ea){var l=fa;ea=!1;fa=null;}else t("198"),l=void 0;ha||(ha=!0,ia=l);}}var ma=null,na={};
 function oa(){if(ma)for(var a in na){var b=na[a],c=ma.indexOf(a);-1<c?void 0:t("96",a);if(!pa[c]){b.extractEvents?void 0:t("97",a);pa[c]=b;c=b.eventTypes;for(var d in c){var e=void 0;var f=c[d],g=b,h=d;qa.hasOwnProperty(h)?t("99",h):void 0;qa[h]=f;var k=f.phasedRegistrationNames;if(k){for(e in k)k.hasOwnProperty(e)&&ra(k[e],g,h);e=!0;}else f.registrationName?(ra(f.registrationName,g,h),e=!0):e=!1;e?void 0:t("98",d,a);}}}}
 function ra(a,b,c){sa[a]?t("100",a):void 0;sa[a]=b;ta[a]=b.eventTypes[c].dependencies;}var pa=[],qa={},sa={},ta={},ua=null,va=null,wa=null;function xa(a,b,c,d){b=a.type||"unknown-event";a.currentTarget=wa(d);la(b,c,void 0,a);a.currentTarget=null;}function ya(a,b){null==b?t("30"):void 0;if(null==a)return b;if(Array.isArray(a)){if(Array.isArray(b))return a.push.apply(a,b),a;a.push(b);return a}return Array.isArray(b)?[a].concat(b):[a,b]}
@@ -11824,7 +11824,7 @@ function Lb(a,b){return a(b)}function Mb(a,b,c){return a(b,c)}function Nb(){}var
 function Sb(a){a=a.target||a.srcElement||window;a.correspondingUseElement&&(a=a.correspondingUseElement);return 3===a.nodeType?a.parentNode:a}function Tb(a){if(!Va)return!1;a="on"+a;var b=a in document;b||(b=document.createElement("div"),b.setAttribute(a,"return;"),b="function"===typeof b[a]);return b}function Ub(a){var b=a.type;return(a=a.nodeName)&&"input"===a.toLowerCase()&&("checkbox"===b||"radio"===b)}
 function Vb(a){var b=Ub(a)?"checked":"value",c=Object.getOwnPropertyDescriptor(a.constructor.prototype,b),d=""+a[b];if(!a.hasOwnProperty(b)&&"undefined"!==typeof c&&"function"===typeof c.get&&"function"===typeof c.set){var e=c.get,f=c.set;Object.defineProperty(a,b,{configurable:!0,get:function(){return e.call(this)},set:function(a){d=""+a;f.call(this,a);}});Object.defineProperty(a,b,{enumerable:c.enumerable});return{getValue:function(){return d},setValue:function(a){d=""+a;},stopTracking:function(){a._valueTracker=
 null;delete a[b];}}}}function Wb(a){a._valueTracker||(a._valueTracker=Vb(a));}function Xb(a){if(!a)return!1;var b=a._valueTracker;if(!b)return!0;var c=b.getValue();var d="";a&&(d=Ub(a)?a.checked?"true":"false":a.value);a=d;return a!==c?(b.setValue(a),!0):!1}
-var Yb=React__default.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED,Zb=/^(.*)[\\\/]/,C="function"===typeof Symbol&&Symbol.for,$b=C?Symbol.for("react.element"):60103,ac=C?Symbol.for("react.portal"):60106,bc=C?Symbol.for("react.fragment"):60107,cc=C?Symbol.for("react.strict_mode"):60108,dc=C?Symbol.for("react.profiler"):60114,ec=C?Symbol.for("react.provider"):60109,fc=C?Symbol.for("react.context"):60110,gc=C?Symbol.for("react.async_mode"):60111,hc=C?Symbol.for("react.forward_ref"):60112,ic=C?Symbol.for("react.placeholder"):
+var Yb=React$1__default.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED,Zb=/^(.*)[\\\/]/,C="function"===typeof Symbol&&Symbol.for,$b=C?Symbol.for("react.element"):60103,ac=C?Symbol.for("react.portal"):60106,bc=C?Symbol.for("react.fragment"):60107,cc=C?Symbol.for("react.strict_mode"):60108,dc=C?Symbol.for("react.profiler"):60114,ec=C?Symbol.for("react.provider"):60109,fc=C?Symbol.for("react.context"):60110,gc=C?Symbol.for("react.async_mode"):60111,hc=C?Symbol.for("react.forward_ref"):60112,ic=C?Symbol.for("react.placeholder"):
 60113,jc="function"===typeof Symbol&&Symbol.iterator;function kc(a){if(null===a||"object"!==typeof a)return null;a=jc&&a[jc]||a["@@iterator"];return"function"===typeof a?a:null}
 function lc(a){if(null==a)return null;if("function"===typeof a)return a.displayName||a.name||null;if("string"===typeof a)return a;switch(a){case gc:return"AsyncMode";case bc:return"Fragment";case ac:return"Portal";case dc:return"Profiler";case cc:return"StrictMode";case ic:return"Placeholder"}if("object"===typeof a){switch(a.$$typeof){case fc:return"Context.Consumer";case ec:return"Context.Provider";case hc:var b=a.render;b=b.displayName||b.name||"";return a.displayName||(""!==b?"ForwardRef("+b+")":
 "ForwardRef")}if("function"===typeof a.then&&(a=1===a._reactStatus?a._reactResult:null))return lc(a)}return null}function mc(a){var b="";do{a:switch(a.tag){case 4:case 0:case 1:case 2:case 3:case 7:case 10:var c=a._debugOwner,d=a._debugSource,e=lc(a.type);var f=null;c&&(f=lc(c.type));c=e;e="";d?e=" (at "+d.fileName.replace(Zb,"")+":"+d.lineNumber+")":f&&(e=" (created by "+f+")");f="\n    in "+(c||"Unknown")+e;break a;default:f="";}b+=f;a=a.return;}while(a);return b}
@@ -11874,7 +11874,7 @@ function Td(){for(var a=window,b=Od();b instanceof a.HTMLIFrameElement;){try{a=b
 var Vd=Va&&"documentMode"in document&&11>=document.documentMode,Wd={select:{phasedRegistrationNames:{bubbled:"onSelect",captured:"onSelectCapture"},dependencies:"blur contextmenu dragend focus keydown keyup mousedown mouseup selectionchange".split(" ")}},Xd=null,Yd=null,Zd=null,$d=!1;
 function ae(a,b){var c=b.window===b?b.document:9===b.nodeType?b:b.ownerDocument;if($d||null==Xd||Xd!==Od(c))return null;c=Xd;"selectionStart"in c&&Ud(c)?c={start:c.selectionStart,end:c.selectionEnd}:(c=(c.ownerDocument&&c.ownerDocument.defaultView||window).getSelection(),c={anchorNode:c.anchorNode,anchorOffset:c.anchorOffset,focusNode:c.focusNode,focusOffset:c.focusOffset});return Zd&&id$1(Zd,c)?null:(Zd=c,a=z.getPooled(Wd.select,Yd,a,b),a.type="select",a.target=Xd,Ua(a),a)}
 var be={eventTypes:Wd,extractEvents:function(a,b,c,d){var e=d.window===d?d.document:9===d.nodeType?d:d.ownerDocument,f;if(!(f=!e)){a:{e=Nd(e);f=ta.onSelect;for(var g=0;g<f.length;g++){var h=f[g];if(!e.hasOwnProperty(h)||!e[h]){e=!1;break a}}e=!0;}f=!e;}if(f)return null;e=b?Ma(b):window;switch(a){case "focus":if(Rb(e)||"true"===e.contentEditable)Xd=e,Yd=b,Zd=null;break;case "blur":Zd=Yd=Xd=null;break;case "mousedown":$d=!0;break;case "contextmenu":case "mouseup":case "dragend":return $d=!1,ae(c,d);case "selectionchange":if(Vd)break;
-case "keydown":case "keyup":return ae(c,d)}return null}};Ea.injectEventPluginOrder("ResponderEventPlugin SimpleEventPlugin EnterLeaveEventPlugin ChangeEventPlugin SelectEventPlugin BeforeInputEventPlugin".split(" "));ua=Na;va=La;wa=Ma;Ea.injectEventPluginsByName({SimpleEventPlugin:Cd,EnterLeaveEventPlugin:fd,ChangeEventPlugin:Uc,SelectEventPlugin:be,BeforeInputEventPlugin:Eb});function ce(a){var b="";React__default.Children.forEach(a,function(a){null!=a&&(b+=a);});return b}
+case "keydown":case "keyup":return ae(c,d)}return null}};Ea.injectEventPluginOrder("ResponderEventPlugin SimpleEventPlugin EnterLeaveEventPlugin ChangeEventPlugin SelectEventPlugin BeforeInputEventPlugin".split(" "));ua=Na;va=La;wa=Ma;Ea.injectEventPluginsByName({SimpleEventPlugin:Cd,EnterLeaveEventPlugin:fd,ChangeEventPlugin:Uc,SelectEventPlugin:be,BeforeInputEventPlugin:Eb});function ce(a){var b="";React$1__default.Children.forEach(a,function(a){null!=a&&(b+=a);});return b}
 function de(a,b){a=objectAssign({children:void 0},b);if(b=ce(b.children))a.children=b;return a}function ee(a,b,c,d){a=a.options;if(b){b={};for(var e=0;e<c.length;e++)b["$"+c[e]]=!0;for(c=0;c<a.length;c++)e=b.hasOwnProperty("$"+a[c].value),a[c].selected!==e&&(a[c].selected=e),e&&d&&(a[c].defaultSelected=!0);}else{c=""+yc(c);b=null;for(e=0;e<a.length;e++){if(a[e].value===c){a[e].selected=!0;d&&(a[e].defaultSelected=!0);return}null!==b||a[e].disabled||(b=a[e]);}null!==b&&(b.selected=!0);}}
 function fe(a,b){null!=b.dangerouslySetInnerHTML?t("91"):void 0;return objectAssign({},b,{value:void 0,defaultValue:void 0,children:""+a._wrapperState.initialValue})}function ge(a,b){var c=b.value;null==c&&(c=b.defaultValue,b=b.children,null!=b&&(null!=c?t("92"):void 0,Array.isArray(b)&&(1>=b.length?void 0:t("93"),b=b[0]),c=b),null==c&&(c=""));a._wrapperState={initialValue:yc(c)};}
 function he(a,b){var c=yc(b.value),d=yc(b.defaultValue);null!=c&&(c=""+c,c!==a.value&&(a.value=c),null==b.defaultValue&&a.defaultValue!==c&&(a.defaultValue=c));null!=d&&(a.defaultValue=""+d);}function ie(a){var b=a.textContent;b===a._wrapperState.initialValue&&(a.value=b);}var je={html:"http://www.w3.org/1999/xhtml",mathml:"http://www.w3.org/1998/Math/MathML",svg:"http://www.w3.org/2000/svg"};
@@ -11909,7 +11909,7 @@ null!==k.callback&&(a.effectTag|=32,k.nextEffect=null,null===b.lastCapturedEffec
 function lf(a,b,c){null!==b.firstCapturedUpdate&&(null!==b.lastUpdate&&(b.lastUpdate.next=b.firstCapturedUpdate,b.lastUpdate=b.lastCapturedUpdate),b.firstCapturedUpdate=b.lastCapturedUpdate=null);mf(b.firstEffect,c);b.firstEffect=b.lastEffect=null;mf(b.firstCapturedEffect,c);b.firstCapturedEffect=b.lastCapturedEffect=null;}function mf(a,b){for(;null!==a;){var c=a.callback;if(null!==c){a.callback=null;var d=b;"function"!==typeof c?t("191",c):void 0;c.call(d);}a=a.nextEffect;}}
 function nf(a,b){return{value:a,source:b,stack:mc(b)}}var of={current:null},pf=null,qf=null,rf=null;function sf(a,b){var c=a.type._context;H(of,c._currentValue,a);c._currentValue=b;}function tf(a){var b=of.current;G(of,a);a.type._context._currentValue=b;}function uf(a){pf=a;rf=qf=null;a.firstContextDependency=null;}
 function vf(a,b){if(rf!==a&&!1!==b&&0!==b){if("number"!==typeof b||1073741823===b)rf=a,b=1073741823;b={context:a,observedBits:b,next:null};null===qf?(null===pf?t("277"):void 0,pf.firstContextDependency=qf=b):qf=qf.next=b;}return a._currentValue}var wf={},L={current:wf},xf={current:wf},yf={current:wf};function zf(a){a===wf?t("174"):void 0;return a}
-function Af(a,b){H(yf,b,a);H(xf,a,a);H(L,wf,a);var c=b.nodeType;switch(c){case 9:case 11:b=(b=b.documentElement)?b.namespaceURI:le(null,"");break;default:c=8===c?b.parentNode:b,b=c.namespaceURI||null,c=c.tagName,b=le(b,c);}G(L,a);H(L,b,a);}function Bf(a){G(L,a);G(xf,a);G(yf,a);}function Cf(a){zf(yf.current);var b=zf(L.current);var c=le(b,a.type);b!==c&&(H(xf,a,a),H(L,c,a));}function Df(a){xf.current===a&&(G(L,a),G(xf,a));}var Ef=(new React__default.Component).refs;
+function Af(a,b){H(yf,b,a);H(xf,a,a);H(L,wf,a);var c=b.nodeType;switch(c){case 9:case 11:b=(b=b.documentElement)?b.namespaceURI:le(null,"");break;default:c=8===c?b.parentNode:b,b=c.namespaceURI||null,c=c.tagName,b=le(b,c);}G(L,a);H(L,b,a);}function Bf(a){G(L,a);G(xf,a);G(yf,a);}function Cf(a){zf(yf.current);var b=zf(L.current);var c=le(b,a.type);b!==c&&(H(xf,a,a),H(L,c,a));}function Df(a){xf.current===a&&(G(L,a),G(xf,a));}var Ef=(new React$1__default.Component).refs;
 function Ff(a,b,c,d){b=a.memoizedState;c=c(d,b);c=null===c||void 0===c?b:objectAssign({},b,c);a.memoizedState=c;d=a.updateQueue;null!==d&&0===a.expirationTime&&(d.baseState=c);}
 var Jf={isMounted:function(a){return(a=a._reactInternalFiber)?2===jd(a):!1},enqueueSetState:function(a,b,c){a=a._reactInternalFiber;var d=Gf();d=Hf(d,a);var e=df(d);e.payload=b;void 0!==c&&null!==c&&(e.callback=c);ff(a,e);If(a,d);},enqueueReplaceState:function(a,b,c){a=a._reactInternalFiber;var d=Gf();d=Hf(d,a);var e=df(d);e.tag=1;e.payload=b;void 0!==c&&null!==c&&(e.callback=c);ff(a,e);If(a,d);},enqueueForceUpdate:function(a,b){a=a._reactInternalFiber;var c=Gf();c=Hf(c,a);var d=df(c);d.tag=2;void 0!==
 b&&null!==b&&(d.callback=b);ff(a,d);If(a,c);}};function Kf(a,b,c,d,e,f,g){a=a.stateNode;return"function"===typeof a.shouldComponentUpdate?a.shouldComponentUpdate(d,f,g):b.prototype&&b.prototype.isPureReactComponent?!id$1(c,d)||!id$1(e,f):!0}function Lf(a,b,c,d){a=b.state;"function"===typeof b.componentWillReceiveProps&&b.componentWillReceiveProps(c,d);"function"===typeof b.UNSAFE_componentWillReceiveProps&&b.UNSAFE_componentWillReceiveProps(c,d);b.state!==a&&Jf.enqueueReplaceState(b,b.state,null);}
@@ -13129,10 +13129,10 @@ var Affix = function (_React$Component) {
             var className = classnames(_defineProperty$7({}, this.props.prefixCls || 'ant-affix', this.state.affixStyle));
             var props = omit(this.props, ['prefixCls', 'offsetTop', 'offsetBottom', 'target', 'onChange']);
             var placeholderStyle = _extends$23({}, this.state.placeholderStyle, this.props.style);
-            return React.createElement(
+            return React$1.createElement(
                 "div",
                 _extends$23({}, props, { style: placeholderStyle, ref: this.savePlaceholderNode }),
-                React.createElement(
+                React$1.createElement(
                     "div",
                     { className: className, ref: this.saveFixedNode, style: this.state.affixStyle },
                     this.props.children
@@ -13142,7 +13142,7 @@ var Affix = function (_React$Component) {
     }]);
 
     return Affix;
-}(React.Component);
+}(React$1.Component);
 
 Affix.propTypes = {
     offsetTop: propTypes.number,
@@ -13373,21 +13373,21 @@ var Anchor = function (_React$Component) {
                 'fixed': !affix && !showInkInFixed
             });
             var wrapperStyle = _extends$23({ maxHeight: offsetTop ? 'calc(100vh - ' + offsetTop + 'px)' : '100vh' }, style);
-            var anchorContent = React.createElement(
+            var anchorContent = React$1.createElement(
                 'div',
                 { className: wrapperClass, style: wrapperStyle },
-                React.createElement(
+                React$1.createElement(
                     'div',
                     { className: anchorClass },
-                    React.createElement(
+                    React$1.createElement(
                         'div',
                         { className: prefixCls + '-ink' },
-                        React.createElement('span', { className: inkClass, ref: this.saveInkNode })
+                        React$1.createElement('span', { className: inkClass, ref: this.saveInkNode })
                     ),
                     children
                 )
             );
-            return !affix ? anchorContent : React.createElement(
+            return !affix ? anchorContent : React$1.createElement(
                 Affix,
                 { offsetTop: offsetTop },
                 anchorContent
@@ -13396,7 +13396,7 @@ var Anchor = function (_React$Component) {
     }]);
 
     return Anchor;
-}(React.Component);
+}(React$1.Component);
 
 Anchor.defaultProps = {
     prefixCls: 'ant-anchor',
@@ -13454,10 +13454,10 @@ var AnchorLink = function (_React$Component) {
             var active = this.context.antAnchor.activeLink === href;
             var wrapperClassName = classnames(prefixCls + '-link', _defineProperty$7({}, prefixCls + '-link-active', active));
             var titleClassName = classnames(prefixCls + '-link-title', _defineProperty$7({}, prefixCls + '-link-title-active', active));
-            return React.createElement(
+            return React$1.createElement(
                 'div',
                 { className: wrapperClassName },
-                React.createElement(
+                React$1.createElement(
                     'a',
                     { className: titleClassName, href: href, title: typeof title === 'string' ? title : '', onClick: this.handleClick },
                     title
@@ -13468,7 +13468,7 @@ var AnchorLink = function (_React$Component) {
     }]);
 
     return AnchorLink;
-}(React.Component);
+}(React$1.Component);
 
 AnchorLink.defaultProps = {
     prefixCls: 'ant-anchor',
@@ -13999,7 +13999,7 @@ KeyCode.isCharacterKey = function isCharacterKey(keyCode) {
 
 function toArray$3(children) {
   var ret = [];
-  React__default.Children.forEach(children, function (c) {
+  React$1__default.Children.forEach(children, function (c) {
     ret.push(c);
   });
   return ret;
@@ -14007,7 +14007,7 @@ function toArray$3(children) {
 
 function toArrayChildren(children) {
   var ret = [];
-  React__default.Children.forEach(children, function (child) {
+  React$1__default.Children.forEach(children, function (child) {
     ret.push(child);
   });
   return ret;
@@ -14667,7 +14667,7 @@ var AnimateChild = function (_React$Component) {
   }]);
 
   return AnimateChild;
-}(React__default.Component);
+}(React$1__default.Component);
 
 AnimateChild.propTypes = {
   children: propTypes.any
@@ -14995,7 +14995,7 @@ function genCSSMotion(transitionSupport) {
     }]);
 
     return CSSMotion;
-  }(React__default.Component);
+  }(React$1__default.Component);
 
   CSSMotion.propTypes = {
     visible: propTypes.bool,
@@ -15036,9 +15036,9 @@ var defaultKey = 'rc_animate_' + Date.now();
 
 function getChildrenFromProps(props) {
   var children = props.children;
-  if (React__default.isValidElement(children)) {
+  if (React$1__default.isValidElement(children)) {
     if (!children.key) {
-      return React__default.cloneElement(children, {
+      return React$1__default.cloneElement(children, {
         key: defaultKey
       });
     }
@@ -15113,7 +15113,7 @@ var Animate = function (_React$Component) {
           var nextChild = currentChild && findChildInChildrenByKey(nextChildren, currentChild.key);
           var newChild = void 0;
           if ((!nextChild || !nextChild.props[showProp]) && currentChild.props[showProp]) {
-            newChild = React__default.cloneElement(nextChild || currentChild, _defineProperty$7({}, showProp, true));
+            newChild = React$1__default.cloneElement(nextChild || currentChild, _defineProperty$7({}, showProp, true));
           } else {
             newChild = nextChild;
           }
@@ -15222,7 +15222,7 @@ var Animate = function (_React$Component) {
           if (!child.key) {
             throw new Error('must set key for <rc-animate> children');
           }
-          return React__default.createElement(
+          return React$1__default.createElement(
             AnimateChild,
             {
               key: child.key,
@@ -15248,7 +15248,7 @@ var Animate = function (_React$Component) {
             style: props.style
           }, props.componentProps);
         }
-        return React__default.createElement(
+        return React$1__default.createElement(
           Component,
           passedProps,
           children
@@ -15259,7 +15259,7 @@ var Animate = function (_React$Component) {
   }]);
 
   return Animate;
-}(React__default.Component);
+}(React$1__default.Component);
 
 Animate.isAnimate = true;
 Animate.CSSMotion = CSSMotion;
@@ -15421,7 +15421,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 
 
-var _react2 = _interopRequireDefault(React__default);
+var _react2 = _interopRequireDefault(React$1__default);
 
 
 
@@ -15452,12 +15452,12 @@ var Provider = function (_Component) {
   }, {
     key: 'render',
     value: function render() {
-      return React__default.Children.only(this.props.children);
+      return React$1__default.Children.only(this.props.children);
     }
   }]);
 
   return Provider;
-}(React__default.Component);
+}(React$1__default.Component);
 
 Provider.propTypes = {
   store: PropTypes.storeShape.isRequired
@@ -15484,7 +15484,7 @@ exports.default = connect;
 
 
 
-var _react2 = _interopRequireDefault(React__default);
+var _react2 = _interopRequireDefault(React$1__default);
 
 
 
@@ -15617,7 +15617,7 @@ function connect(mapStateToProps) {
       }]);
 
       return Connect;
-    }(React__default.Component);
+    }(React$1__default.Component);
 
     Connect.displayName = 'Connect(' + getDisplayName(WrappedComponent) + ')';
     Connect.contextTypes = {
@@ -15744,10 +15744,10 @@ function getMenuIdFromSubMenuEventKey(eventKey) {
 
 function loopMenuItem(children, cb) {
   var index = -1;
-  React__default.Children.forEach(children, function (c) {
+  React$1__default.Children.forEach(children, function (c) {
     index++;
     if (c && c.type && c.type.isMenuItemGroup) {
-      React__default.Children.forEach(c.props.children, function (c2) {
+      React$1__default.Children.forEach(c.props.children, function (c2) {
         index++;
         cb(c2, index);
       });
@@ -15762,7 +15762,7 @@ function loopMenuItemRecursively(children, keys, ret) {
   if (!children || ret.find) {
     return;
   }
-  React__default.Children.forEach(children, function (c) {
+  React$1__default.Children.forEach(children, function (c) {
     if (c) {
       var construct = c.type;
       if (!construct || !(construct.isSubMenu || construct.isMenuItem || construct.isMenuItemGroup)) {
@@ -15800,11 +15800,11 @@ var DOMWrap = function (_React$Component) {
     delete props.tag;
     delete props.hiddenClassName;
     delete props.visible;
-    return React__default.createElement(Tag, props);
+    return React$1__default.createElement(Tag, props);
   };
 
   return DOMWrap;
-}(React__default.Component);
+}(React$1__default.Component);
 
 DOMWrap.propTypes = {
   tag: propTypes.string,
@@ -15951,14 +15951,14 @@ var SubPopupMenu = function (_React$Component) {
     return (
       // ESLint is not smart enough to know that the type of `children` was checked.
       /* eslint-disable */
-      React__default.createElement(
+      React$1__default.createElement(
         DOMWrap,
         _extends$23({}, props, {
           tag: 'ul',
           hiddenClassName: prefixCls + '-hidden',
           visible: visible
         }, domProps),
-        React__default.Children.map(props.children, function (c, i) {
+        React$1__default.Children.map(props.children, function (c, i) {
           return _this2.renderMenuItem(c, i, eventKey || '0-menu-');
         })
       )
@@ -15968,7 +15968,7 @@ var SubPopupMenu = function (_React$Component) {
   };
 
   return SubPopupMenu;
-}(React__default.Component);
+}(React$1__default.Component);
 
 SubPopupMenu.propTypes = {
   onSelect: propTypes.func,
@@ -16163,7 +16163,7 @@ var _initialiseProps$1 = function _initialiseProps() {
     if (props.mode === 'inline') {
       newChildProps.triggerSubMenuAction = 'click';
     }
-    return React__default.cloneElement(child, newChildProps);
+    return React$1__default.cloneElement(child, newChildProps);
   };
 
   this.renderMenuItem = function (c, i, subMenuKey) {
@@ -16245,10 +16245,10 @@ var Menu = function (_React$Component) {
       openTransitionName: this.getOpenTransitionName(),
       parentMenu: this
     });
-    return React__default.createElement(
+    return React$1__default.createElement(
       lib_3,
       { store: this.store },
-      React__default.createElement(
+      React$1__default.createElement(
         SubPopupMenu$1,
         _extends$23({}, props, { ref: function ref(c) {
             return _this2.innerMenu = c;
@@ -16259,7 +16259,7 @@ var Menu = function (_React$Component) {
   };
 
   return Menu;
-}(React__default.Component);
+}(React$1__default.Component);
 
 Menu.propTypes = {
   defaultSelectedKeys: propTypes.arrayOf(propTypes.string),
@@ -16488,7 +16488,7 @@ var ContainerRender = function (_React$Component) {
   }]);
 
   return ContainerRender;
-}(React__default.Component);
+}(React$1__default.Component);
 
 ContainerRender.propTypes = {
   autoMount: propTypes.bool,
@@ -16558,7 +16558,7 @@ var Portal = function (_React$Component) {
   }]);
 
   return Portal;
-}(React__default.Component);
+}(React$1__default.Component);
 
 Portal.propTypes = {
   getContainer: propTypes.func.isRequired,
@@ -17947,7 +17947,7 @@ var Align = function (_Component) {
         childrenProps = _props.childrenProps,
         children = _props.children;
 
-    var child = React__default.Children.only(children);
+    var child = React$1__default.Children.only(children);
     if (childrenProps) {
       var newProps = {};
       var propList = Object.keys(childrenProps);
@@ -17955,13 +17955,13 @@ var Align = function (_Component) {
         newProps[prop] = _this2.props[childrenProps[prop]];
       });
 
-      return React__default.cloneElement(child, newProps);
+      return React$1__default.cloneElement(child, newProps);
     }
     return child;
   };
 
   return Align;
-}(React.Component);
+}(React$1.Component);
 
 Align.propTypes = {
   childrenProps: propTypes.object,
@@ -18008,18 +18008,18 @@ var LazyRenderBox = function (_Component) {
         visible = _props.visible,
         props = _objectWithoutProperties$12(_props, ['hiddenClassName', 'visible']);
 
-    if (hiddenClassName || React__default.Children.count(props.children) > 1) {
+    if (hiddenClassName || React$1__default.Children.count(props.children) > 1) {
       if (!visible && hiddenClassName) {
         props.className += ' ' + hiddenClassName;
       }
-      return React__default.createElement('div', props);
+      return React$1__default.createElement('div', props);
     }
 
-    return React__default.Children.only(props.children);
+    return React$1__default.Children.only(props.children);
   };
 
   return LazyRenderBox;
-}(React.Component);
+}(React$1.Component);
 
 LazyRenderBox.propTypes = {
   children: propTypes.any,
@@ -18043,7 +18043,7 @@ var PopupInner = function (_Component) {
     if (!props.visible) {
       className += ' ' + props.hiddenClassName;
     }
-    return React__default.createElement(
+    return React$1__default.createElement(
       'div',
       {
         className: className,
@@ -18053,7 +18053,7 @@ var PopupInner = function (_Component) {
         onTouchStart: props.onTouchStart,
         style: props.style
       },
-      React__default.createElement(
+      React$1__default.createElement(
         LazyRenderBox,
         { className: props.prefixCls + '-content', visible: props.visible },
         props.children
@@ -18062,7 +18062,7 @@ var PopupInner = function (_Component) {
   };
 
   return PopupInner;
-}(React.Component);
+}(React$1.Component);
 
 PopupInner.propTypes = {
   hiddenClassName: propTypes.string,
@@ -18207,7 +18207,7 @@ var Popup = function (_Component) {
       style: newStyle
     };
     if (destroyPopupOnHide) {
-      return React__default.createElement(
+      return React$1__default.createElement(
         Animate,
         {
           component: '',
@@ -18215,7 +18215,7 @@ var Popup = function (_Component) {
           transitionAppear: true,
           transitionName: this.getTransitionName()
         },
-        visible ? React__default.createElement(
+        visible ? React$1__default.createElement(
           Align,
           {
             target: this.getAlignTarget(),
@@ -18225,7 +18225,7 @@ var Popup = function (_Component) {
             align: align,
             onAlign: this.onAlign
           },
-          React__default.createElement(
+          React$1__default.createElement(
             PopupInner,
             _extends$23({
               visible: true
@@ -18236,7 +18236,7 @@ var Popup = function (_Component) {
       );
     }
 
-    return React__default.createElement(
+    return React$1__default.createElement(
       Animate,
       {
         component: '',
@@ -18245,7 +18245,7 @@ var Popup = function (_Component) {
         transitionName: this.getTransitionName(),
         showProp: 'xVisible'
       },
-      React__default.createElement(
+      React$1__default.createElement(
         Align,
         {
           target: this.getAlignTarget(),
@@ -18258,7 +18258,7 @@ var Popup = function (_Component) {
           align: align,
           onAlign: this.onAlign
         },
-        React__default.createElement(
+        React$1__default.createElement(
           PopupInner,
           _extends$23({
             hiddenClassName: hiddenClassName
@@ -18283,7 +18283,7 @@ var Popup = function (_Component) {
     var maskElement = void 0;
     if (props.mask) {
       var maskTransition = this.getMaskTransitionName();
-      maskElement = React__default.createElement(LazyRenderBox, {
+      maskElement = React$1__default.createElement(LazyRenderBox, {
         style: this.getZIndexStyle(),
         key: 'mask',
         className: props.prefixCls + '-mask',
@@ -18291,7 +18291,7 @@ var Popup = function (_Component) {
         visible: props.visible
       });
       if (maskTransition) {
-        maskElement = React__default.createElement(
+        maskElement = React$1__default.createElement(
           Animate,
           {
             key: 'mask',
@@ -18308,7 +18308,7 @@ var Popup = function (_Component) {
   };
 
   Popup.prototype.render = function render() {
-    return React__default.createElement(
+    return React$1__default.createElement(
       'div',
       null,
       this.getMaskElement(),
@@ -18317,7 +18317,7 @@ var Popup = function (_Component) {
   };
 
   return Popup;
-}(React.Component);
+}(React$1.Component);
 
 Popup.propTypes = {
   visible: propTypes.bool,
@@ -18716,7 +18716,7 @@ var Trigger = function (_React$Component) {
         alignPoint = _props8.alignPoint,
         className = _props8.className;
 
-    var child = React__default.Children.only(children);
+    var child = React$1__default.Children.only(children);
     var newChildProps = { key: 'trigger' };
 
     if (this.isContextMenuToShow()) {
@@ -18759,10 +18759,10 @@ var Trigger = function (_React$Component) {
     if (childrenClassName) {
       newChildProps.className = childrenClassName;
     }
-    var trigger = React__default.cloneElement(child, newChildProps);
+    var trigger = React$1__default.cloneElement(child, newChildProps);
 
     if (!IS_REACT_16) {
-      return React__default.createElement(
+      return React$1__default.createElement(
         ContainerRender,
         {
           parent: this,
@@ -18784,7 +18784,7 @@ var Trigger = function (_React$Component) {
     var portal = void 0;
     // prevent unmounting after it's rendered
     if (popupVisible || this._component || forceRender) {
-      portal = React__default.createElement(
+      portal = React$1__default.createElement(
         Portal,
         {
           key: 'portal',
@@ -18799,7 +18799,7 @@ var Trigger = function (_React$Component) {
   };
 
   return Trigger;
-}(React__default.Component);
+}(React$1__default.Component);
 
 Trigger.propTypes = {
   children: propTypes.any,
@@ -19049,7 +19049,7 @@ var _initialiseProps$4 = function _initialiseProps() {
     mouseProps.onMouseDown = _this5.onPopupMouseDown;
     mouseProps.onTouchStart = _this5.onPopupMouseDown;
 
-    return React__default.createElement(
+    return React$1__default.createElement(
       Popup,
       _extends$23({
         prefixCls: prefixCls,
@@ -19272,7 +19272,7 @@ var SubMenu = function (_React$Component) {
     this.haveOpened = this.haveOpened || baseProps.visible || baseProps.forceSubMenuRender;
     // never rendered not planning to, don't render
     if (!this.haveOpened) {
-      return React__default.createElement('div', null);
+      return React$1__default.createElement('div', null);
     }
 
     // don't show transition on first rendering (no animation for opened menu)
@@ -19292,14 +19292,14 @@ var SubMenu = function (_React$Component) {
       }
     }
 
-    return React__default.createElement(
+    return React$1__default.createElement(
       Animate,
       _extends$23({}, animProps, {
         showProp: 'visible',
         component: '',
         transitionAppear: transitionAppear
       }),
-      React__default.createElement(
+      React$1__default.createElement(
         SubPopupMenu$1,
         _extends$23({}, baseProps, { id: this._menuId }),
         children
@@ -19358,7 +19358,7 @@ var SubMenu = function (_React$Component) {
       };
     }
 
-    var title = React__default.createElement(
+    var title = React$1__default.createElement(
       'div',
       _extends$23({
         ref: this.saveSubMenuTitle,
@@ -19371,7 +19371,7 @@ var SubMenu = function (_React$Component) {
         title: typeof props.title === 'string' ? props.title : undefined
       }),
       props.title,
-      React__default.createElement('i', { className: prefixCls + '-arrow' })
+      React$1__default.createElement('i', { className: prefixCls + '-arrow' })
     );
     var children = this.renderChildren(props.children);
 
@@ -19393,7 +19393,7 @@ var SubMenu = function (_React$Component) {
     // Set onClick to null, to ignore propagated onClick event
     delete props.onClick;
 
-    return React__default.createElement(
+    return React$1__default.createElement(
       'li',
       _extends$23({}, props, mouseEvents, {
         className: className,
@@ -19401,7 +19401,7 @@ var SubMenu = function (_React$Component) {
       }),
       isInlineMode && title,
       isInlineMode && children,
-      !isInlineMode && React__default.createElement(
+      !isInlineMode && React$1__default.createElement(
         Trigger,
         {
           prefixCls: prefixCls,
@@ -19424,7 +19424,7 @@ var SubMenu = function (_React$Component) {
   };
 
   return SubMenu;
-}(React__default.Component);
+}(React$1__default.Component);
 
 SubMenu.propTypes = {
   parentMenu: propTypes.object,
@@ -20430,7 +20430,7 @@ var MenuItem = function (_React$Component) {
     menuAllProps.forEach(function (key) {
       return delete props[key];
     });
-    return React__default.createElement(
+    return React$1__default.createElement(
       'li',
       _extends$23({}, props, attrs, mouseEvent, {
         style: style
@@ -20440,7 +20440,7 @@ var MenuItem = function (_React$Component) {
   };
 
   return MenuItem;
-}(React__default.Component);
+}(React$1__default.Component);
 
 MenuItem.propTypes = {
   attribute: propTypes.object,
@@ -20522,10 +20522,10 @@ var MenuItemGroup = function (_React$Component) {
     // Set onClick to null, to ignore propagated onClick event
     delete props.onClick;
 
-    return React__default.createElement(
+    return React$1__default.createElement(
       'li',
       _extends$23({}, props, { className: className + ' ' + rootPrefixCls + '-item-group' }),
-      React__default.createElement(
+      React$1__default.createElement(
         'div',
         {
           className: titleClassName,
@@ -20533,16 +20533,16 @@ var MenuItemGroup = function (_React$Component) {
         },
         title
       ),
-      React__default.createElement(
+      React$1__default.createElement(
         'ul',
         { className: listClassName },
-        React__default.Children.map(children, this.renderInnerMenuItem)
+        React$1__default.Children.map(children, this.renderInnerMenuItem)
       )
     );
   };
 
   return MenuItemGroup;
-}(React__default.Component);
+}(React$1__default.Component);
 
 MenuItemGroup.propTypes = {
   renderMenuItem: propTypes.func,
@@ -20573,11 +20573,11 @@ var Divider = function (_React$Component) {
         className = _props$className === undefined ? '' : _props$className,
         rootPrefixCls = _props.rootPrefixCls;
 
-    return React__default.createElement('li', { className: className + ' ' + rootPrefixCls + '-item-divider' });
+    return React$1__default.createElement('li', { className: className + ' ' + rootPrefixCls + '-item-divider' });
   };
 
   return Divider;
-}(React__default.Component);
+}(React$1__default.Component);
 
 Divider.propTypes = {
   className: propTypes.string,
@@ -20659,7 +20659,7 @@ var Option = function (_React$Component) {
   }
 
   return Option;
-}(React__default.Component);
+}(React$1__default.Component);
 
 Option.propTypes = {
   value: propTypes.oneOfType([propTypes.string, propTypes.number])
@@ -20764,7 +20764,7 @@ function getSelectKeys(menuItems, value) {
     return [];
   }
   var selectedKeys = [];
-  React__default.Children.forEach(menuItems, function (item) {
+  React$1__default.Children.forEach(menuItems, function (item) {
     if (item.type.isMenuItemGroup) {
       selectedKeys = selectedKeys.concat(getSelectKeys(item.props.children, value));
     } else {
@@ -20915,7 +20915,7 @@ var DropdownMenu = function (_React$Component) {
         var clone = function clone(item) {
           if (!foundFirst && selectedKeys.indexOf(item.key) !== -1 || !foundFirst && !selectedKeys.length && firstActiveValue.indexOf(item.key) !== -1) {
             foundFirst = true;
-            return React.cloneElement(item, {
+            return React$1.cloneElement(item, {
               ref: function ref(_ref) {
                 _this2.firstActiveItem = _ref;
               }
@@ -20927,7 +20927,7 @@ var DropdownMenu = function (_React$Component) {
         clonedMenuItems = menuItems.map(function (item) {
           if (item.type.isMenuItemGroup) {
             var children = toArray$3(item.props.children).map(clone);
-            return React.cloneElement(item, {}, children);
+            return React$1.cloneElement(item, {}, children);
           }
           return clone(item);
         });
@@ -20943,7 +20943,7 @@ var DropdownMenu = function (_React$Component) {
       if (inputValue !== this.lastInputValue && (!lastValue || lastValue !== backfillValue)) {
         activeKeyProps.activeKey = '';
       }
-      return React__default.createElement(
+      return React$1__default.createElement(
         Menu,
         _extends$23({
           ref: this.saveMenuRef,
@@ -20964,7 +20964,7 @@ var DropdownMenu = function (_React$Component) {
 
   DropdownMenu.prototype.render = function render() {
     var renderMenu = this.renderMenu();
-    return renderMenu ? React__default.createElement(
+    return renderMenu ? React$1__default.createElement(
       'div',
       {
         style: { overflow: 'auto' },
@@ -20977,7 +20977,7 @@ var DropdownMenu = function (_React$Component) {
   };
 
   return DropdownMenu;
-}(React__default.Component);
+}(React$1__default.Component);
 
 DropdownMenu.propTypes = {
   defaultActiveFirstOption: propTypes.bool,
@@ -21110,7 +21110,7 @@ var SelectTrigger = function (_React$Component) {
       popupStyle[widthProp] = this.state.dropdownWidth + 'px';
     }
 
-    return React__default.createElement(
+    return React$1__default.createElement(
       Trigger,
       _extends$23({}, props, {
         showAction: disabled ? [] : this.props.showAction,
@@ -21133,7 +21133,7 @@ var SelectTrigger = function (_React$Component) {
   };
 
   return SelectTrigger;
-}(React__default.Component);
+}(React$1__default.Component);
 
 SelectTrigger.propTypes = {
   onPopupFocus: propTypes.func,
@@ -21174,7 +21174,7 @@ var _initialiseProps$7 = function _initialiseProps() {
 
   this.getDropdownElement = function (newProps) {
     var props = _this2.props;
-    return React__default.createElement(DropdownMenu, _extends$23({
+    return React$1__default.createElement(DropdownMenu, _extends$23({
       ref: _this2.saveDropdownMenuRef
     }, newProps, {
       prefixCls: _this2.getDropdownPrefixCls(),
@@ -21377,7 +21377,7 @@ var Select = function (_React$Component) {
         value = _state.value,
         inputValue = _state.inputValue;
 
-    var clear = React__default.createElement('span', _extends$23({
+    var clear = React$1__default.createElement('span', _extends$23({
       key: 'clear',
       onMouseDown: preventDefaultEvent,
       style: UNSELECTABLE_STYLE
@@ -21432,7 +21432,7 @@ var Select = function (_React$Component) {
       });
     }
     var rootCls = (_rootCls = {}, _rootCls[className] = !!className, _rootCls[prefixCls] = 1, _rootCls[prefixCls + '-open'] = open, _rootCls[prefixCls + '-focused'] = open || !!this._focused, _rootCls[prefixCls + '-combobox'] = isCombobox(props), _rootCls[prefixCls + '-disabled'] = disabled, _rootCls[prefixCls + '-enabled'] = !disabled, _rootCls[prefixCls + '-allow-clear'] = !!props.allowClear, _rootCls[prefixCls + '-no-arrow'] = !props.showArrow, _rootCls);
-    return React__default.createElement(
+    return React$1__default.createElement(
       SelectTrigger,
       {
         onPopupFocus: this.onPopupFocus,
@@ -21465,7 +21465,7 @@ var Select = function (_React$Component) {
         showAction: props.showAction,
         ref: this.saveSelectTriggerRef
       },
-      React__default.createElement(
+      React$1__default.createElement(
         'div',
         {
           id: props.id,
@@ -21475,7 +21475,7 @@ var Select = function (_React$Component) {
           onFocus: this.onOuterFocus,
           className: classnames(rootCls)
         },
-        React__default.createElement(
+        React$1__default.createElement(
           'div',
           _extends$23({
             ref: this.saveSelectionRef,
@@ -21488,7 +21488,7 @@ var Select = function (_React$Component) {
           }, extraSelectionProps),
           ctrlNode,
           this.renderClear(),
-          multiple || !props.showArrow ? null : React__default.createElement(
+          multiple || !props.showArrow ? null : React$1__default.createElement(
             'span',
             _extends$23({
               key: 'arrow',
@@ -21497,7 +21497,7 @@ var Select = function (_React$Component) {
             }, UNSELECTABLE_ATTRIBUTE, {
               onClick: this.onArrowClick
             }),
-            React__default.createElement('b', null)
+            React$1__default.createElement('b', null)
           )
         )
       )
@@ -21505,7 +21505,7 @@ var Select = function (_React$Component) {
   };
 
   return Select;
-}(React__default.Component);
+}(React$1__default.Component);
 
 Select.propTypes = SelectPropTypes;
 Select.defaultProps = {
@@ -21561,7 +21561,7 @@ Select.getDerivedStateFromProps = function (nextProps, prevState) {
 Select.getOptionsFromChildren = function (children) {
   var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
 
-  React__default.Children.forEach(children, function (child) {
+  React$1__default.Children.forEach(children, function (child) {
     if (!child) {
       return;
     }
@@ -21902,7 +21902,7 @@ var _initialiseProps$8 = function _initialiseProps() {
       }
     }
     var defaultInfo = {
-      option: React__default.createElement(
+      option: React$1__default.createElement(
         Option,
         { value: value, key: value },
         value
@@ -22001,7 +22001,7 @@ var _initialiseProps$8 = function _initialiseProps() {
     }
     var placeholder = props.placeholder;
     if (placeholder) {
-      return React__default.createElement(
+      return React$1__default.createElement(
         'div',
         _extends$23({
           onMouseDown: preventDefaultEvent,
@@ -22022,14 +22022,14 @@ var _initialiseProps$8 = function _initialiseProps() {
     var _classnames;
 
     var props = _this2.props;
-    var inputElement = props.getInputElement ? props.getInputElement() : React__default.createElement('input', { id: props.id, autoComplete: 'off' });
+    var inputElement = props.getInputElement ? props.getInputElement() : React$1__default.createElement('input', { id: props.id, autoComplete: 'off' });
     var inputCls = classnames(inputElement.props.className, (_classnames = {}, _classnames[props.prefixCls + '-search__field'] = true, _classnames));
     // https://github.com/ant-design/ant-design/issues/4992#issuecomment-281542159
     // Add space to the end of the inputValue as the width measurement tolerance
-    return React__default.createElement(
+    return React$1__default.createElement(
       'div',
       { className: props.prefixCls + '-search__field__wrap' },
-      React__default.cloneElement(inputElement, {
+      React$1__default.cloneElement(inputElement, {
         ref: _this2.saveInputRef,
         onChange: _this2.onInputChange,
         onKeyDown: chaining(_this2.onInputKeyDown, inputElement.props.onKeyDown, _this2.props.onInputKeyDown),
@@ -22037,7 +22037,7 @@ var _initialiseProps$8 = function _initialiseProps() {
         disabled: props.disabled,
         className: inputCls
       }),
-      React__default.createElement(
+      React$1__default.createElement(
         'span',
         {
           ref: _this2.saveInputMirrorRef,
@@ -22273,7 +22273,7 @@ var _initialiseProps$8 = function _initialiseProps() {
 
   this.openIfHasChildren = function () {
     var props = _this2.props;
-    if (React__default.Children.count(props.children) || isSingleMode(props)) {
+    if (React$1__default.Children.count(props.children) || isSingleMode(props)) {
       _this2.setOpenState(true);
     }
   };
@@ -22324,7 +22324,7 @@ var _initialiseProps$8 = function _initialiseProps() {
       });
       value.forEach(function (singleValue) {
         var key = singleValue;
-        var menuItem = React__default.createElement(
+        var menuItem = React$1__default.createElement(
           connected$1,
           {
             style: UNSELECTABLE_STYLE,
@@ -22353,7 +22353,7 @@ var _initialiseProps$8 = function _initialiseProps() {
           return !filterFn();
         });
         if (notFindInputItem) {
-          options.unshift(React__default.createElement(
+          options.unshift(React$1__default.createElement(
             connected$1,
             {
               style: UNSELECTABLE_STYLE,
@@ -22369,7 +22369,7 @@ var _initialiseProps$8 = function _initialiseProps() {
     }
 
     if (!options.length && notFoundContent) {
-      options = [React__default.createElement(
+      options = [React$1__default.createElement(
         connected$1,
         {
           style: UNSELECTABLE_STYLE,
@@ -22391,7 +22391,7 @@ var _initialiseProps$8 = function _initialiseProps() {
     var inputValue = _this2.state.inputValue;
 
     var tags = props.tags;
-    React__default.Children.forEach(children, function (child) {
+    React$1__default.Children.forEach(children, function (child) {
       if (!child) {
         return;
       }
@@ -22405,7 +22405,7 @@ var _initialiseProps$8 = function _initialiseProps() {
           } else if (!label && key) {
             label = key;
           }
-          sel.push(React__default.createElement(
+          sel.push(React$1__default.createElement(
             MenuItemGroup,
             { key: key, title: label },
             innerItems
@@ -22421,7 +22421,7 @@ var _initialiseProps$8 = function _initialiseProps() {
       validateOptionValue(childValue, _this2.props);
 
       if (_this2.filterOption(inputValue, child)) {
-        var menuItem = React__default.createElement(connected$1, _extends$23({
+        var menuItem = React$1__default.createElement(connected$1, _extends$23({
           style: UNSELECTABLE_STYLE,
           attribute: UNSELECTABLE_ATTRIBUTE,
           value: childValue,
@@ -22480,7 +22480,7 @@ var _initialiseProps$8 = function _initialiseProps() {
             label = _getOptionInfoBySingl3.label,
             title = _getOptionInfoBySingl3.title;
 
-        selectedValue = React__default.createElement(
+        selectedValue = React$1__default.createElement(
           'div',
           {
             key: 'value',
@@ -22497,7 +22497,7 @@ var _initialiseProps$8 = function _initialiseProps() {
       if (!showSearch) {
         innerNode = [selectedValue];
       } else {
-        innerNode = [selectedValue, React__default.createElement(
+        innerNode = [selectedValue, React$1__default.createElement(
           'div',
           {
             className: prefixCls + '-search ' + prefixCls + '-search--inline',
@@ -22520,7 +22520,7 @@ var _initialiseProps$8 = function _initialiseProps() {
         if (maxTagPlaceholder) {
           content = typeof maxTagPlaceholder === 'function' ? maxTagPlaceholder(omittedValues) : maxTagPlaceholder;
         }
-        maxTagPlaceholderEl = React__default.createElement(
+        maxTagPlaceholderEl = React$1__default.createElement(
           'li',
           _extends$23({
             style: UNSELECTABLE_STYLE
@@ -22530,7 +22530,7 @@ var _initialiseProps$8 = function _initialiseProps() {
             key: 'maxTagPlaceholder',
             title: toTitle(content)
           }),
-          React__default.createElement(
+          React$1__default.createElement(
             'div',
             { className: prefixCls + '-selection__choice__content' },
             content
@@ -22547,7 +22547,7 @@ var _initialiseProps$8 = function _initialiseProps() {
           }
           var disabled = _this2.isChildDisabled(singleValue);
           var choiceClassName = disabled ? prefixCls + '-selection__choice ' + prefixCls + '-selection__choice__disabled' : prefixCls + '-selection__choice';
-          return React__default.createElement(
+          return React$1__default.createElement(
             'li',
             _extends$23({
               style: UNSELECTABLE_STYLE
@@ -22557,12 +22557,12 @@ var _initialiseProps$8 = function _initialiseProps() {
               key: singleValue,
               title: toTitle(title)
             }),
-            React__default.createElement(
+            React$1__default.createElement(
               'div',
               { className: prefixCls + '-selection__choice__content' },
               content
             ),
-            disabled ? null : React__default.createElement('span', {
+            disabled ? null : React$1__default.createElement('span', {
               className: prefixCls + '-selection__choice__remove',
               onClick: function onClick(event) {
                 _this2.removeSelected(singleValue, event);
@@ -22574,7 +22574,7 @@ var _initialiseProps$8 = function _initialiseProps() {
       if (maxTagPlaceholderEl) {
         selectedValueNodes.push(maxTagPlaceholderEl);
       }
-      selectedValueNodes.push(React__default.createElement(
+      selectedValueNodes.push(React$1__default.createElement(
         'li',
         {
           className: prefixCls + '-search ' + prefixCls + '-search--inline',
@@ -22584,7 +22584,7 @@ var _initialiseProps$8 = function _initialiseProps() {
       ));
 
       if (isMultipleOrTags(props) && choiceTransitionName) {
-        innerNode = React__default.createElement(
+        innerNode = React$1__default.createElement(
           Animate,
           {
             onLeave: _this2.onChoiceAnimationLeave,
@@ -22594,14 +22594,14 @@ var _initialiseProps$8 = function _initialiseProps() {
           selectedValueNodes
         );
       } else {
-        innerNode = React__default.createElement(
+        innerNode = React$1__default.createElement(
           'ul',
           null,
           selectedValueNodes
         );
       }
     }
-    return React__default.createElement(
+    return React$1__default.createElement(
       'div',
       { className: className, ref: _this2.saveTopCtrlRef },
       _this2.getPlaceholderElement(),
@@ -22624,7 +22624,7 @@ var OptGroup = function (_React$Component) {
   }
 
   return OptGroup;
-}(React__default.Component);
+}(React$1__default.Component);
 
 OptGroup.isSelectOptGroup = true;
 
@@ -22671,7 +22671,7 @@ var LocaleReceiver = function (_React$Component) {
     }]);
 
     return LocaleReceiver;
-}(React.Component);
+}(React$1.Component);
 
 LocaleReceiver.contextTypes = {
     antLocale: propTypes.object
@@ -22889,7 +22889,7 @@ var Select$1 = function (_React$Component) {
                 tags: mode === 'tags',
                 combobox: _this.isCombobox()
             };
-            return React.createElement(Select, _extends$23({}, restProps, modeConfig, { prefixCls: prefixCls, className: cls, optionLabelProp: optionLabelProp || 'children', notFoundContent: _this.getNotFoundContent(locale), ref: _this.saveSelect }));
+            return React$1.createElement(Select, _extends$23({}, restProps, modeConfig, { prefixCls: prefixCls, className: cls, optionLabelProp: optionLabelProp || 'children', notFoundContent: _this.getNotFoundContent(locale), ref: _this.saveSelect }));
         };
         warning_1$1(props.mode !== 'combobox', 'The combobox mode of Select is deprecated,' + 'it will be removed in next major version,' + 'please use AutoComplete instead');
         return _this;
@@ -22926,7 +22926,7 @@ var Select$1 = function (_React$Component) {
     }, {
         key: 'render',
         value: function render() {
-            return React.createElement(
+            return React$1.createElement(
                 LocaleReceiver,
                 { componentName: 'Select', defaultLocale: defaultLocale.Select },
                 this.renderSelect
@@ -22935,7 +22935,7 @@ var Select$1 = function (_React$Component) {
     }]);
 
     return Select$$1;
-}(React.Component);
+}(React$1.Component);
 
 Select$1.Option = Option;
 Select$1.OptGroup = OptGroup;
@@ -23015,12 +23015,12 @@ var Input = function (_React$Component) {
             }
             var wrapperClassName = props.prefixCls + '-group';
             var addonClassName = wrapperClassName + '-addon';
-            var addonBefore = props.addonBefore ? React.createElement(
+            var addonBefore = props.addonBefore ? React$1.createElement(
                 'span',
                 { className: addonClassName },
                 props.addonBefore
             ) : null;
-            var addonAfter = props.addonAfter ? React.createElement(
+            var addonAfter = props.addonAfter ? React$1.createElement(
                 'span',
                 { className: addonClassName },
                 props.addonAfter
@@ -23029,14 +23029,14 @@ var Input = function (_React$Component) {
             var groupClassName = classnames(props.prefixCls + '-group-wrapper', (_classNames3 = {}, _defineProperty$7(_classNames3, props.prefixCls + '-group-wrapper-sm', props.size === 'small'), _defineProperty$7(_classNames3, props.prefixCls + '-group-wrapper-lg', props.size === 'large'), _classNames3));
             // Need another wrapper for changing display:table to display:inline-block
             // and put style prop in wrapper
-            return React.createElement(
+            return React$1.createElement(
                 'span',
                 { className: groupClassName, style: props.style },
-                React.createElement(
+                React$1.createElement(
                     'span',
                     { className: className },
                     addonBefore,
-                    React.cloneElement(children, { style: null }),
+                    React$1.cloneElement(children, { style: null }),
                     addonAfter
                 )
             );
@@ -23051,22 +23051,22 @@ var Input = function (_React$Component) {
             if (!('prefix' in props || 'suffix' in props)) {
                 return children;
             }
-            var prefix = props.prefix ? React.createElement(
+            var prefix = props.prefix ? React$1.createElement(
                 'span',
                 { className: props.prefixCls + '-prefix' },
                 props.prefix
             ) : null;
-            var suffix = props.suffix ? React.createElement(
+            var suffix = props.suffix ? React$1.createElement(
                 'span',
                 { className: props.prefixCls + '-suffix' },
                 props.suffix
             ) : null;
             var affixWrapperCls = classnames(props.className, props.prefixCls + '-affix-wrapper', (_classNames4 = {}, _defineProperty$7(_classNames4, props.prefixCls + '-affix-wrapper-sm', props.size === 'small'), _defineProperty$7(_classNames4, props.prefixCls + '-affix-wrapper-lg', props.size === 'large'), _classNames4));
-            return React.createElement(
+            return React$1.createElement(
                 'span',
                 { className: affixWrapperCls, style: props.style },
                 prefix,
-                React.cloneElement(children, { style: null, className: this.getInputClassName() }),
+                React$1.cloneElement(children, { style: null, className: this.getInputClassName() }),
                 suffix
             );
         }
@@ -23085,7 +23085,7 @@ var Input = function (_React$Component) {
                 // specify either the value prop, or the defaultValue prop, but not both.
                 delete otherProps.defaultValue;
             }
-            return this.renderLabeledIcon(React.createElement('input', _extends$23({}, otherProps, { className: classnames(this.getInputClassName(), className), onKeyDown: this.handleKeyDown, ref: this.saveInput })));
+            return this.renderLabeledIcon(React$1.createElement('input', _extends$23({}, otherProps, { className: classnames(this.getInputClassName(), className), onKeyDown: this.handleKeyDown, ref: this.saveInput })));
         }
     }, {
         key: 'render',
@@ -23095,7 +23095,7 @@ var Input = function (_React$Component) {
     }]);
 
     return Input;
-}(React.Component);
+}(React$1.Component);
 
 Input.defaultProps = {
     prefixCls: 'ant-input',
@@ -23133,7 +23133,7 @@ var Group = function Group(props) {
         className = _props$className === undefined ? '' : _props$className;
 
     var cls = classnames(prefixCls, (_classNames = {}, _defineProperty$7(_classNames, prefixCls + '-lg', props.size === 'large'), _defineProperty$7(_classNames, prefixCls + '-sm', props.size === 'small'), _defineProperty$7(_classNames, prefixCls + '-compact', props.compact), _classNames), className);
-    return React.createElement(
+    return React$1.createElement(
         'span',
         { className: cls, style: props.style, onMouseEnter: props.onMouseEnter, onMouseLeave: props.onMouseLeave, onFocus: props.onFocus, onBlur: props.onBlur },
         props.children
@@ -23150,7 +23150,7 @@ var Icon = function Icon(props) {
         anticon: true,
         'anticon-spin': !!spin || type === 'loading'
     }, 'anticon-' + type, true), className);
-    return React.createElement('i', _extends$23({}, omit(props, ['type', 'spin']), { className: classString }));
+    return React$1.createElement('i', _extends$23({}, omit(props, ['type', 'spin']), { className: classString }));
 };
 
 var __rest$1 = undefined && undefined.__rest || function (s, e) {
@@ -23175,13 +23175,13 @@ function insertSpace(child, needInserted) {
     var SPACE = needInserted ? ' ' : '';
     // strictNullChecks oops.
     if (typeof child !== 'string' && typeof child !== 'number' && isString(child.type) && isTwoCNChar(child.props.children)) {
-        return React.cloneElement(child, {}, child.props.children.split('').join(SPACE));
+        return React$1.cloneElement(child, {}, child.props.children.split('').join(SPACE));
     }
     if (typeof child === 'string') {
         if (isTwoCNChar(child)) {
             child = child.split('').join(SPACE);
         }
-        return React.createElement(
+        return React$1.createElement(
             'span',
             null,
             child
@@ -23281,7 +23281,7 @@ var Button = function (_React$Component) {
                 icon = _props.icon,
                 children = _props.children;
 
-            return React.Children.count(children) === 1 && !icon;
+            return React$1.Children.count(children) === 1 && !icon;
         }
     }, {
         key: 'render',
@@ -23319,12 +23319,12 @@ var Button = function (_React$Component) {
             }
             var classes = classnames(prefixCls, className, (_classNames = {}, _defineProperty$7(_classNames, prefixCls + '-' + type, type), _defineProperty$7(_classNames, prefixCls + '-' + shape, shape), _defineProperty$7(_classNames, prefixCls + '-' + sizeCls, sizeCls), _defineProperty$7(_classNames, prefixCls + '-icon-only', !children && icon), _defineProperty$7(_classNames, prefixCls + '-loading', loading), _defineProperty$7(_classNames, prefixCls + '-clicked', clicked), _defineProperty$7(_classNames, prefixCls + '-background-ghost', ghost), _defineProperty$7(_classNames, prefixCls + '-two-chinese-chars', hasTwoCNChar), _defineProperty$7(_classNames, prefixCls + '-block', block), _classNames));
             var iconType = loading ? 'loading' : icon;
-            var iconNode = iconType ? React.createElement(Icon, { type: iconType }) : null;
-            var kids = children || children === 0 ? React.Children.map(children, function (child) {
+            var iconNode = iconType ? React$1.createElement(Icon, { type: iconType }) : null;
+            var kids = children || children === 0 ? React$1.Children.map(children, function (child) {
                 return insertSpace(child, _this3.isNeedInserted());
             }) : null;
             if ('href' in rest) {
-                return React.createElement(
+                return React$1.createElement(
                     'a',
                     _extends$23({}, rest, { className: classes, onClick: this.handleClick }),
                     iconNode,
@@ -23334,7 +23334,7 @@ var Button = function (_React$Component) {
                 // React does not recognize the `htmlType` prop on a DOM element. Here we pick it out of `rest`.
                 var htmlType = rest.htmlType,
                     otherProps = __rest$1(rest, ["htmlType"]);
-                return React.createElement(
+                return React$1.createElement(
                     'button',
                     _extends$23({}, otherProps, { type: htmlType || 'button', className: classes, onClick: this.handleClick }),
                     iconNode,
@@ -23345,7 +23345,7 @@ var Button = function (_React$Component) {
     }]);
 
     return Button;
-}(React.Component);
+}(React$1.Component);
 
 Button.__ANT_BUTTON = true;
 Button.defaultProps = {
@@ -23395,7 +23395,7 @@ var ButtonGroup = function ButtonGroup(props) {
             break;
     }
     var classes = classnames(prefixCls, _defineProperty$7({}, prefixCls + '-' + sizeCls, sizeCls), className);
-    return React.createElement('div', _extends$23({}, others, { className: classes }));
+    return React$1.createElement('div', _extends$23({}, others, { className: classes }));
 };
 
 Button.Group = ButtonGroup;
@@ -23453,20 +23453,20 @@ var Search = function (_React$Component) {
             var enterButtonAsElement = enterButton;
             var node = void 0;
             if (!enterButton) {
-                node = React.createElement(Icon, { className: prefixCls + '-icon', type: 'search', key: 'searchIcon' });
+                node = React$1.createElement(Icon, { className: prefixCls + '-icon', type: 'search', key: 'searchIcon' });
             } else if (enterButtonAsElement.type === Button || enterButtonAsElement.type === 'button') {
-                node = React.cloneElement(enterButtonAsElement, enterButtonAsElement.type === Button ? {
+                node = React$1.cloneElement(enterButtonAsElement, enterButtonAsElement.type === Button ? {
                     className: prefixCls + '-button',
                     size: size
                 } : {});
             } else {
-                node = React.createElement(
+                node = React$1.createElement(
                     Button,
                     { className: prefixCls + '-button', type: 'primary', size: size, disabled: disabled, key: 'enterButton' },
-                    enterButton === true ? React.createElement(Icon, { type: 'search' }) : enterButton
+                    enterButton === true ? React$1.createElement(Icon, { type: 'search' }) : enterButton
                 );
             }
-            return React.cloneElement(node, {
+            return React$1.cloneElement(node, {
                 onClick: this.onSearch
             });
         }
@@ -23487,12 +23487,12 @@ var Search = function (_React$Component) {
             var buttonOrIcon = this.getButtonOrIcon();
             var searchSuffix = suffix ? [suffix, buttonOrIcon] : buttonOrIcon;
             var inputClassName = classnames(prefixCls, className, (_classNames = {}, _defineProperty$7(_classNames, prefixCls + '-enter-button', !!enterButton), _defineProperty$7(_classNames, prefixCls + '-' + size, !!size), _classNames));
-            return React.createElement(Input, _extends$23({ onPressEnter: this.onSearch }, others, { size: size, className: inputClassName, prefixCls: inputPrefixCls, suffix: searchSuffix, ref: this.saveInput }));
+            return React$1.createElement(Input, _extends$23({ onPressEnter: this.onSearch }, others, { size: size, className: inputClassName, prefixCls: inputPrefixCls, suffix: searchSuffix, ref: this.saveInput }));
         }
     }]);
 
     return Search;
-}(React.Component);
+}(React$1.Component);
 
 Search.defaultProps = {
     inputPrefixCls: 'ant-input',
@@ -23713,12 +23713,12 @@ var TextArea = function (_React$Component) {
             if ('value' in otherProps) {
                 otherProps.value = otherProps.value || '';
             }
-            return React.createElement('textarea', _extends$23({}, otherProps, { className: this.getTextAreaClassName(), style: style, onKeyDown: this.handleKeyDown, onChange: this.handleTextareaChange, ref: this.saveTextAreaRef }));
+            return React$1.createElement('textarea', _extends$23({}, otherProps, { className: this.getTextAreaClassName(), style: style, onKeyDown: this.handleKeyDown, onChange: this.handleTextareaChange, ref: this.saveTextAreaRef }));
         }
     }]);
 
     return TextArea;
-}(React.Component);
+}(React$1.Component);
 
 TextArea.defaultProps = {
     prefixCls: 'ant-input'
@@ -23756,12 +23756,12 @@ var InputElement = function (_React$Component) {
     _createClass$10(InputElement, [{
         key: 'render',
         value: function render() {
-            return React.cloneElement(this.props.children, _extends$23({}, this.props, { ref: this.saveRef }), null);
+            return React$1.cloneElement(this.props.children, _extends$23({}, this.props, { ref: this.saveRef }), null);
         }
     }]);
 
     return InputElement;
-}(React.Component);
+}(React$1.Component);
 
 function isSelectOptionOrSelectOptGroup(child) {
     return child && child.type && (child.type.isSelectOption || child.type.isSelectOptGroup);
@@ -23778,11 +23778,11 @@ var AutoComplete = function (_React$Component) {
         _this.getInputElement = function () {
             var children = _this.props.children;
 
-            var element = children && React.isValidElement(children) && children.type !== Option ? React.Children.only(_this.props.children) : React.createElement(Input, null);
+            var element = children && React$1.isValidElement(children) && children.type !== Option ? React$1.Children.only(_this.props.children) : React$1.createElement(Input, null);
             var elementProps = _extends$23({}, element.props);
             // https://github.com/ant-design/ant-design/pull/7742
             delete elementProps.children;
-            return React.createElement(
+            return React$1.createElement(
                 InputElement,
                 elementProps,
                 element
@@ -23821,23 +23821,23 @@ var AutoComplete = function (_React$Component) {
 
             var cls = classnames((_classNames = {}, _defineProperty$7(_classNames, prefixCls + '-lg', size === 'large'), _defineProperty$7(_classNames, prefixCls + '-sm', size === 'small'), _defineProperty$7(_classNames, className, !!className), _defineProperty$7(_classNames, prefixCls + '-show-search', true), _defineProperty$7(_classNames, prefixCls + '-auto-complete', true), _classNames));
             var options = void 0;
-            var childArray = React.Children.toArray(children);
+            var childArray = React$1.Children.toArray(children);
             if (childArray.length && isSelectOptionOrSelectOptGroup(childArray[0])) {
                 options = children;
             } else {
                 options = dataSource ? dataSource.map(function (item) {
-                    if (React.isValidElement(item)) {
+                    if (React$1.isValidElement(item)) {
                         return item;
                     }
                     switch (typeof item === 'undefined' ? 'undefined' : _typeof$4(item)) {
                         case 'string':
-                            return React.createElement(
+                            return React$1.createElement(
                                 Option,
                                 { key: item },
                                 item
                             );
                         case 'object':
-                            return React.createElement(
+                            return React$1.createElement(
                                 Option,
                                 { key: item.value },
                                 item.text
@@ -23847,7 +23847,7 @@ var AutoComplete = function (_React$Component) {
                     }
                 }) : [];
             }
-            return React.createElement(
+            return React$1.createElement(
                 Select$1,
                 _extends$23({}, this.props, { className: cls, mode: Select$1.SECRET_COMBOBOX_MODE_DO_NOT_USE, optionLabelProp: optionLabelProp, getInputElement: this.getInputElement, notFoundContent: notFoundContent, ref: this.saveSelect }),
                 options
@@ -23856,7 +23856,7 @@ var AutoComplete = function (_React$Component) {
     }]);
 
     return AutoComplete;
-}(React.Component);
+}(React$1.Component);
 
 AutoComplete.Option = Option;
 AutoComplete.OptGroup = OptGroup;
@@ -23965,25 +23965,25 @@ var Alert = function (_React$Component) {
             if (closeText) {
                 closable = true;
             }
-            var closeIcon = closable ? React.createElement(
+            var closeIcon = closable ? React$1.createElement(
                 'a',
                 { onClick: this.handleClose, className: prefixCls + '-close-icon' },
-                closeText || React.createElement(Icon, { type: 'cross' })
+                closeText || React$1.createElement(Icon, { type: 'cross' })
             ) : null;
             var dataOrAriaProps = getDataOrAriaProps(this.props);
-            return this.state.closed ? null : React.createElement(
+            return this.state.closed ? null : React$1.createElement(
                 Animate,
                 { component: '', showProp: 'data-show', transitionName: prefixCls + '-slide-up', onEnd: this.animationEnd },
-                React.createElement(
+                React$1.createElement(
                     'div',
                     _extends$23({ 'data-show': this.state.closing, className: alertCls, style: style }, dataOrAriaProps),
-                    showIcon ? React.createElement(Icon, { className: prefixCls + '-icon', type: iconType }) : null,
-                    React.createElement(
+                    showIcon ? React$1.createElement(Icon, { className: prefixCls + '-icon', type: iconType }) : null,
+                    React$1.createElement(
                         'span',
                         { className: prefixCls + '-message' },
                         message
                     ),
-                    React.createElement(
+                    React$1.createElement(
                         'span',
                         { className: prefixCls + '-description' },
                         description
@@ -23995,7 +23995,7 @@ var Alert = function (_React$Component) {
     }]);
 
     return Alert;
-}(React.Component);
+}(React$1.Component);
 
 var __rest$4 = undefined && undefined.__rest || function (s, e) {
     var t = {};
@@ -24088,9 +24088,9 @@ var Avatar = function (_React$Component) {
             } : {};
             var children = this.props.children;
             if (src && isImgExist) {
-                children = React.createElement('img', { src: src, onError: this.handleImgLoadError, alt: alt });
+                children = React$1.createElement('img', { src: src, onError: this.handleImgLoadError, alt: alt });
             } else if (icon) {
-                children = React.createElement(Icon, { type: icon });
+                children = React$1.createElement(Icon, { type: icon });
             } else {
                 var childrenNode = this.avatarChildren;
                 if (childrenNode || scale !== 1) {
@@ -24105,7 +24105,7 @@ var Avatar = function (_React$Component) {
                     var sizeChildrenStyle = typeof size === 'number' ? {
                         lineHeight: size + 'px'
                     } : {};
-                    children = React.createElement(
+                    children = React$1.createElement(
                         'span',
                         { className: prefixCls + '-string', ref: function ref(span) {
                                 return _this2.avatarChildren = span;
@@ -24113,7 +24113,7 @@ var Avatar = function (_React$Component) {
                         children
                     );
                 } else {
-                    children = React.createElement(
+                    children = React$1.createElement(
                         'span',
                         { className: prefixCls + '-string', ref: function ref(span) {
                                 return _this2.avatarChildren = span;
@@ -24122,7 +24122,7 @@ var Avatar = function (_React$Component) {
                     );
                 }
             }
-            return React.createElement(
+            return React$1.createElement(
                 'span',
                 _extends$23({}, others, { style: _extends$23({}, sizeStyle, others.style), className: classString }),
                 children
@@ -24131,7 +24131,7 @@ var Avatar = function (_React$Component) {
     }]);
 
     return Avatar;
-}(React.Component);
+}(React$1.Component);
 
 Avatar.defaultProps = {
     prefixCls: 'ant-avatar',
@@ -24237,19 +24237,19 @@ var BackTop = function (_React$Component) {
                 children = _props.children;
 
             var classString = classnames(prefixCls, className);
-            var defaultElement = React.createElement(
+            var defaultElement = React$1.createElement(
                 'div',
                 { className: prefixCls + '-content' },
-                React.createElement('div', { className: prefixCls + '-icon' })
+                React$1.createElement('div', { className: prefixCls + '-icon' })
             );
             // fix https://fb.me/react-unknown-prop
             var divProps = omit(this.props, ['prefixCls', 'className', 'children', 'visibilityHeight', 'target']);
-            var backTopBtn = this.state.visible ? React.createElement(
+            var backTopBtn = this.state.visible ? React$1.createElement(
                 'div',
                 _extends$23({}, divProps, { className: classString, onClick: this.scrollToTop }),
                 children || defaultElement
             ) : null;
-            return React.createElement(
+            return React$1.createElement(
                 Animate,
                 { component: '', transitionName: 'fade' },
                 backTopBtn
@@ -24258,7 +24258,7 @@ var BackTop = function (_React$Component) {
     }]);
 
     return BackTop;
-}(React.Component);
+}(React$1.Component);
 
 BackTop.defaultProps = {
     visibilityHeight: 400
@@ -24341,7 +24341,7 @@ var ScrollNumber = function (_Component) {
             var childrenToReturn = [];
             for (var i = 0; i < 30; i++) {
                 var currentClassName = position === i ? 'current' : '';
-                childrenToReturn.push(React.createElement(
+                childrenToReturn.push(React$1.createElement(
                     'p',
                     { key: i.toString(), className: currentClassName },
                     i % 10
@@ -24354,7 +24354,7 @@ var ScrollNumber = function (_Component) {
         value: function renderCurrentNumber(num, i) {
             var position = this.getPositionByNum(num, i);
             var removeTransition = this.state.animateStarted || getNumberArray(this.lastCount)[i] === undefined;
-            return React.createElement('span', {
+            return React$1.createElement('span', {
                 className: this.props.prefixCls + '-only',
                 style: {
                     transition: removeTransition ? 'none' : undefined,
@@ -24398,12 +24398,12 @@ var ScrollNumber = function (_Component) {
             if (style && style.borderColor) {
                 newProps.style.boxShadow = '0 0 0 1px ' + style.borderColor + ' inset';
             }
-            return React.createElement(component, newProps, this.renderNumberElement());
+            return React$1.createElement(component, newProps, this.renderNumberElement());
         }
     }]);
 
     return ScrollNumber;
-}(React.Component);
+}(React$1.Component);
 
 ScrollNumber.defaultProps = {
     prefixCls: 'ant-scroll-number',
@@ -24464,28 +24464,28 @@ var Badge = function (_React$Component) {
             var styleWithOffset = offset ? _extends$23({ marginTop: offset[0], marginLeft: offset[1] }, style) : style;
             // <Badge status="success" />
             if (!children && status) {
-                return React.createElement(
+                return React$1.createElement(
                     'span',
                     _extends$23({}, restProps, { className: badgeCls, style: styleWithOffset }),
-                    React.createElement('span', { className: statusCls }),
-                    React.createElement(
+                    React$1.createElement('span', { className: statusCls }),
+                    React$1.createElement(
                         'span',
                         { className: prefixCls + '-status-text' },
                         text
                     )
                 );
             }
-            var scrollNumber = hidden ? null : React.createElement(ScrollNumber, { prefixCls: scrollNumberPrefixCls, 'data-show': !hidden, className: scrollNumberCls, count: displayCount, title: title || count, style: styleWithOffset, key: 'scrollNumber' });
-            var statusText = hidden || !text ? null : React.createElement(
+            var scrollNumber = hidden ? null : React$1.createElement(ScrollNumber, { prefixCls: scrollNumberPrefixCls, 'data-show': !hidden, className: scrollNumberCls, count: displayCount, title: title || count, style: styleWithOffset, key: 'scrollNumber' });
+            var statusText = hidden || !text ? null : React$1.createElement(
                 'span',
                 { className: prefixCls + '-status-text' },
                 text
             );
-            return React.createElement(
+            return React$1.createElement(
                 'span',
                 _extends$23({}, restProps, { className: badgeCls }),
                 children,
-                React.createElement(
+                React$1.createElement(
                     Animate,
                     { component: '', showProp: 'data-show', transitionName: children ? prefixCls + '-zoom' : '', transitionAppear: true },
                     scrollNumber
@@ -24496,7 +24496,7 @@ var Badge = function (_React$Component) {
     }]);
 
     return Badge;
-}(React.Component);
+}(React$1.Component);
 
 Badge.defaultProps = {
     prefixCls: 'ant-badge',
@@ -24549,24 +24549,24 @@ var BreadcrumbItem = function (_React$Component) {
                 restProps = __rest$6(_a, ["prefixCls", "separator", "children"]);
             var link = void 0;
             if ('href' in this.props) {
-                link = React.createElement(
+                link = React$1.createElement(
                     'a',
                     _extends$23({ className: prefixCls + '-link' }, restProps),
                     children
                 );
             } else {
-                link = React.createElement(
+                link = React$1.createElement(
                     'span',
                     _extends$23({ className: prefixCls + '-link' }, restProps),
                     children
                 );
             }
             if (children) {
-                return React.createElement(
+                return React$1.createElement(
                     'span',
                     null,
                     link,
-                    React.createElement(
+                    React$1.createElement(
                         'span',
                         { className: prefixCls + '-separator' },
                         separator
@@ -24578,7 +24578,7 @@ var BreadcrumbItem = function (_React$Component) {
     }]);
 
     return BreadcrumbItem;
-}(React.Component);
+}(React$1.Component);
 
 BreadcrumbItem.__ANT_BREADCRUMB_ITEM = true;
 BreadcrumbItem.defaultProps = {
@@ -24604,11 +24604,11 @@ function getBreadcrumbName(route, params) {
 function defaultItemRender(route, params, routes, paths) {
     var isLastItem = routes.indexOf(route) === routes.length - 1;
     var name = getBreadcrumbName(route, params);
-    return isLastItem ? React.createElement(
+    return isLastItem ? React$1.createElement(
         'span',
         null,
         name
-    ) : React.createElement(
+    ) : React$1.createElement(
         'a',
         { href: '#/' + paths.join('/') },
         name
@@ -24657,25 +24657,25 @@ var Breadcrumb = function (_React$Component) {
                     if (path) {
                         paths.push(path);
                     }
-                    return React.createElement(
+                    return React$1.createElement(
                         BreadcrumbItem,
                         { separator: separator, key: route.breadcrumbName || path },
                         itemRender(route, params, routes, paths)
                     );
                 });
             } else if (children) {
-                crumbs = React.Children.map(children, function (element, index) {
+                crumbs = React$1.Children.map(children, function (element, index) {
                     if (!element) {
                         return element;
                     }
                     warning$4(element.type && element.type.__ANT_BREADCRUMB_ITEM, 'Breadcrumb only accepts Breadcrumb.Item as it\'s children');
-                    return React.cloneElement(element, {
+                    return React$1.cloneElement(element, {
                         separator: separator,
                         key: index
                     });
                 });
             }
-            return React.createElement(
+            return React$1.createElement(
                 'div',
                 { className: classnames(className, prefixCls), style: style },
                 crumbs
@@ -24684,7 +24684,7 @@ var Breadcrumb = function (_React$Component) {
     }]);
 
     return Breadcrumb;
-}(React.Component);
+}(React$1.Component);
 
 Breadcrumb.defaultProps = {
     prefixCls: 'ant-breadcrumb',
@@ -30073,7 +30073,7 @@ function factory(ReactComponent, isValidElement, ReactNoopUpdateQueue) {
 
 var factory_1 = factory;
 
-if (typeof React__default === 'undefined') {
+if (typeof React$1__default === 'undefined') {
   throw Error(
     'create-react-class could not find the React object. If you are using script tags, ' +
       'make sure that React is being loaded before create-react-class.'
@@ -30081,11 +30081,11 @@ if (typeof React__default === 'undefined') {
 }
 
 // Hack to grab NoopUpdateQueue from isomorphic React
-var ReactNoopUpdateQueue = new React__default.Component().updater;
+var ReactNoopUpdateQueue = new React$1__default.Component().updater;
 
 var createReactClass = factory_1(
-  React__default.Component,
-  React__default.isValidElement,
+  React$1__default.Component,
+  React$1__default.isValidElement,
   ReactNoopUpdateQueue
 );
 
@@ -30121,13 +30121,13 @@ var DateTHead = function (_React$Component) {
     }
 
     if (props.showWeekNumber) {
-      showWeekNumberEl = React__default.createElement(
+      showWeekNumberEl = React$1__default.createElement(
         'th',
         {
           role: 'columnheader',
           className: prefixCls + '-column-header ' + prefixCls + '-week-number-header'
         },
-        React__default.createElement(
+        React$1__default.createElement(
           'span',
           { className: prefixCls + '-column-header-inner' },
           'x'
@@ -30135,7 +30135,7 @@ var DateTHead = function (_React$Component) {
       );
     }
     var weekDaysEls = weekDays.map(function (day, xindex) {
-      return React__default.createElement(
+      return React$1__default.createElement(
         'th',
         {
           key: xindex,
@@ -30143,17 +30143,17 @@ var DateTHead = function (_React$Component) {
           title: day,
           className: prefixCls + '-column-header'
         },
-        React__default.createElement(
+        React$1__default.createElement(
           'span',
           { className: prefixCls + '-column-header-inner' },
           veryShortWeekdays[xindex]
         )
       );
     });
-    return React__default.createElement(
+    return React$1__default.createElement(
       'thead',
       null,
-      React__default.createElement(
+      React$1__default.createElement(
         'tr',
         { role: 'row' },
         showWeekNumberEl,
@@ -30163,7 +30163,7 @@ var DateTHead = function (_React$Component) {
   };
 
   return DateTHead;
-}(React__default.Component);
+}(React$1__default.Component);
 
 var defaultDisabledTime = {
   disabledHours: function disabledHours() {
@@ -30355,7 +30355,7 @@ var DateTBody = createReactClass({
       var isActiveWeek = false;
       var dateCells = [];
       if (showWeekNumber) {
-        weekNumberCell = React__default.createElement(
+        weekNumberCell = React$1__default.createElement(
           'td',
           {
             key: dateTable[passed].week(),
@@ -30458,7 +30458,7 @@ var DateTBody = createReactClass({
           dateHtml = dateRender(current, value);
         } else {
           var content = contentRender ? contentRender(current, value) : current.date();
-          dateHtml = React__default.createElement(
+          dateHtml = React$1__default.createElement(
             'div',
             {
               key: getIdFromDate(current),
@@ -30470,7 +30470,7 @@ var DateTBody = createReactClass({
           );
         }
 
-        dateCells.push(React__default.createElement(
+        dateCells.push(React$1__default.createElement(
           'td',
           {
             key: passed,
@@ -30486,7 +30486,7 @@ var DateTBody = createReactClass({
         passed++;
       }
 
-      tableHtml.push(React__default.createElement(
+      tableHtml.push(React$1__default.createElement(
         'tr',
         {
           key: iIndex,
@@ -30497,7 +30497,7 @@ var DateTBody = createReactClass({
         dateCells
       ));
     }
-    return React__default.createElement(
+    return React$1__default.createElement(
       'tbody',
       { className: prefixCls + '-tbody' },
       tableHtml
@@ -30517,16 +30517,16 @@ var DateTable = function (_React$Component) {
   DateTable.prototype.render = function render() {
     var props = this.props;
     var prefixCls = props.prefixCls;
-    return React__default.createElement(
+    return React$1__default.createElement(
       'table',
       { className: prefixCls + '-table', cellSpacing: '0', role: 'grid' },
-      React__default.createElement(DateTHead, props),
-      React__default.createElement(DateTBody, props)
+      React$1__default.createElement(DateTHead, props),
+      React$1__default.createElement(DateTBody, props)
     );
   };
 
   return DateTable;
-}(React__default.Component);
+}(React$1__default.Component);
 
 var ROW = 4;
 var COL = 3;
@@ -30627,13 +30627,13 @@ var MonthTable = function (_Component) {
           } else {
             content = monthData.content;
           }
-          cellEl = React__default.createElement(
+          cellEl = React$1__default.createElement(
             'a',
             { className: prefixCls + '-month' },
             content
           );
         }
-        return React__default.createElement(
+        return React$1__default.createElement(
           'td',
           {
             role: 'gridcell',
@@ -30645,17 +30645,17 @@ var MonthTable = function (_Component) {
           cellEl
         );
       });
-      return React__default.createElement(
+      return React$1__default.createElement(
         'tr',
         { key: index, role: 'row' },
         tds
       );
     });
 
-    return React__default.createElement(
+    return React$1__default.createElement(
       'table',
       { className: prefixCls + '-table', cellSpacing: '0', role: 'grid' },
-      React__default.createElement(
+      React$1__default.createElement(
         'tbody',
         { className: prefixCls + '-tbody' },
         monthsEls
@@ -30664,7 +30664,7 @@ var MonthTable = function (_Component) {
   };
 
   return MonthTable;
-}(React.Component);
+}(React$1.Component);
 
 MonthTable.defaultProps = {
   onSelect: noop$9
@@ -30742,7 +30742,7 @@ var CalendarMixin = {
 
     var className = (_className = {}, _className[prefixCls] = 1, _className[prefixCls + '-hidden'] = !props.visible, _className[props.className] = !!props.className, _className[newProps.className] = !!newProps.className, _className);
 
-    return React__default.createElement(
+    return React$1__default.createElement(
       'div',
       {
         ref: this.saveRoot,
@@ -30877,13 +30877,13 @@ var CalendarHeader = function (_Component) {
 
     var options = [];
     for (var index = start; index < end; index++) {
-      options.push(React__default.createElement(
+      options.push(React$1__default.createElement(
         Select.Option,
         { key: '' + index },
         index
       ));
     }
-    return React__default.createElement(
+    return React$1__default.createElement(
       Select,
       {
         className: prefixCls + '-header-year-select',
@@ -30908,14 +30908,14 @@ var CalendarHeader = function (_Component) {
 
     for (var index = 0; index < 12; index++) {
       t.month(index);
-      options.push(React__default.createElement(
+      options.push(React$1__default.createElement(
         Select.Option,
         { key: '' + index },
         getMonthName(t)
       ));
     }
 
-    return React__default.createElement(
+    return React$1__default.createElement(
       Select,
       {
         className: prefixCls + '-header-month-select',
@@ -30952,14 +30952,14 @@ var CalendarHeader = function (_Component) {
     var yearSelect = this.yearSelectElement(year);
     var monthSelect = type === 'month' ? null : this.monthSelectElement(month);
     var switchCls = prefixCls + '-header-switcher';
-    var typeSwitcher = showTypeSwitch ? React__default.createElement(
+    var typeSwitcher = showTypeSwitch ? React$1__default.createElement(
       'span',
       { className: switchCls },
-      type === 'date' ? React__default.createElement(
+      type === 'date' ? React$1__default.createElement(
         'span',
         { className: switchCls + '-focus' },
         locale.month
-      ) : React__default.createElement(
+      ) : React$1__default.createElement(
         'span',
         {
           onClick: this.changeTypeToDate.bind(this),
@@ -30967,11 +30967,11 @@ var CalendarHeader = function (_Component) {
         },
         locale.month
       ),
-      type === 'month' ? React__default.createElement(
+      type === 'month' ? React$1__default.createElement(
         'span',
         { className: switchCls + '-focus' },
         locale.year
-      ) : React__default.createElement(
+      ) : React$1__default.createElement(
         'span',
         {
           onClick: this.changeTypeToMonth.bind(this),
@@ -30981,7 +30981,7 @@ var CalendarHeader = function (_Component) {
       )
     ) : null;
 
-    return React__default.createElement(
+    return React$1__default.createElement(
       'div',
       { className: prefixCls + '-header' },
       typeSwitcher,
@@ -30992,7 +30992,7 @@ var CalendarHeader = function (_Component) {
   };
 
   return CalendarHeader;
-}(React.Component);
+}(React$1.Component);
 
 CalendarHeader.propTypes = {
   value: propTypes.object,
@@ -31095,7 +31095,7 @@ var FullCalendar = createReactClass({
         header = headerRender(value, type, locale);
       } else {
         var TheHeader = headerComponent || CalendarHeader;
-        header = React__default.createElement(TheHeader, _extends$23({
+        header = React$1__default.createElement(TheHeader, _extends$23({
           key: 'calendar-header'
         }, props, {
           prefixCls: prefixCls + '-full',
@@ -31107,7 +31107,7 @@ var FullCalendar = createReactClass({
       }
     }
 
-    var table = type === 'date' ? React__default.createElement(DateTable, {
+    var table = type === 'date' ? React$1__default.createElement(DateTable, {
       dateRender: props.dateCellRender,
       contentRender: props.dateCellContentRender,
       locale: locale,
@@ -31115,7 +31115,7 @@ var FullCalendar = createReactClass({
       onSelect: this.onSelect,
       value: value,
       disabledDate: disabledDate
-    }) : React__default.createElement(MonthTable, {
+    }) : React$1__default.createElement(MonthTable, {
       cellRender: props.monthCellRender,
       contentRender: props.monthCellContentRender,
       locale: locale,
@@ -31125,7 +31125,7 @@ var FullCalendar = createReactClass({
       disabledDate: disabledDate
     });
 
-    var children = [header, React__default.createElement(
+    var children = [header, React$1__default.createElement(
       'div',
       { key: 'calendar-body', className: prefixCls + '-calendar-body' },
       table
@@ -32099,10 +32099,10 @@ var Checkbox = function (_React$Component) {
 
     var classString = classnames(prefixCls, className, (_classNames = {}, _classNames[prefixCls + '-checked'] = checked, _classNames[prefixCls + '-disabled'] = disabled, _classNames));
 
-    return React__default.createElement(
+    return React$1__default.createElement(
       'span',
       { className: classString, style: style },
-      React__default.createElement('input', _extends$23({
+      React$1__default.createElement('input', _extends$23({
         name: name,
         id: id,
         type: type,
@@ -32119,12 +32119,12 @@ var Checkbox = function (_React$Component) {
         ref: this.saveInput,
         value: value
       }, globalProps)),
-      React__default.createElement('span', { className: prefixCls + '-inner' })
+      React$1__default.createElement('span', { className: prefixCls + '-inner' })
     );
   };
 
   return Checkbox;
-}(React__default.Component);
+}(React$1__default.Component);
 
 Checkbox.propTypes = {
   prefixCls: propTypes.string,
@@ -32252,11 +32252,11 @@ var Radio = function (_React$Component) {
                 radioProps.disabled = props.disabled || radioGroup.disabled;
             }
             var wrapperClassString = classnames(className, (_classNames = {}, _defineProperty$7(_classNames, prefixCls + '-wrapper', true), _defineProperty$7(_classNames, prefixCls + '-wrapper-checked', radioProps.checked), _defineProperty$7(_classNames, prefixCls + '-wrapper-disabled', radioProps.disabled), _classNames));
-            return React.createElement(
+            return React$1.createElement(
                 'label',
                 { className: wrapperClassString, style: style, onMouseEnter: props.onMouseEnter, onMouseLeave: props.onMouseLeave },
-                React.createElement(Checkbox, _extends$23({}, radioProps, { prefixCls: prefixCls, ref: this.saveCheckbox })),
-                children !== undefined ? React.createElement(
+                React$1.createElement(Checkbox, _extends$23({}, radioProps, { prefixCls: prefixCls, ref: this.saveCheckbox })),
+                children !== undefined ? React$1.createElement(
                     'span',
                     null,
                     children
@@ -32266,7 +32266,7 @@ var Radio = function (_React$Component) {
     }]);
 
     return Radio;
-}(React.Component);
+}(React$1.Component);
 
 Radio.defaultProps = {
     prefixCls: 'ant-radio',
@@ -32279,7 +32279,7 @@ Radio.contextTypes = {
 function getCheckedValue(children) {
     var value = null;
     var matched = false;
-    React.Children.forEach(children, function (radio) {
+    React$1.Children.forEach(children, function (radio) {
         if (radio && radio.props && radio.props.checked) {
             value = radio.props.value;
             matched = true;
@@ -32378,14 +32378,14 @@ var RadioGroup = function (_React$Component) {
                 children = options.map(function (option, index) {
                     if (typeof option === 'string') {
                         // 此处类型自动推导为 string
-                        return React.createElement(
+                        return React$1.createElement(
                             Radio,
                             { key: index, prefixCls: prefixCls, disabled: _this2.props.disabled, value: option, onChange: _this2.onRadioChange, checked: _this2.state.value === option },
                             option
                         );
                     } else {
                         // 此处类型自动推导为 { label: string value: string }
-                        return React.createElement(
+                        return React$1.createElement(
                             Radio,
                             { key: index, prefixCls: prefixCls, disabled: option.disabled || _this2.props.disabled, value: option.value, onChange: _this2.onRadioChange, checked: _this2.state.value === option.value },
                             option.label
@@ -32393,7 +32393,7 @@ var RadioGroup = function (_React$Component) {
                     }
                 });
             }
-            return React.createElement(
+            return React$1.createElement(
                 'div',
                 { className: classString, style: props.style, onMouseEnter: props.onMouseEnter, onMouseLeave: props.onMouseLeave, id: props.id },
                 children
@@ -32402,7 +32402,7 @@ var RadioGroup = function (_React$Component) {
     }]);
 
     return RadioGroup;
-}(React.Component);
+}(React$1.Component);
 
 RadioGroup.defaultProps = {
     disabled: false,
@@ -32431,12 +32431,12 @@ var RadioButton = function (_React$Component) {
                 radioProps.checked = this.props.value === this.context.radioGroup.value;
                 radioProps.disabled = this.props.disabled || this.context.radioGroup.disabled;
             }
-            return React.createElement(Radio, radioProps);
+            return React$1.createElement(Radio, radioProps);
         }
     }]);
 
     return RadioButton;
-}(React.Component);
+}(React$1.Component);
 
 RadioButton.defaultProps = {
     prefixCls: 'ant-radio-button'
@@ -32527,13 +32527,13 @@ var Header = function (_React$Component) {
             var suffix = locale.year === '年' ? '年' : '';
             var options = [];
             for (var index = start; index < end; index++) {
-                options.push(React.createElement(
+                options.push(React$1.createElement(
                     Option$1,
                     { key: '' + index },
                     index + suffix
                 ));
             }
-            return React.createElement(
+            return React$1.createElement(
                 Select$1,
                 { size: fullscreen ? 'default' : 'small', dropdownMatchSelectWidth: false, className: prefixCls + '-year-select', onChange: this.onYearChange, value: String(year), getPopupContainer: function getPopupContainer() {
                         return _this2.calenderHeaderNode;
@@ -32580,13 +32580,13 @@ var Header = function (_React$Component) {
                 }
             }
             for (var index = start; index < end; index++) {
-                options.push(React.createElement(
+                options.push(React$1.createElement(
                     Option$1,
                     { key: '' + index },
                     months[index]
                 ));
             }
-            return React.createElement(
+            return React$1.createElement(
                 Select$1,
                 { size: fullscreen ? 'default' : 'small', dropdownMatchSelectWidth: false, className: prefixCls + '-month-select', value: String(month), onChange: this.onMonthChange, getPopupContainer: function getPopupContainer() {
                         return _this3.calenderHeaderNode;
@@ -32607,21 +32607,21 @@ var Header = function (_React$Component) {
             var yearSelect = this.getYearSelectElement(value.year());
             var monthSelect = type === 'date' ? this.getMonthSelectElement(value.month(), this.getMonthsLocale(value)) : null;
             var size = fullscreen ? 'default' : 'small';
-            var typeSwitch = React.createElement(
+            var typeSwitch = React$1.createElement(
                 RadioGroup,
                 { onChange: this.onTypeChange, value: type, size: size },
-                React.createElement(
+                React$1.createElement(
                     RadioButton,
                     { value: 'date' },
                     locale.month
                 ),
-                React.createElement(
+                React$1.createElement(
                     RadioButton,
                     { value: 'month' },
                     locale.year
                 )
             );
-            return React.createElement(
+            return React$1.createElement(
                 'div',
                 { className: prefixCls + '-header', ref: this.getCalenderHeaderNode },
                 yearSelect,
@@ -32632,7 +32632,7 @@ var Header = function (_React$Component) {
     }]);
 
     return Header;
-}(React.Component);
+}(React$1.Component);
 
 Header.defaultProps = {
     prefixCls: PREFIX_CLS + '-header',
@@ -32669,15 +32669,15 @@ var Calendar = function (_React$Component) {
                 _this$props$monthCell = _this$props.monthCellRender,
                 monthCellRender = _this$props$monthCell === undefined ? noop$13 : _this$props$monthCell;
 
-            return React.createElement(
+            return React$1.createElement(
                 'div',
                 { className: prefixCls + '-month' },
-                React.createElement(
+                React$1.createElement(
                     'div',
                     { className: prefixCls + '-value' },
                     value.localeData().monthsShort(value)
                 ),
-                React.createElement(
+                React$1.createElement(
                     'div',
                     { className: prefixCls + '-content' },
                     monthCellRender(value)
@@ -32690,15 +32690,15 @@ var Calendar = function (_React$Component) {
                 _this$props2$dateCell = _this$props2.dateCellRender,
                 dateCellRender = _this$props2$dateCell === undefined ? noop$13 : _this$props2$dateCell;
 
-            return React.createElement(
+            return React$1.createElement(
                 'div',
                 { className: prefixCls + '-date' },
-                React.createElement(
+                React$1.createElement(
                     'div',
                     { className: prefixCls + '-value' },
                     zerofixed(value.date())
                 ),
-                React.createElement(
+                React$1.createElement(
                     'div',
                     { className: prefixCls + '-content' },
                     dateCellRender(value)
@@ -32777,11 +32777,11 @@ var Calendar = function (_React$Component) {
             if (props.validRange) {
                 disabledDate = _this.getDateRange(props.validRange, disabledDate);
             }
-            return React.createElement(
+            return React$1.createElement(
                 'div',
                 { className: cls, style: style },
-                React.createElement(Header, { fullscreen: fullscreen, type: type, value: value, locale: locale.lang, prefixCls: prefixCls, onTypeChange: _this.onHeaderTypeChange, onValueChange: _this.onHeaderValueChange, validRange: props.validRange }),
-                React.createElement(FullCalendar, _extends$23({}, props, { disabledDate: disabledDate, Select: noop$13, locale: locale.lang, type: type, prefixCls: prefixCls, showHeader: false, value: value, monthCellRender: monthCellRender, dateCellRender: dateCellRender, onSelect: _this.onSelect }))
+                React$1.createElement(Header, { fullscreen: fullscreen, type: type, value: value, locale: locale.lang, prefixCls: prefixCls, onTypeChange: _this.onHeaderTypeChange, onValueChange: _this.onHeaderValueChange, validRange: props.validRange }),
+                React$1.createElement(FullCalendar, _extends$23({}, props, { disabledDate: disabledDate, Select: noop$13, locale: locale.lang, type: type, prefixCls: prefixCls, showHeader: false, value: value, monthCellRender: monthCellRender, dateCellRender: dateCellRender, onSelect: _this.onSelect }))
             );
         };
         var value = props.value || props.defaultValue || interopDefault(moment)();
@@ -32826,7 +32826,7 @@ var Calendar = function (_React$Component) {
     }, {
         key: 'render',
         value: function render() {
-            return React.createElement(
+            return React$1.createElement(
                 LocaleReceiver,
                 { componentName: 'Calendar', defaultLocale: locale$1 },
                 this.renderCalendar
@@ -32835,7 +32835,7 @@ var Calendar = function (_React$Component) {
     }]);
 
     return Calendar;
-}(React.Component);
+}(React$1.Component);
 
 Calendar.defaultProps = {
     locale: {},
@@ -32877,7 +32877,7 @@ var Grid = (function (props) {
         others = __rest$8(props, ["prefixCls", "className"]);
 
     var classString = classnames(prefixCls + '-grid', className);
-    return React.createElement('div', _extends$23({}, others, { className: classString }));
+    return React$1.createElement('div', _extends$23({}, others, { className: classString }));
 });
 
 var __rest$9 = undefined && undefined.__rest || function (s, e) {
@@ -32898,28 +32898,28 @@ var Meta = (function (props) {
         others = __rest$9(props, ["prefixCls", "className", "avatar", "title", "description"]);
 
     var classString = classnames(prefixCls + '-meta', className);
-    var avatarDom = avatar ? React.createElement(
+    var avatarDom = avatar ? React$1.createElement(
         'div',
         { className: prefixCls + '-meta-avatar' },
         avatar
     ) : null;
-    var titleDom = title ? React.createElement(
+    var titleDom = title ? React$1.createElement(
         'div',
         { className: prefixCls + '-meta-title' },
         title
     ) : null;
-    var descriptionDom = description ? React.createElement(
+    var descriptionDom = description ? React$1.createElement(
         'div',
         { className: prefixCls + '-meta-description' },
         description
     ) : null;
-    var MetaDetail = titleDom || descriptionDom ? React.createElement(
+    var MetaDetail = titleDom || descriptionDom ? React$1.createElement(
         'div',
         { className: prefixCls + '-meta-detail' },
         titleDom,
         descriptionDom
     ) : null;
-    return React.createElement(
+    return React$1.createElement(
         'div',
         _extends$23({}, others, { className: classString }),
         avatarDom,
@@ -32949,7 +32949,7 @@ var KeyCode$1 = {
 function toArray$6(children) {
   // allow [c,[a,b]]
   var c = [];
-  React__default.Children.forEach(children, function (child) {
+  React$1__default.Children.forEach(children, function (child) {
     if (child) {
       c.push(child);
     }
@@ -33036,7 +33036,7 @@ var TabPane = function (_React$Component) {
       var prefixCls = rootPrefixCls + '-tabpane';
       var cls = classnames((_classnames = {}, _defineProperty$7(_classnames, prefixCls, 1), _defineProperty$7(_classnames, prefixCls + '-inactive', !active), _defineProperty$7(_classnames, prefixCls + '-active', active), _defineProperty$7(_classnames, className, className), _classnames));
       var isRender = destroyInactiveTabPane ? active : this._isActived;
-      return React__default.createElement(
+      return React$1__default.createElement(
         'div',
         _extends$23({
           style: style,
@@ -33050,7 +33050,7 @@ var TabPane = function (_React$Component) {
   }]);
 
   return TabPane;
-}(React__default.Component);
+}(React$1__default.Component);
 
 
 TabPane.propTypes = {
@@ -33072,7 +33072,7 @@ function noop$14() {}
 
 function getDefaultActiveKey(props) {
   var activeKey = void 0;
-  React__default.Children.forEach(props.children, function (child) {
+  React$1__default.Children.forEach(props.children, function (child) {
     if (child && !activeKey && !child.props.disabled) {
       activeKey = child.key;
     }
@@ -33081,7 +33081,7 @@ function getDefaultActiveKey(props) {
 }
 
 function activeKeyIsValid(props, key) {
-  var keys = React__default.Children.map(props.children, function (child) {
+  var keys = React$1__default.Children.map(props.children, function (child) {
     return child && child.key;
   });
   return keys.indexOf(key) >= 0;
@@ -33145,7 +33145,7 @@ var Tabs = function (_React$Component) {
       var cls = classnames((_classnames = {}, _defineProperty$7(_classnames, prefixCls, 1), _defineProperty$7(_classnames, prefixCls + '-' + tabBarPosition, 1), _defineProperty$7(_classnames, className, !!className), _classnames));
 
       this.tabBar = renderTabBar();
-      var contents = [React__default.cloneElement(this.tabBar, {
+      var contents = [React$1__default.cloneElement(this.tabBar, {
         prefixCls: prefixCls,
         navWrapper: navWrapper,
         key: 'tabBar',
@@ -33154,7 +33154,7 @@ var Tabs = function (_React$Component) {
         onTabClick: this.onTabClick,
         panels: props.children,
         activeKey: this.state.activeKey
-      }), React__default.cloneElement(renderTabContent(), {
+      }), React$1__default.cloneElement(renderTabContent(), {
         prefixCls: prefixCls,
         tabBarPosition: tabBarPosition,
         activeKey: this.state.activeKey,
@@ -33166,7 +33166,7 @@ var Tabs = function (_React$Component) {
       if (tabBarPosition === 'bottom') {
         contents.reverse();
       }
-      return React__default.createElement(
+      return React$1__default.createElement(
         'div',
         _extends$23({
           className: cls,
@@ -33178,7 +33178,7 @@ var Tabs = function (_React$Component) {
   }]);
 
   return Tabs;
-}(React__default.Component);
+}(React$1__default.Component);
 
 var _initialiseProps$10 = function _initialiseProps() {
   var _this2 = this;
@@ -33217,7 +33217,7 @@ var _initialiseProps$10 = function _initialiseProps() {
   this.getNextActiveKey = function (next) {
     var activeKey = _this2.state.activeKey;
     var children = [];
-    React__default.Children.forEach(_this2.props.children, function (c) {
+    React$1__default.Children.forEach(_this2.props.children, function (c) {
       if (c && !c.props.disabled) {
         if (next) {
           children.push(c);
@@ -33288,13 +33288,13 @@ var TabContent = function (_React$Component) {
       var children = props.children;
       var newChildren = [];
 
-      React__default.Children.forEach(children, function (child) {
+      React$1__default.Children.forEach(children, function (child) {
         if (!child) {
           return;
         }
         var key = child.key;
         var active = activeKey === key;
-        newChildren.push(React__default.cloneElement(child, {
+        newChildren.push(React$1__default.cloneElement(child, {
           active: active,
           destroyInactiveTabPane: props.destroyInactiveTabPane,
           rootPrefixCls: props.prefixCls
@@ -33329,7 +33329,7 @@ var TabContent = function (_React$Component) {
           });
         }
       }
-      return React__default.createElement(
+      return React$1__default.createElement(
         'div',
         {
           className: classes,
@@ -33341,7 +33341,7 @@ var TabContent = function (_React$Component) {
   }]);
 
   return TabContent;
-}(React__default.Component);
+}(React$1__default.Component);
 
 
 TabContent.propTypes = {
@@ -33507,7 +33507,7 @@ var InkTabBarNode = function (_React$Component) {
 
       var className = prefixCls + '-ink-bar';
       var classes = classnames((_classnames = {}, _defineProperty$7(_classnames, className, true), _defineProperty$7(_classnames, inkBarAnimated ? className + '-animated' : className + '-no-animated', true), _classnames));
-      return React__default.createElement('div', {
+      return React$1__default.createElement('div', {
         style: styles.inkBar,
         className: classes,
         key: 'inkBar',
@@ -33517,7 +33517,7 @@ var InkTabBarNode = function (_React$Component) {
   }]);
 
   return InkTabBarNode;
-}(React__default.Component);
+}(React$1__default.Component);
 
 
 InkTabBarNode.propTypes = {
@@ -33617,7 +33617,7 @@ var TabBarTabsNode = function (_React$Component) {
 
       var rst = [];
 
-      React__default.Children.forEach(children, function (child, index) {
+      React$1__default.Children.forEach(children, function (child, index) {
         if (!child) {
           return;
         }
@@ -33637,7 +33637,7 @@ var TabBarTabsNode = function (_React$Component) {
           ref.ref = _this2.props.saveRef('activeTab');
         }
         warning_1$2('tab' in child.props, 'There must be `tab` property on children of Tabs.');
-        rst.push(React__default.createElement(
+        rst.push(React$1__default.createElement(
           'div',
           _extends$23({
             role: 'tab',
@@ -33652,7 +33652,7 @@ var TabBarTabsNode = function (_React$Component) {
         ));
       });
 
-      return React__default.createElement(
+      return React$1__default.createElement(
         'div',
         null,
         rst
@@ -33661,7 +33661,7 @@ var TabBarTabsNode = function (_React$Component) {
   }]);
 
   return TabBarTabsNode;
-}(React__default.Component);
+}(React$1__default.Component);
 
 
 TabBarTabsNode.propTypes = {
@@ -33709,13 +33709,13 @@ var TabBarRootNode = function (_React$Component) {
       var extraContentStyle = extraContent && extraContent.props ? extraContent.props.style : {};
       var newChildren = children;
       if (extraContent) {
-        newChildren = [React.cloneElement(extraContent, {
+        newChildren = [React$1.cloneElement(extraContent, {
           key: 'extra',
           style: _extends$23({}, tabBarExtraContentStyle, extraContentStyle)
-        }), React.cloneElement(children, { key: 'content' })];
+        }), React$1.cloneElement(children, { key: 'content' })];
         newChildren = topOrBottom ? newChildren : newChildren.reverse();
       }
-      return React__default.createElement(
+      return React$1__default.createElement(
         'div',
         _extends$23({
           role: 'tablist',
@@ -33731,7 +33731,7 @@ var TabBarRootNode = function (_React$Component) {
   }]);
 
   return TabBarRootNode;
-}(React__default.Component);
+}(React$1__default.Component);
 
 
 TabBarRootNode.propTypes = {
@@ -34497,7 +34497,7 @@ var ScrollableTabBarNode = function (_React$Component) {
 
       var showNextPrev = prev || next;
 
-      var prevButton = React__default.createElement(
+      var prevButton = React$1__default.createElement(
         'span',
         {
           onClick: prev ? this.prev : null,
@@ -34505,23 +34505,23 @@ var ScrollableTabBarNode = function (_React$Component) {
           className: classnames((_classnames = {}, _defineProperty$7(_classnames, prefixCls + '-tab-prev', 1), _defineProperty$7(_classnames, prefixCls + '-tab-btn-disabled', !prev), _defineProperty$7(_classnames, prefixCls + '-tab-arrow-show', showNextPrev), _classnames)),
           onTransitionEnd: this.prevTransitionEnd
         },
-        React__default.createElement('span', { className: prefixCls + '-tab-prev-icon' })
+        React$1__default.createElement('span', { className: prefixCls + '-tab-prev-icon' })
       );
 
-      var nextButton = React__default.createElement(
+      var nextButton = React$1__default.createElement(
         'span',
         {
           onClick: next ? this.next : null,
           unselectable: 'unselectable',
           className: classnames((_classnames2 = {}, _defineProperty$7(_classnames2, prefixCls + '-tab-next', 1), _defineProperty$7(_classnames2, prefixCls + '-tab-btn-disabled', !next), _defineProperty$7(_classnames2, prefixCls + '-tab-arrow-show', showNextPrev), _classnames2))
         },
-        React__default.createElement('span', { className: prefixCls + '-tab-next-icon' })
+        React$1__default.createElement('span', { className: prefixCls + '-tab-next-icon' })
       );
 
       var navClassName = prefixCls + '-nav';
       var navClasses = classnames((_classnames3 = {}, _defineProperty$7(_classnames3, navClassName, true), _defineProperty$7(_classnames3, scrollAnimated ? navClassName + '-animated' : navClassName + '-no-animated', true), _classnames3));
 
-      return React__default.createElement(
+      return React$1__default.createElement(
         'div',
         {
           className: classnames((_classnames4 = {}, _defineProperty$7(_classnames4, prefixCls + '-nav-container', 1), _defineProperty$7(_classnames4, prefixCls + '-nav-container-scrolling', showNextPrev), _classnames4)),
@@ -34530,13 +34530,13 @@ var ScrollableTabBarNode = function (_React$Component) {
         },
         prevButton,
         nextButton,
-        React__default.createElement(
+        React$1__default.createElement(
           'div',
           { className: prefixCls + '-nav-wrap', ref: this.props.saveRef('navWrap') },
-          React__default.createElement(
+          React$1__default.createElement(
             'div',
             { className: prefixCls + '-nav-scroll' },
-            React__default.createElement(
+            React$1__default.createElement(
               'div',
               { className: navClasses, ref: this.props.saveRef('nav') },
               navWrapper(this.props.children)
@@ -34548,7 +34548,7 @@ var ScrollableTabBarNode = function (_React$Component) {
   }]);
 
   return ScrollableTabBarNode;
-}(React__default.Component);
+}(React$1__default.Component);
 
 
 ScrollableTabBarNode.propTypes = {
@@ -34607,7 +34607,7 @@ var SaveRef = function (_React$Component) {
   }]);
 
   return SaveRef;
-}(React__default.Component);
+}(React$1__default.Component);
 
 
 SaveRef.propTypes = {
@@ -34634,18 +34634,18 @@ var ScrollableInkTabBar = function (_React$Component) {
     value: function render() {
       var _this2 = this;
 
-      return React__default.createElement(
+      return React$1__default.createElement(
         SaveRef,
         null,
         function (saveRef, getRef) {
-          return React__default.createElement(
+          return React$1__default.createElement(
             TabBarRootNode,
             _extends$23({ saveRef: saveRef }, _this2.props),
-            React__default.createElement(
+            React$1__default.createElement(
               ScrollableTabBarNode,
               _extends$23({ saveRef: saveRef, getRef: getRef }, _this2.props),
-              React__default.createElement(TabBarTabsNode, _extends$23({ saveRef: saveRef }, _this2.props)),
-              React__default.createElement(InkTabBarNode, _extends$23({ saveRef: saveRef, getRef: getRef }, _this2.props))
+              React$1__default.createElement(TabBarTabsNode, _extends$23({ saveRef: saveRef }, _this2.props)),
+              React$1__default.createElement(InkTabBarNode, _extends$23({ saveRef: saveRef, getRef: getRef }, _this2.props))
             )
           );
         }
@@ -34654,7 +34654,7 @@ var ScrollableInkTabBar = function (_React$Component) {
   }]);
 
   return ScrollableInkTabBar;
-}(React__default.Component);
+}(React$1__default.Component);
 
 function isFlexSupported() {
     if (typeof window !== 'undefined' && window.document && window.document.documentElement) {
@@ -34751,14 +34751,14 @@ var Tabs$1 = function (_React$Component) {
             var childrenWithClose = [];
             if (type === 'editable-card') {
                 childrenWithClose = [];
-                React.Children.forEach(children, function (child, index) {
+                React$1.Children.forEach(children, function (child, index) {
                     var closable = child.props.closable;
                     closable = typeof closable === 'undefined' ? true : closable;
-                    var closeIcon = closable ? React.createElement(Icon, { type: 'close', onClick: function onClick(e) {
+                    var closeIcon = closable ? React$1.createElement(Icon, { type: 'close', onClick: function onClick(e) {
                             return _this2.removeTab(child.key, e);
                         } }) : null;
-                    childrenWithClose.push(React.cloneElement(child, {
-                        tab: React.createElement(
+                    childrenWithClose.push(React$1.cloneElement(child, {
+                        tab: React$1.createElement(
                             'div',
                             { className: closable ? undefined : prefixCls + '-tab-unclosable' },
                             child.props.tab,
@@ -34769,26 +34769,26 @@ var Tabs$1 = function (_React$Component) {
                 });
                 // Add new tab handler
                 if (!hideAdd) {
-                    tabBarExtraContent = React.createElement(
+                    tabBarExtraContent = React$1.createElement(
                         'span',
                         null,
-                        React.createElement(Icon, { type: 'plus', className: prefixCls + '-new-tab', onClick: this.createNewTab }),
+                        React$1.createElement(Icon, { type: 'plus', className: prefixCls + '-new-tab', onClick: this.createNewTab }),
                         tabBarExtraContent
                     );
                 }
             }
-            tabBarExtraContent = tabBarExtraContent ? React.createElement(
+            tabBarExtraContent = tabBarExtraContent ? React$1.createElement(
                 'div',
                 { className: prefixCls + '-extra-content' },
                 tabBarExtraContent
             ) : null;
             var renderTabBar = function renderTabBar() {
-                return React.createElement(ScrollableInkTabBar, { inkBarAnimated: inkBarAnimated, extraContent: tabBarExtraContent, onTabClick: onTabClick, onPrevClick: onPrevClick, onNextClick: onNextClick, style: tabBarStyle, tabBarGutter: tabBarGutter });
+                return React$1.createElement(ScrollableInkTabBar, { inkBarAnimated: inkBarAnimated, extraContent: tabBarExtraContent, onTabClick: onTabClick, onPrevClick: onPrevClick, onNextClick: onNextClick, style: tabBarStyle, tabBarGutter: tabBarGutter });
             };
-            return React.createElement(
+            return React$1.createElement(
                 Tabs,
                 _extends$23({}, this.props, { className: cls, tabBarPosition: tabPosition, renderTabBar: renderTabBar, renderTabContent: function renderTabContent() {
-                        return React.createElement(TabContent, { animated: tabPaneAnimated, animatedWithMargin: true });
+                        return React$1.createElement(TabContent, { animated: tabPaneAnimated, animatedWithMargin: true });
                     }, onChange: this.handleChange }),
                 childrenWithClose.length > 0 ? childrenWithClose : children
             );
@@ -34796,7 +34796,7 @@ var Tabs$1 = function (_React$Component) {
     }]);
 
     return Tabs$$1;
-}(React.Component);
+}(React$1.Component);
 
 Tabs$1.TabPane = TabPane;
 Tabs$1.defaultProps = {
@@ -34923,12 +34923,12 @@ var Row = function (_React$Component) {
             var gutter = this.getGutter();
             var classes = classnames((_classNames = {}, _defineProperty$7(_classNames, prefixCls, !type), _defineProperty$7(_classNames, prefixCls + '-' + type, type), _defineProperty$7(_classNames, prefixCls + '-' + type + '-' + justify, type && justify), _defineProperty$7(_classNames, prefixCls + '-' + type + '-' + align, type && align), _classNames), className);
             var rowStyle = gutter > 0 ? _extends$23({ marginLeft: gutter / -2, marginRight: gutter / -2 }, style) : style;
-            var cols = React.Children.map(children, function (col) {
+            var cols = React$1.Children.map(children, function (col) {
                 if (!col) {
                     return null;
                 }
                 if (col.props && gutter > 0) {
-                    return React.cloneElement(col, {
+                    return React$1.cloneElement(col, {
                         style: _extends$23({ paddingLeft: gutter / 2, paddingRight: gutter / 2 }, col.props.style)
                     });
                 }
@@ -34936,7 +34936,7 @@ var Row = function (_React$Component) {
             });
             var otherProps = _extends$23({}, others);
             delete otherProps.gutter;
-            return React.createElement(
+            return React$1.createElement(
                 'div',
                 _extends$23({}, otherProps, { className: classes, style: rowStyle }),
                 cols
@@ -34945,7 +34945,7 @@ var Row = function (_React$Component) {
     }]);
 
     return Row;
-}(React.Component);
+}(React$1.Component);
 
 Row.defaultProps = {
     gutter: 0
@@ -35012,7 +35012,7 @@ var Col = function (_React$Component) {
                 sizeClassObj = _extends$23({}, sizeClassObj, (_extends2 = {}, _defineProperty$7(_extends2, prefixCls + '-' + size + '-' + sizeProps.span, sizeProps.span !== undefined), _defineProperty$7(_extends2, prefixCls + '-' + size + '-order-' + sizeProps.order, sizeProps.order || sizeProps.order === 0), _defineProperty$7(_extends2, prefixCls + '-' + size + '-offset-' + sizeProps.offset, sizeProps.offset || sizeProps.offset === 0), _defineProperty$7(_extends2, prefixCls + '-' + size + '-push-' + sizeProps.push, sizeProps.push || sizeProps.push === 0), _defineProperty$7(_extends2, prefixCls + '-' + size + '-pull-' + sizeProps.pull, sizeProps.pull || sizeProps.pull === 0), _extends2));
             });
             var classes = classnames((_classNames = {}, _defineProperty$7(_classNames, prefixCls + '-' + span, span !== undefined), _defineProperty$7(_classNames, prefixCls + '-order-' + order, order), _defineProperty$7(_classNames, prefixCls + '-offset-' + offset, offset), _defineProperty$7(_classNames, prefixCls + '-push-' + push, push), _defineProperty$7(_classNames, prefixCls + '-pull-' + pull, pull), _classNames), className, sizeClassObj);
-            return React.createElement(
+            return React$1.createElement(
                 'div',
                 _extends$23({}, others, { className: classes }),
                 children
@@ -35021,7 +35021,7 @@ var Col = function (_React$Component) {
     }]);
 
     return Col;
-}(React.Component);
+}(React$1.Component);
 
 Col.propTypes = {
     span: stringOrNumber,
@@ -35122,7 +35122,7 @@ var Card = function (_React$Component) {
         key: "isContainGrid",
         value: function isContainGrid() {
             var containGrid = void 0;
-            React.Children.forEach(this.props.children, function (element) {
+            React$1.Children.forEach(this.props.children, function (element) {
                 if (element && element.type && element.type === Grid) {
                     containGrid = true;
                 }
@@ -35136,10 +35136,10 @@ var Card = function (_React$Component) {
                 return null;
             }
             var actionList = actions.map(function (action, index) {
-                return React.createElement(
+                return React$1.createElement(
                     "li",
                     { style: { width: 100 / actions.length + "%" }, key: "action-" + index },
-                    React.createElement(
+                    React$1.createElement(
                         "span",
                         null,
                         action
@@ -35192,122 +35192,122 @@ var Card = function (_React$Component) {
                 others = __rest$12(_a, ["prefixCls", "className", "extra", "headStyle", "bodyStyle", "noHovering", "hoverable", "title", "loading", "bordered", "type", "cover", "actions", "tabList", "children", "activeTabKey", "defaultActiveTabKey"]);
             var classString = classnames(prefixCls, className, (_classNames = {}, _defineProperty$7(_classNames, prefixCls + "-loading", loading), _defineProperty$7(_classNames, prefixCls + "-bordered", bordered), _defineProperty$7(_classNames, prefixCls + "-hoverable", this.getCompatibleHoverable()), _defineProperty$7(_classNames, prefixCls + "-wider-padding", this.state.widerPadding), _defineProperty$7(_classNames, prefixCls + "-padding-transition", this.updateWiderPaddingCalled), _defineProperty$7(_classNames, prefixCls + "-contain-grid", this.isContainGrid()), _defineProperty$7(_classNames, prefixCls + "-contain-tabs", tabList && tabList.length), _defineProperty$7(_classNames, prefixCls + "-type-" + type, !!type), _classNames));
             var loadingBlockStyle = bodyStyle.padding === 0 || bodyStyle.padding === '0px' ? { padding: 24 } : undefined;
-            var loadingBlock = React.createElement(
+            var loadingBlock = React$1.createElement(
                 "div",
                 { className: prefixCls + "-loading-content", style: loadingBlockStyle },
-                React.createElement(
+                React$1.createElement(
                     Row,
                     { gutter: 8 },
-                    React.createElement(
+                    React$1.createElement(
                         Col,
                         { span: 22 },
-                        React.createElement("div", { className: prefixCls + "-loading-block" })
+                        React$1.createElement("div", { className: prefixCls + "-loading-block" })
                     )
                 ),
-                React.createElement(
+                React$1.createElement(
                     Row,
                     { gutter: 8 },
-                    React.createElement(
+                    React$1.createElement(
                         Col,
                         { span: 8 },
-                        React.createElement("div", { className: prefixCls + "-loading-block" })
+                        React$1.createElement("div", { className: prefixCls + "-loading-block" })
                     ),
-                    React.createElement(
+                    React$1.createElement(
                         Col,
                         { span: 15 },
-                        React.createElement("div", { className: prefixCls + "-loading-block" })
+                        React$1.createElement("div", { className: prefixCls + "-loading-block" })
                     )
                 ),
-                React.createElement(
+                React$1.createElement(
                     Row,
                     { gutter: 8 },
-                    React.createElement(
+                    React$1.createElement(
                         Col,
                         { span: 6 },
-                        React.createElement("div", { className: prefixCls + "-loading-block" })
+                        React$1.createElement("div", { className: prefixCls + "-loading-block" })
                     ),
-                    React.createElement(
+                    React$1.createElement(
                         Col,
                         { span: 18 },
-                        React.createElement("div", { className: prefixCls + "-loading-block" })
+                        React$1.createElement("div", { className: prefixCls + "-loading-block" })
                     )
                 ),
-                React.createElement(
+                React$1.createElement(
                     Row,
                     { gutter: 8 },
-                    React.createElement(
+                    React$1.createElement(
                         Col,
                         { span: 13 },
-                        React.createElement("div", { className: prefixCls + "-loading-block" })
+                        React$1.createElement("div", { className: prefixCls + "-loading-block" })
                     ),
-                    React.createElement(
+                    React$1.createElement(
                         Col,
                         { span: 9 },
-                        React.createElement("div", { className: prefixCls + "-loading-block" })
+                        React$1.createElement("div", { className: prefixCls + "-loading-block" })
                     )
                 ),
-                React.createElement(
+                React$1.createElement(
                     Row,
                     { gutter: 8 },
-                    React.createElement(
+                    React$1.createElement(
                         Col,
                         { span: 4 },
-                        React.createElement("div", { className: prefixCls + "-loading-block" })
+                        React$1.createElement("div", { className: prefixCls + "-loading-block" })
                     ),
-                    React.createElement(
+                    React$1.createElement(
                         Col,
                         { span: 3 },
-                        React.createElement("div", { className: prefixCls + "-loading-block" })
+                        React$1.createElement("div", { className: prefixCls + "-loading-block" })
                     ),
-                    React.createElement(
+                    React$1.createElement(
                         Col,
                         { span: 16 },
-                        React.createElement("div", { className: prefixCls + "-loading-block" })
+                        React$1.createElement("div", { className: prefixCls + "-loading-block" })
                     )
                 ),
-                React.createElement(
+                React$1.createElement(
                     Row,
                     { gutter: 8 },
-                    React.createElement(
+                    React$1.createElement(
                         Col,
                         { span: 8 },
-                        React.createElement("div", { className: prefixCls + "-loading-block" })
+                        React$1.createElement("div", { className: prefixCls + "-loading-block" })
                     ),
-                    React.createElement(
+                    React$1.createElement(
                         Col,
                         { span: 6 },
-                        React.createElement("div", { className: prefixCls + "-loading-block" })
+                        React$1.createElement("div", { className: prefixCls + "-loading-block" })
                     ),
-                    React.createElement(
+                    React$1.createElement(
                         Col,
                         { span: 8 },
-                        React.createElement("div", { className: prefixCls + "-loading-block" })
+                        React$1.createElement("div", { className: prefixCls + "-loading-block" })
                     )
                 )
             );
             var hasActiveTabKey = activeTabKey !== undefined;
             var extraProps = _defineProperty$7({}, hasActiveTabKey ? 'activeKey' : 'defaultActiveKey', hasActiveTabKey ? activeTabKey : defaultActiveTabKey);
             var head = void 0;
-            var tabs = tabList && tabList.length ? React.createElement(
+            var tabs = tabList && tabList.length ? React$1.createElement(
                 Tabs$1,
                 _extends$23({}, extraProps, { className: prefixCls + "-head-tabs", size: "large", onChange: this.onTabChange }),
                 tabList.map(function (item) {
-                    return React.createElement(Tabs$1.TabPane, { tab: item.tab, disabled: item.disabled, key: item.key });
+                    return React$1.createElement(Tabs$1.TabPane, { tab: item.tab, disabled: item.disabled, key: item.key });
                 })
             ) : null;
             if (title || extra || tabs) {
-                head = React.createElement(
+                head = React$1.createElement(
                     "div",
                     { className: prefixCls + "-head", style: headStyle },
-                    React.createElement(
+                    React$1.createElement(
                         "div",
                         { className: prefixCls + "-head-wrapper" },
-                        title && React.createElement(
+                        title && React$1.createElement(
                             "div",
                             { className: prefixCls + "-head-title" },
                             title
                         ),
-                        extra && React.createElement(
+                        extra && React$1.createElement(
                             "div",
                             { className: prefixCls + "-extra" },
                             extra
@@ -35316,23 +35316,23 @@ var Card = function (_React$Component) {
                     tabs
                 );
             }
-            var coverDom = cover ? React.createElement(
+            var coverDom = cover ? React$1.createElement(
                 "div",
                 { className: prefixCls + "-cover" },
                 cover
             ) : null;
-            var body = React.createElement(
+            var body = React$1.createElement(
                 "div",
                 { className: prefixCls + "-body", style: bodyStyle },
                 loading ? loadingBlock : children
             );
-            var actionDom = actions && actions.length ? React.createElement(
+            var actionDom = actions && actions.length ? React$1.createElement(
                 "ul",
                 { className: prefixCls + "-actions" },
                 this.getAction(actions)
             ) : null;
             var divProps = omit(others, ['onTabChange']);
-            return React.createElement(
+            return React$1.createElement(
                 "div",
                 _extends$23({}, divProps, { className: classString, ref: this.saveRef }),
                 head,
@@ -35344,7 +35344,7 @@ var Card = function (_React$Component) {
     }]);
 
     return Card;
-}(React.Component);
+}(React$1.Component);
 
 Card.Grid = Grid;
 Card.Meta = Meta;
@@ -35392,12 +35392,12 @@ var PanelContent = function (_Component) {
           role = _props.role;
 
       var contentCls = classnames((_classnames = {}, _defineProperty$8(_classnames, prefixCls + '-content', true), _defineProperty$8(_classnames, prefixCls + '-content-active', isActive), _defineProperty$8(_classnames, prefixCls + '-content-inactive', !isActive), _classnames));
-      var child = !forceRender && !isActive && destroyInactivePanel ? null : React__default.createElement(
+      var child = !forceRender && !isActive && destroyInactivePanel ? null : React$1__default.createElement(
         'div',
         { className: prefixCls + '-content-box' },
         children
       );
-      return React__default.createElement(
+      return React$1__default.createElement(
         'div',
         {
           className: contentCls,
@@ -35409,7 +35409,7 @@ var PanelContent = function (_Component) {
   }]);
 
   return PanelContent;
-}(React.Component);
+}(React$1.Component);
 
 PanelContent.propTypes = {
   prefixCls: propTypes.string,
@@ -35477,10 +35477,10 @@ var CollapsePanel = function (_Component) {
 
       var headerCls = classnames(prefixCls + '-header', _defineProperty$9({}, headerClass, headerClass));
       var itemCls = classnames((_classNames2 = {}, _defineProperty$9(_classNames2, prefixCls + '-item', true), _defineProperty$9(_classNames2, prefixCls + '-item-active', isActive), _defineProperty$9(_classNames2, prefixCls + '-item-disabled', disabled), _classNames2), className);
-      return React__default.createElement(
+      return React$1__default.createElement(
         'div',
         { className: itemCls, style: style, id: id },
-        React__default.createElement(
+        React$1__default.createElement(
           'div',
           {
             className: headerCls,
@@ -35490,10 +35490,10 @@ var CollapsePanel = function (_Component) {
             'aria-expanded': '' + isActive,
             onKeyPress: this.handleKeyPress
           },
-          showArrow && React__default.createElement('i', { className: 'arrow' }),
+          showArrow && React$1__default.createElement('i', { className: 'arrow' }),
           header
         ),
-        React__default.createElement(
+        React$1__default.createElement(
           Animate,
           {
             showProp: 'isActive',
@@ -35501,7 +35501,7 @@ var CollapsePanel = function (_Component) {
             component: '',
             animation: this.props.openAnimation
           },
-          React__default.createElement(
+          React$1__default.createElement(
             PanelContent,
             {
               prefixCls: prefixCls,
@@ -35518,7 +35518,7 @@ var CollapsePanel = function (_Component) {
   }]);
 
   return CollapsePanel;
-}(React.Component);
+}(React$1.Component);
 
 CollapsePanel.propTypes = {
   className: propTypes.oneOfType([propTypes.string, propTypes.object]),
@@ -35670,7 +35670,7 @@ var Collapse = function (_Component) {
 
       var newChildren = [];
 
-      React.Children.forEach(this.props.children, function (child, index) {
+      React$1.Children.forEach(this.props.children, function (child, index) {
         if (!child) return;
         // If there is no key provide, use the panel order as default key
         var key = child.key || String(index);
@@ -35701,7 +35701,7 @@ var Collapse = function (_Component) {
           }
         };
 
-        newChildren.push(React__default.cloneElement(child, props));
+        newChildren.push(React$1__default.cloneElement(child, props));
       });
 
       return newChildren;
@@ -35726,7 +35726,7 @@ var Collapse = function (_Component) {
           accordion = _props2.accordion;
 
       var collapseClassName = classnames((_classNames = {}, _defineProperty$10(_classNames, prefixCls, true), _defineProperty$10(_classNames, className, !!className), _classNames));
-      return React__default.createElement(
+      return React$1__default.createElement(
         'div',
         { className: collapseClassName, style: style, role: accordion ? 'tablist' : null },
         this.getItems()
@@ -35735,7 +35735,7 @@ var Collapse = function (_Component) {
   }]);
 
   return Collapse;
-}(React.Component);
+}(React$1.Component);
 
 Collapse.propTypes = {
   children: propTypes.any,
@@ -35825,12 +35825,12 @@ var CollapsePanel$1 = function (_React$Component) {
                 showArrow = _props$showArrow === undefined ? true : _props$showArrow;
 
             var collapsePanelClassName = classnames(_defineProperty$7({}, prefixCls + '-no-arrow', !showArrow), className);
-            return React.createElement(Collapse.Panel, _extends$23({}, this.props, { className: collapsePanelClassName }));
+            return React$1.createElement(Collapse.Panel, _extends$23({}, this.props, { className: collapsePanelClassName }));
         }
     }]);
 
     return CollapsePanel;
-}(React.Component);
+}(React$1.Component);
 
 var Collapse$1 = function (_React$Component) {
     _inherits$14(Collapse$$1, _React$Component);
@@ -35851,12 +35851,12 @@ var Collapse$1 = function (_React$Component) {
                 bordered = _props.bordered;
 
             var collapseClassName = classnames(_defineProperty$7({}, prefixCls + '-borderless', !bordered), className);
-            return React.createElement(Collapse, _extends$23({}, this.props, { className: collapseClassName }));
+            return React$1.createElement(Collapse, _extends$23({}, this.props, { className: collapseClassName }));
         }
     }]);
 
     return Collapse$$1;
-}(React.Component);
+}(React$1.Component);
 
 Collapse$1.Panel = CollapsePanel$1;
 Collapse$1.defaultProps = {
@@ -35958,16 +35958,16 @@ var Carousel = function (_React$Component) {
             if (props.vertical) {
                 className = className + ' ' + className + '-vertical';
             }
-            return React.createElement(
+            return React$1.createElement(
                 'div',
                 { className: className },
-                React.createElement(SlickCarousel, _extends$23({ ref: this.saveSlick }, props))
+                React$1.createElement(SlickCarousel, _extends$23({ ref: this.saveSlick }, props))
             );
         }
     }]);
 
     return Carousel;
-}(React.Component);
+}(React$1.Component);
 
 Carousel.defaultProps = {
     dots: true,
@@ -36081,7 +36081,7 @@ var Menus = function (_React$Component) {
     } else if (typeof option[this.getFieldName('label')] === 'string') {
       title = option[this.getFieldName('label')];
     }
-    return React__default.createElement(
+    return React$1__default.createElement(
       'li',
       _extends$26({
         key: option[this.getFieldName('value')],
@@ -36161,11 +36161,11 @@ var Menus = function (_React$Component) {
         prefixCls = _props3.prefixCls,
         dropdownMenuColumnStyle = _props3.dropdownMenuColumnStyle;
 
-    return React__default.createElement(
+    return React$1__default.createElement(
       'div',
       null,
       this.getShowOptions().map(function (options, menuIndex) {
-        return React__default.createElement(
+        return React$1__default.createElement(
           'ul',
           { className: prefixCls + '-menu', key: menuIndex, style: dropdownMenuColumnStyle },
           options.map(function (option) {
@@ -36177,7 +36177,7 @@ var Menus = function (_React$Component) {
   };
 
   return Menus;
-}(React__default.Component);
+}(React$1__default.Component);
 
 Menus.defaultProps = {
   options: [],
@@ -36520,10 +36520,10 @@ var Cascader = function (_Component) {
     // Did not show popup when there is no options
 
 
-    var menus = React__default.createElement('div', null);
+    var menus = React$1__default.createElement('div', null);
     var emptyMenuClassName = '';
     if (options && options.length > 0) {
-      menus = React__default.createElement(Menus, _extends$27({}, this.props, {
+      menus = React$1__default.createElement(Menus, _extends$27({}, this.props, {
         fieldNames: this.getFieldNames(),
         defaultFieldNames: this.defaultFieldNames,
         activeValue: this.state.activeValue,
@@ -36533,7 +36533,7 @@ var Cascader = function (_Component) {
     } else {
       emptyMenuClassName = ' ' + prefixCls + '-menus-empty';
     }
-    return React__default.createElement(
+    return React$1__default.createElement(
       Trigger,
       _extends$27({
         ref: this.saveTrigger
@@ -36550,7 +36550,7 @@ var Cascader = function (_Component) {
         popupClassName: popupClassName + emptyMenuClassName,
         popup: menus
       }),
-      React.cloneElement(children, {
+      React$1.cloneElement(children, {
         onKeyDown: this.handleKeyDown,
         tabIndex: disabled ? undefined : 0
       })
@@ -36558,7 +36558,7 @@ var Cascader = function (_Component) {
   };
 
   return Cascader;
-}(React.Component);
+}(React$1.Component);
 
 Cascader.defaultProps = {
   options: [],
@@ -36639,7 +36639,7 @@ var __rest$13 = undefined && undefined.__rest || function (s, e) {
 };
 function highlightKeyword(str, keyword, prefixCls) {
     return str.split(keyword).map(function (node, index) {
-        return index === 0 ? node : [React.createElement(
+        return index === 0 ? node : [React$1.createElement(
             'span',
             { className: prefixCls + '-menu-item-keyword', key: 'seperator' },
             keyword
@@ -36905,7 +36905,7 @@ var Cascader$1 = function (_React$Component) {
                 inputFocused = state.inputFocused;
 
             var sizeCls = classnames((_classNames = {}, _defineProperty$7(_classNames, inputPrefixCls + '-lg', size === 'large'), _defineProperty$7(_classNames, inputPrefixCls + '-sm', size === 'small'), _classNames));
-            var clearIcon = allowClear && !disabled && value.length > 0 || state.inputValue ? React.createElement(Icon, { type: 'cross-circle', className: prefixCls + '-picker-clear', onClick: this.clearSelection }) : null;
+            var clearIcon = allowClear && !disabled && value.length > 0 || state.inputValue ? React$1.createElement(Icon, { type: 'cross-circle', className: prefixCls + '-picker-clear', onClick: this.clearSelection }) : null;
             var arrowCls = classnames((_classNames2 = {}, _defineProperty$7(_classNames2, prefixCls + '-picker-arrow', true), _defineProperty$7(_classNames2, prefixCls + '-picker-arrow-expand', state.popupVisible), _classNames2));
             var pickerCls = classnames(className, prefixCls + '-picker', (_classNames3 = {}, _defineProperty$7(_classNames3, prefixCls + '-picker-with-value', state.inputValue), _defineProperty$7(_classNames3, prefixCls + '-picker-disabled', disabled), _defineProperty$7(_classNames3, prefixCls + '-picker-' + size, !!size), _defineProperty$7(_classNames3, prefixCls + '-picker-show-search', !!showSearch), _defineProperty$7(_classNames3, prefixCls + '-picker-focused', inputFocused), _classNames3));
             // Fix bug of https://github.com/facebook/react/pull/5004
@@ -36931,19 +36931,19 @@ var Cascader$1 = function (_React$Component) {
             if (resultListMatchInputWidth && state.inputValue && this.input) {
                 dropdownMenuColumnStyle.width = this.input.input.offsetWidth;
             }
-            var input = children || React.createElement(
+            var input = children || React$1.createElement(
                 'span',
                 { style: style, className: pickerCls },
-                React.createElement(
+                React$1.createElement(
                     'span',
                     { className: prefixCls + '-picker-label' },
                     this.getLabel()
                 ),
-                React.createElement(Input, _extends$23({}, inputProps, { ref: this.saveInput, prefixCls: inputPrefixCls, placeholder: value && value.length > 0 ? undefined : placeholder, className: prefixCls + '-input ' + sizeCls, value: state.inputValue, disabled: disabled, readOnly: !showSearch, autoComplete: 'off', onClick: showSearch ? this.handleInputClick : undefined, onBlur: showSearch ? this.handleInputBlur : undefined, onKeyDown: this.handleKeyDown, onChange: showSearch ? this.handleInputChange : undefined })),
+                React$1.createElement(Input, _extends$23({}, inputProps, { ref: this.saveInput, prefixCls: inputPrefixCls, placeholder: value && value.length > 0 ? undefined : placeholder, className: prefixCls + '-input ' + sizeCls, value: state.inputValue, disabled: disabled, readOnly: !showSearch, autoComplete: 'off', onClick: showSearch ? this.handleInputClick : undefined, onBlur: showSearch ? this.handleInputBlur : undefined, onKeyDown: this.handleKeyDown, onChange: showSearch ? this.handleInputChange : undefined })),
                 clearIcon,
-                React.createElement(Icon, { type: 'down', className: arrowCls })
+                React$1.createElement(Icon, { type: 'down', className: arrowCls })
             );
-            return React.createElement(
+            return React$1.createElement(
                 Cascader,
                 _extends$23({}, props, { options: options, value: value, popupVisible: state.popupVisible, onPopupVisibleChange: this.handlePopupVisibleChange, onChange: this.handleChange, dropdownMenuColumnStyle: dropdownMenuColumnStyle }),
                 input
@@ -36952,7 +36952,7 @@ var Cascader$1 = function (_React$Component) {
     }]);
 
     return Cascader$$1;
-}(React.Component);
+}(React$1.Component);
 
 Cascader$1.defaultProps = {
     prefixCls: 'ant-cascader',
@@ -37031,11 +37031,11 @@ var Checkbox$1 = function (_React$Component) {
             }
             var classString = classnames(className, _defineProperty$7({}, prefixCls + '-wrapper', true));
             var checkboxClass = classnames(_defineProperty$7({}, prefixCls + '-indeterminate', indeterminate));
-            return React.createElement(
+            return React$1.createElement(
                 'label',
                 { className: classString, style: style, onMouseEnter: onMouseEnter, onMouseLeave: onMouseLeave },
-                React.createElement(Checkbox, _extends$23({}, checkboxProps, { prefixCls: prefixCls, className: checkboxClass, ref: this.saveCheckbox })),
-                children !== undefined ? React.createElement(
+                React$1.createElement(Checkbox, _extends$23({}, checkboxProps, { prefixCls: prefixCls, className: checkboxClass, ref: this.saveCheckbox })),
+                children !== undefined ? React$1.createElement(
                     'span',
                     null,
                     children
@@ -37045,7 +37045,7 @@ var Checkbox$1 = function (_React$Component) {
     }]);
 
     return Checkbox$$1;
-}(React.Component);
+}(React$1.Component);
 
 Checkbox$1.defaultProps = {
     prefixCls: 'ant-checkbox',
@@ -37142,7 +37142,7 @@ var CheckboxGroup = function (_React$Component) {
             var children = props.children;
             if (options && options.length > 0) {
                 children = this.getOptions().map(function (option) {
-                    return React.createElement(
+                    return React$1.createElement(
                         Checkbox$1,
                         { prefixCls: prefixCls, key: option.value.toString(), disabled: 'disabled' in option ? option.disabled : props.disabled, value: option.value, checked: state.value.indexOf(option.value) !== -1, onChange: function onChange() {
                                 return _this2.toggleOption(option);
@@ -37152,7 +37152,7 @@ var CheckboxGroup = function (_React$Component) {
                 });
             }
             var classString = classnames(groupPrefixCls, className);
-            return React.createElement(
+            return React$1.createElement(
                 'div',
                 { className: classString, style: style },
                 children
@@ -37161,7 +37161,7 @@ var CheckboxGroup = function (_React$Component) {
     }]);
 
     return CheckboxGroup;
-}(React.Component);
+}(React$1.Component);
 
 CheckboxGroup.defaultProps = {
     options: [],
@@ -37185,7 +37185,7 @@ function mirror(o) {
 
 function mapSelf(children) {
   // return ReactFragment
-  return React__default.Children.map(children, mirror);
+  return React$1__default.Children.map(children, mirror);
 }
 
 function goYear(direction) {
@@ -37251,22 +37251,22 @@ var MonthPanel = createReactClass({
     var locale = props.locale;
     var year = value.year();
     var prefixCls = this.prefixCls;
-    return React__default.createElement(
+    return React$1__default.createElement(
       'div',
       { className: prefixCls, style: props.style },
-      React__default.createElement(
+      React$1__default.createElement(
         'div',
         null,
-        React__default.createElement(
+        React$1__default.createElement(
           'div',
           { className: prefixCls + '-header' },
-          React__default.createElement('a', {
+          React$1__default.createElement('a', {
             className: prefixCls + '-prev-year-btn',
             role: 'button',
             onClick: this.previousYear,
             title: locale.previousYear
           }),
-          React__default.createElement(
+          React$1__default.createElement(
             'a',
             {
               className: prefixCls + '-year-select',
@@ -37274,28 +37274,28 @@ var MonthPanel = createReactClass({
               onClick: props.onYearPanelShow,
               title: locale.yearSelect
             },
-            React__default.createElement(
+            React$1__default.createElement(
               'span',
               { className: prefixCls + '-year-select-content' },
               year
             ),
-            React__default.createElement(
+            React$1__default.createElement(
               'span',
               { className: prefixCls + '-year-select-arrow' },
               'x'
             )
           ),
-          React__default.createElement('a', {
+          React$1__default.createElement('a', {
             className: prefixCls + '-next-year-btn',
             role: 'button',
             onClick: this.nextYear,
             title: locale.nextYear
           })
         ),
-        React__default.createElement(
+        React$1__default.createElement(
           'div',
           { className: prefixCls + '-body' },
-          React__default.createElement(MonthTable, {
+          React$1__default.createElement(MonthTable, {
             disabledDate: props.disabledDate,
             onSelect: this.setAndSelectValue,
             locale: locale,
@@ -37393,7 +37393,7 @@ var YearPanel = function (_React$Component) {
         } else {
           clickHandler = chooseYear.bind(_this2, yearData.year);
         }
-        return React__default.createElement(
+        return React$1__default.createElement(
           'td',
           {
             role: 'gridcell',
@@ -37402,7 +37402,7 @@ var YearPanel = function (_React$Component) {
             onClick: clickHandler,
             className: classnames(classNameMap)
           },
-          React__default.createElement(
+          React$1__default.createElement(
             'a',
             {
               className: prefixCls + '-year'
@@ -37411,29 +37411,29 @@ var YearPanel = function (_React$Component) {
           )
         );
       });
-      return React__default.createElement(
+      return React$1__default.createElement(
         'tr',
         { key: index, role: 'row' },
         tds
       );
     });
 
-    return React__default.createElement(
+    return React$1__default.createElement(
       'div',
       { className: this.prefixCls },
-      React__default.createElement(
+      React$1__default.createElement(
         'div',
         null,
-        React__default.createElement(
+        React$1__default.createElement(
           'div',
           { className: prefixCls + '-header' },
-          React__default.createElement('a', {
+          React$1__default.createElement('a', {
             className: prefixCls + '-prev-decade-btn',
             role: 'button',
             onClick: this.previousDecade,
             title: locale.previousDecade
           }),
-          React__default.createElement(
+          React$1__default.createElement(
             'a',
             {
               className: prefixCls + '-decade-select',
@@ -37441,33 +37441,33 @@ var YearPanel = function (_React$Component) {
               onClick: props.onDecadePanelShow,
               title: locale.decadeSelect
             },
-            React__default.createElement(
+            React$1__default.createElement(
               'span',
               { className: prefixCls + '-decade-select-content' },
               startYear,
               '-',
               endYear
             ),
-            React__default.createElement(
+            React$1__default.createElement(
               'span',
               { className: prefixCls + '-decade-select-arrow' },
               'x'
             )
           ),
-          React__default.createElement('a', {
+          React$1__default.createElement('a', {
             className: prefixCls + '-next-decade-btn',
             role: 'button',
             onClick: this.nextDecade,
             title: locale.nextDecade
           })
         ),
-        React__default.createElement(
+        React$1__default.createElement(
           'div',
           { className: prefixCls + '-body' },
-          React__default.createElement(
+          React$1__default.createElement(
             'table',
             { className: prefixCls + '-table', cellSpacing: '0', role: 'grid' },
-            React__default.createElement(
+            React$1__default.createElement(
               'tbody',
               { className: prefixCls + '-tbody' },
               yeasEls
@@ -37479,7 +37479,7 @@ var YearPanel = function (_React$Component) {
   };
 
   return YearPanel;
-}(React__default.Component);
+}(React$1__default.Component);
 
 
 YearPanel.propTypes = {
@@ -37574,7 +37574,7 @@ var DecadePanel = function (_React$Component) {
         } else {
           clickHandler = chooseDecade.bind(_this2, dStartDecade);
         }
-        return React__default.createElement(
+        return React$1__default.createElement(
           'td',
           {
             key: dStartDecade,
@@ -37582,7 +37582,7 @@ var DecadePanel = function (_React$Component) {
             role: 'gridcell',
             className: classnames(classNameMap)
           },
-          React__default.createElement(
+          React$1__default.createElement(
             'a',
             {
               className: prefixCls + '-decade'
@@ -37591,46 +37591,46 @@ var DecadePanel = function (_React$Component) {
           )
         );
       });
-      return React__default.createElement(
+      return React$1__default.createElement(
         'tr',
         { key: decadeIndex, role: 'row' },
         tds
       );
     });
 
-    return React__default.createElement(
+    return React$1__default.createElement(
       'div',
       { className: this.prefixCls },
-      React__default.createElement(
+      React$1__default.createElement(
         'div',
         { className: prefixCls + '-header' },
-        React__default.createElement('a', {
+        React$1__default.createElement('a', {
           className: prefixCls + '-prev-century-btn',
           role: 'button',
           onClick: this.previousCentury,
           title: locale.previousCentury
         }),
-        React__default.createElement(
+        React$1__default.createElement(
           'div',
           { className: prefixCls + '-century' },
           startYear,
           '-',
           endYear
         ),
-        React__default.createElement('a', {
+        React$1__default.createElement('a', {
           className: prefixCls + '-next-century-btn',
           role: 'button',
           onClick: this.nextCentury,
           title: locale.nextCentury
         })
       ),
-      React__default.createElement(
+      React$1__default.createElement(
         'div',
         { className: prefixCls + '-body' },
-        React__default.createElement(
+        React$1__default.createElement(
           'table',
           { className: prefixCls + '-table', cellSpacing: '0', role: 'grid' },
-          React__default.createElement(
+          React$1__default.createElement(
             'tbody',
             { className: prefixCls + '-tbody' },
             decadesEls
@@ -37641,7 +37641,7 @@ var DecadePanel = function (_React$Component) {
   };
 
   return DecadePanel;
-}(React__default.Component);
+}(React$1__default.Component);
 
 
 DecadePanel.propTypes = {
@@ -37729,7 +37729,7 @@ var CalendarHeader$1 = createReactClass({
     var localeData = value.localeData();
     var monthBeforeYear = locale.monthBeforeYear;
     var selectClassName = prefixCls + '-' + (monthBeforeYear ? 'my-select' : 'ym-select');
-    var year = React__default.createElement(
+    var year = React$1__default.createElement(
       'a',
       {
         className: prefixCls + '-year-select',
@@ -37741,7 +37741,7 @@ var CalendarHeader$1 = createReactClass({
       },
       value.format(locale.yearFormat)
     );
-    var month = React__default.createElement(
+    var month = React$1__default.createElement(
       'a',
       {
         className: prefixCls + '-month-select',
@@ -37753,7 +37753,7 @@ var CalendarHeader$1 = createReactClass({
     );
     var day = void 0;
     if (showTimePicker) {
-      day = React__default.createElement(
+      day = React$1__default.createElement(
         'a',
         {
           className: prefixCls + '-day-select',
@@ -37768,7 +37768,7 @@ var CalendarHeader$1 = createReactClass({
     } else {
       my = [year, month, day];
     }
-    return React__default.createElement(
+    return React$1__default.createElement(
       'span',
       { className: selectClassName },
       mapSelf(my)
@@ -37801,7 +37801,7 @@ var CalendarHeader$1 = createReactClass({
 
     var panel = null;
     if (mode === 'month') {
-      panel = React__default.createElement(MonthPanel, {
+      panel = React$1__default.createElement(MonthPanel, {
         locale: locale,
         defaultValue: value,
         rootPrefixCls: prefixCls,
@@ -37815,7 +37815,7 @@ var CalendarHeader$1 = createReactClass({
       });
     }
     if (mode === 'year') {
-      panel = React__default.createElement(YearPanel, {
+      panel = React$1__default.createElement(YearPanel, {
         locale: locale,
         defaultValue: value,
         rootPrefixCls: prefixCls,
@@ -37824,7 +37824,7 @@ var CalendarHeader$1 = createReactClass({
       });
     }
     if (mode === 'decade') {
-      panel = React__default.createElement(DecadePanel, {
+      panel = React$1__default.createElement(DecadePanel, {
         locale: locale,
         defaultValue: value,
         rootPrefixCls: prefixCls,
@@ -37832,31 +37832,31 @@ var CalendarHeader$1 = createReactClass({
       });
     }
 
-    return React__default.createElement(
+    return React$1__default.createElement(
       'div',
       { className: prefixCls + '-header' },
-      React__default.createElement(
+      React$1__default.createElement(
         'div',
         { style: { position: 'relative' } },
-        showIf(enablePrev && !showTimePicker, React__default.createElement('a', {
+        showIf(enablePrev && !showTimePicker, React$1__default.createElement('a', {
           className: prefixCls + '-prev-year-btn',
           role: 'button',
           onClick: this.previousYear,
           title: locale.previousYear
         })),
-        showIf(enablePrev && !showTimePicker, React__default.createElement('a', {
+        showIf(enablePrev && !showTimePicker, React$1__default.createElement('a', {
           className: prefixCls + '-prev-month-btn',
           role: 'button',
           onClick: this.previousMonth,
           title: locale.previousMonth
         })),
         this.monthYearElement(showTimePicker),
-        showIf(enableNext && !showTimePicker, React__default.createElement('a', {
+        showIf(enableNext && !showTimePicker, React$1__default.createElement('a', {
           className: prefixCls + '-next-month-btn',
           onClick: this.nextMonth,
           title: locale.nextMonth
         })),
-        showIf(enableNext && !showTimePicker, React__default.createElement('a', {
+        showIf(enableNext && !showTimePicker, React$1__default.createElement('a', {
           className: prefixCls + '-next-year-btn',
           onClick: this.nextYear,
           title: locale.nextYear
@@ -37881,7 +37881,7 @@ function TodayButton(_ref) {
   var disabledToday = disabledDate && !isAllowedDate(getTodayTime(value), disabledDate);
   var isDisabled = disabledToday || disabled;
   var disabledTodayClass = isDisabled ? prefixCls + '-today-btn-disabled' : '';
-  return React__default.createElement(
+  return React$1__default.createElement(
     'a',
     {
       className: prefixCls + '-today-btn ' + disabledTodayClass,
@@ -37903,7 +37903,7 @@ function OkButton(_ref) {
   if (okDisabled) {
     className += " " + prefixCls + "-ok-btn-disabled";
   }
-  return React__default.createElement(
+  return React$1__default.createElement(
     "a",
     {
       className: className,
@@ -37929,7 +37929,7 @@ function TimePickerButton(_ref) {
   if (!timePickerDisabled) {
     onClick = showTimePicker ? onCloseTimePicker : onOpenTimePicker;
   }
-  return React__default.createElement(
+  return React$1__default.createElement(
     'a',
     {
       className: className,
@@ -37977,27 +37977,27 @@ var CalendarFooter = createReactClass({
 
       var nowEl = void 0;
       if (props.showToday) {
-        nowEl = React__default.createElement(TodayButton, _extends$23({}, props, { value: value }));
+        nowEl = React$1__default.createElement(TodayButton, _extends$23({}, props, { value: value }));
       }
       var okBtn = void 0;
       if (showOk === true || showOk !== false && !!props.timePicker) {
-        okBtn = React__default.createElement(OkButton, props);
+        okBtn = React$1__default.createElement(OkButton, props);
       }
       var timePickerBtn = void 0;
       if (!!props.timePicker) {
-        timePickerBtn = React__default.createElement(TimePickerButton, props);
+        timePickerBtn = React$1__default.createElement(TimePickerButton, props);
       }
 
       var footerBtn = void 0;
       if (nowEl || timePickerBtn || okBtn) {
-        footerBtn = React__default.createElement(
+        footerBtn = React$1__default.createElement(
           'span',
           { className: prefixCls + '-footer-btn' },
           mapSelf([nowEl, timePickerBtn, okBtn])
         );
       }
       var cls = classnames((_cx = {}, _cx[prefixCls + '-footer'] = true, _cx[prefixCls + '-footer-show-ok'] = okBtn, _cx));
-      footerEl = React__default.createElement(
+      footerEl = React$1__default.createElement(
         'div',
         { className: cls },
         extraFooter,
@@ -38119,13 +38119,13 @@ var DateInput = createReactClass({
         placeholder = props.placeholder;
 
     var invalidClass = invalid ? prefixCls + '-input-invalid' : '';
-    return React__default.createElement(
+    return React$1__default.createElement(
       'div',
       { className: prefixCls + '-input-wrap' },
-      React__default.createElement(
+      React$1__default.createElement(
         'div',
         { className: prefixCls + '-date-input-wrap' },
-        React__default.createElement('input', {
+        React$1__default.createElement('input', {
           ref: this.saveDateInput,
           className: prefixCls + '-input ' + invalidClass,
           value: str,
@@ -38134,7 +38134,7 @@ var DateInput = createReactClass({
           onChange: this.onInputChange
         })
       ),
-      props.showClear ? React__default.createElement('a', {
+      props.showClear ? React$1__default.createElement('a', {
         className: prefixCls + '-clear-btn',
         role: 'button',
         title: locale.clear,
@@ -38373,10 +38373,10 @@ var Calendar$1 = createReactClass({
         timePickerProps.defaultOpenValue = timePicker.props.defaultValue;
       }
 
-      timePickerEle = React__default.cloneElement(timePicker, timePickerProps);
+      timePickerEle = React$1__default.cloneElement(timePicker, timePickerProps);
     }
 
-    var dateInputElement = props.showDateInput ? React__default.createElement(DateInput, {
+    var dateInputElement = props.showDateInput ? React$1__default.createElement(DateInput, {
       format: this.getFormat(),
       key: 'date-input',
       value: value,
@@ -38390,14 +38390,14 @@ var Calendar$1 = createReactClass({
       selectedValue: selectedValue,
       onChange: this.onDateInputChange
     }) : null;
-    var children = [props.renderSidebar(), React__default.createElement(
+    var children = [props.renderSidebar(), React$1__default.createElement(
       'div',
       { className: prefixCls + '-panel', key: 'panel' },
       dateInputElement,
-      React__default.createElement(
+      React$1__default.createElement(
         'div',
         { className: prefixCls + '-date-panel' },
-        React__default.createElement(CalendarHeader$1, {
+        React$1__default.createElement(CalendarHeader$1, {
           locale: locale,
           mode: mode,
           value: value,
@@ -38406,19 +38406,19 @@ var Calendar$1 = createReactClass({
           showTimePicker: showTimePicker,
           prefixCls: prefixCls
         }),
-        timePicker && showTimePicker ? React__default.createElement(
+        timePicker && showTimePicker ? React$1__default.createElement(
           'div',
           { className: prefixCls + '-time-picker' },
-          React__default.createElement(
+          React$1__default.createElement(
             'div',
             { className: prefixCls + '-time-picker-panel' },
             timePickerEle
           )
         ) : null,
-        React__default.createElement(
+        React$1__default.createElement(
           'div',
           { className: prefixCls + '-body' },
-          React__default.createElement(DateTable, {
+          React$1__default.createElement(DateTable, {
             locale: locale,
             value: value,
             selectedValue: selectedValue,
@@ -38429,7 +38429,7 @@ var Calendar$1 = createReactClass({
             showWeekNumber: props.showWeekNumber
           })
         ),
-        React__default.createElement(CalendarFooter, {
+        React$1__default.createElement(CalendarFooter, {
           showOk: props.showOk,
           renderFooter: props.renderFooter,
           locale: locale,
@@ -38529,13 +38529,13 @@ var MonthCalendar = createReactClass({
     var mode = state.mode,
         value = state.value;
 
-    var children = React__default.createElement(
+    var children = React$1__default.createElement(
       'div',
       { className: props.prefixCls + '-month-calendar-content' },
-      React__default.createElement(
+      React$1__default.createElement(
         'div',
         { className: props.prefixCls + '-month-header-wrap' },
-        React__default.createElement(CalendarHeader$1, {
+        React$1__default.createElement(CalendarHeader$1, {
           prefixCls: props.prefixCls,
           mode: mode,
           value: value,
@@ -38548,7 +38548,7 @@ var MonthCalendar = createReactClass({
           onPanelChange: this.handlePanelChange
         })
       ),
-      React__default.createElement(CalendarFooter, {
+      React$1__default.createElement(CalendarFooter, {
         prefixCls: props.prefixCls,
         renderFooter: props.renderFooter
       })
@@ -38724,7 +38724,7 @@ var Picker = createReactClass({
       onClear: createChainedFunction(calendarProps.onClear, this.onCalendarClear)
     };
 
-    return React__default.cloneElement(props.calendar, extraProps);
+    return React$1__default.cloneElement(props.calendar, extraProps);
   },
   setOpen: function setOpen(open, callback) {
     var onOpenChange = this.props.onOpenChange;
@@ -38768,7 +38768,7 @@ var Picker = createReactClass({
         children = props.children;
 
     var state = this.state;
-    return React__default.createElement(
+    return React$1__default.createElement(
       Trigger,
       {
         popup: this.getCalendarElement(),
@@ -38786,7 +38786,7 @@ var Picker = createReactClass({
         prefixCls: prefixCls,
         popupClassName: dropdownClassName
       },
-      React__default.cloneElement(children(state, props), { onKeyDown: this.onKeyDown })
+      React$1__default.cloneElement(children(state, props), { onKeyDown: this.onKeyDown })
     );
   }
 });
@@ -38805,7 +38805,7 @@ function createPicker(TheCalendar) {
                     prefixCls = _this$props.prefixCls,
                     renderExtraFooter = _this$props.renderExtraFooter;
 
-                return renderExtraFooter ? React.createElement(
+                return renderExtraFooter ? React$1.createElement(
                     'div',
                     { className: prefixCls + '-footer-extra' },
                     renderExtraFooter.apply(undefined, arguments)
@@ -38890,23 +38890,23 @@ function createPicker(TheCalendar) {
                     calendarProps.mode = props.mode;
                 }
                 warning$4(!('onOK' in props), 'It should be `DatePicker[onOk]` or `MonthPicker[onOk]`, instead of `onOK`!');
-                var calendar = React.createElement(TheCalendar, _extends$23({}, calendarProps, { disabledDate: props.disabledDate, disabledTime: disabledTime, locale: locale.lang, timePicker: props.timePicker, defaultValue: props.defaultPickerValue || interopDefault(moment)(), dateInputPlaceholder: placeholder, prefixCls: prefixCls, className: calendarClassName, onOk: props.onOk, dateRender: props.dateRender, format: props.format, showToday: props.showToday, monthCellContentRender: props.monthCellContentRender, renderFooter: this.renderFooter, onPanelChange: props.onPanelChange, onChange: this.handleCalendarChange, value: showDate }));
-                var clearIcon = !props.disabled && props.allowClear && value ? React.createElement(Icon, { type: 'cross-circle', className: prefixCls + '-picker-clear', onClick: this.clearSelection }) : null;
+                var calendar = React$1.createElement(TheCalendar, _extends$23({}, calendarProps, { disabledDate: props.disabledDate, disabledTime: disabledTime, locale: locale.lang, timePicker: props.timePicker, defaultValue: props.defaultPickerValue || interopDefault(moment)(), dateInputPlaceholder: placeholder, prefixCls: prefixCls, className: calendarClassName, onOk: props.onOk, dateRender: props.dateRender, format: props.format, showToday: props.showToday, monthCellContentRender: props.monthCellContentRender, renderFooter: this.renderFooter, onPanelChange: props.onPanelChange, onChange: this.handleCalendarChange, value: showDate }));
+                var clearIcon = !props.disabled && props.allowClear && value ? React$1.createElement(Icon, { type: 'cross-circle', className: prefixCls + '-picker-clear', onClick: this.clearSelection }) : null;
                 var dataOrAriaProps = getDataOrAriaProps(props);
                 var input = function input(_ref) {
                     var inputValue = _ref.value;
-                    return React.createElement(
+                    return React$1.createElement(
                         'div',
                         null,
-                        React.createElement('input', _extends$23({ ref: _this2.saveInput, disabled: props.disabled, readOnly: true, value: inputValue && inputValue.format(props.format) || '', placeholder: placeholder, className: props.pickerInputClass }, dataOrAriaProps)),
+                        React$1.createElement('input', _extends$23({ ref: _this2.saveInput, disabled: props.disabled, readOnly: true, value: inputValue && inputValue.format(props.format) || '', placeholder: placeholder, className: props.pickerInputClass }, dataOrAriaProps)),
                         clearIcon,
-                        React.createElement('span', { className: prefixCls + '-picker-icon' })
+                        React$1.createElement('span', { className: prefixCls + '-picker-icon' })
                     );
                 };
-                return React.createElement(
+                return React$1.createElement(
                     'span',
                     { id: props.id, className: classnames(props.className, props.pickerClass), style: props.style, onFocus: props.onFocus, onBlur: props.onBlur, onMouseEnter: props.onMouseEnter, onMouseLeave: props.onMouseLeave },
-                    React.createElement(
+                    React$1.createElement(
                         Picker,
                         _extends$23({}, props, pickerProps, { calendar: calendar, value: value, prefixCls: prefixCls + '-picker-container', style: props.popupStyle }),
                         input
@@ -38930,7 +38930,7 @@ function createPicker(TheCalendar) {
         }]);
 
         return CalenderWrapper;
-    }(React.Component);
+    }(React$1.Component);
 
     CalenderWrapper.defaultProps = {
         prefixCls: 'ant-calendar',
@@ -38996,7 +38996,7 @@ var Header$1 = function (_Component) {
       if (!allowEmpty) {
         return null;
       }
-      return React__default.createElement('a', {
+      return React$1__default.createElement('a', {
         className: prefixCls + '-clear-btn',
         role: 'button',
         title: this.props.clearText,
@@ -39020,7 +39020,7 @@ var Header$1 = function (_Component) {
           str = _state.str;
 
       var invalidClass = invalid ? prefixCls + '-input-invalid' : '';
-      return React__default.createElement('input', {
+      return React$1__default.createElement('input', {
         className: prefixCls + '-input  ' + invalidClass,
         ref: 'input',
         onKeyDown: this.onKeyDown,
@@ -39035,7 +39035,7 @@ var Header$1 = function (_Component) {
     value: function render() {
       var prefixCls = this.props.prefixCls;
 
-      return React__default.createElement(
+      return React$1__default.createElement(
         'div',
         { className: prefixCls + '-input-wrap' },
         this.getInput(),
@@ -39045,7 +39045,7 @@ var Header$1 = function (_Component) {
   }]);
 
   return Header;
-}(React.Component);
+}(React$1.Component);
 
 Header$1.propTypes = {
   format: propTypes.string,
@@ -39252,7 +39252,7 @@ var Select$2 = function (_Component) {
         if (!item.disabled) {
           onclick = _this2.onSelect.bind(_this2, item.value);
         }
-        return React__default.createElement(
+        return React$1__default.createElement(
           'li',
           {
             className: cls,
@@ -39294,14 +39294,14 @@ var Select$2 = function (_Component) {
 
       var cls = classnames((_classnames2 = {}, _defineProperty$7(_classnames2, prefixCls + '-select', 1), _defineProperty$7(_classnames2, prefixCls + '-select-active', this.state.active), _classnames2));
 
-      return React__default.createElement(
+      return React$1__default.createElement(
         'div',
         {
           className: cls,
           onMouseEnter: this.handleMouseEnter,
           onMouseLeave: this.handleMouseLeave
         },
-        React__default.createElement(
+        React$1__default.createElement(
           'ul',
           { ref: this.saveList },
           this.getOptions()
@@ -39311,7 +39311,7 @@ var Select$2 = function (_Component) {
   }]);
 
   return Select;
-}(React.Component);
+}(React$1.Component);
 
 Select$2.propTypes = {
   prefixCls: propTypes.string,
@@ -39421,7 +39421,7 @@ var Combobox = function (_Component) {
         hourAdj = hour;
       }
 
-      return React__default.createElement(Select$2, {
+      return React$1__default.createElement(Select$2, {
         prefixCls: prefixCls,
         options: hourOptionsAdj.map(function (option) {
           return formatOption(option, disabledOptions);
@@ -39448,7 +39448,7 @@ var Combobox = function (_Component) {
       var value = this.props.value || defaultOpenValue;
       var disabledOptions = disabledMinutes(value.hour());
 
-      return React__default.createElement(Select$2, {
+      return React$1__default.createElement(Select$2, {
         prefixCls: prefixCls,
         options: minuteOptions.map(function (option) {
           return formatOption(option, disabledOptions);
@@ -39475,7 +39475,7 @@ var Combobox = function (_Component) {
       var value = this.props.value || defaultOpenValue;
       var disabledOptions = disabledSeconds(value.hour(), value.minute());
 
-      return React__default.createElement(Select$2, {
+      return React$1__default.createElement(Select$2, {
         prefixCls: prefixCls,
         options: secondOptions.map(function (option) {
           return formatOption(option, disabledOptions);
@@ -39507,7 +39507,7 @@ var Combobox = function (_Component) {
 
       var selected = this.props.isAM ? 0 : 1;
 
-      return React__default.createElement(Select$2, {
+      return React$1__default.createElement(Select$2, {
         prefixCls: prefixCls,
         options: AMPMOptions,
         selectedIndex: selected,
@@ -39524,7 +39524,7 @@ var Combobox = function (_Component) {
           defaultOpenValue = _props5.defaultOpenValue;
 
       var value = this.props.value || defaultOpenValue;
-      return React__default.createElement(
+      return React$1__default.createElement(
         'div',
         { className: prefixCls + '-combobox' },
         this.getHourSelect(value.hour()),
@@ -39536,7 +39536,7 @@ var Combobox = function (_Component) {
   }]);
 
   return Combobox;
-}(React.Component);
+}(React$1.Component);
 
 Combobox.propTypes = {
   format: propTypes.string,
@@ -39682,10 +39682,10 @@ var Panel$1 = function (_Component) {
       var minuteOptions = generateOptions(60, disabledMinuteOptions, hideDisabledOptions, minuteStep);
       var secondOptions = generateOptions(60, disabledSecondOptions, hideDisabledOptions, secondStep);
 
-      return React__default.createElement(
+      return React$1__default.createElement(
         'div',
         { className: classnames((_classNames = {}, _defineProperty$7(_classNames, prefixCls + '-inner', true), _defineProperty$7(_classNames, className, !!className), _classNames)) },
-        React__default.createElement(Header$1, {
+        React$1__default.createElement(Header$1, {
           clearText: clearText,
           prefixCls: prefixCls,
           defaultOpenValue: defaultOpenValue,
@@ -39707,7 +39707,7 @@ var Panel$1 = function (_Component) {
           onKeyDown: onKeyDown,
           inputReadOnly: inputReadOnly
         }),
-        React__default.createElement(Combobox, {
+        React$1__default.createElement(Combobox, {
           prefixCls: prefixCls,
           value: value,
           defaultOpenValue: defaultOpenValue,
@@ -39732,7 +39732,7 @@ var Panel$1 = function (_Component) {
   }]);
 
   return Panel;
-}(React.Component);
+}(React$1.Component);
 
 Panel$1.propTypes = {
   clearText: propTypes.string,
@@ -39918,7 +39918,7 @@ var Picker$1 = function (_Component) {
           minuteStep = _props2.minuteStep,
           secondStep = _props2.secondStep;
 
-      return React__default.createElement(Panel$1, {
+      return React$1__default.createElement(Panel$1, {
         clearText: clearText,
         prefixCls: prefixCls + '-panel',
         ref: this.savePanelRef,
@@ -40030,7 +40030,7 @@ var Picker$1 = function (_Component) {
           value = _state.value;
 
       var popupClassName = this.getPopupClassName();
-      return React__default.createElement(
+      return React$1__default.createElement(
         Trigger,
         {
           prefixCls: prefixCls + '-panel',
@@ -40046,10 +40046,10 @@ var Picker$1 = function (_Component) {
           popupVisible: open,
           onPopupVisibleChange: this.onVisibleChange
         },
-        React__default.createElement(
+        React$1__default.createElement(
           'span',
           { className: prefixCls + ' ' + className, style: style },
-          React__default.createElement('input', {
+          React$1__default.createElement('input', {
             className: prefixCls + '-input',
             ref: this.saveInputRef,
             type: 'text',
@@ -40065,14 +40065,14 @@ var Picker$1 = function (_Component) {
             onChange: noop$19,
             readOnly: !!inputReadOnly
           }),
-          React__default.createElement('span', { className: prefixCls + '-icon' })
+          React$1__default.createElement('span', { className: prefixCls + '-icon' })
         )
       );
     }
   }]);
 
   return Picker;
-}(React.Component);
+}(React$1.Component);
 
 Picker$1.propTypes = {
   prefixCls: propTypes.string,
@@ -40222,13 +40222,13 @@ var TimePicker = function (_React$Component) {
             var format = _this.getDefaultFormat();
             var className = classnames(props.className, _defineProperty$7({}, props.prefixCls + '-' + props.size, !!props.size));
             var addon = function addon(panel) {
-                return props.addon ? React.createElement(
+                return props.addon ? React$1.createElement(
                     'div',
                     { className: props.prefixCls + '-panel-addon' },
                     props.addon(panel)
                 ) : null;
             };
-            return React.createElement(Picker$1, _extends$23({}, generateShowHourMinuteSecond(format), props, { ref: _this.saveTimePicker, format: format, className: className, value: _this.state.value, placeholder: props.placeholder === undefined ? locale$$1.placeholder : props.placeholder, onChange: _this.handleChange, onOpen: _this.handleOpenClose, onClose: _this.handleOpenClose, addon: addon }));
+            return React$1.createElement(Picker$1, _extends$23({}, generateShowHourMinuteSecond(format), props, { ref: _this.saveTimePicker, format: format, className: className, value: _this.state.value, placeholder: props.placeholder === undefined ? locale$$1.placeholder : props.placeholder, onChange: _this.handleChange, onOpen: _this.handleOpenClose, onClose: _this.handleOpenClose, addon: addon }));
         };
         var value = props.value || props.defaultValue;
         if (value && !interopDefault(moment).isMoment(value)) {
@@ -40274,7 +40274,7 @@ var TimePicker = function (_React$Component) {
     }, {
         key: 'render',
         value: function render() {
-            return React.createElement(
+            return React$1.createElement(
                 LocaleReceiver,
                 { componentName: 'TimePicker', defaultLocale: locale },
                 this.renderTimePicker
@@ -40283,7 +40283,7 @@ var TimePicker = function (_React$Component) {
     }]);
 
     return TimePicker;
-}(React.Component);
+}(React$1.Component);
 
 TimePicker.defaultProps = {
     prefixCls: 'ant-time-picker',
@@ -40385,8 +40385,8 @@ function wrapPicker(Picker, defaultFormat) {
                 var rcTimePickerProps = _extends$23({}, generateShowHourMinuteSecond(timeFormat), { format: timeFormat, use12Hours: props.showTime && props.showTime.use12Hours });
                 var columns = getColumns(rcTimePickerProps);
                 var timePickerCls = prefixCls + '-time-picker-column-' + columns;
-                var timePicker = props.showTime ? React.createElement(Panel$1, _extends$23({}, rcTimePickerProps, props.showTime, { prefixCls: prefixCls + '-time-picker', className: timePickerCls, placeholder: locale.timePickerLocale.placeholder, transitionName: 'slide-up' })) : null;
-                return React.createElement(Picker, _extends$23({}, props, { ref: _this.savePicker, pickerClass: pickerClass, pickerInputClass: pickerInputClass, locale: locale, localeCode: localeCode, timePicker: timePicker, onOpenChange: _this.handleOpenChange, onFocus: _this.handleFocus, onBlur: _this.handleBlur, onMouseEnter: _this.handleMouseEnter, onMouseLeave: _this.handleMouseLeave }));
+                var timePicker = props.showTime ? React$1.createElement(Panel$1, _extends$23({}, rcTimePickerProps, props.showTime, { prefixCls: prefixCls + '-time-picker', className: timePickerCls, placeholder: locale.timePickerLocale.placeholder, transitionName: 'slide-up' })) : null;
+                return React$1.createElement(Picker, _extends$23({}, props, { ref: _this.savePicker, pickerClass: pickerClass, pickerInputClass: pickerInputClass, locale: locale, localeCode: localeCode, timePicker: timePicker, onOpenChange: _this.handleOpenChange, onFocus: _this.handleFocus, onBlur: _this.handleBlur, onMouseEnter: _this.handleMouseEnter, onMouseLeave: _this.handleMouseLeave }));
             };
             return _this;
         }
@@ -40415,7 +40415,7 @@ function wrapPicker(Picker, defaultFormat) {
         }, {
             key: 'render',
             value: function render() {
-                return React.createElement(
+                return React$1.createElement(
                     LocaleReceiver,
                     { componentName: 'DatePicker', defaultLocale: this.getDefaultLocale },
                     this.renderPicker
@@ -40424,7 +40424,7 @@ function wrapPicker(Picker, defaultFormat) {
         }]);
 
         return PickerWrapper;
-    }(React.Component), _a.defaultProps = {
+    }(React$1.Component), _a.defaultProps = {
         format: defaultFormat || 'YYYY-MM-DD',
         transitionName: 'slide-up',
         popupStyle: {},
@@ -40490,7 +40490,7 @@ var CalendarPart = createReactClass({
       showTimePicker: showTimePicker
     };
     var index = direction === 'left' ? 0 : 1;
-    var timePickerEle = shouldShowTimePicker && React__default.cloneElement(timePicker, _extends$23({
+    var timePickerEle = shouldShowTimePicker && React$1__default.cloneElement(timePicker, _extends$23({
       showHour: true,
       showMinute: true,
       showSecond: true
@@ -40500,7 +40500,7 @@ var CalendarPart = createReactClass({
       value: selectedValue[index]
     }));
 
-    var dateInputElement = props.showDateInput && React__default.createElement(DateInput, {
+    var dateInputElement = props.showDateInput && React$1__default.createElement(DateInput, {
       format: format,
       locale: locale,
       prefixCls: prefixCls,
@@ -40514,16 +40514,16 @@ var CalendarPart = createReactClass({
       onChange: onInputSelect
     });
 
-    return React__default.createElement(
+    return React$1__default.createElement(
       'div',
       {
         className: rangeClassName + '-part ' + rangeClassName + '-' + direction
       },
       dateInputElement,
-      React__default.createElement(
+      React$1__default.createElement(
         'div',
         { style: { outline: 'none' } },
-        React__default.createElement(CalendarHeader$1, _extends$23({}, newProps, {
+        React$1__default.createElement(CalendarHeader$1, _extends$23({}, newProps, {
           mode: mode,
           enableNext: enableNext,
           enablePrev: enablePrev,
@@ -40531,19 +40531,19 @@ var CalendarPart = createReactClass({
           onPanelChange: props.onPanelChange,
           disabledMonth: props.disabledMonth
         })),
-        showTimePicker ? React__default.createElement(
+        showTimePicker ? React$1__default.createElement(
           'div',
           { className: prefixCls + '-time-picker' },
-          React__default.createElement(
+          React$1__default.createElement(
             'div',
             { className: prefixCls + '-time-picker-panel' },
             timePickerEle
           )
         ) : null,
-        React__default.createElement(
+        React$1__default.createElement(
           'div',
           { className: prefixCls + '-body' },
-          React__default.createElement(DateTable, _extends$23({}, newProps, {
+          React$1__default.createElement(DateTable, _extends$23({}, newProps, {
             hoverValue: hoverValue,
             selectedValue: selectedValue,
             dateRender: props.dateRender,
@@ -41226,7 +41226,7 @@ var RangeCalendar = createReactClass({
     // console.log('start:', startValue.format('YYYY-MM-DD'));
     // console.log('end:', endValue.format('YYYY-MM-DD'));
 
-    return React__default.createElement(
+    return React$1__default.createElement(
       'div',
       {
         ref: this.saveRoot,
@@ -41236,23 +41236,23 @@ var RangeCalendar = createReactClass({
         onKeyDown: this.onKeyDown
       },
       props.renderSidebar(),
-      React__default.createElement(
+      React$1__default.createElement(
         'div',
         { className: prefixCls + '-panel' },
-        showClear && selectedValue[0] && selectedValue[1] ? React__default.createElement('a', {
+        showClear && selectedValue[0] && selectedValue[1] ? React$1__default.createElement('a', {
           className: prefixCls + '-clear-btn',
           role: 'button',
           title: locale.clear,
           onClick: this.clear
         }) : null,
-        React__default.createElement(
+        React$1__default.createElement(
           'div',
           {
             className: prefixCls + '-date-panel',
             onMouseLeave: type !== 'both' ? this.onDatePanelLeave : undefined,
             onMouseEnter: type !== 'both' ? this.onDatePanelEnter : undefined
           },
-          React__default.createElement(CalendarPart, _extends$23({}, props, newProps, {
+          React$1__default.createElement(CalendarPart, _extends$23({}, props, newProps, {
             hoverValue: hoverValue,
             direction: 'left',
             disabledTime: this.disabledStartTime,
@@ -41270,12 +41270,12 @@ var RangeCalendar = createReactClass({
             enablePrev: true,
             enableNext: !isClosestMonths || this.isMonthYearPanelShow(mode[1])
           })),
-          React__default.createElement(
+          React$1__default.createElement(
             'span',
             { className: prefixCls + '-range-middle' },
             '~'
           ),
-          React__default.createElement(CalendarPart, _extends$23({}, props, newProps, {
+          React$1__default.createElement(CalendarPart, _extends$23({}, props, newProps, {
             hoverValue: hoverValue,
             direction: 'right',
             format: this.getFormat(),
@@ -41295,26 +41295,26 @@ var RangeCalendar = createReactClass({
             enableNext: true
           }))
         ),
-        React__default.createElement(
+        React$1__default.createElement(
           'div',
           { className: cls },
           props.renderFooter(),
-          showToday || props.timePicker || showOkButton ? React__default.createElement(
+          showToday || props.timePicker || showOkButton ? React$1__default.createElement(
             'div',
             { className: prefixCls + '-footer-btn' },
-            showToday ? React__default.createElement(TodayButton, _extends$23({}, props, {
+            showToday ? React$1__default.createElement(TodayButton, _extends$23({}, props, {
               disabled: isTodayInView,
               value: state.value[0],
               onToday: this.onToday,
               text: locale.backToToday
             })) : null,
-            props.timePicker ? React__default.createElement(TimePickerButton, _extends$23({}, props, {
+            props.timePicker ? React$1__default.createElement(TimePickerButton, _extends$23({}, props, {
               showTimePicker: showTimePicker,
               onOpenTimePicker: this.onOpenTimePicker,
               onCloseTimePicker: this.onCloseTimePicker,
               timePickerDisabled: !this.hasSelectedValue() || hoverValue.length
             })) : null,
-            showOkButton ? React__default.createElement(OkButton, _extends$23({}, props, {
+            showOkButton ? React$1__default.createElement(OkButton, _extends$23({}, props, {
               onOk: this.onOk,
               okDisabled: !this.isAllowedDateAndTime(selectedValue) || !this.hasSelectedValue() || hoverValue.length
             })) : null
@@ -41367,12 +41367,12 @@ var CheckableTag = function (_React$Component) {
                 restProps = __rest$15(_a, ["prefixCls", "className", "checked"]);
             var cls = classnames(prefixCls, (_classNames = {}, _defineProperty$7(_classNames, prefixCls + '-checkable', true), _defineProperty$7(_classNames, prefixCls + '-checkable-checked', checked), _classNames), className);
             delete restProps.onChange; // TypeScript cannot check delete now.
-            return React.createElement('div', _extends$23({}, restProps, { className: cls, onClick: this.handleClick }));
+            return React$1.createElement('div', _extends$23({}, restProps, { className: cls, onClick: this.handleClick }));
         }
     }]);
 
     return CheckableTag;
-}(React.Component);
+}(React$1.Component);
 
 var __rest$16 = undefined && undefined.__rest || function (s, e) {
     var t = {};
@@ -41473,19 +41473,19 @@ var Tag = function (_React$Component) {
                 children = _a.children,
                 style = _a.style,
                 otherProps = __rest$16(_a, ["prefixCls", "closable", "color", "className", "children", "style"]);
-            var closeIcon = closable ? React.createElement(Icon, { type: 'cross', onClick: this.handleIconClick }) : '';
+            var closeIcon = closable ? React$1.createElement(Icon, { type: 'cross', onClick: this.handleIconClick }) : '';
             var isPresetColor = this.isPresetColor(color);
             var classString = classnames(prefixCls, (_classNames = {}, _defineProperty$7(_classNames, prefixCls + '-' + color, isPresetColor), _defineProperty$7(_classNames, prefixCls + '-has-color', color && !isPresetColor), _defineProperty$7(_classNames, prefixCls + '-close', this.state.closing), _classNames), className);
             // fix https://fb.me/react-unknown-prop
             var divProps = omit(otherProps, ['onClose', 'afterClose', 'visible']);
             var tagStyle = _extends$23({ backgroundColor: color && !isPresetColor ? color : null }, style);
-            var tag = this.state.closed ? null : React.createElement(
+            var tag = this.state.closed ? null : React$1.createElement(
                 'div',
                 _extends$23({ 'data-show': !this.state.closing }, divProps, { className: classString, style: tagStyle }),
                 children,
                 closeIcon
             );
-            return React.createElement(
+            return React$1.createElement(
                 Animate,
                 { component: '', showProp: 'data-show', transitionName: prefixCls + '-zoom', transitionAppear: true, onEnd: this.animationEnd },
                 tag
@@ -41499,7 +41499,7 @@ var Tag = function (_React$Component) {
     }]);
 
     return Tag;
-}(React.Component);
+}(React$1.Component);
 
 Tag.CheckableTag = CheckableTag;
 Tag.defaultProps = {
@@ -41646,14 +41646,14 @@ var RangePicker = function (_React$Component) {
             if (!ranges && !renderExtraFooter) {
                 return null;
             }
-            var customFooter = renderExtraFooter ? React.createElement(
+            var customFooter = renderExtraFooter ? React$1.createElement(
                 'div',
                 { className: prefixCls + '-footer-extra', key: 'extra' },
                 renderExtraFooter.apply(undefined, arguments)
             ) : null;
             var operations = Object.keys(ranges || {}).map(function (range) {
                 var value = ranges[range];
-                return React.createElement(
+                return React$1.createElement(
                     Tag,
                     { key: range, prefixCls: tagPrefixCls, color: 'blue', onClick: function onClick() {
                             return _this.handleRangeClick(value);
@@ -41663,7 +41663,7 @@ var RangePicker = function (_React$Component) {
                     range
                 );
             });
-            var rangeNode = React.createElement(
+            var rangeNode = React$1.createElement(
                 'div',
                 { className: prefixCls + '-footer-extra ' + prefixCls + '-range-quick-selector', key: 'range' },
                 operations
@@ -41752,36 +41752,36 @@ var RangePicker = function (_React$Component) {
             }
             var startPlaceholder = 'placeholder' in props ? props.placeholder[0] : locale.lang.rangePlaceholder[0];
             var endPlaceholder = 'placeholder' in props ? props.placeholder[1] : locale.lang.rangePlaceholder[1];
-            var calendar = React.createElement(RangeCalendar, _extends$23({}, calendarProps, { onChange: onCalendarChange, format: format, prefixCls: prefixCls, className: calendarClassName, renderFooter: this.renderFooter, timePicker: props.timePicker, disabledDate: disabledDate, disabledTime: disabledTime, dateInputPlaceholder: [startPlaceholder, endPlaceholder], locale: locale.lang, onOk: onOk, dateRender: dateRender, value: showDate, onValueChange: this.handleShowDateChange, hoverValue: hoverValue, onHoverChange: this.handleHoverChange, onPanelChange: props.onPanelChange, showToday: showToday, onInputSelect: this.handleCalendarInputSelect }));
+            var calendar = React$1.createElement(RangeCalendar, _extends$23({}, calendarProps, { onChange: onCalendarChange, format: format, prefixCls: prefixCls, className: calendarClassName, renderFooter: this.renderFooter, timePicker: props.timePicker, disabledDate: disabledDate, disabledTime: disabledTime, dateInputPlaceholder: [startPlaceholder, endPlaceholder], locale: locale.lang, onOk: onOk, dateRender: dateRender, value: showDate, onValueChange: this.handleShowDateChange, hoverValue: hoverValue, onHoverChange: this.handleHoverChange, onPanelChange: props.onPanelChange, showToday: showToday, onInputSelect: this.handleCalendarInputSelect }));
             // default width for showTime
             var pickerStyle = {};
             if (props.showTime) {
                 pickerStyle.width = style && style.width || 350;
             }
-            var clearIcon = !props.disabled && props.allowClear && value && (value[0] || value[1]) ? React.createElement(Icon, { type: 'cross-circle', className: prefixCls + '-picker-clear', onClick: this.clearSelection }) : null;
+            var clearIcon = !props.disabled && props.allowClear && value && (value[0] || value[1]) ? React$1.createElement(Icon, { type: 'cross-circle', className: prefixCls + '-picker-clear', onClick: this.clearSelection }) : null;
             var input = function input(_ref3) {
                 var inputValue = _ref3.value;
 
                 var start = inputValue[0];
                 var end = inputValue[1];
-                return React.createElement(
+                return React$1.createElement(
                     'span',
                     { className: props.pickerInputClass },
-                    React.createElement('input', { disabled: props.disabled, readOnly: true, value: start && start.format(props.format) || '', placeholder: startPlaceholder, className: prefixCls + '-range-picker-input', tabIndex: -1 }),
-                    React.createElement(
+                    React$1.createElement('input', { disabled: props.disabled, readOnly: true, value: start && start.format(props.format) || '', placeholder: startPlaceholder, className: prefixCls + '-range-picker-input', tabIndex: -1 }),
+                    React$1.createElement(
                         'span',
                         { className: prefixCls + '-range-picker-separator' },
                         ' ~ '
                     ),
-                    React.createElement('input', { disabled: props.disabled, readOnly: true, value: end && end.format(props.format) || '', placeholder: endPlaceholder, className: prefixCls + '-range-picker-input', tabIndex: -1 }),
+                    React$1.createElement('input', { disabled: props.disabled, readOnly: true, value: end && end.format(props.format) || '', placeholder: endPlaceholder, className: prefixCls + '-range-picker-input', tabIndex: -1 }),
                     clearIcon,
-                    React.createElement('span', { className: prefixCls + '-picker-icon' })
+                    React$1.createElement('span', { className: prefixCls + '-picker-icon' })
                 );
             };
-            return React.createElement(
+            return React$1.createElement(
                 'span',
                 { ref: this.savePicker, id: props.id, className: classnames(props.className, props.pickerClass), style: _extends$23({}, style, pickerStyle), tabIndex: props.disabled ? -1 : 0, onFocus: props.onFocus, onBlur: props.onBlur, onMouseEnter: props.onMouseEnter, onMouseLeave: props.onMouseLeave },
-                React.createElement(
+                React$1.createElement(
                     Picker,
                     _extends$23({}, props, pickerChangeHandler, { calendar: calendar, value: value, open: open, onOpenChange: this.handleOpenChange, prefixCls: prefixCls + '-picker-container', style: popupStyle }),
                     input
@@ -41809,7 +41809,7 @@ var RangePicker = function (_React$Component) {
     }]);
 
     return RangePicker;
-}(React.Component);
+}(React$1.Component);
 
 RangePicker.defaultProps = {
     prefixCls: 'ant-calendar',
@@ -41836,17 +41836,17 @@ var WeekPicker = function (_React$Component) {
             var prefixCls = _this.props.prefixCls;
 
             if (selectedValue && current.year() === selectedValue.year() && current.week() === selectedValue.week()) {
-                return React.createElement(
+                return React$1.createElement(
                     'div',
                     { className: prefixCls + '-selected-day' },
-                    React.createElement(
+                    React$1.createElement(
                         'div',
                         { className: prefixCls + '-date' },
                         current.date()
                     )
                 );
             }
-            return React.createElement(
+            return React$1.createElement(
                 'div',
                 { className: prefixCls + '-date' },
                 current.date()
@@ -41912,23 +41912,23 @@ var WeekPicker = function (_React$Component) {
                 pickerValue.locale(localeCode);
             }
             var placeholder = 'placeholder' in this.props ? this.props.placeholder : locale.lang.placeholder;
-            var calendar = React.createElement(Calendar$1, { showWeekNumber: true, dateRender: this.weekDateRender, prefixCls: prefixCls, format: format, locale: locale.lang, showDateInput: false, showToday: false, disabledDate: disabledDate });
-            var clearIcon = !disabled && allowClear && this.state.value ? React.createElement(Icon, { type: 'cross-circle', className: prefixCls + '-picker-clear', onClick: this.clearSelection }) : null;
+            var calendar = React$1.createElement(Calendar$1, { showWeekNumber: true, dateRender: this.weekDateRender, prefixCls: prefixCls, format: format, locale: locale.lang, showDateInput: false, showToday: false, disabledDate: disabledDate });
+            var clearIcon = !disabled && allowClear && this.state.value ? React$1.createElement(Icon, { type: 'cross-circle', className: prefixCls + '-picker-clear', onClick: this.clearSelection }) : null;
             var input = function input(_ref) {
                 var value = _ref.value;
 
-                return React.createElement(
+                return React$1.createElement(
                     'span',
                     null,
-                    React.createElement('input', { ref: _this2.saveInput, disabled: disabled, readOnly: true, value: value && value.format(format) || '', placeholder: placeholder, className: pickerInputClass, onFocus: onFocus, onBlur: onBlur, style: style }),
+                    React$1.createElement('input', { ref: _this2.saveInput, disabled: disabled, readOnly: true, value: value && value.format(format) || '', placeholder: placeholder, className: pickerInputClass, onFocus: onFocus, onBlur: onBlur, style: style }),
                     clearIcon,
-                    React.createElement('span', { className: prefixCls + '-picker-icon' })
+                    React$1.createElement('span', { className: prefixCls + '-picker-icon' })
                 );
             };
-            return React.createElement(
+            return React$1.createElement(
                 'span',
                 { className: classnames(className, pickerClass), id: this.props.id },
-                React.createElement(
+                React$1.createElement(
                     Picker,
                     _extends$23({}, this.props, { calendar: calendar, prefixCls: prefixCls + '-picker-container', value: pickerValue, onChange: this.handleChange, style: popupStyle }),
                     input
@@ -41946,7 +41946,7 @@ var WeekPicker = function (_React$Component) {
     }]);
 
     return WeekPicker;
-}(React.Component);
+}(React$1.Component);
 
 WeekPicker.defaultProps = {
     format: 'gggg-wo',
@@ -42070,7 +42070,7 @@ var Dropdown = function (_Component) {
     if (typeof overlay.type === 'string') {
       delete extraOverlayProps.prefixCls;
     }
-    return React__default.cloneElement(overlay, extraOverlayProps);
+    return React$1__default.cloneElement(overlay, extraOverlayProps);
   };
 
   Dropdown.prototype.getPopupDomNode = function getPopupDomNode() {
@@ -42098,7 +42098,7 @@ var Dropdown = function (_Component) {
       triggerHideAction = ['click'];
     }
 
-    return React__default.createElement(
+    return React$1__default.createElement(
       Trigger,
       _extends$28({}, otherProps, {
         prefixCls: prefixCls,
@@ -42124,7 +42124,7 @@ var Dropdown = function (_Component) {
   };
 
   return Dropdown;
-}(React.Component);
+}(React$1.Component);
 
 Dropdown.propTypes = {
   minOverlayWidthMatchTrigger: propTypes.bool,
@@ -42266,9 +42266,9 @@ var Dropdown$1 = function (_React$Component) {
                 trigger = _props2.trigger,
                 disabled = _props2.disabled;
 
-            var child = React.Children.only(children);
-            var overlay = React.Children.only(overlayElements);
-            var dropdownTrigger = React.cloneElement(child, {
+            var child = React$1.Children.only(children);
+            var overlay = React$1.Children.only(overlayElements);
+            var dropdownTrigger = React$1.cloneElement(child, {
                 className: classnames(child.props.className, prefixCls + '-trigger'),
                 disabled: disabled
             });
@@ -42280,7 +42280,7 @@ var Dropdown$1 = function (_React$Component) {
                 _overlay$props$focusa = _overlay$props.focusable,
                 focusable = _overlay$props$focusa === undefined ? true : _overlay$props$focusa;
 
-            var fixedModeOverlay = typeof overlay.type === 'string' ? overlay : React.cloneElement(overlay, {
+            var fixedModeOverlay = typeof overlay.type === 'string' ? overlay : React$1.cloneElement(overlay, {
                 mode: 'vertical',
                 selectable: selectable,
                 focusable: focusable
@@ -42290,7 +42290,7 @@ var Dropdown$1 = function (_React$Component) {
             if (triggerActions && triggerActions.indexOf('contextMenu') !== -1) {
                 alignPoint = true;
             }
-            return React.createElement(
+            return React$1.createElement(
                 Dropdown,
                 _extends$23({ alignPoint: alignPoint }, this.props, { transitionName: this.getTransitionName(), trigger: triggerActions, overlay: fixedModeOverlay }),
                 dropdownTrigger
@@ -42299,7 +42299,7 @@ var Dropdown$1 = function (_React$Component) {
     }]);
 
     return Dropdown$$1;
-}(React.Component);
+}(React$1.Component);
 
 Dropdown$1.defaultProps = {
     prefixCls: 'ant-dropdown',
@@ -42357,25 +42357,25 @@ var DropdownButton = function (_React$Component) {
             if ('visible' in this.props) {
                 dropdownProps.visible = visible;
             }
-            return React.createElement(
+            return React$1.createElement(
                 ButtonGroup$1,
                 _extends$23({}, restProps, { className: classnames(prefixCls, className) }),
-                React.createElement(
+                React$1.createElement(
                     Button,
                     { type: type, disabled: disabled, onClick: onClick },
                     children
                 ),
-                React.createElement(
+                React$1.createElement(
                     Dropdown$1,
                     dropdownProps,
-                    React.createElement(Button, { type: type, icon: 'ellipsis' })
+                    React$1.createElement(Button, { type: type, icon: 'ellipsis' })
                 )
             );
         }
     }]);
 
     return DropdownButton;
-}(React.Component);
+}(React$1.Component);
 
 DropdownButton.defaultProps = {
     placement: 'bottomRight',
@@ -42611,7 +42611,7 @@ var Drawer = function (_React$PureComponent) {
       currentDrawer[this.drawerId] = open ? this.container : open;
       var children = this.getChildToRender(this.firstEnter ? open : false);
       if (!getContainer) {
-        return React__default.createElement(
+        return React$1__default.createElement(
           'div',
           {
             className: wrapperClassName,
@@ -42627,7 +42627,7 @@ var Drawer = function (_React$PureComponent) {
       }
       // suppport react15
       if (!IS_REACT_16$1) {
-        return React__default.createElement(
+        return React$1__default.createElement(
           ContainerRender,
           {
             parent: this,
@@ -42654,7 +42654,7 @@ var Drawer = function (_React$PureComponent) {
   }]);
 
   return Drawer;
-}(React__default.PureComponent);
+}(React$1__default.PureComponent);
 
 Drawer.defaultProps = {
   prefixCls: 'drawer',
@@ -42666,10 +42666,10 @@ Drawer.defaultProps = {
   onChange: function onChange() {},
   onMaskClick: function onMaskClick() {},
   onHandleClick: function onHandleClick() {},
-  handler: React__default.createElement(
+  handler: React$1__default.createElement(
     'div',
     { className: 'drawer-handle' },
-    React__default.createElement('i', { className: 'drawer-handle-icon' })
+    React$1__default.createElement('i', { className: 'drawer-handle-icon' })
   ),
   firstEnter: false,
   showMask: true,
@@ -42909,7 +42909,7 @@ var _initialiseProps$14 = function _initialiseProps() {
       var value = (isHorizontal ? width : height) || contentValue;
       _this3.setLevelDomTransform(open, false, placementName, value);
     }
-    var handlerCildren = handler && React__default.cloneElement(handler, {
+    var handlerCildren = handler && React$1__default.cloneElement(handler, {
       onClick: function onClick(e) {
         if (handler.props.onClick) {
           handler.props.onClick();
@@ -42920,7 +42920,7 @@ var _initialiseProps$14 = function _initialiseProps() {
         _this3.handlerdom = c;
       }
     });
-    return React__default.createElement(
+    return React$1__default.createElement(
       'div',
       {
         className: wrapperClassname,
@@ -42930,7 +42930,7 @@ var _initialiseProps$14 = function _initialiseProps() {
         },
         onTransitionEnd: _this3.onWrapperTransitionEnd
       },
-      showMask && React__default.createElement('div', {
+      showMask && React$1__default.createElement('div', {
         className: prefixCls + '-mask',
         onClick: _this3.onMaskTouchEnd,
         style: maskStyle,
@@ -42938,7 +42938,7 @@ var _initialiseProps$14 = function _initialiseProps() {
           _this3.maskDom = c;
         }
       }),
-      React__default.createElement(
+      React$1__default.createElement(
         'div',
         {
           className: prefixCls + '-content-wrapper',
@@ -42948,7 +42948,7 @@ var _initialiseProps$14 = function _initialiseProps() {
             height: isNumeric(height) ? height + 'px' : height
           }
         },
-        React__default.createElement(
+        React$1__default.createElement(
           'div',
           {
             className: prefixCls + '-content',
@@ -43094,7 +43094,7 @@ exports.__esModule = true;
 
 
 
-var _react2 = _interopRequireDefault(React__default);
+var _react2 = _interopRequireDefault(React$1__default);
 
 
 
@@ -43206,7 +43206,7 @@ function createReactContext(defaultValue, calculateChangedBits) {
     };
 
     return Provider;
-  }(React__default.Component);
+  }(React$1__default.Component);
 
   Provider.childContextTypes = (_Provider$childContex = {}, _Provider$childContex[contextProp] = _propTypes2.default.object.isRequired, _Provider$childContex);
 
@@ -43268,7 +43268,7 @@ function createReactContext(defaultValue, calculateChangedBits) {
     };
 
     return Consumer;
-  }(React__default.Component);
+  }(React$1__default.Component);
 
   Consumer.contextTypes = (_Consumer$contextType = {}, _Consumer$contextType[contextProp] = _propTypes2.default.object, _Consumer$contextType);
 
@@ -43291,7 +43291,7 @@ exports.__esModule = true;
 
 
 
-var _react2 = _interopRequireDefault(React__default);
+var _react2 = _interopRequireDefault(React$1__default);
 
 
 
@@ -43387,10 +43387,10 @@ var Drawer$1 = function (_React$Component) {
 
             var header = void 0;
             if (title) {
-                header = React.createElement(
+                header = React$1.createElement(
                     'div',
                     { className: prefixCls + '-header' },
-                    React.createElement(
+                    React$1.createElement(
                         'div',
                         { className: prefixCls + '-title' },
                         title
@@ -43399,18 +43399,18 @@ var Drawer$1 = function (_React$Component) {
             }
             var closer = void 0;
             if (closable) {
-                closer = React.createElement(
+                closer = React$1.createElement(
                     'button',
                     { onClick: _this.close, 'aria-label': 'Close', className: prefixCls + '-close' },
-                    React.createElement('span', { className: prefixCls + '-close-x' })
+                    React$1.createElement('span', { className: prefixCls + '-close-x' })
                 );
             }
-            return React.createElement(
+            return React$1.createElement(
                 'div',
                 { className: prefixCls + '-wrapper-body', style: containerStyle, onTransitionEnd: _this.onDestoryTransitionEnd },
                 header,
                 closer,
-                React.createElement(
+                React$1.createElement(
                     'div',
                     { className: prefixCls + '-body', style: _this.props.style },
                     _this.props.children
@@ -43431,10 +43431,10 @@ var Drawer$1 = function (_React$Component) {
                 transform: 'translateX(' + (placement === 'left' ? 180 : -180) + 'px)'
             } : { zIndex: zIndex };
             _this.praentDrawer = value;
-            return React.createElement(
+            return React$1.createElement(
                 DrawerContext.Provider,
                 { value: _this },
-                React.createElement(
+                React$1.createElement(
                     Drawer,
                     _extends$23({}, rest, { handler: false, open: _this.props.visible, onMaskClick: _this.onMaskClick, showMask: _this.props.mask, placement: placement, style: RcDrawerStyle, className: classnames(wrapClassName, className) }),
                     _this.renderBody()
@@ -43458,7 +43458,7 @@ var Drawer$1 = function (_React$Component) {
     }, {
         key: 'render',
         value: function render() {
-            return React.createElement(
+            return React$1.createElement(
                 DrawerContext.Consumer,
                 null,
                 this.renderProvider
@@ -43467,7 +43467,7 @@ var Drawer$1 = function (_React$Component) {
     }]);
 
     return Drawer$$1;
-}(React.Component);
+}(React$1.Component);
 
 Drawer$1.propTypes = {
     closable: propTypes.bool,
@@ -46552,7 +46552,7 @@ function createBaseForm() {
           var originalProps = fieldElem.props;
           fieldMeta.originalProps = originalProps;
           fieldMeta.ref = fieldElem.ref;
-          return React__default.cloneElement(fieldElem, _extends$23({}, props, _this2.fieldsStore.getFieldValuePropValue(fieldMeta)));
+          return React$1__default.cloneElement(fieldElem, _extends$23({}, props, _this2.fieldsStore.getFieldValuePropValue(fieldMeta)));
         };
       },
       getFieldProps: function getFieldProps(name) {
@@ -46885,7 +46885,7 @@ function createBaseForm() {
           formProps.ref = wrappedComponentRef;
         }
         var props = mapProps.call(this, _extends$23({}, formProps, restProps));
-        return React__default.createElement(WrappedComponent, props);
+        return React$1__default.createElement(WrappedComponent, props);
       }
     });
 
@@ -47084,7 +47084,7 @@ var FormItem = function (_React$Component) {
                 var errors = this.getField().errors;
                 if (errors) {
                     return intersperse_1(errors.map(function (e, index) {
-                        return React.isValidElement(e.message) ? React.cloneElement(e.message, { key: index }) : e.message;
+                        return React$1.isValidElement(e.message) ? React$1.cloneElement(e.message, { key: index }) : e.message;
                     }), ' ');
                 }
                 return '';
@@ -47095,7 +47095,7 @@ var FormItem = function (_React$Component) {
         key: 'getControls',
         value: function getControls(children, recursively) {
             var controls = [];
-            var childrenArray = React.Children.toArray(children);
+            var childrenArray = React$1.Children.toArray(children);
             for (var i = 0; i < childrenArray.length; i++) {
                 if (!recursively && controls.length > 0) {
                     break;
@@ -47148,7 +47148,7 @@ var FormItem = function (_React$Component) {
         value: function renderHelp() {
             var prefixCls = this.props.prefixCls;
             var help = this.getHelpMessage();
-            var children = help ? React.createElement(
+            var children = help ? React$1.createElement(
                 'div',
                 { className: prefixCls + '-explain', key: 'help' },
                 help
@@ -47156,7 +47156,7 @@ var FormItem = function (_React$Component) {
             if (children) {
                 this.helpShow = !!children;
             }
-            return React.createElement(
+            return React$1.createElement(
                 Animate,
                 { transitionName: 'show-help', component: '', transitionAppear: true, key: 'help', onEnd: this.onHelpAnimEnd },
                 children
@@ -47169,7 +47169,7 @@ var FormItem = function (_React$Component) {
                 prefixCls = _props.prefixCls,
                 extra = _props.extra;
 
-            return extra ? React.createElement(
+            return extra ? React$1.createElement(
                 'div',
                 { className: prefixCls + '-extra' },
                 extra
@@ -47211,10 +47211,10 @@ var FormItem = function (_React$Component) {
                     'is-validating': validateStatus === 'validating'
                 });
             }
-            return React.createElement(
+            return React$1.createElement(
                 'div',
                 { className: classes },
-                React.createElement(
+                React$1.createElement(
                     'span',
                     { className: this.props.prefixCls + '-item-children' },
                     c1
@@ -47231,7 +47231,7 @@ var FormItem = function (_React$Component) {
                 wrapperCol = _props2.wrapperCol;
 
             var className = classnames(prefixCls + '-item-control-wrapper', wrapperCol && wrapperCol.className);
-            return React.createElement(
+            return React$1.createElement(
                 Col,
                 _extends$23({}, wrapperCol, { className: className, key: 'wrapper' }),
                 children
@@ -47279,10 +47279,10 @@ var FormItem = function (_React$Component) {
             if (haveColon && typeof label === 'string' && label.trim() !== '') {
                 labelChildren = label.replace(/[：|:]\s*$/, '');
             }
-            return label ? React.createElement(
+            return label ? React$1.createElement(
                 Col,
                 _extends$23({}, labelCol, { className: labelColClassName, key: 'label' }),
-                React.createElement(
+                React$1.createElement(
                     'label',
                     { htmlFor: id || this.getId(), className: labelClassName, title: typeof label === 'string' ? label : '', onClick: this.onLabelClick },
                     labelChildren
@@ -47305,7 +47305,7 @@ var FormItem = function (_React$Component) {
             var prefixCls = props.prefixCls;
             var style = props.style;
             var itemClassName = (_itemClassName = {}, _defineProperty$7(_itemClassName, prefixCls + '-item', true), _defineProperty$7(_itemClassName, prefixCls + '-item-with-help', this.helpShow), _defineProperty$7(_itemClassName, prefixCls + '-item-no-colon', !props.colon), _defineProperty$7(_itemClassName, '' + props.className, !!props.className), _itemClassName);
-            return React.createElement(
+            return React$1.createElement(
                 Row,
                 { className: classnames(itemClassName), style: style },
                 children
@@ -47320,7 +47320,7 @@ var FormItem = function (_React$Component) {
     }]);
 
     return FormItem;
-}(React.Component);
+}(React$1.Component);
 
 FormItem.defaultProps = {
     hasFeedback: false,
@@ -47379,12 +47379,12 @@ var Form$1 = function (_React$Component) {
 
             var formClassName = classnames(prefixCls, (_classNames = {}, _defineProperty$7(_classNames, prefixCls + '-horizontal', layout === 'horizontal'), _defineProperty$7(_classNames, prefixCls + '-vertical', layout === 'vertical'), _defineProperty$7(_classNames, prefixCls + '-inline', layout === 'inline'), _defineProperty$7(_classNames, prefixCls + '-hide-required-mark', hideRequiredMark), _classNames), className);
             var formProps = omit(this.props, ['prefixCls', 'className', 'layout', 'form', 'hideRequiredMark']);
-            return React.createElement('form', _extends$23({}, formProps, { className: formClassName }));
+            return React$1.createElement('form', _extends$23({}, formProps, { className: formClassName }));
         }
     }]);
 
     return Form;
-}(React.Component);
+}(React$1.Component);
 
 Form$1.defaultProps = {
     prefixCls: 'ant-form',
@@ -47494,7 +47494,7 @@ var TouchFeedback = function (_React$Component) {
                 onMouseUp: this.onMouseUp,
                 onMouseLeave: this.onMouseLeave
             };
-            var child = React__default.Children.only(children);
+            var child = React$1__default.Children.only(children);
             if (!disabled && this.state.active) {
                 var _child$props = child.props,
                     style = _child$props.style,
@@ -47506,15 +47506,15 @@ var TouchFeedback = function (_React$Component) {
                     }
                     className = classnames(className, activeClassName);
                 }
-                return React__default.cloneElement(child, _extends$23({ className: className,
+                return React$1__default.cloneElement(child, _extends$23({ className: className,
                     style: style }, events));
             }
-            return React__default.cloneElement(child, events);
+            return React$1__default.cloneElement(child, events);
         }
     }]);
 
     return TouchFeedback;
-}(React__default.Component);
+}(React$1__default.Component);
 
 TouchFeedback.defaultProps = {
     disabled: false
@@ -47535,18 +47535,18 @@ var InputHandler = function (_Component) {
         disabled = _props.disabled,
         otherProps = _objectWithoutProperties$12(_props, ['prefixCls', 'disabled']);
 
-    return React__default.createElement(
+    return React$1__default.createElement(
       TouchFeedback,
       {
         disabled: disabled,
         activeClassName: prefixCls + '-handler-active'
       },
-      React__default.createElement('span', otherProps)
+      React$1__default.createElement('span', otherProps)
     );
   };
 
   return InputHandler;
-}(React.Component);
+}(React$1.Component);
 
 InputHandler.propTypes = {
   prefixCls: propTypes.string,
@@ -48037,7 +48037,7 @@ var InputNumber = function (_React$Component) {
     var isUpDisabled = !!upDisabledClass || disabled || readOnly;
     var isDownDisabled = !!downDisabledClass || disabled || readOnly;
     // ref for test
-    return React__default.createElement(
+    return React$1__default.createElement(
       'div',
       {
         className: classes,
@@ -48047,10 +48047,10 @@ var InputNumber = function (_React$Component) {
         onMouseOver: props.onMouseOver,
         onMouseOut: props.onMouseOut
       },
-      React__default.createElement(
+      React$1__default.createElement(
         'div',
         { className: prefixCls + '-handler-wrap' },
-        React__default.createElement(
+        React$1__default.createElement(
           InputHandler,
           _extends$23({
             ref: this.saveUp,
@@ -48063,13 +48063,13 @@ var InputNumber = function (_React$Component) {
             'aria-disabled': !!isUpDisabled,
             className: prefixCls + '-handler ' + prefixCls + '-handler-up ' + upDisabledClass
           }),
-          this.props.upHandler || React__default.createElement('span', {
+          this.props.upHandler || React$1__default.createElement('span', {
             unselectable: 'unselectable',
             className: prefixCls + '-handler-up-inner',
             onClick: preventDefault
           })
         ),
-        React__default.createElement(
+        React$1__default.createElement(
           InputHandler,
           _extends$23({
             ref: this.saveDown,
@@ -48082,14 +48082,14 @@ var InputNumber = function (_React$Component) {
             'aria-disabled': !!isDownDisabled,
             className: prefixCls + '-handler ' + prefixCls + '-handler-down ' + downDisabledClass
           }),
-          this.props.downHandler || React__default.createElement('span', {
+          this.props.downHandler || React$1__default.createElement('span', {
             unselectable: 'unselectable',
             className: prefixCls + '-handler-down-inner',
             onClick: preventDefault
           })
         )
       ),
-      React__default.createElement(
+      React$1__default.createElement(
         'div',
         {
           className: prefixCls + '-input-wrap',
@@ -48098,7 +48098,7 @@ var InputNumber = function (_React$Component) {
           'aria-valuemax': props.max,
           'aria-valuenow': value
         },
-        React__default.createElement('input', _extends$23({
+        React$1__default.createElement('input', _extends$23({
           required: props.required,
           type: props.type,
           placeholder: props.placeholder,
@@ -48130,7 +48130,7 @@ var InputNumber = function (_React$Component) {
   };
 
   return InputNumber;
-}(React__default.Component);
+}(React$1__default.Component);
 
 InputNumber.propTypes = {
   value: propTypes.oneOfType([propTypes.number, propTypes.string]),
@@ -48395,7 +48395,7 @@ var InputNumber$1 = function (_React$Component) {
                 size = _a.size,
                 others = __rest$20(_a, ["className", "size"]);
             var inputNumberClass = classnames((_classNames = {}, _defineProperty$7(_classNames, this.props.prefixCls + '-lg', size === 'large'), _defineProperty$7(_classNames, this.props.prefixCls + '-sm', size === 'small'), _classNames), className);
-            return React.createElement(InputNumber, _extends$23({ ref: function ref(c) {
+            return React$1.createElement(InputNumber, _extends$23({ ref: function ref(c) {
                     return _this2.inputNumberRef = c;
                 }, className: inputNumberClass }, others));
         }
@@ -48412,7 +48412,7 @@ var InputNumber$1 = function (_React$Component) {
     }]);
 
     return InputNumber$$1;
-}(React.Component);
+}(React$1.Component);
 
 InputNumber$1.defaultProps = {
     prefixCls: 'ant-input-number',
@@ -48443,12 +48443,12 @@ function generator(props) {
                 value: function render() {
                     var prefixCls = props.prefixCls;
 
-                    return React.createElement(BasicComponent, _extends$23({ prefixCls: prefixCls }, this.props));
+                    return React$1.createElement(BasicComponent, _extends$23({ prefixCls: prefixCls }, this.props));
                 }
             }]);
 
             return Adapter;
-        }(React.Component);
+        }(React$1.Component);
     };
 }
 
@@ -48470,7 +48470,7 @@ var Basic = function (_React$Component2) {
                 children = _a.children,
                 others = __rest$21(_a, ["prefixCls", "className", "children"]);
             var divCls = classnames(className, prefixCls);
-            return React.createElement(
+            return React$1.createElement(
                 'div',
                 _extends$23({ className: divCls }, others),
                 children
@@ -48479,7 +48479,7 @@ var Basic = function (_React$Component2) {
     }]);
 
     return Basic;
-}(React.Component);
+}(React$1.Component);
 
 var BasicLayout = function (_React$Component3) {
     _inherits$14(BasicLayout, _React$Component3);
@@ -48525,7 +48525,7 @@ var BasicLayout = function (_React$Component3) {
                 hasSider = _a.hasSider,
                 others = __rest$21(_a, ["prefixCls", "className", "children", "hasSider"]);
             var divCls = classnames(className, prefixCls, _defineProperty$7({}, prefixCls + '-has-sider', hasSider || this.state.siders.length > 0));
-            return React.createElement(
+            return React$1.createElement(
                 'div',
                 _extends$23({ className: divCls }, others),
                 children
@@ -48534,7 +48534,7 @@ var BasicLayout = function (_React$Component3) {
     }]);
 
     return BasicLayout;
-}(React.Component);
+}(React$1.Component);
 
 BasicLayout.childContextTypes = {
     siderHook: propTypes.object
@@ -48716,28 +48716,28 @@ var Sider = function (_React$Component) {
             // use "px" as fallback unit for width
             var siderWidth = isNumeric$1(rawWidth) ? rawWidth + 'px' : String(rawWidth);
             // special trigger when collapsedWidth == 0
-            var zeroWidthTrigger = parseFloat(String(collapsedWidth || 0)) === 0 ? React.createElement(
+            var zeroWidthTrigger = parseFloat(String(collapsedWidth || 0)) === 0 ? React$1.createElement(
                 'span',
                 { onClick: this.toggle, className: prefixCls + '-zero-width-trigger' },
-                React.createElement(Icon, { type: 'bars' })
+                React$1.createElement(Icon, { type: 'bars' })
             ) : null;
             var iconObj = {
-                'expanded': reverseArrow ? React.createElement(Icon, { type: 'right' }) : React.createElement(Icon, { type: 'left' }),
-                'collapsed': reverseArrow ? React.createElement(Icon, { type: 'left' }) : React.createElement(Icon, { type: 'right' })
+                'expanded': reverseArrow ? React$1.createElement(Icon, { type: 'right' }) : React$1.createElement(Icon, { type: 'left' }),
+                'collapsed': reverseArrow ? React$1.createElement(Icon, { type: 'left' }) : React$1.createElement(Icon, { type: 'right' })
             };
             var status = this.state.collapsed ? 'collapsed' : 'expanded';
             var defaultTrigger = iconObj[status];
-            var triggerDom = trigger !== null ? zeroWidthTrigger || React.createElement(
+            var triggerDom = trigger !== null ? zeroWidthTrigger || React$1.createElement(
                 'div',
                 { className: prefixCls + '-trigger', onClick: this.toggle, style: { width: siderWidth } },
                 trigger || defaultTrigger
             ) : null;
             var divStyle = _extends$23({}, style, { flex: '0 0 ' + siderWidth, maxWidth: siderWidth, minWidth: siderWidth, width: siderWidth });
             var siderCls = classnames(className, prefixCls, prefixCls + '-' + theme, (_classNames = {}, _defineProperty$7(_classNames, prefixCls + '-collapsed', !!this.state.collapsed), _defineProperty$7(_classNames, prefixCls + '-has-trigger', collapsible && trigger !== null && !zeroWidthTrigger), _defineProperty$7(_classNames, prefixCls + '-below', !!this.state.below), _defineProperty$7(_classNames, prefixCls + '-zero-width', parseFloat(siderWidth) === 0), _classNames));
-            return React.createElement(
+            return React$1.createElement(
                 'div',
                 _extends$23({ className: siderCls }, divProps, { style: divStyle }),
-                React.createElement(
+                React$1.createElement(
                     'div',
                     { className: prefixCls + '-children' },
                     this.props.children
@@ -48748,7 +48748,7 @@ var Sider = function (_React$Component) {
     }]);
 
     return Sider;
-}(React.Component);
+}(React$1.Component);
 
 Sider.__ANT_LAYOUT_SIDER = true;
 Sider.defaultProps = {
@@ -48786,23 +48786,23 @@ function renderIndicator(props) {
         indicator = props.indicator;
 
     var dotClassName = prefixCls + '-dot';
-    if (React.isValidElement(indicator)) {
-        return React.cloneElement(indicator, {
+    if (React$1.isValidElement(indicator)) {
+        return React$1.cloneElement(indicator, {
             className: classnames(indicator.props.className, dotClassName)
         });
     }
-    if (React.isValidElement(defaultIndicator)) {
-        return React.cloneElement(defaultIndicator, {
+    if (React$1.isValidElement(defaultIndicator)) {
+        return React$1.cloneElement(defaultIndicator, {
             className: classnames(defaultIndicator.props.className, dotClassName)
         });
     }
-    return React.createElement(
+    return React$1.createElement(
         'span',
         { className: classnames(dotClassName, prefixCls + '-dot-spin') },
-        React.createElement('i', null),
-        React.createElement('i', null),
-        React.createElement('i', null),
-        React.createElement('i', null)
+        React$1.createElement('i', null),
+        React$1.createElement('i', null),
+        React$1.createElement('i', null),
+        React$1.createElement('i', null)
     );
 }
 
@@ -48900,11 +48900,11 @@ var Spin = function (_React$Component) {
             var spinClassName = classnames(prefixCls, (_classNames = {}, _defineProperty$7(_classNames, prefixCls + '-sm', size === 'small'), _defineProperty$7(_classNames, prefixCls + '-lg', size === 'large'), _defineProperty$7(_classNames, prefixCls + '-spinning', spinning), _defineProperty$7(_classNames, prefixCls + '-show-text', !!tip), _classNames), className);
             // fix https://fb.me/react-unknown-prop
             var divProps = omit(restProps, ['spinning', 'delay', 'indicator']);
-            var spinElement = React.createElement(
+            var spinElement = React$1.createElement(
                 'div',
                 _extends$23({}, divProps, { className: spinClassName }),
                 renderIndicator(this.props),
-                tip ? React.createElement(
+                tip ? React$1.createElement(
                     'div',
                     { className: prefixCls + '-text' },
                     tip
@@ -48918,15 +48918,15 @@ var Spin = function (_React$Component) {
                     animateClassName += ' ' + wrapperClassName;
                 }
                 var containerClassName = classnames((_classNames2 = {}, _defineProperty$7(_classNames2, prefixCls + '-container', true), _defineProperty$7(_classNames2, prefixCls + '-blur', spinning), _classNames2));
-                return React.createElement(
+                return React$1.createElement(
                     Animate,
                     _extends$23({}, divProps, { component: 'div', className: animateClassName, style: null, transitionName: 'fade' }),
-                    spinning && React.createElement(
+                    spinning && React$1.createElement(
                         'div',
                         { key: 'loading' },
                         spinElement
                     ),
-                    React.createElement(
+                    React$1.createElement(
                         'div',
                         { className: containerClassName, key: 'container' },
                         this.props.children
@@ -48943,7 +48943,7 @@ var Spin = function (_React$Component) {
     }]);
 
     return Spin;
-}(React.Component);
+}(React$1.Component);
 
 Spin.defaultProps = {
     prefixCls: 'ant-spin',
@@ -48980,7 +48980,7 @@ var Pager = function Pager(props) {
     props.onKeyPress(e, props.onClick, props.page);
   };
 
-  return React__default.createElement(
+  return React$1__default.createElement(
     'li',
     {
       title: props.showTitle ? props.page : null,
@@ -48989,7 +48989,7 @@ var Pager = function Pager(props) {
       onKeyPress: handleKeyPress,
       tabIndex: '0'
     },
-    props.itemRender(props.page, 'page', React__default.createElement(
+    props.itemRender(props.page, 'page', React$1__default.createElement(
       'a',
       null,
       props.page
@@ -49091,14 +49091,14 @@ var Options = function (_React$Component) {
         var Option = Select.Option;
         var pageSize = props.pageSize || props.pageSizeOptions[0];
         var options = props.pageSizeOptions.map(function (opt, i) {
-          return React__default.createElement(
+          return React$1__default.createElement(
             Option,
             { key: i, value: opt },
             buildOptionText(opt)
           );
         });
 
-        changeSelect = React__default.createElement(
+        changeSelect = React$1__default.createElement(
           Select,
           {
             prefixCls: props.selectPrefixCls,
@@ -49119,7 +49119,7 @@ var Options = function (_React$Component) {
       if (quickGo) {
         if (goButton) {
           if (typeof goButton === 'boolean') {
-            gotoButton = React__default.createElement(
+            gotoButton = React$1__default.createElement(
               'button',
               {
                 type: 'button',
@@ -49129,7 +49129,7 @@ var Options = function (_React$Component) {
               locale.jump_to_confirm
             );
           } else {
-            gotoButton = React__default.createElement(
+            gotoButton = React$1__default.createElement(
               'span',
               {
                 onClick: this.go,
@@ -49139,11 +49139,11 @@ var Options = function (_React$Component) {
             );
           }
         }
-        goInput = React__default.createElement(
+        goInput = React$1__default.createElement(
           'div',
           { className: prefixCls + '-quick-jumper' },
           locale.jump_to,
-          React__default.createElement('input', {
+          React$1__default.createElement('input', {
             type: 'text',
             value: state.goInputText,
             onChange: this.handleChange,
@@ -49154,7 +49154,7 @@ var Options = function (_React$Component) {
         );
       }
 
-      return React__default.createElement(
+      return React$1__default.createElement(
         'li',
         { className: '' + prefixCls },
         changeSelect,
@@ -49164,7 +49164,7 @@ var Options = function (_React$Component) {
   }]);
 
   return Options;
-}(React__default.Component);
+}(React$1__default.Component);
 
 Options.propTypes = {
   changeSize: propTypes.func,
@@ -49337,7 +49337,7 @@ var Pagination = function (_React$Component) {
       if (props.simple) {
         if (goButton) {
           if (typeof goButton === 'boolean') {
-            gotoButton = React__default.createElement(
+            gotoButton = React$1__default.createElement(
               'button',
               {
                 type: 'button',
@@ -49347,7 +49347,7 @@ var Pagination = function (_React$Component) {
               locale.jump_to_confirm
             );
           } else {
-            gotoButton = React__default.createElement(
+            gotoButton = React$1__default.createElement(
               'span',
               {
                 onClick: this.handleGoTO,
@@ -49356,7 +49356,7 @@ var Pagination = function (_React$Component) {
               goButton
             );
           }
-          gotoButton = React__default.createElement(
+          gotoButton = React$1__default.createElement(
             'li',
             {
               title: props.showTitle ? '' + locale.jump_to + this.state.current + '/' + allPages : null,
@@ -49366,14 +49366,14 @@ var Pagination = function (_React$Component) {
           );
         }
 
-        return React__default.createElement(
+        return React$1__default.createElement(
           'ul',
           _extends$23({
             className: prefixCls + ' ' + prefixCls + '-simple ' + props.className,
             style: props.style,
             ref: this.savePaginationNode
           }, dataOrAriaAttributeProps),
-          React__default.createElement(
+          React$1__default.createElement(
             'li',
             {
               title: props.showTitle ? locale.prev_page : null,
@@ -49383,15 +49383,15 @@ var Pagination = function (_React$Component) {
               className: (this.hasPrev() ? '' : prefixCls + '-disabled') + ' ' + prefixCls + '-prev',
               'aria-disabled': !this.hasPrev()
             },
-            props.itemRender(prevPage, 'prev', React__default.createElement('a', { className: prefixCls + '-item-link' }))
+            props.itemRender(prevPage, 'prev', React$1__default.createElement('a', { className: prefixCls + '-item-link' }))
           ),
-          React__default.createElement(
+          React$1__default.createElement(
             'li',
             {
               title: props.showTitle ? this.state.current + '/' + allPages : null,
               className: prefixCls + '-simple-pager'
             },
-            React__default.createElement('input', {
+            React$1__default.createElement('input', {
               type: 'text',
               value: this.state.currentInputValue,
               onKeyDown: this.handleKeyDown,
@@ -49399,14 +49399,14 @@ var Pagination = function (_React$Component) {
               onChange: this.handleKeyUp,
               size: '3'
             }),
-            React__default.createElement(
+            React$1__default.createElement(
               'span',
               { className: prefixCls + '-slash' },
               '\uFF0F'
             ),
             allPages
           ),
-          React__default.createElement(
+          React$1__default.createElement(
             'li',
             {
               title: props.showTitle ? locale.next_page : null,
@@ -49416,7 +49416,7 @@ var Pagination = function (_React$Component) {
               className: (this.hasNext() ? '' : prefixCls + '-disabled') + ' ' + prefixCls + '-next',
               'aria-disabled': !this.hasNext()
             },
-            props.itemRender(nextPage, 'next', React__default.createElement('a', { className: prefixCls + '-item-link' }))
+            props.itemRender(nextPage, 'next', React$1__default.createElement('a', { className: prefixCls + '-item-link' }))
           ),
           gotoButton
         );
@@ -49425,7 +49425,7 @@ var Pagination = function (_React$Component) {
       if (allPages <= 5 + pageBufferSize * 2) {
         for (var i = 1; i <= allPages; i++) {
           var active = this.state.current === i;
-          pagerList.push(React__default.createElement(Pager, {
+          pagerList.push(React$1__default.createElement(Pager, {
             locale: locale,
             rootPrefixCls: prefixCls,
             onClick: this.handleChange,
@@ -49441,7 +49441,7 @@ var Pagination = function (_React$Component) {
         var prevItemTitle = props.showLessItems ? locale.prev_3 : locale.prev_5;
         var nextItemTitle = props.showLessItems ? locale.next_3 : locale.next_5;
         if (props.showPrevNextJumpers) {
-          jumpPrev = React__default.createElement(
+          jumpPrev = React$1__default.createElement(
             'li',
             {
               title: props.showTitle ? prevItemTitle : null,
@@ -49451,9 +49451,9 @@ var Pagination = function (_React$Component) {
               onKeyPress: this.runIfEnterJumpPrev,
               className: prefixCls + '-jump-prev'
             },
-            props.itemRender(this.getJumpPrevPage(), 'jump-prev', React__default.createElement('a', { className: prefixCls + '-item-link' }))
+            props.itemRender(this.getJumpPrevPage(), 'jump-prev', React$1__default.createElement('a', { className: prefixCls + '-item-link' }))
           );
-          jumpNext = React__default.createElement(
+          jumpNext = React$1__default.createElement(
             'li',
             {
               title: props.showTitle ? nextItemTitle : null,
@@ -49463,10 +49463,10 @@ var Pagination = function (_React$Component) {
               onKeyPress: this.runIfEnterJumpNext,
               className: prefixCls + '-jump-next'
             },
-            props.itemRender(this.getJumpNextPage(), 'jump-next', React__default.createElement('a', { className: prefixCls + '-item-link' }))
+            props.itemRender(this.getJumpNextPage(), 'jump-next', React$1__default.createElement('a', { className: prefixCls + '-item-link' }))
           );
         }
-        lastPager = React__default.createElement(Pager, {
+        lastPager = React$1__default.createElement(Pager, {
           locale: props.locale,
           last: true,
           rootPrefixCls: prefixCls,
@@ -49478,7 +49478,7 @@ var Pagination = function (_React$Component) {
           showTitle: props.showTitle,
           itemRender: props.itemRender
         });
-        firstPager = React__default.createElement(Pager, {
+        firstPager = React$1__default.createElement(Pager, {
           locale: props.locale,
           rootPrefixCls: prefixCls,
           onClick: this.handleChange,
@@ -49503,7 +49503,7 @@ var Pagination = function (_React$Component) {
 
         for (var _i = left; _i <= right; _i++) {
           var _active = current === _i;
-          pagerList.push(React__default.createElement(Pager, {
+          pagerList.push(React$1__default.createElement(Pager, {
             locale: props.locale,
             rootPrefixCls: prefixCls,
             onClick: this.handleChange,
@@ -49517,13 +49517,13 @@ var Pagination = function (_React$Component) {
         }
 
         if (current - 1 >= pageBufferSize * 2 && current !== 1 + 2) {
-          pagerList[0] = React__default.cloneElement(pagerList[0], {
+          pagerList[0] = React$1__default.cloneElement(pagerList[0], {
             className: prefixCls + '-item-after-jump-prev'
           });
           pagerList.unshift(jumpPrev);
         }
         if (allPages - current >= pageBufferSize * 2 && current !== allPages - 2) {
-          pagerList[pagerList.length - 1] = React__default.cloneElement(pagerList[pagerList.length - 1], {
+          pagerList[pagerList.length - 1] = React$1__default.cloneElement(pagerList[pagerList.length - 1], {
             className: prefixCls + '-item-before-jump-next'
           });
           pagerList.push(jumpNext);
@@ -49540,7 +49540,7 @@ var Pagination = function (_React$Component) {
       var totalText = null;
 
       if (props.showTotal) {
-        totalText = React__default.createElement(
+        totalText = React$1__default.createElement(
           'li',
           { className: prefixCls + '-total-text' },
           props.showTotal(props.total, [(current - 1) * pageSize + 1, current * pageSize > props.total ? props.total : current * pageSize])
@@ -49548,7 +49548,7 @@ var Pagination = function (_React$Component) {
       }
       var prevDisabled = !this.hasPrev();
       var nextDisabled = !this.hasNext();
-      return React__default.createElement(
+      return React$1__default.createElement(
         'ul',
         _extends$23({
           className: prefixCls + ' ' + props.className,
@@ -49557,7 +49557,7 @@ var Pagination = function (_React$Component) {
           ref: this.savePaginationNode
         }, dataOrAriaAttributeProps),
         totalText,
-        React__default.createElement(
+        React$1__default.createElement(
           'li',
           {
             title: props.showTitle ? locale.prev_page : null,
@@ -49567,10 +49567,10 @@ var Pagination = function (_React$Component) {
             className: (!prevDisabled ? '' : prefixCls + '-disabled') + ' ' + prefixCls + '-prev',
             'aria-disabled': prevDisabled
           },
-          props.itemRender(prevPage, 'prev', React__default.createElement('a', { className: prefixCls + '-item-link' }))
+          props.itemRender(prevPage, 'prev', React$1__default.createElement('a', { className: prefixCls + '-item-link' }))
         ),
         pagerList,
-        React__default.createElement(
+        React$1__default.createElement(
           'li',
           {
             title: props.showTitle ? locale.next_page : null,
@@ -49580,9 +49580,9 @@ var Pagination = function (_React$Component) {
             className: (!nextDisabled ? '' : prefixCls + '-disabled') + ' ' + prefixCls + '-next',
             'aria-disabled': nextDisabled
           },
-          props.itemRender(nextPage, 'next', React__default.createElement('a', { className: prefixCls + '-item-link' }))
+          props.itemRender(nextPage, 'next', React$1__default.createElement('a', { className: prefixCls + '-item-link' }))
         ),
-        React__default.createElement(Options, {
+        React$1__default.createElement(Options, {
           locale: props.locale,
           rootPrefixCls: prefixCls,
           selectComponentClass: props.selectComponentClass,
@@ -49599,7 +49599,7 @@ var Pagination = function (_React$Component) {
   }]);
 
   return Pagination;
-}(React__default.Component);
+}(React$1__default.Component);
 
 Pagination.propTypes = {
   prefixCls: propTypes.string,
@@ -49819,12 +49819,12 @@ var MiniSelect = function (_React$Component) {
     _createClass$10(MiniSelect, [{
         key: 'render',
         value: function render() {
-            return React.createElement(Select$1, _extends$23({ size: 'small' }, this.props));
+            return React$1.createElement(Select$1, _extends$23({ size: 'small' }, this.props));
         }
     }]);
 
     return MiniSelect;
-}(React.Component);
+}(React$1.Component);
 
 MiniSelect.Option = Select$1.Option;
 
@@ -49853,7 +49853,7 @@ var Pagination$1 = function (_React$Component) {
                 restProps = __rest$24(_a, ["className", "size", "locale"]);
             var locale = _extends$23({}, contextLocale, customLocale);
             var isSmall = size === 'small';
-            return React.createElement(Pagination, _extends$23({}, restProps, { className: classnames(className, { mini: isSmall }), selectComponentClass: isSmall ? MiniSelect : Select$1, locale: locale }));
+            return React$1.createElement(Pagination, _extends$23({}, restProps, { className: classnames(className, { mini: isSmall }), selectComponentClass: isSmall ? MiniSelect : Select$1, locale: locale }));
         };
         return _this;
     }
@@ -49861,7 +49861,7 @@ var Pagination$1 = function (_React$Component) {
     _createClass$10(Pagination$$1, [{
         key: 'render',
         value: function render() {
-            return React.createElement(
+            return React$1.createElement(
                 LocaleReceiver,
                 { componentName: 'Pagination', defaultLocale: enUS },
                 this.renderPagination
@@ -49870,7 +49870,7 @@ var Pagination$1 = function (_React$Component) {
     }]);
 
     return Pagination$$1;
-}(React.Component);
+}(React$1.Component);
 
 Pagination$1.defaultProps = {
     prefixCls: 'ant-pagination',
@@ -49895,24 +49895,24 @@ var Meta$1 = function Meta(props) {
         others = __rest$25(props, ["prefixCls", "className", "avatar", "title", "description"]);
 
     var classString = classnames(prefixCls + '-item-meta', className);
-    var content = React.createElement(
+    var content = React$1.createElement(
         'div',
         { className: prefixCls + '-item-meta-content' },
-        title && React.createElement(
+        title && React$1.createElement(
             'h4',
             { className: prefixCls + '-item-meta-title' },
             title
         ),
-        description && React.createElement(
+        description && React$1.createElement(
             'div',
             { className: prefixCls + '-item-meta-description' },
             description
         )
     );
-    return React.createElement(
+    return React$1.createElement(
         'div',
         _extends$23({}, others, { className: classString }),
-        avatar && React.createElement(
+        avatar && React$1.createElement(
             'div',
             { className: prefixCls + '-item-meta-avatar' },
             avatar
@@ -49949,7 +49949,7 @@ var Item = function (_React$Component) {
             var classString = classnames(prefixCls + '-item', className);
             var metaContent = [];
             var otherContent = [];
-            React.Children.forEach(children, function (element) {
+            React$1.Children.forEach(children, function (element) {
                 if (element && element.type && element.type === Meta$1) {
                     metaContent.push(element);
                 } else {
@@ -49957,7 +49957,7 @@ var Item = function (_React$Component) {
                 }
             });
             var contentClassString = classnames(prefixCls + '-item-content', _defineProperty$7({}, prefixCls + '-item-content-single', metaContent.length < 1));
-            var content = otherContent.length > 0 ? React.createElement(
+            var content = otherContent.length > 0 ? React$1.createElement(
                 'div',
                 { className: contentClassString },
                 otherContent
@@ -49965,14 +49965,14 @@ var Item = function (_React$Component) {
             var actionsContent = void 0;
             if (actions && actions.length > 0) {
                 var actionsContentItem = function actionsContentItem(action, i) {
-                    return React.createElement(
+                    return React$1.createElement(
                         'li',
                         { key: prefixCls + '-item-action-' + i },
                         action,
-                        i !== actions.length - 1 && React.createElement('em', { className: prefixCls + '-item-action-split' })
+                        i !== actions.length - 1 && React$1.createElement('em', { className: prefixCls + '-item-action-split' })
                     );
                 };
-                actionsContent = React.createElement(
+                actionsContent = React$1.createElement(
                     'ul',
                     { className: prefixCls + '-item-action' },
                     actions.map(function (action, i) {
@@ -49980,26 +49980,26 @@ var Item = function (_React$Component) {
                     })
                 );
             }
-            var extraContent = React.createElement(
+            var extraContent = React$1.createElement(
                 'div',
                 { className: prefixCls + '-item-extra-wrap' },
-                React.createElement(
+                React$1.createElement(
                     'div',
                     { className: prefixCls + '-item-main' },
                     metaContent,
                     content,
                     actionsContent
                 ),
-                React.createElement(
+                React$1.createElement(
                     'div',
                     { className: prefixCls + '-item-extra' },
                     extra
                 )
             );
-            var mainContent = grid ? React.createElement(
+            var mainContent = grid ? React$1.createElement(
                 Col,
                 { span: getGrid(grid, 'column'), xs: getGrid(grid, 'xs'), sm: getGrid(grid, 'sm'), md: getGrid(grid, 'md'), lg: getGrid(grid, 'lg'), xl: getGrid(grid, 'xl'), xxl: getGrid(grid, 'xxl') },
-                React.createElement(
+                React$1.createElement(
                     'div',
                     _extends$23({}, others, { className: classString }),
                     extra && extraContent,
@@ -50007,7 +50007,7 @@ var Item = function (_React$Component) {
                     !extra && content,
                     !extra && actionsContent
                 )
-            ) : React.createElement(
+            ) : React$1.createElement(
                 'div',
                 _extends$23({}, others, { className: classString }),
                 extra && extraContent,
@@ -50020,7 +50020,7 @@ var Item = function (_React$Component) {
     }]);
 
     return Item;
-}(React.Component);
+}(React$1.Component);
 
 Item.Meta = Meta$1;
 Item.propTypes = {
@@ -50094,7 +50094,7 @@ var List = function (_React$Component) {
         };
         _this.renderEmpty = function (contextLocale) {
             var locale = _extends$23({}, contextLocale, _this.props.locale);
-            return React.createElement(
+            return React$1.createElement(
                 'div',
                 { className: _this.props.prefixCls + '-empty-text' },
                 locale.emptyText
@@ -50171,10 +50171,10 @@ var List = function (_React$Component) {
             if (paginationProps.current > largestPage) {
                 paginationProps.current = largestPage;
             }
-            var paginationContent = pagination ? React.createElement(
+            var paginationContent = pagination ? React$1.createElement(
                 'div',
                 { className: prefixCls + '-pagination' },
-                React.createElement(Pagination$1, _extends$23({}, paginationProps, { onChange: this.defaultPaginationProps.onChange }))
+                React$1.createElement(Pagination$1, _extends$23({}, paginationProps, { onChange: this.defaultPaginationProps.onChange }))
             ) : null;
             var splitDataSource = [].concat(_toConsumableArray$5(dataSource));
             if (pagination) {
@@ -50183,45 +50183,45 @@ var List = function (_React$Component) {
                 }
             }
             var childrenContent = void 0;
-            childrenContent = isLoading && React.createElement('div', { style: { minHeight: 53 } });
+            childrenContent = isLoading && React$1.createElement('div', { style: { minHeight: 53 } });
             if (splitDataSource.length > 0) {
                 var items = splitDataSource.map(function (item, index) {
                     return _this2.renderItem(item, index);
                 });
-                var childrenList = React.Children.map(items, function (child, index) {
-                    return React.cloneElement(child, {
+                var childrenList = React$1.Children.map(items, function (child, index) {
+                    return React$1.cloneElement(child, {
                         key: _this2.keys[index]
                     });
                 });
-                childrenContent = grid ? React.createElement(
+                childrenContent = grid ? React$1.createElement(
                     Row,
                     { gutter: grid.gutter },
                     childrenList
                 ) : childrenList;
             } else if (!children && !isLoading) {
-                childrenContent = React.createElement(
+                childrenContent = React$1.createElement(
                     LocaleReceiver,
                     { componentName: 'Table', defaultLocale: defaultLocale.Table },
                     this.renderEmpty
                 );
             }
             var paginationPosition = paginationProps.position || 'bottom';
-            return React.createElement(
+            return React$1.createElement(
                 'div',
                 _extends$23({ className: classString }, rest),
                 (paginationPosition === 'top' || paginationPosition === 'both') && paginationContent,
-                header && React.createElement(
+                header && React$1.createElement(
                     'div',
                     { className: prefixCls + '-header' },
                     header
                 ),
-                React.createElement(
+                React$1.createElement(
                     Spin,
                     loadingProp,
                     childrenContent,
                     children
                 ),
-                footer && React.createElement(
+                footer && React$1.createElement(
                     'div',
                     { className: prefixCls + '-footer' },
                     footer
@@ -50232,7 +50232,7 @@ var List = function (_React$Component) {
     }]);
 
     return List;
-}(React.Component);
+}(React$1.Component);
 
 List.Item = Item;
 List.childContextTypes = {
@@ -50312,12 +50312,12 @@ var LocaleProvider = function (_React$Component) {
     }, {
         key: 'render',
         value: function render() {
-            return React.Children.only(this.props.children);
+            return React$1.Children.only(this.props.children);
         }
     }]);
 
     return LocaleProvider;
-}(React.Component);
+}(React$1.Component);
 
 LocaleProvider.propTypes = {
     locale: propTypes.object
@@ -50391,27 +50391,27 @@ var Notice = function (_Component) {
       var props = this.props;
       var componentClass = props.prefixCls + '-notice';
       var className = (_className = {}, _defineProperty$7(_className, '' + componentClass, 1), _defineProperty$7(_className, componentClass + '-closable', props.closable), _defineProperty$7(_className, props.className, !!props.className), _className);
-      return React__default.createElement(
+      return React$1__default.createElement(
         'div',
         { className: classnames(className), style: props.style, onMouseEnter: this.clearCloseTimer,
           onMouseLeave: this.startCloseTimer
         },
-        React__default.createElement(
+        React$1__default.createElement(
           'div',
           { className: componentClass + '-content' },
           props.children
         ),
-        props.closable ? React__default.createElement(
+        props.closable ? React$1__default.createElement(
           'a',
           { tabIndex: '0', onClick: this.close, className: componentClass + '-close' },
-          props.closeIcon || React__default.createElement('span', { className: componentClass + '-close-x' })
+          props.closeIcon || React$1__default.createElement('span', { className: componentClass + '-close-x' })
         ) : null
       );
     }
   }]);
 
   return Notice;
-}(React.Component);
+}(React$1.Component);
 
 Notice.propTypes = {
   duration: propTypes.number,
@@ -50510,7 +50510,7 @@ var Notification = function (_Component) {
         var update = Boolean(index === notices.length - 1 && notice.updateKey);
         var key = notice.updateKey ? notice.updateKey : notice.key;
         var onClose = createChainedFunction(_this2.remove.bind(_this2, notice.key), notice.onClose);
-        return React__default.createElement(
+        return React$1__default.createElement(
           Notice,
           _extends$23({
             prefixCls: props.prefixCls
@@ -50524,10 +50524,10 @@ var Notification = function (_Component) {
         );
       });
       var className = (_className = {}, _defineProperty$7(_className, props.prefixCls, 1), _defineProperty$7(_className, props.className, !!props.className), _className);
-      return React__default.createElement(
+      return React$1__default.createElement(
         'div',
         { className: classnames(className), style: props.style },
-        React__default.createElement(
+        React$1__default.createElement(
           Animate,
           { transitionName: this.getTransitionName() },
           noticeNodes
@@ -50537,7 +50537,7 @@ var Notification = function (_Component) {
   }]);
 
   return Notification;
-}(React.Component);
+}(React$1.Component);
 
 Notification.propTypes = {
   prefixCls: propTypes.string,
@@ -50590,7 +50590,7 @@ Notification.newInstance = function newNotificationInstance(properties, callback
       }
     });
   }
-  reactDom.render(React__default.createElement(Notification, _extends$23({}, props, { ref: ref })), div);
+  reactDom.render(React$1__default.createElement(Notification, _extends$23({}, props, { ref: ref })), div);
 };
 
 /* global Promise */
@@ -50620,12 +50620,12 @@ var SubMenu$1 = function (_React$Component) {
                 className = _props.className;
 
             var theme = this.context.antdMenuTheme;
-            return React.createElement(connected, _extends$23({}, this.props, { ref: this.saveSubMenu, popupClassName: classnames(rootPrefixCls + '-' + theme, className) }));
+            return React$1.createElement(connected, _extends$23({}, this.props, { ref: this.saveSubMenu, popupClassName: classnames(rootPrefixCls + '-' + theme, className) }));
         }
     }]);
 
     return SubMenu$$1;
-}(React.Component);
+}(React$1.Component);
 
 SubMenu$1.contextTypes = {
     antdMenuTheme: propTypes.string
@@ -50738,7 +50738,7 @@ var Content$1 = function (_React$Component) {
         prefixCls = _props.prefixCls,
         id = _props.id;
 
-    return React__default.createElement(
+    return React$1__default.createElement(
       'div',
       { className: prefixCls + '-inner', id: id, role: 'tooltip' },
       typeof overlay === 'function' ? overlay() : overlay
@@ -50746,7 +50746,7 @@ var Content$1 = function (_React$Component) {
   };
 
   return Content;
-}(React__default.Component);
+}(React$1__default.Component);
 
 Content$1.propTypes = {
   prefixCls: propTypes.string,
@@ -50774,11 +50774,11 @@ var Tooltip = function (_Component) {
           prefixCls = _this$props.prefixCls,
           id = _this$props.id;
 
-      return [React__default.createElement(
+      return [React$1__default.createElement(
         'div',
         { className: prefixCls + '-arrow', key: 'arrow' },
         arrowContent
-      ), React__default.createElement(Content$1, {
+      ), React$1__default.createElement(Content$1, {
         key: 'content',
         trigger: _this.trigger,
         prefixCls: prefixCls,
@@ -50818,7 +50818,7 @@ var Tooltip = function (_Component) {
     if ('visible' in this.props) {
       extraProps.popupVisible = this.props.visible;
     }
-    return React__default.createElement(
+    return React$1__default.createElement(
       Trigger,
       _extends$23({
         popupClassName: overlayClassName,
@@ -50845,7 +50845,7 @@ var Tooltip = function (_Component) {
   };
 
   return Tooltip;
-}(React.Component);
+}(React$1.Component);
 
 Tooltip.propTypes = {
   trigger: propTypes.any,
@@ -51084,11 +51084,11 @@ var Tooltip$1 = function (_React$Component) {
 
                 var spanStyle = _extends$23({ display: 'inline-block' }, picked, { cursor: 'not-allowed' });
                 var buttonStyle = _extends$23({}, omitted, { pointerEvents: 'none' });
-                var child = React.cloneElement(element, {
+                var child = React$1.cloneElement(element, {
                     style: buttonStyle,
                     className: null
                 });
-                return React.createElement(
+                return React$1.createElement(
                     'span',
                     { style: spanStyle, className: element.props.className },
                     child
@@ -51123,23 +51123,23 @@ var Tooltip$1 = function (_React$Component) {
             if (!('visible' in props) && this.isNoTitle()) {
                 visible = false;
             }
-            var child = this.getDisabledCompatibleChildren(React.isValidElement(children) ? children : React.createElement(
+            var child = this.getDisabledCompatibleChildren(React$1.isValidElement(children) ? children : React$1.createElement(
                 'span',
                 null,
                 children
             ));
             var childProps = child.props;
             var childCls = classnames(childProps.className, _defineProperty$7({}, openClassName || prefixCls + '-open', true));
-            return React.createElement(
+            return React$1.createElement(
                 Tooltip,
                 _extends$23({}, this.props, { getTooltipContainer: getPopupContainer || getTooltipContainer, ref: this.saveTooltip, builtinPlacements: this.getPlacements(), overlay: overlay || title || '', visible: visible, onVisibleChange: this.onVisibleChange, onPopupAlign: this.onPopupAlign }),
-                visible ? React.cloneElement(child, { className: childCls }) : child
+                visible ? React$1.cloneElement(child, { className: childCls }) : child
             );
         }
     }]);
 
     return Tooltip$$1;
-}(React.Component);
+}(React$1.Component);
 
 Tooltip$1.defaultProps = {
     prefixCls: 'ant-tooltip',
@@ -51174,16 +51174,16 @@ var MenuItem$1 = function (_React$Component) {
             var inlineCollapsed = this.context.inlineCollapsed;
 
             var props = this.props;
-            return React.createElement(
+            return React$1.createElement(
                 Tooltip$1,
                 { title: inlineCollapsed && props.level === 1 ? props.children : '', placement: 'right', overlayClassName: props.rootPrefixCls + '-inline-collapsed-tooltip' },
-                React.createElement(connected$1, _extends$23({}, props, { ref: this.saveMenuItem }))
+                React$1.createElement(connected$1, _extends$23({}, props, { ref: this.saveMenuItem }))
             );
         }
     }]);
 
     return MenuItem;
-}(React.Component);
+}(React$1.Component);
 
 MenuItem$1.contextTypes = {
     inlineCollapsed: propTypes.bool
@@ -51365,12 +51365,12 @@ var Menu$1 = function (_React$Component) {
             if (this.getInlineCollapsed() && (collapsedWidth === 0 || collapsedWidth === '0' || collapsedWidth === '0px')) {
                 return null;
             }
-            return React.createElement(Menu, _extends$23({}, this.props, menuProps));
+            return React$1.createElement(Menu, _extends$23({}, this.props, menuProps));
         }
     }]);
 
     return Menu$$1;
-}(React.Component);
+}(React$1.Component);
 
 Menu$1.Divider = Divider;
 Menu$1.Item = MenuItem$1;
@@ -51413,11 +51413,11 @@ var LazyRenderBox$1 = function (_React$Component) {
         delete props.hiddenClassName;
         delete props.visible;
         props.className = className;
-        return React.createElement("div", _extends$23({}, props));
+        return React$1.createElement("div", _extends$23({}, props));
     };
 
     return LazyRenderBox;
-}(React.Component);
+}(React$1.Component);
 
 var uuid = 0;
 var openCount = 0;
@@ -51520,21 +51520,21 @@ var Dialog = function (_React$Component) {
             }
             var footer = void 0;
             if (props.footer) {
-                footer = React.createElement("div", { className: prefixCls + '-footer', ref: _this.saveRef('footer') }, props.footer);
+                footer = React$1.createElement("div", { className: prefixCls + '-footer', ref: _this.saveRef('footer') }, props.footer);
             }
             var header = void 0;
             if (props.title) {
-                header = React.createElement("div", { className: prefixCls + '-header', ref: _this.saveRef('header') }, React.createElement("div", { className: prefixCls + '-title', id: _this.titleId }, props.title));
+                header = React$1.createElement("div", { className: prefixCls + '-header', ref: _this.saveRef('header') }, React$1.createElement("div", { className: prefixCls + '-title', id: _this.titleId }, props.title));
             }
             var closer = void 0;
             if (closable) {
-                closer = React.createElement("button", { onClick: _this.close, "aria-label": "Close", className: prefixCls + '-close' }, props.closeIcon || React.createElement("span", { className: prefixCls + '-close-x' }));
+                closer = React$1.createElement("button", { onClick: _this.close, "aria-label": "Close", className: prefixCls + '-close' }, props.closeIcon || React$1.createElement("span", { className: prefixCls + '-close-x' }));
             }
             var style = _extends$23({}, props.style, dest);
             var sentinelStyle = { width: 0, height: 0, overflow: 'hidden' };
             var transitionName = _this.getTransitionName();
-            var dialogElement = React.createElement(LazyRenderBox$1, { key: "dialog-element", role: "document", ref: _this.saveRef('dialog'), style: style, className: prefixCls + ' ' + (props.className || ''), visible: props.visible }, React.createElement("div", { tabIndex: 0, ref: _this.saveRef('sentinelStart'), style: sentinelStyle }, "sentinelStart"), React.createElement("div", { className: prefixCls + '-content' }, closer, header, React.createElement("div", _extends$23({ className: prefixCls + '-body', style: props.bodyStyle, ref: _this.saveRef('body') }, props.bodyProps), props.children), footer), React.createElement("div", { tabIndex: 0, ref: _this.saveRef('sentinelEnd'), style: sentinelStyle }, "sentinelEnd"));
-            return React.createElement(Animate, { key: "dialog", showProp: "visible", onLeave: _this.onAnimateLeave, transitionName: transitionName, component: "", transitionAppear: true }, props.visible || !props.destroyOnClose ? dialogElement : null);
+            var dialogElement = React$1.createElement(LazyRenderBox$1, { key: "dialog-element", role: "document", ref: _this.saveRef('dialog'), style: style, className: prefixCls + ' ' + (props.className || ''), visible: props.visible }, React$1.createElement("div", { tabIndex: 0, ref: _this.saveRef('sentinelStart'), style: sentinelStyle }, "sentinelStart"), React$1.createElement("div", { className: prefixCls + '-content' }, closer, header, React$1.createElement("div", _extends$23({ className: prefixCls + '-body', style: props.bodyStyle, ref: _this.saveRef('body') }, props.bodyProps), props.children), footer), React$1.createElement("div", { tabIndex: 0, ref: _this.saveRef('sentinelEnd'), style: sentinelStyle }, "sentinelEnd"));
+            return React$1.createElement(Animate, { key: "dialog", showProp: "visible", onLeave: _this.onAnimateLeave, transitionName: transitionName, component: "", transitionAppear: true }, props.visible || !props.destroyOnClose ? dialogElement : null);
         };
         _this.getZIndexStyle = function () {
             var style = {};
@@ -51555,9 +51555,9 @@ var Dialog = function (_React$Component) {
             var maskElement = void 0;
             if (props.mask) {
                 var maskTransition = _this.getMaskTransitionName();
-                maskElement = React.createElement(LazyRenderBox$1, _extends$23({ style: _this.getMaskStyle(), key: "mask", className: props.prefixCls + '-mask', hiddenClassName: props.prefixCls + '-mask-hidden', visible: props.visible }, props.maskProps));
+                maskElement = React$1.createElement(LazyRenderBox$1, _extends$23({ style: _this.getMaskStyle(), key: "mask", className: props.prefixCls + '-mask', hiddenClassName: props.prefixCls + '-mask-hidden', visible: props.visible }, props.maskProps));
                 if (maskTransition) {
-                    maskElement = React.createElement(Animate, { key: "mask", showProp: "visible", transitionAppear: true, component: "", transitionName: maskTransition }, maskElement);
+                    maskElement = React$1.createElement(Animate, { key: "mask", showProp: "visible", transitionAppear: true, component: "", transitionName: maskTransition }, maskElement);
                 }
             }
             return maskElement;
@@ -51709,11 +51709,11 @@ var Dialog = function (_React$Component) {
         if (props.visible) {
             style.display = null;
         }
-        return React.createElement("div", null, this.getMaskElement(), React.createElement("div", _extends$23({ tabIndex: -1, onKeyDown: this.onKeyDown, className: prefixCls + '-wrap ' + (props.wrapClassName || ''), ref: this.saveRef('wrap'), onClick: maskClosable ? this.onMaskClick : undefined, role: "dialog", "aria-labelledby": props.title ? this.titleId : null, style: style }, props.wrapProps), this.getDialogElement()));
+        return React$1.createElement("div", null, this.getMaskElement(), React$1.createElement("div", _extends$23({ tabIndex: -1, onKeyDown: this.onKeyDown, className: prefixCls + '-wrap ' + (props.wrapClassName || ''), ref: this.saveRef('wrap'), onClick: maskClosable ? this.onMaskClick : undefined, role: "dialog", "aria-labelledby": props.title ? this.titleId : null, style: style }, props.wrapProps), this.getDialogElement()));
     };
 
     return Dialog;
-}(React.Component);
+}(React$1.Component);
 
 Dialog.defaultProps = {
     className: '',
@@ -51742,7 +51742,7 @@ var DialogWrap = function (_React$Component) {
         _this.getComponent = function () {
             var extra = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
-            return React.createElement(Dialog, _extends$23({ ref: _this.saveDialog }, _this.props, extra, { key: "dialog" }));
+            return React$1.createElement(Dialog, _extends$23({ ref: _this.saveDialog }, _this.props, extra, { key: "dialog" }));
         };
         // fix issue #10656
         /*
@@ -51792,7 +51792,7 @@ var DialogWrap = function (_React$Component) {
 
         var portal = null;
         if (!IS_REACT_16$2) {
-            return React.createElement(ContainerRender, { parent: this, visible: visible, autoDestroy: false, getComponent: this.getComponent, getContainer: this.getContainer }, function (_ref2) {
+            return React$1.createElement(ContainerRender, { parent: this, visible: visible, autoDestroy: false, getComponent: this.getComponent, getContainer: this.getContainer }, function (_ref2) {
                 var renderComponent = _ref2.renderComponent,
                     removeContainer = _ref2.removeContainer;
 
@@ -51802,13 +51802,13 @@ var DialogWrap = function (_React$Component) {
             });
         }
         if (visible || this._component) {
-            portal = React.createElement(Portal, { getContainer: this.getContainer }, this.getComponent());
+            portal = React$1.createElement(Portal, { getContainer: this.getContainer }, this.getComponent());
         }
         return portal;
     };
 
     return DialogWrap;
-}(React.Component);
+}(React$1.Component);
 
 DialogWrap.defaultProps = {
     visible: false
@@ -51852,15 +51852,15 @@ var Modal = function (_React$Component) {
                 cancelText = _this$props.cancelText,
                 confirmLoading = _this$props.confirmLoading;
 
-            return React.createElement(
+            return React$1.createElement(
                 'div',
                 null,
-                React.createElement(
+                React$1.createElement(
                     Button,
                     _extends$23({ onClick: _this.handleCancel }, _this.props.cancelButtonProps),
                     cancelText || locale.cancelText
                 ),
-                React.createElement(
+                React$1.createElement(
                     Button,
                     _extends$23({ type: okType, loading: confirmLoading, onClick: _this.handleOk }, _this.props.okButtonProps),
                     okText || locale.okText
@@ -51901,17 +51901,17 @@ var Modal = function (_React$Component) {
                 centered = _a.centered,
                 prefixCls = _a.prefixCls,
                 restProps = __rest$27(_a, ["footer", "visible", "wrapClassName", "centered", "prefixCls"]);
-            var defaultFooter = React.createElement(
+            var defaultFooter = React$1.createElement(
                 LocaleReceiver,
                 { componentName: 'Modal', defaultLocale: getConfirmLocale() },
                 this.renderFooter
             );
-            return React.createElement(DialogWrap, _extends$23({}, restProps, { prefixCls: prefixCls, wrapClassName: classnames(_defineProperty$7({}, prefixCls + '-centered', !!centered), wrapClassName), footer: footer === undefined ? defaultFooter : footer, visible: visible, mousePosition: mousePosition, onClose: this.handleCancel }));
+            return React$1.createElement(DialogWrap, _extends$23({}, restProps, { prefixCls: prefixCls, wrapClassName: classnames(_defineProperty$7({}, prefixCls + '-centered', !!centered), wrapClassName), footer: footer === undefined ? defaultFooter : footer, visible: visible, mousePosition: mousePosition, onClose: this.handleCancel }));
         }
     }]);
 
     return Modal;
-}(React.Component);
+}(React$1.Component);
 
 Modal.defaultProps = {
     prefixCls: 'ant-modal',
@@ -52007,7 +52007,7 @@ var ActionButton = function (_React$Component) {
                 children = _props.children;
 
             var loading = this.state.loading;
-            return React.createElement(
+            return React$1.createElement(
                 Button,
                 { type: type, onClick: this.onClick, loading: loading },
                 children
@@ -52016,7 +52016,7 @@ var ActionButton = function (_React$Component) {
     }]);
 
     return ActionButton;
-}(React.Component);
+}(React$1.Component);
 
 var _this = undefined;
 var IS_REACT_16$3 = !!reactDom_2;
@@ -52042,37 +52042,37 @@ var ConfirmDialog = function ConfirmDialog(props) {
     var okText = props.okText || (okCancel ? runtimeLocale.okText : runtimeLocale.justOkText);
     var cancelText = props.cancelText || runtimeLocale.cancelText;
     var classString = classnames(prefixCls, prefixCls + '-' + props.type, props.className);
-    var cancelButton = okCancel && React.createElement(
+    var cancelButton = okCancel && React$1.createElement(
         ActionButton,
         { actionFn: onCancel, closeModal: close },
         cancelText
     );
-    return React.createElement(
+    return React$1.createElement(
         Modal,
         { className: classString, wrapClassName: classnames(_defineProperty$7({}, prefixCls + '-centered', !!props.centered)), onCancel: close.bind(_this, { triggerCancel: true }), visible: visible, title: '', transitionName: 'zoom', footer: '', maskTransitionName: 'fade', maskClosable: maskClosable, style: style, width: width, zIndex: zIndex, afterClose: afterClose, keyboard: keyboard },
-        React.createElement(
+        React$1.createElement(
             'div',
             { className: prefixCls + '-body-wrapper' },
-            React.createElement(
+            React$1.createElement(
                 'div',
                 { className: prefixCls + '-body' },
-                React.createElement(Icon, { type: iconType }),
-                React.createElement(
+                React$1.createElement(Icon, { type: iconType }),
+                React$1.createElement(
                     'span',
                     { className: prefixCls + '-title' },
                     props.title
                 ),
-                React.createElement(
+                React$1.createElement(
                     'div',
                     { className: prefixCls + '-content' },
                     props.content
                 )
             ),
-            React.createElement(
+            React$1.createElement(
                 'div',
                 { className: prefixCls + '-btns' },
                 cancelButton,
-                React.createElement(
+                React$1.createElement(
                     ActionButton,
                     { type: okType, actionFn: onOk, closeModal: close, autoFocus: true },
                     okText
@@ -52113,7 +52113,7 @@ function confirm(config) {
         }
     }
     function render(props) {
-        undefined(React.createElement(ConfirmDialog, props), div);
+        undefined(React$1.createElement(ConfirmDialog, props), div);
     }
     render(_extends$23({}, config, { visible: true, close: close }));
     return {
@@ -52233,34 +52233,34 @@ function notice$1(args) {
     var duration = args.duration === undefined ? defaultDuration$1 : args.duration;
     var iconNode = null;
     if (args.icon) {
-        iconNode = React.createElement(
+        iconNode = React$1.createElement(
             'span',
             { className: prefixCls + '-icon' },
             args.icon
         );
     } else if (args.type) {
         var iconType = typeToIcon[args.type];
-        iconNode = React.createElement(Icon, { className: prefixCls + '-icon ' + prefixCls + '-icon-' + args.type, type: iconType });
+        iconNode = React$1.createElement(Icon, { className: prefixCls + '-icon ' + prefixCls + '-icon-' + args.type, type: iconType });
     }
-    var autoMarginTag = !args.description && iconNode ? React.createElement('span', { className: prefixCls + '-message-single-line-auto-margin' }) : null;
+    var autoMarginTag = !args.description && iconNode ? React$1.createElement('span', { className: prefixCls + '-message-single-line-auto-margin' }) : null;
     getNotificationInstance(outerPrefixCls, args.placement || defaultPlacement, function (notification) {
         notification.notice({
-            content: React.createElement(
+            content: React$1.createElement(
                 'div',
                 { className: iconNode ? prefixCls + '-with-icon' : '' },
                 iconNode,
-                React.createElement(
+                React$1.createElement(
                     'div',
                     { className: prefixCls + '-message' },
                     autoMarginTag,
                     args.message
                 ),
-                React.createElement(
+                React$1.createElement(
                     'div',
                     { className: prefixCls + '-description' },
                     args.description
                 ),
-                args.btn ? React.createElement(
+                args.btn ? React$1.createElement(
                     'span',
                     { className: prefixCls + '-btn' },
                     args.btn
@@ -52346,31 +52346,31 @@ var Popconfirm = function (_React$Component) {
                 okType = _this$props.okType,
                 icon = _this$props.icon;
 
-            return React.createElement(
+            return React$1.createElement(
                 'div',
                 null,
-                React.createElement(
+                React$1.createElement(
                     'div',
                     { className: prefixCls + '-inner-content' },
-                    React.createElement(
+                    React$1.createElement(
                         'div',
                         { className: prefixCls + '-message' },
                         icon,
-                        React.createElement(
+                        React$1.createElement(
                             'div',
                             { className: prefixCls + '-message-title' },
                             title
                         )
                     ),
-                    React.createElement(
+                    React$1.createElement(
                         'div',
                         { className: prefixCls + '-buttons' },
-                        React.createElement(
+                        React$1.createElement(
                             Button,
                             { onClick: _this.onCancel, size: 'small' },
                             cancelText || popconfirmLocale.cancelText
                         ),
-                        React.createElement(
+                        React$1.createElement(
                             Button,
                             { onClick: _this.onConfirm, type: okType, size: 'small' },
                             okText || popconfirmLocale.okText
@@ -52417,17 +52417,17 @@ var Popconfirm = function (_React$Component) {
                 prefixCls = _a.prefixCls,
                 placement = _a.placement,
                 restProps = __rest$28(_a, ["prefixCls", "placement"]);
-            var overlay = React.createElement(
+            var overlay = React$1.createElement(
                 LocaleReceiver,
                 { componentName: 'Popconfirm', defaultLocale: defaultLocale.Popconfirm },
                 this.renderOverlay
             );
-            return React.createElement(Tooltip$1, _extends$23({}, restProps, { prefixCls: prefixCls, placement: placement, onVisibleChange: this.onVisibleChange, visible: this.state.visible, overlay: overlay, ref: this.saveTooltip }));
+            return React$1.createElement(Tooltip$1, _extends$23({}, restProps, { prefixCls: prefixCls, placement: placement, onVisibleChange: this.onVisibleChange, visible: this.state.visible, overlay: overlay, ref: this.saveTooltip }));
         }
     }]);
 
     return Popconfirm;
-}(React.Component);
+}(React$1.Component);
 
 Popconfirm.defaultProps = {
     prefixCls: 'ant-popover',
@@ -52435,7 +52435,7 @@ Popconfirm.defaultProps = {
     placement: 'top',
     trigger: 'click',
     okType: 'primary',
-    icon: React.createElement(Icon, { type: 'exclamation-circle' })
+    icon: React$1.createElement(Icon, { type: 'exclamation-circle' })
 };
 
 var Popover = function (_React$Component) {
@@ -52466,15 +52466,15 @@ var Popover = function (_React$Component) {
                 content = _props.content;
 
             warning$4(!('overlay' in this.props), 'Popover[overlay] is removed, please use Popover[content] instead, ' + 'see: https://u.ant.design/popover-content');
-            return React.createElement(
+            return React$1.createElement(
                 'div',
                 null,
-                title && React.createElement(
+                title && React$1.createElement(
                     'div',
                     { className: prefixCls + '-title' },
                     title
                 ),
-                React.createElement(
+                React$1.createElement(
                     'div',
                     { className: prefixCls + '-inner-content' },
                     content
@@ -52486,12 +52486,12 @@ var Popover = function (_React$Component) {
         value: function render() {
             var props = _extends$23({}, this.props);
             delete props.title;
-            return React.createElement(Tooltip$1, _extends$23({}, props, { ref: this.saveTooltip, overlay: this.getOverlay() }));
+            return React$1.createElement(Tooltip$1, _extends$23({}, props, { ref: this.saveTooltip, overlay: this.getOverlay() }));
         }
     }]);
 
     return Popover;
-}(React.Component);
+}(React$1.Component);
 
 Popover.defaultProps = {
     prefixCls: 'ant-popover',
@@ -52595,7 +52595,7 @@ var Line = function (_Component) {
     var pathString = 'M ' + (strokeLinecap === 'round' ? center : 0) + ',' + center + '\n           L ' + (strokeLinecap === 'round' ? right : 100) + ',' + center;
     var viewBoxString = '0 0 100 ' + strokeWidth;
 
-    return React__default.createElement(
+    return React$1__default.createElement(
       'svg',
       _extends$23({
         className: prefixCls + '-line ' + className,
@@ -52603,7 +52603,7 @@ var Line = function (_Component) {
         preserveAspectRatio: 'none',
         style: style
       }, restProps),
-      React__default.createElement('path', {
+      React$1__default.createElement('path', {
         className: prefixCls + '-line-trail',
         d: pathString,
         strokeLinecap: strokeLinecap,
@@ -52611,7 +52611,7 @@ var Line = function (_Component) {
         strokeWidth: trailWidth || strokeWidth,
         fillOpacity: '0'
       }),
-      React__default.createElement('path', {
+      React$1__default.createElement('path', {
         className: prefixCls + '-line-path',
         d: pathString,
         strokeLinecap: strokeLinecap,
@@ -52627,7 +52627,7 @@ var Line = function (_Component) {
   };
 
   return Line;
-}(React.Component);
+}(React$1.Component);
 
 Line.propTypes = propTypes$1;
 
@@ -52716,14 +52716,14 @@ var Circle = function (_Component) {
     delete restProps.gapDegree;
     delete restProps.gapPosition;
     delete restProps.strokeColor;
-    return React__default.createElement(
+    return React$1__default.createElement(
       'svg',
       _extends$23({
         className: prefixCls + '-circle ' + className,
         viewBox: '0 0 100 100',
         style: style
       }, restProps),
-      React__default.createElement('path', {
+      React$1__default.createElement('path', {
         className: prefixCls + '-circle-trail',
         d: pathString,
         stroke: trailColor,
@@ -52731,7 +52731,7 @@ var Circle = function (_Component) {
         fillOpacity: '0',
         style: trailPathStyle
       }),
-      React__default.createElement('path', {
+      React$1__default.createElement('path', {
         className: prefixCls + '-circle-path',
         d: pathString,
         strokeLinecap: strokeLinecap,
@@ -52746,7 +52746,7 @@ var Circle = function (_Component) {
   };
 
   return Circle;
-}(React.Component);
+}(React$1.Component);
 
 Circle.propTypes = _extends$23({}, propTypes$1, {
   gapPosition: propTypes.oneOf(['top', 'bottom', 'left', 'right'])
@@ -52829,11 +52829,11 @@ var Progress = function (_React$Component) {
                 if (format || progressStatus !== 'exception' && progressStatus !== 'success') {
                     text = textFormatter(validProgress(percent), validProgress(successPercent));
                 } else if (progressStatus === 'exception') {
-                    text = React.createElement(Icon, { type: 'cross' + iconType });
+                    text = React$1.createElement(Icon, { type: 'cross' + iconType });
                 } else if (progressStatus === 'success') {
-                    text = React.createElement(Icon, { type: 'check' + iconType });
+                    text = React$1.createElement(Icon, { type: 'check' + iconType });
                 }
-                progressInfo = React.createElement(
+                progressInfo = React$1.createElement(
                     'span',
                     { className: prefixCls + '-text' },
                     text
@@ -52851,17 +52851,17 @@ var Progress = function (_React$Component) {
                     height: strokeWidth || (size === 'small' ? 6 : 8),
                     borderRadius: strokeLinecap === 'square' ? 0 : '100px'
                 };
-                var successSegment = successPercent !== undefined ? React.createElement('div', { className: prefixCls + '-success-bg', style: successPercentStyle }) : null;
-                progress = React.createElement(
+                var successSegment = successPercent !== undefined ? React$1.createElement('div', { className: prefixCls + '-success-bg', style: successPercentStyle }) : null;
+                progress = React$1.createElement(
                     'div',
                     null,
-                    React.createElement(
+                    React$1.createElement(
                         'div',
                         { className: prefixCls + '-outer' },
-                        React.createElement(
+                        React$1.createElement(
                             'div',
                             { className: prefixCls + '-inner' },
-                            React.createElement('div', { className: prefixCls + '-bg', style: percentStyle }),
+                            React$1.createElement('div', { className: prefixCls + '-bg', style: percentStyle }),
                             successSegment
                         )
                     ),
@@ -52877,15 +52877,15 @@ var Progress = function (_React$Component) {
                 var circleWidth = strokeWidth || 6;
                 var gapPos = gapPosition || type === 'dashboard' && 'bottom' || 'top';
                 var gapDeg = gapDegree || type === 'dashboard' && 75;
-                progress = React.createElement(
+                progress = React$1.createElement(
                     'div',
                     { className: prefixCls + '-inner', style: circleStyle },
-                    React.createElement(Circle$1, { percent: validProgress(percent), strokeWidth: circleWidth, trailWidth: circleWidth, strokeColor: statusColorMap[progressStatus], strokeLinecap: strokeLinecap, trailColor: trailColor, prefixCls: prefixCls, gapDegree: gapDeg, gapPosition: gapPos }),
+                    React$1.createElement(Circle$1, { percent: validProgress(percent), strokeWidth: circleWidth, trailWidth: circleWidth, strokeColor: statusColorMap[progressStatus], strokeLinecap: strokeLinecap, trailColor: trailColor, prefixCls: prefixCls, gapDegree: gapDeg, gapPosition: gapPos }),
                     progressInfo
                 );
             }
             var classString = classnames(prefixCls, (_classNames = {}, _defineProperty$7(_classNames, prefixCls + '-' + (type === 'dashboard' && 'circle' || type), true), _defineProperty$7(_classNames, prefixCls + '-status-' + progressStatus, true), _defineProperty$7(_classNames, prefixCls + '-show-info', showInfo), _defineProperty$7(_classNames, prefixCls + '-' + size, size), _classNames), className);
-            return React.createElement(
+            return React$1.createElement(
                 'div',
                 _extends$23({}, restProps, { className: classString }),
                 progress
@@ -52894,7 +52894,7 @@ var Progress = function (_React$Component) {
     }]);
 
     return Progress;
-}(React.Component);
+}(React$1.Component);
 
 Progress.defaultProps = {
     type: 'line',
@@ -53039,7 +53039,7 @@ var Star = function (_React$Component) {
         count = _props2.count,
         value = _props2.value;
 
-    return React__default.createElement(
+    return React$1__default.createElement(
       'li',
       {
         className: this.getClassName(),
@@ -53052,12 +53052,12 @@ var Star = function (_React$Component) {
         'aria-setsize': count,
         tabIndex: 0
       },
-      React__default.createElement(
+      React$1__default.createElement(
         'div',
         { className: prefixCls + '-first' },
         character
       ),
-      React__default.createElement(
+      React$1__default.createElement(
         'div',
         { className: prefixCls + '-second' },
         character
@@ -53066,7 +53066,7 @@ var Star = function (_React$Component) {
   };
 
   return Star;
-}(React__default.Component);
+}(React$1__default.Component);
 
 Star.propTypes = {
   value: propTypes.number,
@@ -53188,7 +53188,7 @@ var Rate = function (_React$Component) {
     var stars = [];
     var disabledClass = disabled ? prefixCls + '-disabled' : '';
     for (var index = 0; index < count; index++) {
-      stars.push(React__default.createElement(Star, {
+      stars.push(React$1__default.createElement(Star, {
         ref: this.saveRef(index),
         index: index,
         count: count,
@@ -53203,7 +53203,7 @@ var Rate = function (_React$Component) {
         focused: focused
       }));
     }
-    return React__default.createElement(
+    return React$1__default.createElement(
       'ul',
       {
         className: classnames(prefixCls, disabledClass, className),
@@ -53221,7 +53221,7 @@ var Rate = function (_React$Component) {
   };
 
   return Rate;
-}(React__default.Component);
+}(React$1__default.Component);
 
 Rate.propTypes = {
   disabled: propTypes.bool,
@@ -53382,12 +53382,12 @@ var Rate$1 = function (_React$Component) {
     }, {
         key: 'render',
         value: function render() {
-            return React.createElement(Rate, _extends$23({ ref: this.saveRate }, this.props));
+            return React$1.createElement(Rate, _extends$23({ ref: this.saveRate }, this.props));
         }
     }]);
 
     return Rate$$1;
-}(React.Component);
+}(React$1.Component);
 
 Rate$1.propTypes = {
     prefixCls: propTypes.string,
@@ -53395,7 +53395,7 @@ Rate$1.propTypes = {
 };
 Rate$1.defaultProps = {
     prefixCls: 'ant-rate',
-    character: React.createElement(Icon, { type: 'star' })
+    character: React$1.createElement(Icon, { type: 'star' })
 };
 
 /**
@@ -53477,7 +53477,7 @@ var Track = function Track(props) {
   };
 
   var elStyle = _extends$23({}, style, positonStyle);
-  return included ? React__default.createElement('div', { className: className, style: elStyle }) : null;
+  return included ? React$1__default.createElement('div', { className: className, style: elStyle }) : null;
 };
 
 // most Object methods by ES6 should accept primitives
@@ -53613,10 +53613,10 @@ var Steps = function Steps(_ref) {
 
     var pointClassName = classnames((_classNames = {}, _defineProperty$7(_classNames, prefixCls + '-dot', true), _defineProperty$7(_classNames, prefixCls + '-dot-active', isActived), _classNames));
 
-    return React__default.createElement('span', { className: pointClassName, style: style, key: point });
+    return React$1__default.createElement('span', { className: pointClassName, style: style, key: point });
   });
 
-  return React__default.createElement(
+  return React$1__default.createElement(
     'div',
     { className: prefixCls + '-step' },
     elements
@@ -53661,7 +53661,7 @@ var Marks = function Marks(_ref) {
     var _classNames;
 
     var markPoint = marks[point];
-    var markPointIsObject = typeof markPoint === 'object' && !React__default.isValidElement(markPoint);
+    var markPointIsObject = typeof markPoint === 'object' && !React$1__default.isValidElement(markPoint);
     var markLabel = markPointIsObject ? markPoint.label : markPoint;
     if (!markLabel && markLabel !== 0) {
       return null;
@@ -53683,7 +53683,7 @@ var Marks = function Marks(_ref) {
 
     var style = vertical ? bottomStyle : leftStyle;
     var markStyle = markPointIsObject ? _extends$23({}, style, markPoint.style) : style;
-    return React__default.createElement(
+    return React$1__default.createElement(
       'span',
       {
         className: markClassName,
@@ -53700,7 +53700,7 @@ var Marks = function Marks(_ref) {
     );
   });
 
-  return React__default.createElement(
+  return React$1__default.createElement(
     'div',
     { className: className },
     elements
@@ -53803,7 +53803,7 @@ var Handle = function (_React$Component) {
       var postionStyle = vertical ? { bottom: offset + '%' } : { left: offset + '%' };
       var elStyle = _extends$23({}, style, postionStyle);
 
-      return React__default.createElement('div', _extends$23({
+      return React$1__default.createElement('div', _extends$23({
         ref: this.setHandleRef,
         tabIndex: disabled ? null : tabIndex || 0
       }, restProps, {
@@ -53823,7 +53823,7 @@ var Handle = function (_React$Component) {
   }]);
 
   return Handle;
-}(React__default.Component);
+}(React$1__default.Component);
 
 
 Handle.propTypes = {
@@ -54209,7 +54209,7 @@ function createSlider(Component) {
             handles = _get$call.handles;
 
         var sliderClassName = classnames(prefixCls, (_classNames = {}, _defineProperty$7(_classNames, prefixCls + '-with-marks', Object.keys(marks).length), _defineProperty$7(_classNames, prefixCls + '-disabled', disabled), _defineProperty$7(_classNames, prefixCls + '-vertical', vertical), _defineProperty$7(_classNames, className, className), _classNames));
-        return React__default.createElement(
+        return React$1__default.createElement(
           'div',
           {
             ref: this.saveSlider,
@@ -54222,12 +54222,12 @@ function createSlider(Component) {
             onBlur: disabled ? noop$24 : this.onBlur,
             style: style
           },
-          React__default.createElement('div', {
+          React$1__default.createElement('div', {
             className: prefixCls + '-rail',
             style: _extends$23({}, maximumTrackStyle, railStyle)
           }),
           tracks,
-          React__default.createElement(Steps, {
+          React$1__default.createElement(Steps, {
             prefixCls: prefixCls,
             vertical: vertical,
             marks: marks,
@@ -54242,7 +54242,7 @@ function createSlider(Component) {
             activeDotStyle: activeDotStyle
           }),
           handles,
-          React__default.createElement(Marks, {
+          React$1__default.createElement(Marks, {
             className: prefixCls + '-mark',
             onClickLabel: disabled ? noop$24 : this.onClickMarkLabel,
             vertical: vertical,
@@ -54298,7 +54298,7 @@ function createSlider(Component) {
           restProps = _objectWithoutProperties$12(_ref, ['index']);
 
       delete restProps.dragging;
-      return React__default.createElement(Handle, _extends$23({}, restProps, { key: index }));
+      return React$1__default.createElement(Handle, _extends$23({}, restProps, { key: index }));
     },
 
     onBeforeChange: noop$24,
@@ -54488,7 +54488,7 @@ var Slider = function (_React$Component) {
       });
 
       var _trackStyle = trackStyle[0] || trackStyle;
-      var track = React__default.createElement(Track, {
+      var track = React$1__default.createElement(Track, {
         className: prefixCls + '-track',
         vertical: vertical,
         included: included,
@@ -54502,7 +54502,7 @@ var Slider = function (_React$Component) {
   }]);
 
   return Slider;
-}(React__default.Component);
+}(React$1__default.Component);
 
 Slider.propTypes = {
   defaultValue: propTypes.number,
@@ -54927,7 +54927,7 @@ var Range = function (_React$Component) {
 
         var i = index + 1;
         var trackClassName = classnames((_classNames2 = {}, _defineProperty$7(_classNames2, prefixCls + '-track', true), _defineProperty$7(_classNames2, prefixCls + '-track-' + i, true), _classNames2));
-        return React__default.createElement(Track, {
+        return React$1__default.createElement(Track, {
           className: trackClassName,
           vertical: vertical,
           included: included,
@@ -54943,7 +54943,7 @@ var Range = function (_React$Component) {
   }]);
 
   return Range;
-}(React__default.Component);
+}(React$1__default.Component);
 
 Range.displayName = 'Range';
 Range.propTypes = {
@@ -55002,10 +55002,10 @@ var Slider$1 = function (_React$Component) {
             var visibles = _this.state.visibles;
 
             var visible = tipFormatter ? visibles[index] || dragging : false;
-            return React.createElement(
+            return React$1.createElement(
                 Tooltip$1,
                 { prefixCls: tooltipPrefixCls, title: tipFormatter ? tipFormatter(value) : '', visible: visible, placement: 'top', transitionName: 'zoom-down', key: index },
-                React.createElement(Handle, _extends$23({}, restProps, { value: value, onMouseEnter: function onMouseEnter() {
+                React$1.createElement(Handle, _extends$23({}, restProps, { value: value, onMouseEnter: function onMouseEnter() {
                         return _this.toggleTooltipVisible(index, true);
                     }, onMouseLeave: function onMouseLeave() {
                         return _this.toggleTooltipVisible(index, false);
@@ -55038,14 +55038,14 @@ var Slider$1 = function (_React$Component) {
                 range = _a.range,
                 restProps = __rest$30(_a, ["range"]);
             if (range) {
-                return React.createElement(RcRange, _extends$23({}, restProps, { ref: this.saveSlider, handle: this.handleWithTooltip }));
+                return React$1.createElement(RcRange, _extends$23({}, restProps, { ref: this.saveSlider, handle: this.handleWithTooltip }));
             }
-            return React.createElement(RcSlider, _extends$23({}, restProps, { ref: this.saveSlider, handle: this.handleWithTooltip }));
+            return React$1.createElement(RcSlider, _extends$23({}, restProps, { ref: this.saveSlider, handle: this.handleWithTooltip }));
         }
     }]);
 
     return Slider;
-}(React.Component);
+}(React$1.Component);
 
 Slider$1.defaultProps = {
     prefixCls: 'ant-slider',
@@ -55151,17 +55151,17 @@ var Steps$1 = function (_Component) {
           lastStepOffsetWidth = _state.lastStepOffsetWidth,
           flexSupported = _state.flexSupported;
 
-      var filteredChildren = React__default.Children.toArray(children).filter(function (c) {
+      var filteredChildren = React$1__default.Children.toArray(children).filter(function (c) {
         return !!c;
       });
       var lastIndex = filteredChildren.length - 1;
       var adjustedlabelPlacement = !!progressDot ? 'vertical' : labelPlacement;
       var classString = classnames(prefixCls, prefixCls + '-' + direction, className, (_classNames = {}, _defineProperty$7(_classNames, prefixCls + '-' + size, size), _defineProperty$7(_classNames, prefixCls + '-label-' + adjustedlabelPlacement, direction === 'horizontal'), _defineProperty$7(_classNames, prefixCls + '-dot', !!progressDot), _classNames));
 
-      return React__default.createElement(
+      return React$1__default.createElement(
         'div',
         _extends$23({ className: classString, style: style }, restProps),
-        React.Children.map(filteredChildren, function (child, index) {
+        React$1.Children.map(filteredChildren, function (child, index) {
           if (!child) {
             return null;
           }
@@ -55189,14 +55189,14 @@ var Steps$1 = function (_Component) {
               childProps.status = 'wait';
             }
           }
-          return React.cloneElement(child, childProps);
+          return React$1.cloneElement(child, childProps);
         })
       );
     }
   }]);
 
   return Steps;
-}(React.Component);
+}(React$1.Component);
 
 Steps$1.propTypes = {
   prefixCls: propTypes.string,
@@ -55252,32 +55252,32 @@ var Step = function (_React$Component) {
 
       var iconNode = void 0;
       var iconClassName = classnames(prefixCls + '-icon', iconPrefix + 'icon', (_classNames = {}, _defineProperty$7(_classNames, iconPrefix + 'icon-' + icon, icon && isString$1(icon)), _defineProperty$7(_classNames, iconPrefix + 'icon-check', !icon && status === 'finish'), _defineProperty$7(_classNames, iconPrefix + 'icon-cross', !icon && status === 'error'), _classNames));
-      var iconDot = React__default.createElement('span', { className: prefixCls + '-icon-dot' });
+      var iconDot = React$1__default.createElement('span', { className: prefixCls + '-icon-dot' });
       // `progressDot` enjoy the highest priority
       if (progressDot) {
         if (typeof progressDot === 'function') {
-          iconNode = React__default.createElement(
+          iconNode = React$1__default.createElement(
             'span',
             { className: prefixCls + '-icon' },
             progressDot(iconDot, { index: stepNumber - 1, status: status, title: title, description: description })
           );
         } else {
-          iconNode = React__default.createElement(
+          iconNode = React$1__default.createElement(
             'span',
             { className: prefixCls + '-icon' },
             iconDot
           );
         }
       } else if (icon && !isString$1(icon)) {
-        iconNode = React__default.createElement(
+        iconNode = React$1__default.createElement(
           'span',
           { className: prefixCls + '-icon' },
           icon
         );
       } else if (icon || status === 'finish' || status === 'error') {
-        iconNode = React__default.createElement('span', { className: iconClassName });
+        iconNode = React$1__default.createElement('span', { className: iconClassName });
       } else {
-        iconNode = React__default.createElement(
+        iconNode = React$1__default.createElement(
           'span',
           { className: prefixCls + '-icon' },
           stepNumber
@@ -55314,31 +55314,31 @@ var Step = function (_React$Component) {
       if (adjustMarginRight) {
         stepItemStyle.marginRight = adjustMarginRight;
       }
-      return React__default.createElement(
+      return React$1__default.createElement(
         'div',
         _extends$23({}, restProps, {
           className: classString,
           style: stepItemStyle
         }),
-        React__default.createElement(
+        React$1__default.createElement(
           'div',
           { className: prefixCls + '-item-tail' },
           tailContent
         ),
-        React__default.createElement(
+        React$1__default.createElement(
           'div',
           { className: prefixCls + '-item-icon' },
           this.renderIconNode()
         ),
-        React__default.createElement(
+        React$1__default.createElement(
           'div',
           { className: prefixCls + '-item-content' },
-          React__default.createElement(
+          React$1__default.createElement(
             'div',
             { className: prefixCls + '-item-title' },
             title
           ),
-          description && React__default.createElement(
+          description && React$1__default.createElement(
             'div',
             { className: prefixCls + '-item-description' },
             description
@@ -55349,7 +55349,7 @@ var Step = function (_React$Component) {
   }]);
 
   return Step;
-}(React__default.Component);
+}(React$1__default.Component);
 
 Step.propTypes = {
   className: propTypes.string,
@@ -55382,12 +55382,12 @@ var Steps$2 = function (_React$Component) {
     _createClass$10(Steps, [{
         key: 'render',
         value: function render() {
-            return React.createElement(Steps$1, this.props);
+            return React$1.createElement(Steps$1, this.props);
         }
     }]);
 
     return Steps;
-}(React.Component);
+}(React$1.Component);
 
 Steps$2.Step = Steps$1.Step;
 Steps$2.defaultProps = {
@@ -55488,7 +55488,7 @@ var Switch = function (_Component) {
       var checked = this.state.checked;
       var switchTabIndex = disabled ? -1 : tabIndex || 0;
       var switchClassName = classNames((_classNames = {}, _defineProperty$7(_classNames, className, !!className), _defineProperty$7(_classNames, prefixCls, true), _defineProperty$7(_classNames, prefixCls + '-checked', checked), _defineProperty$7(_classNames, prefixCls + '-disabled', disabled), _classNames));
-      return React__default.createElement(
+      return React$1__default.createElement(
         'span',
         _extends$23({}, restProps, {
           className: switchClassName,
@@ -55498,7 +55498,7 @@ var Switch = function (_Component) {
           onClick: this.toggle,
           onMouseUp: this.handleMouseUp
         }),
-        React__default.createElement(
+        React$1__default.createElement(
           'span',
           { className: prefixCls + '-inner' },
           checked ? checkedChildren : unCheckedChildren
@@ -55508,7 +55508,7 @@ var Switch = function (_Component) {
   }]);
 
   return Switch;
-}(React.Component);
+}(React$1.Component);
 
 var _initialiseProps$19 = function _initialiseProps() {
   var _this2 = this;
@@ -55618,12 +55618,12 @@ var Switch$2 = function (_React$Component) {
                 className = _props$className === undefined ? '' : _props$className;
 
             var classes = classnames(className, (_classNames = {}, _defineProperty$7(_classNames, prefixCls + '-small', size === 'small'), _defineProperty$7(_classNames, prefixCls + '-loading', loading), _classNames));
-            return React.createElement(es, _extends$23({}, omit(this.props, ['loading']), { className: classes, ref: this.saveSwitch }));
+            return React$1.createElement(es, _extends$23({}, omit(this.props, ['loading']), { className: classes, ref: this.saveSwitch }));
         }
     }]);
 
     return Switch;
-}(React.Component);
+}(React$1.Component);
 
 Switch$2.defaultProps = {
     prefixCls: 'ant-switch'
@@ -57215,8 +57215,8 @@ var ColumnManager = function () {
       var _this10 = this;
 
       var columns = [];
-      React__default.Children.forEach(elements, function (element) {
-        if (!React__default.isValidElement(element)) {
+      React$1__default.Children.forEach(elements, function (element) {
+        if (!React$1__default.isValidElement(element)) {
           return;
         }
         var column = _extends$23({}, element.props);
@@ -57276,7 +57276,7 @@ function ColGroup(props, _ref) {
   var cols = [];
 
   if (expandIconAsCell && fixed !== 'right') {
-    cols.push(React__default.createElement('col', { className: prefixCls + '-expand-icon-col', key: 'rc-table-expand-icon-col' }));
+    cols.push(React$1__default.createElement('col', { className: prefixCls + '-expand-icon-col', key: 'rc-table-expand-icon-col' }));
   }
 
   var leafColumns = void 0;
@@ -57289,10 +57289,10 @@ function ColGroup(props, _ref) {
     leafColumns = table.columnManager.leafColumns();
   }
   cols = cols.concat(leafColumns.map(function (c) {
-    return React__default.createElement('col', { key: c.key || c.dataIndex, style: { width: c.width, minWidth: c.width } });
+    return React$1__default.createElement('col', { key: c.key || c.dataIndex, style: { width: c.width, minWidth: c.width } });
   }));
 
-  return React__default.createElement(
+  return React$1__default.createElement(
     'colgroup',
     null,
     cols
@@ -57322,7 +57322,7 @@ function TableHeaderRow(_ref) {
   var customStyle = rowProps ? rowProps.style : {};
   var style = _extends$23({ height: height }, customStyle);
 
-  return React__default.createElement(
+  return React$1__default.createElement(
     HeaderRow,
     _extends$23({}, rowProps, { style: style }),
     row.map(function (cell, i) {
@@ -57333,7 +57333,7 @@ function TableHeaderRow(_ref) {
       if (column.align) {
         customProps.style = _extends$23({}, customProps.style, { textAlign: column.align });
       }
-      return React__default.createElement(HeaderCell, _extends$23({}, cellProps, customProps, { key: column.key || column.dataIndex || i }));
+      return React$1__default.createElement(HeaderCell, _extends$23({}, cellProps, customProps, { key: column.key || column.dataIndex || i }));
     })
   );
 }
@@ -57432,11 +57432,11 @@ function TableHeader(props, _ref) {
 
   var HeaderWrapper = components.header.wrapper;
 
-  return React__default.createElement(
+  return React$1__default.createElement(
     HeaderWrapper,
     { className: prefixCls + '-thead' },
     rows.map(function (row, index) {
-      return React__default.createElement(TableHeaderRow$1, {
+      return React$1__default.createElement(TableHeaderRow$1, {
         key: index,
         index: index,
         fixed: fixed,
@@ -57462,7 +57462,7 @@ TableHeader.contextTypes = {
 };
 
 function isInvalidRenderCellText(text) {
-  return text && !React__default.isValidElement(text) && Object.prototype.toString.call(text) === '[object Object]';
+  return text && !React$1__default.isValidElement(text) && Object.prototype.toString.call(text) === '[object Object]';
 }
 
 var TableCell = function (_React$Component) {
@@ -57541,7 +57541,7 @@ var TableCell = function (_React$Component) {
         text = null;
       }
 
-      var indentText = expandIcon ? React__default.createElement('span', {
+      var indentText = expandIcon ? React$1__default.createElement('span', {
         style: { paddingLeft: indentSize * indent + 'px' },
         className: prefixCls + '-indent indent-level-' + indent
       }) : null;
@@ -57554,7 +57554,7 @@ var TableCell = function (_React$Component) {
         tdProps.style = _extends$23({}, tdProps.style, { textAlign: column.align });
       }
 
-      return React__default.createElement(
+      return React$1__default.createElement(
         BodyCell,
         _extends$23({ className: className, onClick: this.handleClick }, tdProps),
         indentText,
@@ -57565,7 +57565,7 @@ var TableCell = function (_React$Component) {
   }]);
 
   return TableCell;
-}(React__default.Component);
+}(React$1__default.Component);
 
 TableCell.propTypes = {
   record: propTypes.object,
@@ -57787,7 +57787,7 @@ var TableRow = function (_React$Component) {
 
         warningOnce(column.onCellClick === undefined, 'column[onCellClick] is deprecated, please use column[onCell] instead.');
 
-        cells.push(React__default.createElement(TableCell, {
+        cells.push(React$1__default.createElement(TableCell, {
           prefixCls: prefixCls,
           record: record,
           indentSize: indentSize,
@@ -57812,7 +57812,7 @@ var TableRow = function (_React$Component) {
 
       style = _extends$23({}, style, customStyle);
 
-      return React__default.createElement(
+      return React$1__default.createElement(
         BodyRow,
         _extends$23({
           onClick: this.onRowClick,
@@ -57844,7 +57844,7 @@ var TableRow = function (_React$Component) {
   }]);
 
   return TableRow;
-}(React__default.Component);
+}(React$1__default.Component);
 
 TableRow.propTypes = {
   onRow: propTypes.func,
@@ -57952,21 +57952,21 @@ var ExpandIcon = function (_React$Component) {
 
       if (expandable) {
         var expandClassName = expanded ? 'expanded' : 'collapsed';
-        return React__default.createElement('span', {
+        return React$1__default.createElement('span', {
           className: prefixCls + '-expand-icon ' + prefixCls + '-' + expandClassName,
           onClick: function onClick(e) {
             return onExpand(record, e);
           }
         });
       } else if (needIndentSpaced) {
-        return React__default.createElement('span', { className: prefixCls + '-expand-icon ' + prefixCls + '-spaced' });
+        return React$1__default.createElement('span', { className: prefixCls + '-expand-icon ' + prefixCls + '-spaced' });
       }
       return null;
     }
   }]);
 
   return ExpandIcon;
-}(React__default.Component);
+}(React$1__default.Component);
 
 ExpandIcon.propTypes = {
   record: propTypes.object,
@@ -58023,7 +58023,7 @@ var ExpandableRow = function (_React$Component) {
           needIndentSpaced = _this$props3.needIndentSpaced;
 
 
-      return React__default.createElement(ExpandIcon, {
+      return React$1__default.createElement(ExpandIcon, {
         expandable: _this.expandable,
         prefixCls: prefixCls,
         onExpand: _this.handleExpandChange,
@@ -58038,7 +58038,7 @@ var ExpandableRow = function (_React$Component) {
       var prefixCls = _this.props.prefixCls;
 
 
-      cells.push(React__default.createElement(
+      cells.push(React$1__default.createElement(
         'td',
         { className: prefixCls + '-expand-icon-cell', key: 'rc-table-expand-icon-cell' },
         _this.renderExpandIcon()
@@ -58092,7 +58092,7 @@ var ExpandableRow = function (_React$Component) {
   }]);
 
   return ExpandableRow;
-}(React__default.Component);
+}(React$1__default.Component);
 
 ExpandableRow.propTypes = {
   prefixCls: propTypes.string.isRequired,
@@ -58185,7 +58185,7 @@ var BaseTable = function (_React$Component) {
 
         var rowPrefixCls = prefixCls + '-row';
 
-        var row = React__default.createElement(
+        var row = React$1__default.createElement(
           ExpandableRow$1,
           _extends$23({}, expander.props, {
             fixed: fixed,
@@ -58200,7 +58200,7 @@ var BaseTable = function (_React$Component) {
           }),
           function (expandableRow) {
             return (// eslint-disable-line
-              React__default.createElement(TableRow$1, _extends$23({
+              React$1__default.createElement(TableRow$1, _extends$23({
                 fixed: fixed,
                 indent: indent,
                 className: className,
@@ -58286,7 +58286,7 @@ var BaseTable = function (_React$Component) {
 
       var body = void 0;
       if (hasBody) {
-        body = React__default.createElement(
+        body = React$1__default.createElement(
           BodyWrapper,
           { className: prefixCls + '-tbody' },
           this.renderRows(data, 0)
@@ -58298,18 +58298,18 @@ var BaseTable = function (_React$Component) {
 
       var columns = this.getColumns();
 
-      return React__default.createElement(
+      return React$1__default.createElement(
         Table,
         { className: tableClassName, style: tableStyle, key: 'table' },
-        React__default.createElement(ColGroup, { columns: columns, fixed: fixed }),
-        hasHead && React__default.createElement(TableHeader, { expander: expander, columns: columns, fixed: fixed }),
+        React$1__default.createElement(ColGroup, { columns: columns, fixed: fixed }),
+        hasHead && React$1__default.createElement(TableHeader, { expander: expander, columns: columns, fixed: fixed }),
         body
       );
     }
   }]);
 
   return BaseTable;
-}(React__default.Component);
+}(React$1__default.Component);
 
 BaseTable.propTypes = {
   fixed: propTypes.oneOfType([propTypes.string, propTypes.bool]),
@@ -58359,7 +58359,7 @@ function HeadTable(props, _ref) {
     return null;
   }
 
-  return React__default.createElement(
+  return React$1__default.createElement(
     'div',
     {
       key: 'headTable',
@@ -58368,7 +58368,7 @@ function HeadTable(props, _ref) {
       style: headStyle,
       onScroll: handleBodyScrollLeft
     },
-    React__default.createElement(BaseTable$1, {
+    React$1__default.createElement(BaseTable$1, {
       tableClassName: tableClassName,
       hasHead: true,
       hasBody: false,
@@ -58437,7 +58437,7 @@ function BodyTable(props, _ref) {
     }
   }
 
-  var baseTable = React__default.createElement(BaseTable$1, {
+  var baseTable = React$1__default.createElement(BaseTable$1, {
     tableClassName: tableClassName,
     hasHead: !useFixedHeader,
     hasBody: true,
@@ -58457,10 +58457,10 @@ function BodyTable(props, _ref) {
     }
     delete bodyStyle.overflowX;
     delete bodyStyle.overflowY;
-    return React__default.createElement(
+    return React$1__default.createElement(
       'div',
       { key: 'bodyTable', className: prefixCls + '-body-outer', style: _extends$23({}, bodyStyle) },
-      React__default.createElement(
+      React$1__default.createElement(
         'div',
         {
           className: prefixCls + '-body-inner',
@@ -58474,7 +58474,7 @@ function BodyTable(props, _ref) {
     );
   }
 
-  return React__default.createElement(
+  return React$1__default.createElement(
     'div',
     {
       key: 'bodyTable',
@@ -58603,7 +58603,7 @@ var ExpandableTable = function (_React$Component) {
         });
       }
 
-      return React__default.createElement(TableRow$1, {
+      return React$1__default.createElement(TableRow$1, {
         key: rowKey,
         columns: columns,
         className: className,
@@ -58640,7 +58640,7 @@ var ExpandableTable = function (_React$Component) {
   }]);
 
   return ExpandableTable;
-}(React__default.Component);
+}(React$1__default.Component);
 
 ExpandableTable.propTypes = {
   expandIconAsCell: propTypes.bool,
@@ -59044,7 +59044,7 @@ var Table = function (_React$Component) {
         isAnyColumnsFixed: isAnyColumnsFixed
       }), this.renderEmptyText(), this.renderFooter()];
 
-      return scrollable ? React__default.createElement(
+      return scrollable ? React$1__default.createElement(
         'div',
         { className: prefixCls + '-scroll' },
         table
@@ -59056,7 +59056,7 @@ var Table = function (_React$Component) {
       var prefixCls = this.props.prefixCls;
 
 
-      return React__default.createElement(
+      return React$1__default.createElement(
         'div',
         { className: prefixCls + '-fixed-left' },
         this.renderTable({
@@ -59071,7 +59071,7 @@ var Table = function (_React$Component) {
       var prefixCls = this.props.prefixCls;
 
 
-      return React__default.createElement(
+      return React$1__default.createElement(
         'div',
         { className: prefixCls + '-fixed-right' },
         this.renderTable({
@@ -59093,7 +59093,7 @@ var Table = function (_React$Component) {
 
       var tableClassName = scroll.x || fixed ? prefixCls + '-fixed' : '';
 
-      var headTable = React__default.createElement(HeadTable, {
+      var headTable = React$1__default.createElement(HeadTable, {
         key: 'head',
         columns: columns,
         fixed: fixed,
@@ -59102,7 +59102,7 @@ var Table = function (_React$Component) {
         expander: this.expander
       });
 
-      var bodyTable = React__default.createElement(BodyTable, {
+      var bodyTable = React$1__default.createElement(BodyTable, {
         key: 'body',
         columns: columns,
         fixed: fixed,
@@ -59123,7 +59123,7 @@ var Table = function (_React$Component) {
           title = _props3.title,
           prefixCls = _props3.prefixCls;
 
-      return title ? React__default.createElement(
+      return title ? React$1__default.createElement(
         'div',
         { className: prefixCls + '-title', key: 'title' },
         title(this.props.data)
@@ -59136,7 +59136,7 @@ var Table = function (_React$Component) {
           footer = _props4.footer,
           prefixCls = _props4.prefixCls;
 
-      return footer ? React__default.createElement(
+      return footer ? React$1__default.createElement(
         'div',
         { className: prefixCls + '-footer', key: 'footer' },
         footer(this.props.data)
@@ -59154,7 +59154,7 @@ var Table = function (_React$Component) {
         return null;
       }
       var emptyClassName = prefixCls + '-placeholder';
-      return React__default.createElement(
+      return React$1__default.createElement(
         'div',
         { className: emptyClassName, key: 'emptyText' },
         typeof emptyText === 'function' ? emptyText() : emptyText
@@ -59189,15 +59189,15 @@ var Table = function (_React$Component) {
       var hasLeftFixed = this.columnManager.isAnyColumnsLeftFixed();
       var hasRightFixed = this.columnManager.isAnyColumnsRightFixed();
 
-      return React__default.createElement(
+      return React$1__default.createElement(
         lib_3,
         { store: this.store },
-        React__default.createElement(
+        React$1__default.createElement(
           ExpandableTable$1,
           _extends$23({}, props, { columnManager: this.columnManager, getRowKey: this.getRowKey }),
           function (expander) {
             _this2.expander = expander;
-            return React__default.createElement(
+            return React$1__default.createElement(
               'div',
               {
                 ref: _this2.saveRef('tableNode'),
@@ -59206,7 +59206,7 @@ var Table = function (_React$Component) {
                 id: props.id
               },
               _this2.renderTitle(),
-              React__default.createElement(
+              React$1__default.createElement(
                 'div',
                 { className: prefixCls + '-content' },
                 _this2.renderMainTable(),
@@ -59237,7 +59237,7 @@ var Table = function (_React$Component) {
   }]);
 
   return Table;
-}(React__default.Component);
+}(React$1__default.Component);
 
 Table.propTypes = _extends$23({
   data: propTypes.array,
@@ -59333,7 +59333,7 @@ var ColumnGroup = function (_Component) {
   }
 
   return ColumnGroup;
-}(React.Component);
+}(React$1.Component);
 
 ColumnGroup.isTableColumnGroup = true;
 ColumnGroup.propTypes = {
@@ -59416,7 +59416,7 @@ var domClosest = function (element, selector, context) {
 };
 
 var FilterDropdownMenuWrapper = (function (props) {
-    return React.createElement(
+    return React$1.createElement(
         'div',
         { className: props.className, onClick: props.onClick },
         props.children
@@ -59488,10 +59488,10 @@ var FilterMenu = function (_React$Component) {
                 filterIcon = filterIcon(filterd);
             }
             var dropdownSelectedClass = filterd ? prefixCls + '-selected' : '';
-            return filterIcon ? React.cloneElement(filterIcon, {
+            return filterIcon ? React$1.cloneElement(filterIcon, {
                 title: locale.filterTitle,
                 className: classnames(prefixCls + '-icon', filterIcon.props.className)
-            }) : React.createElement(Icon, { title: locale.filterTitle, type: 'filter', className: dropdownSelectedClass });
+            }) : React$1.createElement(Icon, { title: locale.filterTitle, type: 'filter', className: dropdownSelectedClass });
         };
         var visible = 'filterDropdownVisible' in props.column ? props.column.filterDropdownVisible : false;
         _this.state = {
@@ -59561,12 +59561,12 @@ var FilterMenu = function (_React$Component) {
             var selectedKeys = this.state.selectedKeys;
 
             var multiple = 'filterMultiple' in column ? column.filterMultiple : true;
-            var input = multiple ? React.createElement(Checkbox$1, { checked: selectedKeys.indexOf(item.value.toString()) >= 0 }) : React.createElement(Radio, { checked: selectedKeys.indexOf(item.value.toString()) >= 0 });
-            return React.createElement(
+            var input = multiple ? React$1.createElement(Checkbox$1, { checked: selectedKeys.indexOf(item.value.toString()) >= 0 }) : React$1.createElement(Radio, { checked: selectedKeys.indexOf(item.value.toString()) >= 0 });
+            return React$1.createElement(
                 connected$1,
                 { key: item.value },
                 input,
-                React.createElement(
+                React$1.createElement(
                     'span',
                     null,
                     item.text
@@ -59596,7 +59596,7 @@ var FilterMenu = function (_React$Component) {
                         return keyPathOfSelectedItem[key].indexOf(item.value) >= 0;
                     });
                     var subMenuCls = containSelected ? _this2.props.dropdownPrefixCls + '-submenu-contain-selected' : '';
-                    return React.createElement(
+                    return React$1.createElement(
                         connected,
                         { title: item.text, className: subMenuCls, key: item.value.toString() },
                         _this2.renderMenus(item.children)
@@ -59637,36 +59637,36 @@ var FilterMenu = function (_React$Component) {
                     }
                 });
             }
-            var menus = filterDropdown ? React.createElement(
+            var menus = filterDropdown ? React$1.createElement(
                 FilterDropdownMenuWrapper,
                 null,
                 filterDropdown
-            ) : React.createElement(
+            ) : React$1.createElement(
                 FilterDropdownMenuWrapper,
                 { className: prefixCls + '-dropdown' },
-                React.createElement(
+                React$1.createElement(
                     Menu,
                     { multiple: multiple, onClick: this.handleMenuItemClick, prefixCls: dropdownPrefixCls + '-menu', className: dropdownMenuClass, onSelect: this.setSelectedKeys, onDeselect: this.setSelectedKeys, selectedKeys: this.state.selectedKeys, getPopupContainer: function getPopupContainer(triggerNode) {
                             return triggerNode.parentNode;
                         } },
                     this.renderMenus(column.filters)
                 ),
-                React.createElement(
+                React$1.createElement(
                     'div',
                     { className: prefixCls + '-dropdown-btns' },
-                    React.createElement(
+                    React$1.createElement(
                         'a',
                         { className: prefixCls + '-dropdown-link confirm', onClick: this.handleConfirm },
                         locale.filterConfirm
                     ),
-                    React.createElement(
+                    React$1.createElement(
                         'a',
                         { className: prefixCls + '-dropdown-link clear', onClick: this.handleClearFilters },
                         locale.filterReset
                     )
                 )
             );
-            return React.createElement(
+            return React$1.createElement(
                 Dropdown$1,
                 { trigger: ['click'], overlay: menus, visible: this.neverShown ? false : this.state.visible, onVisibleChange: this.onVisibleChange, getPopupContainer: getPopupContainer, forceRender: true },
                 this.renderFilterIcon()
@@ -59675,7 +59675,7 @@ var FilterMenu = function (_React$Component) {
     }]);
 
     return FilterMenu;
-}(React.Component);
+}(React$1.Component);
 
 FilterMenu.defaultProps = {
     handleFilter: function handleFilter() {},
@@ -59780,15 +59780,15 @@ var SelectionBox = function (_React$Component) {
                 rest = __rest$31(_a, ["type", "rowIndex"]);var checked = this.state.checked;
 
             if (type === 'radio') {
-                return React.createElement(Radio, _extends$23({ checked: checked, value: rowIndex }, rest));
+                return React$1.createElement(Radio, _extends$23({ checked: checked, value: rowIndex }, rest));
             } else {
-                return React.createElement(Checkbox$1, _extends$23({ checked: checked }, rest));
+                return React$1.createElement(Checkbox$1, _extends$23({ checked: checked }, rest));
             }
         }
     }]);
 
     return SelectionBox;
-}(React.Component);
+}(React$1.Component);
 
 var SelectionCheckboxAll = function (_React$Component) {
     _inherits$14(SelectionCheckboxAll, _React$Component);
@@ -59914,10 +59914,10 @@ var SelectionCheckboxAll = function (_React$Component) {
             var _this3 = this;
 
             return selections.map(function (selection, index) {
-                return React.createElement(
+                return React$1.createElement(
                     Menu$1.Item,
                     { key: selection.key || index },
-                    React.createElement(
+                    React$1.createElement(
                         'div',
                         { onClick: function onClick() {
                                 _this3.props.onSelect(selection.key, index, selection.onSelect);
@@ -59943,32 +59943,32 @@ var SelectionCheckboxAll = function (_React$Component) {
             var customSelections = null;
             if (selections) {
                 var newSelections = Array.isArray(selections) ? this.defaultSelections.concat(selections) : this.defaultSelections;
-                var menu = React.createElement(
+                var menu = React$1.createElement(
                     Menu$1,
                     { className: selectionPrefixCls + '-menu', selectedKeys: [] },
                     this.renderMenus(newSelections)
                 );
-                customSelections = newSelections.length > 0 ? React.createElement(
+                customSelections = newSelections.length > 0 ? React$1.createElement(
                     Dropdown$1,
                     { overlay: menu, getPopupContainer: getPopupContainer },
-                    React.createElement(
+                    React$1.createElement(
                         'div',
                         { className: selectionPrefixCls + '-down' },
-                        React.createElement(Icon, { type: 'down' })
+                        React$1.createElement(Icon, { type: 'down' })
                     )
                 ) : null;
             }
-            return React.createElement(
+            return React$1.createElement(
                 'div',
                 { className: selectionPrefixCls },
-                React.createElement(Checkbox$1, { className: classnames(_defineProperty$7({}, selectionPrefixCls + '-select-all-custom', customSelections)), checked: checked, indeterminate: indeterminate, disabled: disabled, onChange: this.handleSelectAllChagne }),
+                React$1.createElement(Checkbox$1, { className: classnames(_defineProperty$7({}, selectionPrefixCls + '-select-all-custom', customSelections)), checked: checked, indeterminate: indeterminate, disabled: disabled, onChange: this.handleSelectAllChagne }),
                 customSelections
             );
         }
     }]);
 
     return SelectionCheckboxAll;
-}(React.Component);
+}(React$1.Component);
 
 var Column$1 = function (_React$Component) {
   _inherits$14(Column, _React$Component);
@@ -59980,7 +59980,7 @@ var Column$1 = function (_React$Component) {
   }
 
   return Column;
-}(React.Component);
+}(React$1.Component);
 
 var ColumnGroup$1 = function (_React$Component) {
   _inherits$14(ColumnGroup, _React$Component);
@@ -59992,7 +59992,7 @@ var ColumnGroup$1 = function (_React$Component) {
   }
 
   return ColumnGroup;
-}(React.Component);
+}(React$1.Component);
 
 ColumnGroup$1.__ANT_TABLE_COLUMN_GROUP = true;
 
@@ -60054,7 +60054,7 @@ function createTableRow() {
             value: function render() {
                 var rowProps = omit(this.props, ['prefixCls', 'rowKey', 'store']);
                 var className = classnames(this.props.className, _defineProperty$7({}, this.props.prefixCls + '-row-selected', this.state.selected));
-                return React.createElement(
+                return React$1.createElement(
                     Component,
                     _extends$23({}, rowProps, { className: className }),
                     this.props.children
@@ -60063,7 +60063,7 @@ function createTableRow() {
         }]);
 
         return BodyRow;
-    }(React.Component);
+    }(React$1.Component);
 
     return BodyRow;
 }
@@ -60115,8 +60115,8 @@ function flatFilter(tree, callback) {
 }
 function normalizeColumns(elements) {
     var columns = [];
-    React.Children.forEach(elements, function (element) {
-        if (!React.isValidElement(element)) {
+    React$1.Children.forEach(elements, function (element) {
+        if (!React$1.isValidElement(element)) {
             return;
         }
         var column = _extends$23({}, element.props);
@@ -60435,10 +60435,10 @@ var Table$1 = function (_React$Component) {
                 var handleChange = function handleChange(e) {
                     type === 'radio' ? _this.handleRadioSelect(record, index, e) : _this.handleSelect(record, index, e);
                 };
-                return React.createElement(
+                return React$1.createElement(
                     'span',
                     { onClick: stopPropagation },
-                    React.createElement(SelectionBox, _extends$23({ type: type, store: _this.store, rowIndex: rowKey, onChange: handleChange, defaultSelection: _this.getDefaultSelection() }, props))
+                    React$1.createElement(SelectionBox, _extends$23({ type: type, store: _this.store, rowIndex: rowKey, onChange: handleChange, defaultSelection: _this.getDefaultSelection() }, props))
                 );
             };
         };
@@ -60486,7 +60486,7 @@ var Table$1 = function (_React$Component) {
             if ('expandIconColumnIndex' in restProps) {
                 expandIconColumnIndex = restProps.expandIconColumnIndex;
             }
-            return React.createElement(Table, _extends$23({ key: 'table' }, restProps, { onRow: _this.onRow, components: _this.components, prefixCls: prefixCls, data: data, columns: columns, showHeader: showHeader, className: classString, expandIconColumnIndex: expandIconColumnIndex, expandIconAsCell: expandIconAsCell, emptyText: !loading.spinning && locale.emptyText }));
+            return React$1.createElement(Table, _extends$23({ key: 'table' }, restProps, { onRow: _this.onRow, components: _this.components, prefixCls: prefixCls, data: data, columns: columns, showHeader: showHeader, className: classString, expandIconColumnIndex: expandIconColumnIndex, expandIconAsCell: expandIconAsCell, emptyText: !loading.spinning && locale.emptyText }));
         };
         warning$4(!('columnsPageRange' in props || 'columnsPageSize' in props), '`columnsPageRange` and `columnsPageSize` are removed, please use ' + 'fixed columns instead, see: https://u.ant.design/fixed-columns.');
         _this.columns = props.columns || normalizeColumns(props.children);
@@ -60773,7 +60773,7 @@ var Table$1 = function (_React$Component) {
                     var checkboxAllDisabled = data.every(function (item, index) {
                         return _this6.getCheckboxPropsByItem(item, index).disabled;
                     });
-                    selectionColumn.title = selectionColumn.title || React.createElement(SelectionCheckboxAll, { store: this.store, locale: locale, data: data, getCheckboxPropsByItem: this.getCheckboxPropsByItem, getRecordKey: this.getRecordKey, disabled: checkboxAllDisabled, prefixCls: prefixCls, onSelect: this.handleSelectRow, selections: rowSelection.selections, hideDefaultSelections: rowSelection.hideDefaultSelections, getPopupContainer: this.getPopupContainer });
+                    selectionColumn.title = selectionColumn.title || React$1.createElement(SelectionCheckboxAll, { store: this.store, locale: locale, data: data, getCheckboxPropsByItem: this.getCheckboxPropsByItem, getRecordKey: this.getRecordKey, disabled: checkboxAllDisabled, prefixCls: prefixCls, onSelect: this.handleSelectRow, selections: rowSelection.selections, hideDefaultSelections: rowSelection.hideDefaultSelections, getPopupContainer: this.getPopupContainer });
                 }
                 if ('fixed' in rowSelection) {
                     selectionColumn.fixed = rowSelection.fixed;
@@ -60834,7 +60834,7 @@ var Table$1 = function (_React$Component) {
                 var sortButton = void 0;
                 if (column.filters && column.filters.length > 0 || column.filterDropdown) {
                     var colFilters = _this7.state.filters[key] || [];
-                    filterDropdown = React.createElement(FilterMenu, { locale: locale, column: column, selectedKeys: colFilters, confirmFilter: _this7.handleFilter, prefixCls: prefixCls + '-filter', dropdownPrefixCls: dropdownPrefixCls || 'ant-dropdown', getPopupContainer: _this7.getPopupContainer });
+                    filterDropdown = React$1.createElement(FilterMenu, { locale: locale, column: column, selectedKeys: colFilters, confirmFilter: _this7.handleFilter, prefixCls: prefixCls + '-filter', dropdownPrefixCls: dropdownPrefixCls || 'ant-dropdown', getPopupContainer: _this7.getPopupContainer });
                 }
                 if (column.sorter) {
                     var isSortColumn = _this7.isSortColumn(column);
@@ -60843,26 +60843,26 @@ var Table$1 = function (_React$Component) {
                     }
                     var isAscend = isSortColumn && sortOrder === 'ascend';
                     var isDescend = isSortColumn && sortOrder === 'descend';
-                    sortButton = React.createElement(
+                    sortButton = React$1.createElement(
                         'div',
                         { className: prefixCls + '-column-sorter' },
-                        React.createElement(
+                        React$1.createElement(
                             'span',
                             { className: prefixCls + '-column-sorter-up ' + (isAscend ? 'on' : 'off'), title: '\u2191', onClick: function onClick() {
                                     return _this7.toggleSortOrder('ascend', column);
                                 } },
-                            React.createElement(Icon, { type: 'caret-up' })
+                            React$1.createElement(Icon, { type: 'caret-up' })
                         ),
-                        React.createElement(
+                        React$1.createElement(
                             'span',
                             { className: prefixCls + '-column-sorter-down ' + (isDescend ? 'on' : 'off'), title: '\u2193', onClick: function onClick() {
                                     return _this7.toggleSortOrder('descend', column);
                                 } },
-                            React.createElement(Icon, { type: 'caret-down' })
+                            React$1.createElement(Icon, { type: 'caret-down' })
                         )
                     );
                 }
-                column.title = React.createElement(
+                column.title = React$1.createElement(
                     'span',
                     { key: key },
                     column.title,
@@ -60892,7 +60892,7 @@ var Table$1 = function (_React$Component) {
             }
             var position = pagination.position || 'bottom';
             var total = pagination.total || this.getLocalData().length;
-            return total > 0 && (position === paginationPosition || position === 'both') ? React.createElement(Pagination$1, _extends$23({ key: 'pagination-' + paginationPosition }, pagination, { className: classnames(pagination.className, this.props.prefixCls + '-pagination'), onChange: this.handlePageChange, total: total, size: size, current: this.getMaxCurrent(total), onShowSizeChange: this.handleShowSizeChange })) : null;
+            return total > 0 && (position === paginationPosition || position === 'both') ? React$1.createElement(Pagination$1, _extends$23({ key: 'pagination-' + paginationPosition }, pagination, { className: classnames(pagination.className, this.props.prefixCls + '-pagination'), onChange: this.handlePageChange, total: total, size: size, current: this.getMaxCurrent(total), onShowSizeChange: this.handleShowSizeChange })) : null;
         }
         // Get pagination, filters, sorter
 
@@ -61040,7 +61040,7 @@ var Table$1 = function (_React$Component) {
                     spinning: loading
                 };
             }
-            var table = React.createElement(
+            var table = React$1.createElement(
                 LocaleReceiver,
                 { componentName: 'Table', defaultLocale: defaultLocale.Table },
                 function (locale) {
@@ -61050,10 +61050,10 @@ var Table$1 = function (_React$Component) {
             // if there is no pagination or no data,
             // the height of spin should decrease by half of pagination
             var paginationPatchClass = this.hasPagination() && data && data.length !== 0 ? prefixCls + '-with-pagination' : prefixCls + '-without-pagination';
-            return React.createElement(
+            return React$1.createElement(
                 'div',
                 { className: classnames(prefixCls + '-wrapper', className), style: style },
-                React.createElement(
+                React$1.createElement(
                     Spin,
                     _extends$23({}, loading, { className: loading.spinning ? paginationPatchClass + ' ' + prefixCls + '-spin-holder' : '' }),
                     this.renderPagination('top'),
@@ -61065,7 +61065,7 @@ var Table$1 = function (_React$Component) {
     }]);
 
     return Table$$1;
-}(React.Component);
+}(React$1.Component);
 
 Table$1.Column = Column$1;
 Table$1.ColumnGroup = ColumnGroup$1;
@@ -61131,26 +61131,26 @@ var Search$1 = function (_React$Component) {
                 value = _props.value,
                 prefixCls = _props.prefixCls;
 
-            var icon = value && value.length > 0 ? React.createElement(
+            var icon = value && value.length > 0 ? React$1.createElement(
                 'a',
                 { href: '#', className: prefixCls + '-action', onClick: this.handleClear },
-                React.createElement(Icon, { type: 'cross-circle' })
-            ) : React.createElement(
+                React$1.createElement(Icon, { type: 'cross-circle' })
+            ) : React$1.createElement(
                 'span',
                 { className: prefixCls + '-action' },
-                React.createElement(Icon, { type: 'search' })
+                React$1.createElement(Icon, { type: 'search' })
             );
-            return React.createElement(
+            return React$1.createElement(
                 'div',
                 null,
-                React.createElement(Input, { placeholder: placeholder, className: prefixCls, value: value, ref: 'input', onChange: this.handleChange }),
+                React$1.createElement(Input, { placeholder: placeholder, className: prefixCls, value: value, ref: 'input', onChange: this.handleChange }),
                 icon
             );
         }
     }]);
 
     return Search;
-}(React.Component);
+}(React$1.Component);
 
 Search$1.defaultProps = {
     placeholder: ''
@@ -62124,7 +62124,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 
 
-var _react2 = _interopRequireDefault(React__default);
+var _react2 = _interopRequireDefault(React$1__default);
 
 
 
@@ -62294,12 +62294,12 @@ var LazyLoad = function (_Component) {
       return _react2.default.createElement(this.props.elementType, {
         className: elClasses,
         style: elStyles
-      }, visible && React__default.Children.only(children));
+      }, visible && React$1__default.Children.only(children));
     }
   }]);
 
   return LazyLoad;
-}(React__default.Component);
+}(React$1__default.Component);
 
 exports.default = LazyLoad;
 
@@ -62372,13 +62372,13 @@ var Item$1 = function (_React$Component) {
                 onClick = _props.onClick;
 
             var className = classnames((_classNames = {}, _defineProperty$7(_classNames, prefixCls + '-content-item', true), _defineProperty$7(_classNames, prefixCls + '-content-item-disabled', item.disabled), _classNames));
-            var listItem = React.createElement(
+            var listItem = React$1.createElement(
                 'li',
                 { className: className, title: renderedText, onClick: item.disabled ? undefined : function () {
                         return onClick(item);
                     } },
-                React.createElement(Checkbox$1, { checked: checked, disabled: item.disabled }),
-                React.createElement(
+                React$1.createElement(Checkbox$1, { checked: checked, disabled: item.disabled }),
+                React$1.createElement(
                     'span',
                     null,
                     renderedEl
@@ -62387,7 +62387,7 @@ var Item$1 = function (_React$Component) {
             var children = null;
             if (lazy) {
                 var lazyProps = _extends$23({ height: 32, offset: 500, throttle: 0, debounce: false }, lazy);
-                children = React.createElement(
+                children = React$1.createElement(
                     Lazyload,
                     lazyProps,
                     listItem
@@ -62400,7 +62400,7 @@ var Item$1 = function (_React$Component) {
     }]);
 
     return Item;
-}(React.Component);
+}(React$1.Component);
 
 function triggerEvent(el, type) {
     if ('createEvent' in document) {
@@ -62416,7 +62416,7 @@ function isIEorEDGE() {
 }
 function noop$27() {}
 function isRenderResultPlainObject(result) {
-    return result && !React.isValidElement(result) && Object.prototype.toString.call(result) === '[object Object]';
+    return result && !React$1.isValidElement(result) && Object.prototype.toString.call(result) === '[object Object]';
 }
 
 var TransferList = function (_React$Component) {
@@ -62589,57 +62589,57 @@ var TransferList = function (_React$Component) {
                     filteredDataSource.push(item);
                 }
                 var checked = checkedKeys.indexOf(item.key) >= 0;
-                return React.createElement(Item$1, { key: item.key, item: item, lazy: lazy, renderedText: renderedText, renderedEl: renderedEl, checked: checked, prefixCls: prefixCls, onClick: _this4.handleSelect });
+                return React$1.createElement(Item$1, { key: item.key, item: item, lazy: lazy, renderedText: renderedText, renderedEl: renderedEl, checked: checked, prefixCls: prefixCls, onClick: _this4.handleSelect });
             });
             var unit = dataSource.length > 1 ? itemsUnit : itemUnit;
-            var search = showSearch ? React.createElement(
+            var search = showSearch ? React$1.createElement(
                 'div',
                 { className: prefixCls + '-body-search-wrapper' },
-                React.createElement(Search$1, { prefixCls: prefixCls + '-search', onChange: this.handleFilter, handleClear: this.handleClear, placeholder: searchPlaceholder, value: filter })
+                React$1.createElement(Search$1, { prefixCls: prefixCls + '-search', onChange: this.handleFilter, handleClear: this.handleClear, placeholder: searchPlaceholder, value: filter })
             ) : null;
-            var listBody = bodyDom || React.createElement(
+            var listBody = bodyDom || React$1.createElement(
                 'div',
                 { className: showSearch ? prefixCls + '-body ' + prefixCls + '-body-with-search' : prefixCls + '-body' },
                 search,
-                React.createElement(
+                React$1.createElement(
                     Animate,
                     { component: 'ul', componentProps: { onScroll: onScroll }, className: prefixCls + '-content', transitionName: this.state.mounted ? prefixCls + '-content-item-highlight' : '', transitionLeave: false },
                     showItems
                 ),
-                React.createElement(
+                React$1.createElement(
                     'div',
                     { className: prefixCls + '-body-not-found', ref: this.saveNotFoundRef },
                     notFoundContent
                 )
             );
-            var listFooter = footerDom ? React.createElement(
+            var listFooter = footerDom ? React$1.createElement(
                 'div',
                 { className: prefixCls + '-footer' },
                 footerDom
             ) : null;
             var checkStatus = this.getCheckStatus(filteredDataSource);
             var checkedAll = checkStatus === 'all';
-            var checkAllCheckbox = React.createElement(Checkbox$1, { ref: 'checkbox', checked: checkedAll, indeterminate: checkStatus === 'part', onChange: function onChange() {
+            var checkAllCheckbox = React$1.createElement(Checkbox$1, { ref: 'checkbox', checked: checkedAll, indeterminate: checkStatus === 'part', onChange: function onChange() {
                     return _this4.props.handleSelectAll(filteredDataSource, checkedAll);
                 } });
-            return React.createElement(
+            return React$1.createElement(
                 'div',
                 { className: listCls, style: style },
-                React.createElement(
+                React$1.createElement(
                     'div',
                     { className: prefixCls + '-header' },
                     checkAllCheckbox,
-                    React.createElement(
+                    React$1.createElement(
                         'span',
                         { className: prefixCls + '-header-selected' },
-                        React.createElement(
+                        React$1.createElement(
                             'span',
                             null,
                             (checkedKeys.length > 0 ? checkedKeys.length + '/' : '') + totalDataSource.length,
                             ' ',
                             unit
                         ),
-                        React.createElement(
+                        React$1.createElement(
                             'span',
                             { className: prefixCls + '-header-title' },
                             titleText
@@ -62653,7 +62653,7 @@ var TransferList = function (_React$Component) {
     }]);
 
     return TransferList;
-}(React.Component);
+}(React$1.Component);
 
 TransferList.defaultProps = {
     dataSource: [],
@@ -62687,15 +62687,15 @@ var Operation = function (_React$Component) {
           className = _props.className,
           style = _props.style;
 
-      return React.createElement(
+      return React$1.createElement(
         'div',
         { className: className, style: style },
-        React.createElement(
+        React$1.createElement(
           Button,
           { type: 'primary', size: 'small', disabled: !rightActive, onClick: moveToRight, icon: 'right' },
           rightArrowText
         ),
-        React.createElement(
+        React$1.createElement(
           Button,
           { type: 'primary', size: 'small', disabled: !leftActive, onClick: moveToLeft, icon: 'left' },
           leftArrowText
@@ -62705,7 +62705,7 @@ var Operation = function (_React$Component) {
   }]);
 
   return Operation;
-}(React.Component);
+}(React$1.Component);
 
 function noop$28() {}
 
@@ -62871,12 +62871,12 @@ var Transfer = function (_React$Component) {
             var rightActive = sourceSelectedKeys.length > 0;
             var cls = classnames(className, prefixCls);
             var titles = _this.getTitles(locale);
-            return React.createElement(
+            return React$1.createElement(
                 'div',
                 { className: cls, style: style },
-                React.createElement(TransferList, { prefixCls: prefixCls + '-list', titleText: titles[0], dataSource: leftDataSource, filter: leftFilter, filterOption: filterOption, style: listStyle, checkedKeys: sourceSelectedKeys, handleFilter: _this.handleLeftFilter, handleClear: _this.handleLeftClear, handleSelect: _this.handleLeftSelect, handleSelectAll: _this.handleLeftSelectAll, render: render, showSearch: showSearch, searchPlaceholder: searchPlaceholder || locale.searchPlaceholder, notFoundContent: notFoundContent || locale.notFoundContent, itemUnit: locale.itemUnit, itemsUnit: locale.itemsUnit, body: body, footer: footer, lazy: lazy, onScroll: _this.handleLeftScroll }),
-                React.createElement(Operation, { className: prefixCls + '-operation', rightActive: rightActive, rightArrowText: operations[0], moveToRight: _this.moveToRight, leftActive: leftActive, leftArrowText: operations[1], moveToLeft: _this.moveToLeft, style: operationStyle }),
-                React.createElement(TransferList, { prefixCls: prefixCls + '-list', titleText: titles[1], dataSource: rightDataSource, filter: rightFilter, filterOption: filterOption, style: listStyle, checkedKeys: targetSelectedKeys, handleFilter: _this.handleRightFilter, handleClear: _this.handleRightClear, handleSelect: _this.handleRightSelect, handleSelectAll: _this.handleRightSelectAll, render: render, showSearch: showSearch, searchPlaceholder: searchPlaceholder || locale.searchPlaceholder, notFoundContent: notFoundContent || locale.notFoundContent, itemUnit: locale.itemUnit, itemsUnit: locale.itemsUnit, body: body, footer: footer, lazy: lazy, onScroll: _this.handleRightScroll })
+                React$1.createElement(TransferList, { prefixCls: prefixCls + '-list', titleText: titles[0], dataSource: leftDataSource, filter: leftFilter, filterOption: filterOption, style: listStyle, checkedKeys: sourceSelectedKeys, handleFilter: _this.handleLeftFilter, handleClear: _this.handleLeftClear, handleSelect: _this.handleLeftSelect, handleSelectAll: _this.handleLeftSelectAll, render: render, showSearch: showSearch, searchPlaceholder: searchPlaceholder || locale.searchPlaceholder, notFoundContent: notFoundContent || locale.notFoundContent, itemUnit: locale.itemUnit, itemsUnit: locale.itemsUnit, body: body, footer: footer, lazy: lazy, onScroll: _this.handleLeftScroll }),
+                React$1.createElement(Operation, { className: prefixCls + '-operation', rightActive: rightActive, rightArrowText: operations[0], moveToRight: _this.moveToRight, leftActive: leftActive, leftArrowText: operations[1], moveToLeft: _this.moveToLeft, style: operationStyle }),
+                React$1.createElement(TransferList, { prefixCls: prefixCls + '-list', titleText: titles[1], dataSource: rightDataSource, filter: rightFilter, filterOption: filterOption, style: listStyle, checkedKeys: targetSelectedKeys, handleFilter: _this.handleRightFilter, handleClear: _this.handleRightClear, handleSelect: _this.handleRightSelect, handleSelectAll: _this.handleRightSelectAll, render: render, showSearch: showSearch, searchPlaceholder: searchPlaceholder || locale.searchPlaceholder, notFoundContent: notFoundContent || locale.notFoundContent, itemUnit: locale.itemUnit, itemsUnit: locale.itemsUnit, body: body, footer: footer, lazy: lazy, onScroll: _this.handleRightScroll })
             );
         };
         var _props$selectedKeys = props.selectedKeys,
@@ -63011,7 +63011,7 @@ var Transfer = function (_React$Component) {
     }, {
         key: 'render',
         value: function render() {
-            return React.createElement(
+            return React$1.createElement(
                 LocaleReceiver,
                 { componentName: 'Transfer', defaultLocale: defaultLocale.Transfer },
                 this.renderTransfer
@@ -63020,7 +63020,7 @@ var Transfer = function (_React$Component) {
     }]);
 
     return Transfer;
-}(React.Component);
+}(React$1.Component);
 Transfer.List = TransferList;
 Transfer.Operation = Operation;
 Transfer.Search = Search$1;
@@ -63729,7 +63729,7 @@ function genAnimateChild(transitionSupport) {
           newChildProps[showProp] = show;
         }
 
-        return React__default.cloneElement(child, newChildProps);
+        return React$1__default.cloneElement(child, newChildProps);
       }
     }], [{
       key: 'getDerivedStateFromProps',
@@ -63793,7 +63793,7 @@ function genAnimateChild(transitionSupport) {
     }]);
 
     return AnimateChild;
-  }(React__default.Component);
+  }(React$1__default.Component);
 
   AnimateChild.propTypes = {
     transitionName: propTypes.oneOfType([propTypes.string, propTypes.object]),
@@ -63909,7 +63909,7 @@ function genAnimate(ChildComponent) {
 
           var key = node.key || defaultKey$1;
 
-          return React__default.createElement(
+          return React$1__default.createElement(
             ChildComponent,
             _extends$23({}, _this2.props, {
               appeared: appeared,
@@ -63935,7 +63935,7 @@ function genAnimate(ChildComponent) {
             }, componentProps);
           }
 
-          return React__default.createElement(
+          return React$1__default.createElement(
             Component,
             passedProps,
             $children
@@ -63988,7 +63988,7 @@ function genAnimate(ChildComponent) {
     }]);
 
     return Animate;
-  }(React__default.Component);
+  }(React$1__default.Component);
 
   Animate.isAnimate = true;
   Animate.propTypes = {
@@ -64259,7 +64259,7 @@ function genCSSMotion$1(transitionSupport) {
     }]);
 
     return CSSMotion;
-  }(React__default.Component);
+  }(React$1__default.Component);
 
   CSSMotion.propTypes = {
     visible: propTypes.bool,
@@ -64405,7 +64405,7 @@ var TreeNode = function (_React$Component) {
         return prev;
       }, {});
 
-      return React__default.createElement(
+      return React$1__default.createElement(
         'li',
         _extends$23({
           className: classnames(className, (_classNames = {}, _defineProperty$7(_classNames, prefixCls + '-treenode-disabled', disabled), _defineProperty$7(_classNames, prefixCls + '-treenode-switcher-' + (expanded ? 'open' : 'close'), !isLeaf), _defineProperty$7(_classNames, prefixCls + '-treenode-checkbox-checked', checked), _defineProperty$7(_classNames, prefixCls + '-treenode-checkbox-indeterminate', halfChecked), _defineProperty$7(_classNames, prefixCls + '-treenode-selected', selected), _defineProperty$7(_classNames, prefixCls + '-treenode-loading', loading), _defineProperty$7(_classNames, 'drag-over', !disabled && dragOver), _defineProperty$7(_classNames, 'drag-over-gap-top', !disabled && dragOverGapTop), _defineProperty$7(_classNames, 'drag-over-gap-bottom', !disabled && dragOverGapBottom), _defineProperty$7(_classNames, 'filter-node', filterTreeNode && filterTreeNode(this)), _classNames)),
@@ -64429,7 +64429,7 @@ var TreeNode = function (_React$Component) {
   }]);
 
   return TreeNode;
-}(React__default.Component);
+}(React$1__default.Component);
 
 TreeNode.propTypes = {
   eventKey: propTypes.string, // Pass by parent `cloneElement`
@@ -64691,10 +64691,10 @@ var _initialiseProps$21 = function _initialiseProps() {
 
 
     if (_this2.isLeaf()) {
-      return React__default.createElement('span', { className: prefixCls + '-switcher ' + prefixCls + '-switcher-noop' });
+      return React$1__default.createElement('span', { className: prefixCls + '-switcher ' + prefixCls + '-switcher-noop' });
     }
 
-    return React__default.createElement('span', {
+    return React$1__default.createElement('span', {
       className: classnames(prefixCls + '-switcher', prefixCls + '-switcher_' + (expanded ? ICON_OPEN : ICON_CLOSE)),
       onClick: _this2.onExpand
     });
@@ -64716,7 +64716,7 @@ var _initialiseProps$21 = function _initialiseProps() {
     // [Legacy] Custom element should be separate with `checkable` in future
     var $custom = typeof checkable !== 'boolean' ? checkable : null;
 
-    return React__default.createElement(
+    return React$1__default.createElement(
       'span',
       {
         className: classnames(prefixCls + '-checkbox', checked && prefixCls + '-checkbox-checked', !checked && halfChecked && prefixCls + '-checkbox-indeterminate', (disabled || disableCheckbox) && prefixCls + '-checkbox-disabled'),
@@ -64731,7 +64731,7 @@ var _initialiseProps$21 = function _initialiseProps() {
     var prefixCls = _this2.context.rcTree.prefixCls;
 
 
-    return React__default.createElement('span', {
+    return React$1__default.createElement('span', {
       className: classnames(prefixCls + '-iconEle', prefixCls + '-icon__' + (_this2.getNodeState() || 'docu'), loading && prefixCls + '-icon_loading')
     });
   };
@@ -64760,25 +64760,25 @@ var _initialiseProps$21 = function _initialiseProps() {
     if (showIcon) {
       var currentIcon = icon || treeIcon;
 
-      $icon = currentIcon ? React__default.createElement(
+      $icon = currentIcon ? React$1__default.createElement(
         'span',
         {
           className: classnames(prefixCls + '-iconEle', prefixCls + '-icon__customize')
         },
-        typeof currentIcon === 'function' ? React__default.createElement(currentIcon, _extends$23({}, _this2.props)) : currentIcon
+        typeof currentIcon === 'function' ? React$1__default.createElement(currentIcon, _extends$23({}, _this2.props)) : currentIcon
       ) : _this2.renderIcon();
     } else if (loadData && loading) {
       $icon = _this2.renderIcon();
     }
 
     // Title
-    var $title = React__default.createElement(
+    var $title = React$1__default.createElement(
       'span',
       { className: prefixCls + '-title' },
       title
     );
 
-    return React__default.createElement(
+    return React$1__default.createElement(
       'span',
       {
         ref: _this2.setSelectHandle,
@@ -64826,7 +64826,7 @@ var _initialiseProps$21 = function _initialiseProps() {
 
     var $children = void 0;
     if (expanded) {
-      $children = React__default.createElement(
+      $children = React$1__default.createElement(
         'ul',
         {
           className: classnames(prefixCls + '-child-tree', expanded && prefixCls + '-child-tree-open'),
@@ -64839,7 +64839,7 @@ var _initialiseProps$21 = function _initialiseProps() {
       );
     }
 
-    return React__default.createElement(
+    return React$1__default.createElement(
       Animate$1,
       _extends$23({}, animProps, {
         showProp: 'data-expanded',
@@ -64929,7 +64929,7 @@ function traverseTreeNodes(treeNodes, callback) {
     }
 
     // Process children node
-    React.Children.forEach(childList, function (subNode, subIndex) {
+    React$1.Children.forEach(childList, function (subNode, subIndex) {
       processNode(subNode, subIndex, { node: node, pos: pos });
     });
   }
@@ -65026,7 +65026,7 @@ function convertDataToTree(treeData) {
 
     var childrenNodes = (children || []).map(convertDataToTree);
 
-    return React__default.createElement(
+    return React$1__default.createElement(
       TreeNode,
       props,
       childrenNodes
@@ -65738,7 +65738,7 @@ var Tree = function (_React$Component) {
         return null;
       }
 
-      return React__default.cloneElement(child, {
+      return React$1__default.cloneElement(child, {
         key: key,
         eventKey: key,
         expanded: expandedKeys.indexOf(key) !== -1,
@@ -65834,7 +65834,7 @@ var Tree = function (_React$Component) {
         domProps.onKeyDown = this.onKeyDown;
       }
 
-      return React__default.createElement(
+      return React$1__default.createElement(
         'ul',
         _extends$23({}, domProps, {
           className: classnames(prefixCls, className, _defineProperty$7({}, prefixCls + '-show-line', showLine)),
@@ -65964,7 +65964,7 @@ var Tree = function (_React$Component) {
   }]);
 
   return Tree;
-}(React__default.Component);
+}(React$1__default.Component);
 
 Tree.propTypes = {
   prefixCls: propTypes.string,
@@ -66123,9 +66123,9 @@ function getIcon(props) {
         expanded = props.expanded;
 
     if (isLeaf) {
-        return React.createElement(Icon, { type: 'file' });
+        return React$1.createElement(Icon, { type: 'file' });
     }
-    return React.createElement(Icon, { type: expanded ? 'folder-open' : 'folder' });
+    return React$1.createElement(Icon, { type: expanded ? 'folder-open' : 'folder' });
 }
 
 var DirectoryTree = function (_React$Component) {
@@ -66299,12 +66299,12 @@ var DirectoryTree = function (_React$Component) {
                 selectedKeys = _state.selectedKeys;
 
             var connectClassName = classnames(prefixCls + '-directory', className);
-            return React.createElement(Tree$1, _extends$23({ icon: getIcon }, props, { prefixCls: prefixCls, className: connectClassName, expandedKeys: expandedKeys, selectedKeys: selectedKeys, onSelect: this.onSelect, onClick: this.onClick, onDoubleClick: this.onDoubleClick, onExpand: this.onExpand }));
+            return React$1.createElement(Tree$1, _extends$23({ icon: getIcon }, props, { prefixCls: prefixCls, className: connectClassName, expandedKeys: expandedKeys, selectedKeys: selectedKeys, onSelect: this.onSelect, onClick: this.onClick, onDoubleClick: this.onDoubleClick, onExpand: this.onExpand }));
         }
     }]);
 
     return DirectoryTree;
-}(React.Component);
+}(React$1.Component);
 
 DirectoryTree.defaultProps = {
     prefixCls: 'ant-tree',
@@ -66330,16 +66330,16 @@ var Tree$1 = function (_React$Component) {
                 showIcon = props.showIcon;
 
             var checkable = props.checkable;
-            return React.createElement(
+            return React$1.createElement(
                 Tree,
-                _extends$23({}, props, { className: classnames(!showIcon && prefixCls + '-icon-hide', className), checkable: checkable ? React.createElement('span', { className: prefixCls + '-checkbox-inner' }) : checkable }),
+                _extends$23({}, props, { className: classnames(!showIcon && prefixCls + '-icon-hide', className), checkable: checkable ? React$1.createElement('span', { className: prefixCls + '-checkbox-inner' }) : checkable }),
                 this.props.children
             );
         }
     }]);
 
     return Tree$$1;
-}(React.Component);
+}(React$1.Component);
 
 Tree$1.TreeNode = TreeNode;
 Tree$1.DirectoryTree = DirectoryTree;
@@ -66483,7 +66483,7 @@ function traverseTreeNodes$1(treeNodes, subTreeData, callback) {
       if (subTreeData) {
         // Statistic children
         var subNodes = [];
-        React.Children.forEach(childList, function (subNode, subIndex) {
+        React$1.Children.forEach(childList, function (subNode, subIndex) {
           // Provide limit snapshot
           var subPos = getPosition$1(pos, index);
           subNodes.push({
@@ -66503,7 +66503,7 @@ function traverseTreeNodes$1(treeNodes, subTreeData, callback) {
     }
 
     // Process children node
-    React.Children.forEach(childList, function (subNode, subIndex) {
+    React$1.Children.forEach(childList, function (subNode, subIndex) {
       processNode(subNode, subIndex, { node: node, pos: pos });
     });
   }
@@ -67381,7 +67381,7 @@ function genAnimateChild$1(transitionSupport) {
           newChildProps[showProp] = show;
         }
 
-        return React__default.cloneElement(child, newChildProps);
+        return React$1__default.cloneElement(child, newChildProps);
       }
     }], [{
       key: 'getDerivedStateFromProps',
@@ -67445,7 +67445,7 @@ function genAnimateChild$1(transitionSupport) {
     }]);
 
     return AnimateChild;
-  }(React__default.Component);
+  }(React$1__default.Component);
 
   AnimateChild.propTypes = {
     transitionName: propTypes.oneOfType([propTypes.string, propTypes.object]),
@@ -67561,7 +67561,7 @@ function genAnimate$1(ChildComponent) {
 
           var key = node.key || defaultKey$2;
 
-          return React__default.createElement(
+          return React$1__default.createElement(
             ChildComponent,
             _extends$23({}, _this2.props, {
               appeared: appeared,
@@ -67587,7 +67587,7 @@ function genAnimate$1(ChildComponent) {
             }, componentProps);
           }
 
-          return React__default.createElement(
+          return React$1__default.createElement(
             Component,
             passedProps,
             $children
@@ -67640,7 +67640,7 @@ function genAnimate$1(ChildComponent) {
     }]);
 
     return Animate;
-  }(React__default.Component);
+  }(React$1__default.Component);
 
   Animate.isAnimate = true;
   Animate.propTypes = {
@@ -67911,7 +67911,7 @@ function genCSSMotion$2(transitionSupport) {
     }]);
 
     return CSSMotion;
-  }(React__default.Component);
+  }(React$1__default.Component);
 
   CSSMotion.propTypes = {
     visible: propTypes.bool,
@@ -67965,18 +67965,18 @@ var LazyRenderBox$2 = function (_Component) {
         visible = _props.visible,
         props = _objectWithoutProperties$12(_props, ['hiddenClassName', 'visible']);
 
-    if (hiddenClassName || React__default.Children.count(props.children) > 1) {
+    if (hiddenClassName || React$1__default.Children.count(props.children) > 1) {
       if (!visible && hiddenClassName) {
         props.className += ' ' + hiddenClassName;
       }
-      return React__default.createElement('div', props);
+      return React$1__default.createElement('div', props);
     }
 
-    return React__default.Children.only(props.children);
+    return React$1__default.Children.only(props.children);
   };
 
   return LazyRenderBox;
-}(React.Component);
+}(React$1.Component);
 
 LazyRenderBox$2.propTypes = {
   children: propTypes.any,
@@ -68000,7 +68000,7 @@ var PopupInner$1 = function (_Component) {
     if (!props.visible) {
       className += ' ' + props.hiddenClassName;
     }
-    return React__default.createElement(
+    return React$1__default.createElement(
       'div',
       {
         className: className,
@@ -68008,7 +68008,7 @@ var PopupInner$1 = function (_Component) {
         onMouseLeave: props.onMouseLeave,
         style: props.style
       },
-      React__default.createElement(
+      React$1__default.createElement(
         LazyRenderBox$2,
         { className: props.prefixCls + '-content', visible: props.visible },
         props.children
@@ -68017,7 +68017,7 @@ var PopupInner$1 = function (_Component) {
   };
 
   return PopupInner;
-}(React.Component);
+}(React$1.Component);
 
 PopupInner$1.propTypes = {
   hiddenClassName: propTypes.string,
@@ -68185,7 +68185,7 @@ var Popup$1 = function (_Component) {
     };
 
     if (destroyPopupOnHide) {
-      return React__default.createElement(
+      return React$1__default.createElement(
         Animate$2,
         {
           component: '',
@@ -68194,7 +68194,7 @@ var Popup$1 = function (_Component) {
           transitionName: this.getTransitionName(),
           onLeave: this.onAnimateLeaved
         },
-        visible ? React__default.createElement(
+        visible ? React$1__default.createElement(
           Align,
           {
             target: this.getAlignTarget(),
@@ -68204,7 +68204,7 @@ var Popup$1 = function (_Component) {
             align: align,
             onAlign: this.onAlign
           },
-          React__default.createElement(
+          React$1__default.createElement(
             PopupInner$1,
             _extends$23({
               visible: true
@@ -68215,7 +68215,7 @@ var Popup$1 = function (_Component) {
       );
     }
 
-    return React__default.createElement(
+    return React$1__default.createElement(
       Animate$2,
       {
         component: '',
@@ -68225,7 +68225,7 @@ var Popup$1 = function (_Component) {
         showProp: 'xVisible',
         onLeave: this.onAnimateLeaved
       },
-      React__default.createElement(
+      React$1__default.createElement(
         Align,
         {
           target: this.getAlignTarget(),
@@ -68238,7 +68238,7 @@ var Popup$1 = function (_Component) {
           align: align,
           onAlign: this.onAlign
         },
-        React__default.createElement(
+        React$1__default.createElement(
           PopupInner$1,
           _extends$23({
             hiddenClassName: hiddenClassName
@@ -68263,7 +68263,7 @@ var Popup$1 = function (_Component) {
     var maskElement = void 0;
     if (props.mask) {
       var maskTransition = this.getMaskTransitionName();
-      maskElement = React__default.createElement(LazyRenderBox$2, {
+      maskElement = React$1__default.createElement(LazyRenderBox$2, {
         style: this.getZIndexStyle(),
         key: 'mask',
         className: props.prefixCls + '-mask',
@@ -68271,7 +68271,7 @@ var Popup$1 = function (_Component) {
         visible: props.visible
       });
       if (maskTransition) {
-        maskElement = React__default.createElement(
+        maskElement = React$1__default.createElement(
           Animate$2,
           {
             key: 'mask',
@@ -68288,7 +68288,7 @@ var Popup$1 = function (_Component) {
   };
 
   Popup.prototype.render = function render() {
-    return React__default.createElement(
+    return React$1__default.createElement(
       'div',
       null,
       this.getMaskElement(),
@@ -68297,7 +68297,7 @@ var Popup$1 = function (_Component) {
   };
 
   return Popup;
-}(React.Component);
+}(React$1.Component);
 
 Popup$1.propTypes = {
   visible: propTypes.bool,
@@ -68678,7 +68678,7 @@ var Trigger$1 = function (_React$Component) {
         alignPoint = _props8.alignPoint,
         className = _props8.className;
 
-    var child = React__default.Children.only(children);
+    var child = React$1__default.Children.only(children);
     var newChildProps = { key: 'trigger' };
 
     if (this.isContextMenuToShow()) {
@@ -68721,10 +68721,10 @@ var Trigger$1 = function (_React$Component) {
     if (childrenClassName) {
       newChildProps.className = childrenClassName;
     }
-    var trigger = React__default.cloneElement(child, newChildProps);
+    var trigger = React$1__default.cloneElement(child, newChildProps);
 
     if (!IS_REACT_16$4) {
-      return React__default.createElement(
+      return React$1__default.createElement(
         ContainerRender,
         {
           parent: this,
@@ -68746,7 +68746,7 @@ var Trigger$1 = function (_React$Component) {
     var portal = void 0;
     // prevent unmounting after it's rendered
     if (popupVisible || this._component || forceRender) {
-      portal = React__default.createElement(
+      portal = React$1__default.createElement(
         Portal,
         {
           key: 'portal',
@@ -68761,7 +68761,7 @@ var Trigger$1 = function (_React$Component) {
   };
 
   return Trigger;
-}(React__default.Component);
+}(React$1__default.Component);
 
 Trigger$1.propTypes = {
   children: propTypes.any,
@@ -68990,7 +68990,7 @@ var _initialiseProps$23 = function _initialiseProps() {
       mouseProps.onMouseLeave = _this5.onPopupMouseLeave;
     }
 
-    return React__default.createElement(
+    return React$1__default.createElement(
       Popup$1,
       _extends$23({
         prefixCls: prefixCls,
@@ -69270,7 +69270,7 @@ var Tree$2 = function (_React$Component) {
       domProps.onKeyDown = this.onKeyDown;
     }
 
-    return React__default.createElement(
+    return React$1__default.createElement(
       'ul',
       _extends$23({}, domProps, {
         className: classnames(prefixCls, className, (_classNames = {}, _classNames[prefixCls + '-show-line'] = showLine, _classNames)),
@@ -69284,7 +69284,7 @@ var Tree$2 = function (_React$Component) {
   };
 
   return Tree;
-}(React__default.Component);
+}(React$1__default.Component);
 
 Tree$2.propTypes = {
   prefixCls: propTypes.string,
@@ -69904,7 +69904,7 @@ var _initialiseProps$24 = function _initialiseProps() {
     var pos = getPosition$1(level, index);
     var key = child.key || pos;
 
-    return React__default.cloneElement(child, {
+    return React$1__default.cloneElement(child, {
       key: key,
       eventKey: key,
       expanded: expandedKeys.indexOf(key) !== -1,
@@ -69925,7 +69925,7 @@ var _initialiseProps$24 = function _initialiseProps() {
 
 function toArrayChildren$1(children) {
   var ret = [];
-  React__default.Children.forEach(children, function (child) {
+  React$1__default.Children.forEach(children, function (child) {
     ret.push(child);
   });
   return ret;
@@ -70126,7 +70126,7 @@ var AnimateChild$3 = function (_React$Component) {
   }]);
 
   return AnimateChild;
-}(React__default.Component);
+}(React$1__default.Component);
 
 AnimateChild$3.propTypes = {
   children: propTypes.any
@@ -70454,7 +70454,7 @@ function genCSSMotion$3(transitionSupport) {
     }]);
 
     return CSSMotion;
-  }(React__default.Component);
+  }(React$1__default.Component);
 
   CSSMotion.propTypes = {
     visible: propTypes.bool,
@@ -70495,9 +70495,9 @@ var defaultKey$3 = 'rc_animate_' + Date.now();
 
 function getChildrenFromProps$1(props) {
   var children = props.children;
-  if (React__default.isValidElement(children)) {
+  if (React$1__default.isValidElement(children)) {
     if (!children.key) {
-      return React__default.cloneElement(children, {
+      return React$1__default.cloneElement(children, {
         key: defaultKey$3
       });
     }
@@ -70572,7 +70572,7 @@ var Animate$3 = function (_React$Component) {
           var nextChild = currentChild && findChildInChildrenByKey$1(nextChildren, currentChild.key);
           var newChild = void 0;
           if ((!nextChild || !nextChild.props[showProp]) && currentChild.props[showProp]) {
-            newChild = React__default.cloneElement(nextChild || currentChild, _defineProperty$7({}, showProp, true));
+            newChild = React$1__default.cloneElement(nextChild || currentChild, _defineProperty$7({}, showProp, true));
           } else {
             newChild = nextChild;
           }
@@ -70681,7 +70681,7 @@ var Animate$3 = function (_React$Component) {
           if (!child.key) {
             throw new Error('must set key for <rc-animate> children');
           }
-          return React__default.createElement(
+          return React$1__default.createElement(
             AnimateChild$3,
             {
               key: child.key,
@@ -70707,7 +70707,7 @@ var Animate$3 = function (_React$Component) {
             style: props.style
           }, props.componentProps);
         }
-        return React__default.createElement(
+        return React$1__default.createElement(
           Component,
           passedProps,
           children
@@ -70718,7 +70718,7 @@ var Animate$3 = function (_React$Component) {
   }]);
 
   return Animate;
-}(React__default.Component);
+}(React$1__default.Component);
 
 Animate$3.isAnimate = true;
 Animate$3.CSSMotion = CSSMotion$3;
@@ -70941,7 +70941,7 @@ var TreeNode$1 = function (_React$Component) {
       return prev;
     }, {});
 
-    return React__default.createElement(
+    return React$1__default.createElement(
       'li',
       _extends$23({
         className: classnames(className, (_classNames = {}, _classNames[prefixCls + '-treenode-disabled'] = disabled, _classNames[prefixCls + '-treenode-switcher-' + (expanded ? 'open' : 'close')] = !isLeaf, _classNames[prefixCls + '-treenode-checkbox-checked'] = checked, _classNames[prefixCls + '-treenode-checkbox-indeterminate'] = halfChecked, _classNames[prefixCls + '-treenode-selected'] = selected, _classNames[prefixCls + '-treenode-loading'] = loading, _classNames['drag-over'] = !disabled && dragOver, _classNames['drag-over-gap-top'] = !disabled && dragOverGapTop, _classNames['drag-over-gap-bottom'] = !disabled && dragOverGapBottom, _classNames['filter-node'] = filterTreeNode && filterTreeNode(this), _classNames)),
@@ -70962,7 +70962,7 @@ var TreeNode$1 = function (_React$Component) {
   };
 
   return TreeNode;
-}(React__default.Component);
+}(React$1__default.Component);
 
 TreeNode$1.propTypes = {
   eventKey: propTypes.string, // Pass by parent `cloneElement`
@@ -71326,10 +71326,10 @@ var _initialiseProps$26 = function _initialiseProps() {
 
 
     if (_this2.isLeaf()) {
-      return React__default.createElement('span', { className: prefixCls + '-switcher ' + prefixCls + '-switcher-noop' });
+      return React$1__default.createElement('span', { className: prefixCls + '-switcher ' + prefixCls + '-switcher-noop' });
     }
 
-    return React__default.createElement('span', {
+    return React$1__default.createElement('span', {
       className: classnames(prefixCls + '-switcher', prefixCls + '-switcher_' + (expanded ? ICON_OPEN$1 : ICON_CLOSE$1)),
       onClick: _this2.onExpand
     });
@@ -71351,7 +71351,7 @@ var _initialiseProps$26 = function _initialiseProps() {
     // [Legacy] Custom element should be separate with `checkable` in future
     var $custom = typeof checkable !== 'boolean' ? checkable : null;
 
-    return React__default.createElement(
+    return React$1__default.createElement(
       'span',
       {
         className: classnames(prefixCls + '-checkbox', checked && prefixCls + '-checkbox-checked', !checked && halfChecked && prefixCls + '-checkbox-indeterminate', (disabled || disableCheckbox) && prefixCls + '-checkbox-disabled'),
@@ -71366,7 +71366,7 @@ var _initialiseProps$26 = function _initialiseProps() {
     var prefixCls = _this2.context.rcTree.prefixCls;
 
 
-    return React__default.createElement('span', {
+    return React$1__default.createElement('span', {
       className: classnames(prefixCls + '-iconEle', prefixCls + '-icon__' + (_this2.getNodeState() || 'docu'), loading && prefixCls + '-icon_loading')
     });
   };
@@ -71395,25 +71395,25 @@ var _initialiseProps$26 = function _initialiseProps() {
     if (showIcon) {
       var currentIcon = icon || treeIcon;
 
-      $icon = currentIcon ? React__default.createElement(
+      $icon = currentIcon ? React$1__default.createElement(
         'span',
         {
           className: classnames(prefixCls + '-iconEle', prefixCls + '-icon__customize')
         },
-        typeof currentIcon === 'function' ? React__default.createElement(currentIcon, _extends$23({}, _this2.props)) : currentIcon
+        typeof currentIcon === 'function' ? React$1__default.createElement(currentIcon, _extends$23({}, _this2.props)) : currentIcon
       ) : _this2.renderIcon();
     } else if (loadData && loading) {
       $icon = _this2.renderIcon();
     }
 
     // Title
-    var $title = React__default.createElement(
+    var $title = React$1__default.createElement(
       'span',
       { className: prefixCls + '-title' },
       title
     );
 
-    return React__default.createElement(
+    return React$1__default.createElement(
       'span',
       {
         ref: _this2.setSelectHandle,
@@ -71472,7 +71472,7 @@ var _initialiseProps$26 = function _initialiseProps() {
 
     var $children = void 0;
     if (expanded) {
-      $children = React__default.createElement(
+      $children = React$1__default.createElement(
         'ul',
         {
           className: classnames(prefixCls + '-child-tree', expanded && prefixCls + '-child-tree-open'),
@@ -71484,7 +71484,7 @@ var _initialiseProps$26 = function _initialiseProps() {
       );
     }
 
-    return React__default.createElement(
+    return React$1__default.createElement(
       Animate$3,
       _extends$23({}, animProps, {
         showProp: 'data-expanded',
@@ -71506,7 +71506,7 @@ Tree$2.TreeNode = TreeNode$1;
  * since TreeNode is so confuse here.
  */
 var SelectNode = function SelectNode(props) {
-  return React__default.createElement(TreeNode$1, props);
+  return React$1__default.createElement(TreeNode$1, props);
 };
 
 SelectNode.propTypes = _extends$23({}, TreeNode$1.propTypes, {
@@ -71671,8 +71671,8 @@ function parseSimpleTreeData(treeData, _ref) {
  * This is will cause performance issue.
  */
 function convertTreeToData(treeNodes) {
-  return React__default.Children.map(treeNodes || [], function (node) {
-    if (!React__default.isValidElement(node) || !node.type || !node.type.isTreeNode) {
+  return React$1__default.Children.map(treeNodes || [], function (node) {
+    if (!React$1__default.isValidElement(node) || !node.type || !node.type.isTreeNode) {
       return null;
     }
 
@@ -71738,7 +71738,7 @@ function convertDataToEntities(treeData) {
         warnDeprecatedLabel = true;
       }
 
-      var node = React__default.createElement(
+      var node = React$1__default.createElement(
         SelectNode,
         _extends$23({ key: entity.key }, nodeProps, { title: title || label, label: label, value: value }),
         traverse(children, pos)
@@ -71822,7 +71822,7 @@ function getFilterTree(treeNodes, searchValue, filterFunc) {
       match = true;
     }
 
-    var children = (React__default.Children.map(node.props.children, mapFilteredNodeToData) || []).filter(function (n) {
+    var children = (React$1__default.Children.map(node.props.children, mapFilteredNodeToData) || []).filter(function (n) {
       return n;
     });
 
@@ -72074,7 +72074,7 @@ var SelectTrigger$1 = function (_React$Component) {
         stretch = dropdownMatchSelectWidth ? 'width' : 'minWidth';
       }
 
-      return React__default.createElement(
+      return React$1__default.createElement(
         Trigger$1,
         {
           ref: this.triggerRef,
@@ -72098,7 +72098,7 @@ var SelectTrigger$1 = function (_React$Component) {
   }]);
 
   return SelectTrigger;
-}(React__default.Component);
+}(React$1__default.Component);
 
 SelectTrigger$1.propTypes = {
   // Pass by outside user props
@@ -72214,7 +72214,7 @@ function generateSelector (modeName) {
           return null;
         }
 
-        return React__default.createElement('span', {
+        return React$1__default.createElement('span', {
           key: 'clear',
           className: prefixCls + '-selection__clear',
           onClick: onSelectorClear
@@ -72231,14 +72231,14 @@ function generateSelector (modeName) {
           return null;
         }
 
-        return React__default.createElement(
+        return React$1__default.createElement(
           'span',
           {
             key: 'arrow',
             className: prefixCls + '-arrow',
             style: { outline: 'none' }
           },
-          React__default.createElement('b', null)
+          React$1__default.createElement('b', null)
         );
       }
     }, {
@@ -72267,7 +72267,7 @@ function generateSelector (modeName) {
           myTabIndex = null;
         }
 
-        return React__default.createElement(
+        return React$1__default.createElement(
           'span',
           {
             style: style,
@@ -72285,7 +72285,7 @@ function generateSelector (modeName) {
             onBlur: this.onBlur,
             onKeyDown: onSelectorKeyDown
           },
-          React__default.createElement(
+          React$1__default.createElement(
             'span',
             {
               key: 'selection',
@@ -72301,7 +72301,7 @@ function generateSelector (modeName) {
     }]);
 
     return BaseSelector;
-  }(React__default.Component);
+  }(React$1__default.Component);
 
   BaseSelector.propTypes = _extends$23({}, selectorPropTypes, {
 
@@ -72410,7 +72410,7 @@ var BasePopup = function (_React$Component) {
       if ($notFound) {
         $tree = $notFound;
       } else {
-        $tree = React__default.createElement(
+        $tree = React$1__default.createElement(
           Tree$2,
           _extends$23({
             prefixCls: prefixCls + '-tree',
@@ -72433,7 +72433,7 @@ var BasePopup = function (_React$Component) {
         );
       }
 
-      return React__default.createElement(
+      return React$1__default.createElement(
         'div',
         {
           role: 'listbox',
@@ -72499,7 +72499,7 @@ var BasePopup = function (_React$Component) {
   }]);
 
   return BasePopup;
-}(React__default.Component);
+}(React$1__default.Component);
 
 BasePopup.propTypes = {
   prefixCls: propTypes.string,
@@ -72564,7 +72564,7 @@ var _initialiseProps$27 = function _initialiseProps() {
         notFoundContent = _props3.notFoundContent;
 
 
-    return React__default.createElement(
+    return React$1__default.createElement(
       'span',
       { className: prefixCls + '-not-found' },
       notFoundContent
@@ -72606,7 +72606,7 @@ var SingleSelector = function (_React$Component) {
             label = _selectorValueList$.label,
             value = _selectorValueList$.value;
 
-        innerNode = React__default.createElement(
+        innerNode = React$1__default.createElement(
           'span',
           {
             key: 'value',
@@ -72616,7 +72616,7 @@ var SingleSelector = function (_React$Component) {
           label || value
         );
       } else {
-        innerNode = React__default.createElement(
+        innerNode = React$1__default.createElement(
           'span',
           {
             key: 'placeholder',
@@ -72626,7 +72626,7 @@ var SingleSelector = function (_React$Component) {
         );
       }
 
-      return React__default.createElement(
+      return React$1__default.createElement(
         'span',
         { className: prefixCls + '-selection__rendered' },
         innerNode
@@ -72640,7 +72640,7 @@ var SingleSelector = function (_React$Component) {
   _createClass$10(SingleSelector, [{
     key: 'render',
     value: function render() {
-      return React__default.createElement(Selector, _extends$23({}, this.props, {
+      return React$1__default.createElement(Selector, _extends$23({}, this.props, {
         ref: this.selectorRef,
         renderSelection: this.renderSelection
       }));
@@ -72648,7 +72648,7 @@ var SingleSelector = function (_React$Component) {
   }]);
 
   return SingleSelector;
-}(React__default.Component);
+}(React$1__default.Component);
 
 SingleSelector.propTypes = _extends$23({}, selectorPropTypes);
 
@@ -72748,10 +72748,10 @@ var SearchInput = function (_React$Component) {
           onSearchInputKeyDown = _context$rcTreeSelect.onSearchInputKeyDown;
 
 
-      return React__default.createElement(
+      return React$1__default.createElement(
         'span',
         { className: prefixCls + '-search__field__wrap' },
-        React__default.createElement('input', {
+        React$1__default.createElement('input', {
           type: 'text',
           ref: this.inputRef,
           onChange: onSearchInputChange,
@@ -72765,7 +72765,7 @@ var SearchInput = function (_React$Component) {
           'aria-controls': open ? ariaId : undefined,
           'aria-multiline': 'false'
         }),
-        React__default.createElement(
+        React$1__default.createElement(
           'span',
           {
             ref: this.mirrorInputRef,
@@ -72780,7 +72780,7 @@ var SearchInput = function (_React$Component) {
   }]);
 
   return SearchInput;
-}(React__default.Component);
+}(React$1__default.Component);
 
 SearchInput.propTypes = {
   open: propTypes.bool,
@@ -72839,7 +72839,7 @@ var Selection = function (_React$Component) {
         content = content.slice(0, maxTagTextLength) + '...';
       }
 
-      return React__default.createElement(
+      return React$1__default.createElement(
         'li',
         _extends$23({
           style: UNSELECTABLE_STYLE$1
@@ -72848,11 +72848,11 @@ var Selection = function (_React$Component) {
           className: prefixCls + '-selection__choice',
           title: toTitle$1(label)
         }),
-        onRemove && React__default.createElement('span', {
+        onRemove && React$1__default.createElement('span', {
           className: prefixCls + '-selection__choice__remove',
           onClick: this.onRemove
         }),
-        React__default.createElement(
+        React$1__default.createElement(
           'span',
           { className: prefixCls + '-selection__choice__content' },
           content
@@ -72862,7 +72862,7 @@ var Selection = function (_React$Component) {
   }]);
 
   return Selection;
-}(React__default.Component);
+}(React$1__default.Component);
 
 Selection.propTypes = {
   prefixCls: propTypes.string,
@@ -72915,7 +72915,7 @@ var MultipleSelector = function (_React$Component) {
       var hidden = searchValue || selectorValueList.length;
 
       // [Legacy] Not remove the placeholder
-      return React__default.createElement(
+      return React$1__default.createElement(
         'span',
         {
           style: {
@@ -72950,7 +72950,7 @@ var MultipleSelector = function (_React$Component) {
       var selectedValueNodes = myValueList.map(function (_ref) {
         var label = _ref.label,
             value = _ref.value;
-        return React__default.createElement(Selection, _extends$23({}, _this.props, {
+        return React$1__default.createElement(Selection, _extends$23({}, _this.props, {
           key: value,
           label: label,
           value: value,
@@ -72971,7 +72971,7 @@ var MultipleSelector = function (_React$Component) {
           }));
         }
 
-        var restNodeSelect = React__default.createElement(Selection, _extends$23({}, _this.props, {
+        var restNodeSelect = React$1__default.createElement(Selection, _extends$23({}, _this.props, {
           key: 'rc-tree-select-internal-max-tag-counter',
           label: content,
           value: null
@@ -72980,17 +72980,17 @@ var MultipleSelector = function (_React$Component) {
         selectedValueNodes.push(restNodeSelect);
       }
 
-      selectedValueNodes.push(React__default.createElement(
+      selectedValueNodes.push(React$1__default.createElement(
         'li',
         {
           className: prefixCls + '-search ' + prefixCls + '-search--inline',
           key: '__input'
         },
-        React__default.createElement(SearchInput, _extends$23({}, _this.props, { ref: _this.inputRef, needAlign: true }))
+        React$1__default.createElement(SearchInput, _extends$23({}, _this.props, { ref: _this.inputRef, needAlign: true }))
       ));
       var className = prefixCls + '-selection__rendered';
       if (choiceTransitionName) {
-        return React__default.createElement(
+        return React$1__default.createElement(
           Animate$2,
           {
             className: className,
@@ -73001,7 +73001,7 @@ var MultipleSelector = function (_React$Component) {
           selectedValueNodes
         );
       }
-      return React__default.createElement(
+      return React$1__default.createElement(
         'ul',
         { className: className, role: 'menubar' },
         selectedValueNodes
@@ -73015,7 +73015,7 @@ var MultipleSelector = function (_React$Component) {
   _createClass$10(MultipleSelector, [{
     key: 'render',
     value: function render() {
-      return React__default.createElement(Selector$1, _extends$23({}, this.props, {
+      return React$1__default.createElement(Selector$1, _extends$23({}, this.props, {
         tabIndex: -1,
         showArrow: false,
         renderSelection: this.renderSelection,
@@ -73025,7 +73025,7 @@ var MultipleSelector = function (_React$Component) {
   }]);
 
   return MultipleSelector;
-}(React__default.Component);
+}(React$1__default.Component);
 
 MultipleSelector.propTypes = _extends$23({}, selectorPropTypes, {
   selectorValueList: propTypes.array,
@@ -73067,7 +73067,7 @@ var SinglePopup = function (_React$Component) {
         return null;
       }
 
-      return React__default.createElement(
+      return React$1__default.createElement(
         'span',
         {
           style: {
@@ -73090,10 +73090,10 @@ var SinglePopup = function (_React$Component) {
         return null;
       }
 
-      return React__default.createElement(
+      return React$1__default.createElement(
         'span',
         { className: dropdownPrefixCls + '-search' },
-        React__default.createElement(SearchInput, _extends$23({}, _this.props, {
+        React$1__default.createElement(SearchInput, _extends$23({}, _this.props, {
           ref: _this.inputRef,
           renderPlaceholder: _this.renderPlaceholder
         }))
@@ -73107,14 +73107,14 @@ var SinglePopup = function (_React$Component) {
   _createClass$10(SinglePopup, [{
     key: 'render',
     value: function render() {
-      return React__default.createElement(BasePopup, _extends$23({}, this.props, {
+      return React$1__default.createElement(BasePopup, _extends$23({}, this.props, {
         renderSearch: this.renderSearch
       }));
     }
   }]);
 
   return SinglePopup;
-}(React__default.Component);
+}(React$1__default.Component);
 
 SinglePopup.propTypes = _extends$23({}, BasePopup.propTypes, {
   searchValue: propTypes.string,
@@ -73321,19 +73321,19 @@ var Select$3 = function (_React$Component) {
       });
 
       var Popup = isMultiple ? BasePopup : SinglePopup;
-      var $popup = React__default.createElement(Popup, _extends$23({}, passProps, {
+      var $popup = React$1__default.createElement(Popup, _extends$23({}, passProps, {
         onTreeExpanded: this.delayForcePopupAlign,
         treeNodes: treeNodes,
         filteredTreeNodes: filteredTreeNodes
       }));
 
       var Selector = isMultiple ? MultipleSelector : SingleSelector;
-      var $selector = React__default.createElement(Selector, _extends$23({}, passProps, {
+      var $selector = React$1__default.createElement(Selector, _extends$23({}, passProps, {
         ref: this.selectorRef,
         onChoiceAnimationLeave: this.forcePopupAlign
       }));
 
-      return React__default.createElement(
+      return React$1__default.createElement(
         SelectTrigger$1,
         _extends$23({}, passProps, {
 
@@ -73535,7 +73535,7 @@ var Select$3 = function (_React$Component) {
   }]);
 
   return Select;
-}(React__default.Component);
+}(React$1__default.Component);
 
 Select$3.propTypes = {
   prefixCls: propTypes.string,
@@ -74173,9 +74173,9 @@ var TreeSelect = function (_React$Component) {
             var cls = classnames((_classNames = {}, _defineProperty$7(_classNames, prefixCls + '-lg', size === 'large'), _defineProperty$7(_classNames, prefixCls + '-sm', size === 'small'), _classNames), className);
             var checkable = restProps.treeCheckable;
             if (checkable) {
-                checkable = React.createElement('span', { className: prefixCls + '-tree-checkbox-inner' });
+                checkable = React$1.createElement('span', { className: prefixCls + '-tree-checkbox-inner' });
             }
-            return React.createElement(Select$3, _extends$23({}, restProps, { dropdownClassName: classnames(dropdownClassName, prefixCls + '-tree-dropdown'), prefixCls: prefixCls, className: cls, dropdownStyle: _extends$23({ maxHeight: '100vh', overflow: 'auto' }, dropdownStyle), treeCheckable: checkable, notFoundContent: notFoundContent || locale.notFoundContent, ref: _this.saveTreeSelect }));
+            return React$1.createElement(Select$3, _extends$23({}, restProps, { dropdownClassName: classnames(dropdownClassName, prefixCls + '-tree-dropdown'), prefixCls: prefixCls, className: cls, dropdownStyle: _extends$23({ maxHeight: '100vh', overflow: 'auto' }, dropdownStyle), treeCheckable: checkable, notFoundContent: notFoundContent || locale.notFoundContent, ref: _this.saveTreeSelect }));
         };
         warning$4(props.multiple !== false || !props.treeCheckable, '`multiple` will alway be `true` when `treeCheckable` is true');
         return _this;
@@ -74194,7 +74194,7 @@ var TreeSelect = function (_React$Component) {
     }, {
         key: 'render',
         value: function render() {
-            return React.createElement(
+            return React$1.createElement(
                 LocaleReceiver,
                 { componentName: 'Select', defaultLocale: {} },
                 this.renderTreeSelect
@@ -74203,7 +74203,7 @@ var TreeSelect = function (_React$Component) {
     }]);
 
     return TreeSelect;
-}(React.Component);
+}(React$1.Component);
 
 TreeSelect.TreeNode = TreeNode$2;
 TreeSelect.SHOW_ALL = SHOW_ALL;
@@ -74250,16 +74250,16 @@ var TimelineItem = function (_React$Component) {
                 restProps = __rest$35(_a, ["prefixCls", "className", "color", "children", "pending", "dot"]);
             var itemClassName = classnames((_classNames = {}, _defineProperty$7(_classNames, prefixCls + '-item', true), _defineProperty$7(_classNames, prefixCls + '-item-pending', pending), _classNames), className);
             var dotClassName = classnames((_classNames2 = {}, _defineProperty$7(_classNames2, prefixCls + '-item-head', true), _defineProperty$7(_classNames2, prefixCls + '-item-head-custom', dot), _defineProperty$7(_classNames2, prefixCls + '-item-head-' + color, true), _classNames2));
-            return React.createElement(
+            return React$1.createElement(
                 'li',
                 _extends$23({}, restProps, { className: itemClassName }),
-                React.createElement('div', { className: prefixCls + '-item-tail' }),
-                React.createElement(
+                React$1.createElement('div', { className: prefixCls + '-item-tail' }),
+                React$1.createElement(
                     'div',
                     { className: dotClassName, style: { borderColor: /blue|red|green/.test(color) ? undefined : color } },
                     dot
                 ),
-                React.createElement(
+                React$1.createElement(
                     'div',
                     { className: prefixCls + '-item-content' },
                     children
@@ -74269,7 +74269,7 @@ var TimelineItem = function (_React$Component) {
     }]);
 
     return TimelineItem;
-}(React.Component);
+}(React$1.Component);
 
 TimelineItem.defaultProps = {
     prefixCls: 'ant-timeline',
@@ -74312,24 +74312,24 @@ var Timeline = function (_React$Component) {
                 restProps = __rest$36(_a, ["prefixCls", "pending", "pendingDot", "children", "className", "reverse", "mode"]);
             var pendingNode = typeof pending === 'boolean' ? null : pending;
             var classString = classnames(prefixCls, (_classNames = {}, _defineProperty$7(_classNames, prefixCls + '-pending', !!pending), _defineProperty$7(_classNames, prefixCls + '-reverse', !!reverse), _defineProperty$7(_classNames, prefixCls + '-' + mode, !!mode), _classNames), className);
-            var pendingItem = !!pending ? React.createElement(
+            var pendingItem = !!pending ? React$1.createElement(
                 TimelineItem,
-                { pending: !!pending, dot: pendingDot || React.createElement(Icon, { type: 'loading' }) },
+                { pending: !!pending, dot: pendingDot || React$1.createElement(Icon, { type: 'loading' }) },
                 pendingNode
             ) : null;
-            var timeLineItems = !!reverse ? [pendingItem].concat(_toConsumableArray$5(React.Children.toArray(children).reverse())) : [].concat(_toConsumableArray$5(React.Children.toArray(children)), [pendingItem]);
+            var timeLineItems = !!reverse ? [pendingItem].concat(_toConsumableArray$5(React$1.Children.toArray(children).reverse())) : [].concat(_toConsumableArray$5(React$1.Children.toArray(children)), [pendingItem]);
             // Remove falsy items
             var truthyItems = timeLineItems.filter(function (item) {
                 return !!item;
             });
-            var itemsCount = React.Children.count(truthyItems);
+            var itemsCount = React$1.Children.count(truthyItems);
             var lastCls = prefixCls + '-item-last';
-            var items = React.Children.map(truthyItems, function (ele, idx) {
-                return React.cloneElement(ele, {
+            var items = React$1.Children.map(truthyItems, function (ele, idx) {
+                return React$1.cloneElement(ele, {
                     className: classnames([ele.props.className, !reverse && !!pending ? idx === itemsCount - 2 ? lastCls : '' : idx === itemsCount - 1 ? lastCls : '', mode === 'alternate' ? idx % 2 === 0 ? prefixCls + '-item-left' : prefixCls + '-item-right' : mode === 'right' ? prefixCls + '-item-right' : ''])
                 });
             });
-            return React.createElement(
+            return React$1.createElement(
                 'ul',
                 _extends$23({}, restProps, { className: classString }),
                 items
@@ -74338,7 +74338,7 @@ var Timeline = function (_React$Component) {
     }]);
 
     return Timeline;
-}(React.Component);
+}(React$1.Component);
 
 Timeline.Item = TimelineItem;
 Timeline.defaultProps = {
@@ -83183,9 +83183,9 @@ var Map$11 = immutable.Map;
 
 
 
-var UL_WRAP = React__default.createElement('ul', { className: cx_1('public/DraftStyleDefault/ul') });
-var OL_WRAP = React__default.createElement('ol', { className: cx_1('public/DraftStyleDefault/ol') });
-var PRE_WRAP = React__default.createElement('pre', { className: cx_1('public/DraftStyleDefault/pre') });
+var UL_WRAP = React$1__default.createElement('ul', { className: cx_1('public/DraftStyleDefault/ul') });
+var OL_WRAP = React$1__default.createElement('ol', { className: cx_1('public/DraftStyleDefault/ol') });
+var PRE_WRAP = React$1__default.createElement('pre', { className: cx_1('public/DraftStyleDefault/pre') });
 
 var DefaultDraftBlockRenderMap = Map$11({
   'header-one': {
@@ -85429,17 +85429,17 @@ function isNewline(node) {
  * See http://jsfiddle.net/9khdavod/ for the failure case, and
  * http://jsfiddle.net/7pg143f7/ for the fixed case.
  */
-var NEWLINE_A = useNewlineChar ? React__default.createElement(
+var NEWLINE_A = useNewlineChar ? React$1__default.createElement(
   'span',
   { key: 'A', 'data-text': 'true' },
   '\n'
-) : React__default.createElement('br', { key: 'A', 'data-text': 'true' });
+) : React$1__default.createElement('br', { key: 'A', 'data-text': 'true' });
 
-var NEWLINE_B = useNewlineChar ? React__default.createElement(
+var NEWLINE_B = useNewlineChar ? React$1__default.createElement(
   'span',
   { key: 'B', 'data-text': 'true' },
   '\n'
-) : React__default.createElement('br', { key: 'B', 'data-text': 'true' });
+) : React$1__default.createElement('br', { key: 'B', 'data-text': 'true' });
 
 /**
  * The lowest-level component in a `DraftEditor`, the text node component
@@ -85484,7 +85484,7 @@ var DraftEditorTextNode = function (_React$Component) {
     if (this.props.children === '') {
       return this._forceFlag ? NEWLINE_A : NEWLINE_B;
     }
-    return React__default.createElement(
+    return React$1__default.createElement(
       'span',
       { key: this._forceFlag ? 'A' : 'B', 'data-text': 'true' },
       this.props.children
@@ -85492,7 +85492,7 @@ var DraftEditorTextNode = function (_React$Component) {
   };
 
   return DraftEditorTextNode;
-}(React__default.Component);
+}(React$1__default.Component);
 
 var DraftEditorTextNode_react = DraftEditorTextNode;
 
@@ -85984,7 +85984,7 @@ var DraftEditorLeaf = function (_React$Component) {
       styleObj = objectAssign(styleObj, newStyles);
     }
 
-    return React__default.createElement(
+    return React$1__default.createElement(
       'span',
       {
         'data-offset-key': offsetKey,
@@ -85992,7 +85992,7 @@ var DraftEditorLeaf = function (_React$Component) {
           return _this2.leaf = _ref;
         },
         style: styleObj },
-      React__default.createElement(
+      React$1__default.createElement(
         DraftEditorTextNode_react,
         null,
         text
@@ -86001,7 +86001,7 @@ var DraftEditorLeaf = function (_React$Component) {
   };
 
   return DraftEditorLeaf;
-}(React__default.Component);
+}(React$1__default.Component);
 
 var DraftEditorLeaf_react = DraftEditorLeaf;
 
@@ -86636,7 +86636,7 @@ var DraftEditorBlock = function (_React$Component) {
         var offsetKey = DraftOffsetKey_1.encode(blockKey, ii, jj);
         var start = leaf.get('start');
         var end = leaf.get('end');
-        return React__default.createElement(DraftEditorLeaf_react, {
+        return React$1__default.createElement(DraftEditorLeaf_react, {
           key: offsetKey,
           offsetKey: offsetKey,
           block: block,
@@ -86675,7 +86675,7 @@ var DraftEditorBlock = function (_React$Component) {
       // confused on cursor movement. See http://jsfiddle.net/d157kLck/3/
       var dir = UnicodeBidiDirection_1.getHTMLDirIfDifferent(UnicodeBidi_1.getDirection(decoratedText), _this2.props.direction);
 
-      return React__default.createElement(
+      return React$1__default.createElement(
         DecoratorComponent,
         _extends$32({}, decoratorProps, {
           contentState: _this2.props.contentState,
@@ -86700,7 +86700,7 @@ var DraftEditorBlock = function (_React$Component) {
       'public/DraftStyleDefault/rtl': direction === 'RTL'
     });
 
-    return React__default.createElement(
+    return React$1__default.createElement(
       'div',
       { 'data-offset-key': offsetKey, className: className },
       this._renderChildren()
@@ -86708,7 +86708,7 @@ var DraftEditorBlock = function (_React$Component) {
   };
 
   return DraftEditorBlock;
-}(React__default.Component);
+}(React$1__default.Component);
 
 var DraftEditorBlock_react = DraftEditorBlock;
 
@@ -86932,7 +86932,7 @@ var DraftEditorContents = function (_React$Component) {
         });
       }
 
-      var child = React__default.createElement(Element, childProps, React__default.createElement(Component, componentProps));
+      var child = React$1__default.createElement(Element, childProps, React$1__default.createElement(Component, componentProps));
 
       processedBlocks.push({
         block: child,
@@ -86959,7 +86959,7 @@ var DraftEditorContents = function (_React$Component) {
           blocks.push(processedBlocks[_ii].block);
           _ii++;
         } while (_ii < processedBlocks.length && processedBlocks[_ii].wrapperTemplate === info.wrapperTemplate);
-        var wrapperElement = React__default.cloneElement(info.wrapperTemplate, {
+        var wrapperElement = React$1__default.cloneElement(info.wrapperTemplate, {
           key: info.key + '-wrap',
           'data-offset-key': info.offsetKey
         }, blocks);
@@ -86970,7 +86970,7 @@ var DraftEditorContents = function (_React$Component) {
       }
     }
 
-    return React__default.createElement(
+    return React$1__default.createElement(
       'div',
       { 'data-contents': 'true' },
       outputBlocks
@@ -86978,7 +86978,7 @@ var DraftEditorContents = function (_React$Component) {
   };
 
   return DraftEditorContents;
-}(React__default.Component);
+}(React$1__default.Component);
 
 var DraftEditorContentsCore_react = DraftEditorContents;
 
@@ -90868,10 +90868,10 @@ var DraftEditorPlaceholder = function (_React$Component) {
       whiteSpace: 'pre-wrap'
     };
 
-    return React__default.createElement(
+    return React$1__default.createElement(
       'div',
       { className: className },
-      React__default.createElement(
+      React$1__default.createElement(
         'div',
         {
           className: cx_1('public/DraftEditorPlaceholder/inner'),
@@ -90883,7 +90883,7 @@ var DraftEditorPlaceholder = function (_React$Component) {
   };
 
   return DraftEditorPlaceholder;
-}(React__default.Component);
+}(React$1__default.Component);
 
 var DraftEditorPlaceholder_react = DraftEditorPlaceholder;
 
@@ -91208,7 +91208,7 @@ var DraftEditor = function (_React$Component) {
         accessibilityID: this._placeholderAccessibilityID
       };
 
-      return React__default.createElement(DraftEditorPlaceholder_react, placeHolderProps);
+      return React$1__default.createElement(DraftEditorPlaceholder_react, placeHolderProps);
     }
     return null;
   };
@@ -91261,18 +91261,18 @@ var DraftEditor = function (_React$Component) {
       textDirectionality: textDirectionality
     };
 
-    return React__default.createElement(
+    return React$1__default.createElement(
       'div',
       { className: rootClass },
       this._renderPlaceholder(),
-      React__default.createElement(
+      React$1__default.createElement(
         'div',
         {
           className: cx_1('DraftEditor/editorContainer'),
           ref: function ref(_ref3) {
             return _this3.editorContainer = _ref3;
           } },
-        React__default.createElement(
+        React$1__default.createElement(
           'div',
           {
             'aria-activedescendant': readOnly ? null : this.props.ariaActiveDescendantID,
@@ -91324,7 +91324,7 @@ var DraftEditor = function (_React$Component) {
             style: contentStyle,
             suppressContentEditableWarning: true,
             tabIndex: this.props.tabIndex },
-          React__default.createElement(DraftEditorContents_react, editorContentsProps)
+          React$1__default.createElement(DraftEditorContents_react, editorContentsProps)
         )
       )
     );
@@ -91433,7 +91433,7 @@ var DraftEditor = function (_React$Component) {
 
 
   return DraftEditor;
-}(React__default.Component);
+}(React$1__default.Component);
 
 DraftEditor.defaultProps = {
   blockRenderMap: DefaultDraftBlockRenderMap_1,
@@ -97226,7 +97226,7 @@ var ToolbarLine = function (_React$Component) {
     }
 
     ToolbarLine.prototype.render = function render() {
-        return React__default.createElement(
+        return React$1__default.createElement(
             'div',
             null,
             this.props.children
@@ -97234,7 +97234,7 @@ var ToolbarLine = function (_React$Component) {
     };
 
     return ToolbarLine;
-}(React__default.Component);
+}(React$1__default.Component);
 
 function _classCallCheck$42(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -97272,10 +97272,10 @@ var Toolbar = function (_React$Component) {
                 key: 'toolbar-item-' + idx,
                 onClick: component.props ? component.props.onClick : noop$31
             };
-            if (React__default.isValidElement(component)) {
-                return React__default.cloneElement(component, props);
+            if (React$1__default.isValidElement(component)) {
+                return React$1__default.cloneElement(component, props);
             }
-            return React__default.createElement(component, props);
+            return React$1__default.createElement(component, props);
         }
         return null;
     };
@@ -97291,12 +97291,12 @@ var Toolbar = function (_React$Component) {
             toolbars = _props.toolbars,
             prefixCls = _props.prefixCls;
 
-        return React__default.createElement(
+        return React$1__default.createElement(
             'div',
             { className: prefixCls + '-toolbar' },
             toolbars.map(function (toolbar, idx) {
-                var children = React__default.Children.map(toolbar, _this2.renderToolbarItem.bind(_this2));
-                return React__default.createElement(
+                var children = React$1__default.Children.map(toolbar, _this2.renderToolbarItem.bind(_this2));
+                return React$1__default.createElement(
                     ToolbarLine,
                     { key: 'toolbar-' + idx },
                     children
@@ -97306,7 +97306,7 @@ var Toolbar = function (_React$Component) {
     };
 
     return Toolbar;
-}(React__default.Component);
+}(React$1__default.Component);
 
 function noop$32(_) {}
 function createToolbar() {
@@ -98542,19 +98542,19 @@ var EditorCore = function (_React$Component) {
         var eventHandler = this.getEventHandler();
         var Toolbar = toolbar.component;
         var cls = classnames((_classnames = {}, _classnames[prefixCls + '-editor'] = true, _classnames.readonly = readOnly, _classnames.oneline = !multiLines, _classnames));
-        return React__default.createElement(
+        return React$1__default.createElement(
             'div',
             { style: style, className: cls, onClick: this._focus.bind(this) },
-            React__default.createElement(Toolbar, { editorState: editorState, prefixCls: prefixCls, className: prefixCls + '-toolbar', plugins: toolbarPlugins, toolbars: toolbars }),
-            React__default.createElement(
+            React$1__default.createElement(Toolbar, { editorState: editorState, prefixCls: prefixCls, className: prefixCls + '-toolbar', plugins: toolbarPlugins, toolbars: toolbars }),
+            React$1__default.createElement(
                 'div',
                 { className: prefixCls + '-editor-wrapper', ref: function ref(ele) {
                         return _this8._editorWrapper = ele;
                     }, style: style, onClick: function onClick(ev) {
                         return ev.preventDefault();
                     } },
-                React__default.createElement(Draft_10, _extends$41({}, this.props, eventHandler, { ref: 'editor', customStyleMap: customStyleMap, customStyleFn: this.customStyleFn.bind(this), editorState: editorState, handleKeyCommand: this.handleKeyCommand.bind(this), keyBindingFn: this.handleKeyBinding.bind(this), onChange: this.setEditorState.bind(this), blockStyleFn: this.getBlockStyle.bind(this), blockRenderMap: blockRenderMap, handlePastedText: this.handlePastedText, blockRendererFn: this.blockRendererFn.bind(this) })),
-                readOnly ? React__default.createElement('input', { style: focusDummyStyle, ref: function ref(ele) {
+                React$1__default.createElement(Draft_10, _extends$41({}, this.props, eventHandler, { ref: 'editor', customStyleMap: customStyleMap, customStyleFn: this.customStyleFn.bind(this), editorState: editorState, handleKeyCommand: this.handleKeyCommand.bind(this), keyBindingFn: this.handleKeyBinding.bind(this), onChange: this.setEditorState.bind(this), blockStyleFn: this.getBlockStyle.bind(this), blockRenderMap: blockRenderMap, handlePastedText: this.handlePastedText, blockRendererFn: this.blockRendererFn.bind(this) })),
+                readOnly ? React$1__default.createElement('input', { style: focusDummyStyle, ref: function ref(ele) {
                         return _this8._focusDummy = ele;
                     }, onBlur: eventHandler.onBlur }) : null,
                 this.props.children
@@ -98563,7 +98563,7 @@ var EditorCore = function (_React$Component) {
     };
 
     return EditorCore;
-}(React__default.Component);
+}(React$1__default.Component);
 
 EditorCore.GetText = exportText;
 EditorCore.GetHTML = GetHTML(configStore);
@@ -98592,11 +98592,11 @@ var Nav = function (_Component) {
   Nav.prototype.render = function render() {
     var props = this.props;
 
-    return React__default.createElement('div', props);
+    return React$1__default.createElement('div', props);
   };
 
   return Nav;
-}(React.Component);
+}(React$1.Component);
 
 var IS_REACT_16$5 = !!reactDom_2;
 
@@ -98650,7 +98650,7 @@ var SuggestionWrapper = function (_React$Component) {
   };
 
   return SuggestionWrapper;
-}(React__default.Component);
+}(React$1__default.Component);
 
 
 SuggestionWrapper.propTypes = {
@@ -98902,7 +98902,7 @@ var Suggestions = function (_React$Component) {
       ev.preventDefault();
       var selectedSuggestion = _this.props.suggestions[_this.state.focusedIndex];
       if (selectedSuggestion) {
-        if (React__default.isValidElement(selectedSuggestion)) {
+        if (React$1__default.isValidElement(selectedSuggestion)) {
           _this.onMentionSelect(selectedSuggestion.props.value, selectedSuggestion.props.data);
         } else {
           _this.onMentionSelect(selectedSuggestion);
@@ -98963,7 +98963,7 @@ var Suggestions = function (_React$Component) {
           suggestions = _this$props.suggestions;
       var focusedIndex = _this.state.focusedIndex;
 
-      return suggestions.length ? React__default.Children.map(suggestions, function (element, index) {
+      return suggestions.length ? React$1__default.Children.map(suggestions, function (element, index) {
         var focusItem = index === focusedIndex;
         var ref = focusItem ? function (node) {
           _this.focusItem = node;
@@ -98971,8 +98971,8 @@ var Suggestions = function (_React$Component) {
         var mentionClass = classnames(prefixCls + '-dropdown-item', {
           focus: focusItem
         });
-        if (React__default.isValidElement(element)) {
-          return React__default.cloneElement(element, {
+        if (React$1__default.isValidElement(element)) {
+          return React$1__default.cloneElement(element, {
             className: mentionClass,
             onMouseDown: function onMouseDown() {
               return _this.onMentionSelect(element.props.value, element.props.data);
@@ -98980,7 +98980,7 @@ var Suggestions = function (_React$Component) {
             ref: ref
           });
         }
-        return React__default.createElement(
+        return React$1__default.createElement(
           Nav,
           {
             ref: ref,
@@ -98991,7 +98991,7 @@ var Suggestions = function (_React$Component) {
           },
           element
         );
-      }, _this) : React__default.createElement(
+      }, _this) : React$1__default.createElement(
         'div',
         { className: prefixCls + '-dropdown-notfound ' + prefixCls + '-dropdown-item' },
         _this.props.notFoundContent
@@ -99095,13 +99095,13 @@ var Suggestions = function (_React$Component) {
 
     var navigations = this.getNavigations();
 
-    return container ? React__default.createElement(
+    return container ? React$1__default.createElement(
       SuggestionWrapper,
       { renderReady: this.renderReady, container: container },
-      React__default.createElement(
+      React$1__default.createElement(
         Animate,
         { transitionName: transitionName },
-        active ? React__default.createElement(
+        active ? React$1__default.createElement(
           'div',
           { className: cls, ref: function ref(node) {
               _this2.dropdownContainer = node;
@@ -99113,7 +99113,7 @@ var Suggestions = function (_React$Component) {
   };
 
   return Suggestions;
-}(React__default.Component);
+}(React$1__default.Component);
 
 
 Suggestions.propTypes = {
@@ -99201,7 +99201,7 @@ var SuggestionPortal = function (_React$Component) {
   SuggestionPortal.prototype.render = function render() {
     var _this3 = this;
 
-    return React__default.createElement(
+    return React$1__default.createElement(
       'span',
       { ref: function ref(node) {
           _this3.searchPortal = node;
@@ -99211,7 +99211,7 @@ var SuggestionPortal = function (_React$Component) {
   };
 
   return SuggestionPortal;
-}(React__default.Component);
+}(React$1__default.Component);
 
 SuggestionPortal.propTypes = {
   offsetKey: propTypes.any,
@@ -99224,7 +99224,7 @@ SuggestionPortal.propTypes = {
 
 var MentionContent = function MentionContent(_ref) {
   var children = _ref.children;
-  return React__default.createElement(
+  return React$1__default.createElement(
     'span',
     { style: { backgroundColor: '#e6f3ff' } },
     children
@@ -99332,7 +99332,7 @@ var MentionContentComponent = function MentionContentComponent(props) {
 
   var contentState = callbacks.getEditorState().getCurrentContent();
   var data = contentState.getEntity(entityKey).getData();
-  return React__default.createElement(tag, _extends$23({}, props, { data: data }));
+  return React$1__default.createElement(tag, _extends$23({}, props, { data: data }));
 };
 
 function createMention() {
@@ -99359,7 +99359,7 @@ function createMention() {
       findWithRegex(suggestionRegex, contentBlock, callback);
     },
     component: function component(props) {
-      return React__default.createElement(SuggestionPortal, _extends$23({}, props, componentProps, {
+      return React$1__default.createElement(SuggestionPortal, _extends$23({}, props, componentProps, {
         style: config.mentionStyle,
         suggestionRegex: getRegExp(config.prefix)
       }));
@@ -99369,7 +99369,7 @@ function createMention() {
     decorators.unshift({
       strategy: mentionContentStrategy,
       component: function component(props) {
-        return React__default.createElement(MentionContentComponent, _extends$23({ tag: tag }, props, { callbacks: callbacks }));
+        return React$1__default.createElement(MentionContentComponent, _extends$23({ tag: tag }, props, { callbacks: callbacks }));
       }
     });
   }
@@ -99377,7 +99377,7 @@ function createMention() {
   return {
     name: 'mention',
     Suggestions: function Suggestions$$1(props) {
-      return React__default.createElement(Suggestions, _extends$23({}, props, componentProps, {
+      return React$1__default.createElement(Suggestions, _extends$23({}, props, componentProps, {
         store: mentionStore
       }));
     },
@@ -99507,12 +99507,12 @@ var Mention = function (_React$Component) {
     var editorClass = classnames(className, (_classnames = {}, _classnames[prefixCls + '-wrapper'] = true, _classnames.readonly = readOnly, _classnames.disabled = disabled, _classnames.multilines = multiLines, _classnames));
     var editorProps = this.controlledMode ? { value: this.state.value } : {};
     var defaultValueState = defaultValue && Draft_2.createWithContent(typeof defaultValue === 'string' ? Draft_1.createFromText(defaultValue) : defaultValue, this._decorator);
-    return React__default.createElement(
+    return React$1__default.createElement(
       'div',
       { className: editorClass, style: style, ref: function ref(wrapper) {
           return _this2._wrapper = wrapper;
         } },
-      React__default.createElement(
+      React$1__default.createElement(
         EditorCore,
         _extends$23({
           ref: function ref(editor) {
@@ -99531,7 +99531,7 @@ var Mention = function (_React$Component) {
         }, editorProps, {
           readOnly: readOnly || disabled
         }),
-        React__default.createElement(Suggestions, {
+        React$1__default.createElement(Suggestions, {
           mode: tag ? 'immutable' : mode,
           prefix: this.getPrefix(),
           prefixCls: prefixCls,
@@ -99551,7 +99551,7 @@ var Mention = function (_React$Component) {
   };
 
   return Mention;
-}(React__default.Component);
+}(React$1__default.Component);
 
 Mention.propTypes = {
   value: propTypes.object,
@@ -99696,13 +99696,13 @@ var Mention$1 = function (_React$Component) {
                 focus = _state.focus;
 
             var cls = classnames(className, (_classNames = {}, _defineProperty$7(_classNames, prefixCls + '-active', focus), _defineProperty$7(_classNames, prefixCls + '-placement-top', placement === 'top'), _classNames));
-            var notFoundContent = loading ? React.createElement(Icon, { type: 'loading' }) : this.props.notFoundContent;
-            return React.createElement(Mention, _extends$23({}, this.props, { className: cls, ref: this.mentionRef, onSearchChange: this.onSearchChange, onChange: this.onChange, onFocus: this.onFocus, onBlur: this.onBlur, suggestions: suggestions, notFoundContent: notFoundContent }));
+            var notFoundContent = loading ? React$1.createElement(Icon, { type: 'loading' }) : this.props.notFoundContent;
+            return React$1.createElement(Mention, _extends$23({}, this.props, { className: cls, ref: this.mentionRef, onSearchChange: this.onSearchChange, onChange: this.onChange, onFocus: this.onFocus, onBlur: this.onBlur, suggestions: suggestions, notFoundContent: notFoundContent }));
         }
     }]);
 
     return Mention$$1;
-}(React.Component);
+}(React$1.Component);
 
 Mention$1.getMentions = getMentions;
 Mention$1.defaultProps = {
@@ -100114,14 +100114,14 @@ var AjaxUploader = function (_Component) {
         onDragOver: this.onFileDrop,
         tabIndex: '0'
       };
-      return React__default.createElement(
+      return React$1__default.createElement(
         Tag,
         _extends$23({}, events, {
           className: cls,
           role: 'button',
           style: style
         }),
-        React__default.createElement('input', {
+        React$1__default.createElement('input', {
           type: 'file',
           ref: this.saveFileInput,
           key: this.state.uid,
@@ -100138,7 +100138,7 @@ var AjaxUploader = function (_Component) {
   }]);
 
   return AjaxUploader;
-}(React.Component);
+}(React$1.Component);
 
 AjaxUploader.propTypes = {
   component: propTypes.string,
@@ -100482,13 +100482,13 @@ var IframeUploader = function (_Component) {
         display: this.state.uploading || disabled ? 'none' : ''
       });
       var cls = classnames((_classNames = {}, _defineProperty$7(_classNames, prefixCls, true), _defineProperty$7(_classNames, prefixCls + '-disabled', disabled), _defineProperty$7(_classNames, className, className), _classNames));
-      return React__default.createElement(
+      return React$1__default.createElement(
         Tag,
         {
           className: cls,
           style: _extends$23({ position: 'relative', zIndex: 0 }, style)
         },
-        React__default.createElement('iframe', {
+        React$1__default.createElement('iframe', {
           ref: this.saveIframe,
           onLoad: this.onLoad,
           style: iframeStyle
@@ -100499,7 +100499,7 @@ var IframeUploader = function (_Component) {
   }]);
 
   return IframeUploader;
-}(React.Component);
+}(React$1.Component);
 
 IframeUploader.propTypes = {
   component: propTypes.string,
@@ -100565,17 +100565,17 @@ var Upload = function (_Component) {
       if (this.props.supportServerRender) {
         var _ComponentUploader = this.state.Component;
         if (_ComponentUploader) {
-          return React__default.createElement(_ComponentUploader, _extends$23({}, this.props, { ref: this.saveUploader }));
+          return React$1__default.createElement(_ComponentUploader, _extends$23({}, this.props, { ref: this.saveUploader }));
         }
         return null;
       }
       var ComponentUploader = this.getComponent();
-      return React__default.createElement(ComponentUploader, _extends$23({}, this.props, { ref: this.saveUploader }));
+      return React$1__default.createElement(ComponentUploader, _extends$23({}, this.props, { ref: this.saveUploader }));
     }
   }]);
 
   return Upload;
-}(React.Component);
+}(React$1.Component);
 
 Upload.propTypes = {
   component: propTypes.string,
@@ -101861,19 +101861,19 @@ var UploadList = function (_React$Component) {
                 var _classNames;
 
                 var progress = void 0;
-                var icon = React.createElement(Icon, { type: file.status === 'uploading' ? 'loading' : 'paper-clip' });
+                var icon = React$1.createElement(Icon, { type: file.status === 'uploading' ? 'loading' : 'paper-clip' });
                 if (listType === 'picture' || listType === 'picture-card') {
                     if (listType === 'picture-card' && file.status === 'uploading') {
-                        icon = React.createElement(
+                        icon = React$1.createElement(
                             'div',
                             { className: prefixCls + '-list-item-uploading-text' },
                             locale.uploading
                         );
                     } else if (!file.thumbUrl && !file.url) {
-                        icon = React.createElement(Icon, { className: prefixCls + '-list-item-thumbnail', type: 'picture' });
+                        icon = React$1.createElement(Icon, { className: prefixCls + '-list-item-thumbnail', type: 'picture' });
                     } else {
-                        var thumbnail = isImageUrl(file.thumbUrl || file.url) ? React.createElement('img', { src: file.thumbUrl || file.url, alt: file.name }) : React.createElement(Icon, { type: 'file', className: prefixCls + '-list-item-icon' });
-                        icon = React.createElement(
+                        var thumbnail = isImageUrl(file.thumbUrl || file.url) ? React$1.createElement('img', { src: file.thumbUrl || file.url, alt: file.name }) : React$1.createElement(Icon, { type: 'file', className: prefixCls + '-list-item-icon' });
+                        icon = React$1.createElement(
                             'a',
                             { className: prefixCls + '-list-item-thumbnail', onClick: function onClick(e) {
                                     return _this3.handlePreview(file, e);
@@ -101884,21 +101884,21 @@ var UploadList = function (_React$Component) {
                 }
                 if (file.status === 'uploading') {
                     // show loading icon if upload progress listener is disabled
-                    var loadingProgress = 'percent' in file ? React.createElement(Progress, _extends$23({ type: 'line' }, _this3.props.progressAttr, { percent: file.percent })) : null;
-                    progress = React.createElement(
+                    var loadingProgress = 'percent' in file ? React$1.createElement(Progress, _extends$23({ type: 'line' }, _this3.props.progressAttr, { percent: file.percent })) : null;
+                    progress = React$1.createElement(
                         'div',
                         { className: prefixCls + '-list-item-progress', key: 'progress' },
                         loadingProgress
                     );
                 }
                 var infoUploadingClass = classnames((_classNames = {}, _defineProperty$7(_classNames, prefixCls + '-list-item', true), _defineProperty$7(_classNames, prefixCls + '-list-item-' + file.status, true), _classNames));
-                var preview = file.url ? React.createElement(
+                var preview = file.url ? React$1.createElement(
                     'a',
                     _extends$23({}, file.linkProps, { href: file.url, target: '_blank', rel: 'noopener noreferrer', className: prefixCls + '-list-item-name', onClick: function onClick(e) {
                             return _this3.handlePreview(file, e);
                         }, title: file.name }),
                     file.name
-                ) : React.createElement(
+                ) : React$1.createElement(
                     'span',
                     { className: prefixCls + '-list-item-name', onClick: function onClick(e) {
                             return _this3.handlePreview(file, e);
@@ -101909,20 +101909,20 @@ var UploadList = function (_React$Component) {
                     pointerEvents: 'none',
                     opacity: 0.5
                 };
-                var previewIcon = showPreviewIcon ? React.createElement(
+                var previewIcon = showPreviewIcon ? React$1.createElement(
                     'a',
                     { href: file.url || file.thumbUrl, target: '_blank', rel: 'noopener noreferrer', style: file.url || file.thumbUrl ? undefined : style, onClick: function onClick(e) {
                             return _this3.handlePreview(file, e);
                         }, title: locale.previewFile },
-                    React.createElement(Icon, { type: 'eye-o' })
+                    React$1.createElement(Icon, { type: 'eye-o' })
                 ) : null;
-                var removeIcon = showRemoveIcon ? React.createElement(Icon, { type: 'delete', title: locale.removeFile, onClick: function onClick() {
+                var removeIcon = showRemoveIcon ? React$1.createElement(Icon, { type: 'delete', title: locale.removeFile, onClick: function onClick() {
                         return _this3.handleClose(file);
                     } }) : null;
-                var removeIconCross = showRemoveIcon ? React.createElement(Icon, { type: 'cross', title: locale.removeFile, onClick: function onClick() {
+                var removeIconCross = showRemoveIcon ? React$1.createElement(Icon, { type: 'cross', title: locale.removeFile, onClick: function onClick() {
                         return _this3.handleClose(file);
                     } }) : null;
-                var actions = listType === 'picture-card' && file.status !== 'uploading' ? React.createElement(
+                var actions = listType === 'picture-card' && file.status !== 'uploading' ? React$1.createElement(
                     'span',
                     { className: prefixCls + '-list-item-actions' },
                     previewIcon,
@@ -101934,27 +101934,27 @@ var UploadList = function (_React$Component) {
                 } else {
                     message = file.error && file.error.statusText || locale.uploadError;
                 }
-                var iconAndPreview = file.status === 'error' ? React.createElement(
+                var iconAndPreview = file.status === 'error' ? React$1.createElement(
                     Tooltip$1,
                     { title: message },
                     icon,
                     preview
-                ) : React.createElement(
+                ) : React$1.createElement(
                     'span',
                     null,
                     icon,
                     preview
                 );
-                return React.createElement(
+                return React$1.createElement(
                     'div',
                     { className: infoUploadingClass, key: file.uid },
-                    React.createElement(
+                    React$1.createElement(
                         'div',
                         { className: prefixCls + '-list-item-info' },
                         iconAndPreview
                     ),
                     actions,
-                    React.createElement(
+                    React$1.createElement(
                         Animate,
                         { transitionName: 'fade', component: '' },
                         progress
@@ -101963,7 +101963,7 @@ var UploadList = function (_React$Component) {
             });
             var listClassNames = classnames((_classNames2 = {}, _defineProperty$7(_classNames2, prefixCls + '-list', true), _defineProperty$7(_classNames2, prefixCls + '-list-' + listType, true), _classNames2));
             var animationDirection = listType === 'picture-card' ? 'animate-inline' : 'animate';
-            return React.createElement(
+            return React$1.createElement(
                 Animate,
                 { transitionName: prefixCls + '-' + animationDirection, component: 'div', className: listClassNames },
                 list
@@ -101972,7 +101972,7 @@ var UploadList = function (_React$Component) {
     }]);
 
     return UploadList;
-}(React.Component);
+}(React$1.Component);
 
 UploadList.defaultProps = {
     listType: 'text',
@@ -102154,7 +102154,7 @@ var Upload$1 = function (_React$Component) {
             var showRemoveIcon = showUploadList.showRemoveIcon,
                 showPreviewIcon = showUploadList.showPreviewIcon;
 
-            return React.createElement(UploadList, { listType: listType, items: _this.state.fileList, onPreview: onPreview, onRemove: _this.handleManualRemove, showRemoveIcon: showRemoveIcon, showPreviewIcon: showPreviewIcon, locale: _extends$23({}, locale, _this.props.locale) });
+            return React$1.createElement(UploadList, { listType: listType, items: _this.state.fileList, onPreview: onPreview, onRemove: _this.handleManualRemove, showRemoveIcon: showRemoveIcon, showPreviewIcon: showPreviewIcon, locale: _extends$23({}, locale, _this.props.locale) });
         };
         _this.state = {
             fileList: props.fileList || props.defaultFileList || [],
@@ -102235,7 +102235,7 @@ var Upload$1 = function (_React$Component) {
 
             var rcUploadProps = _extends$23({ onStart: this.onStart, onError: this.onError, onProgress: this.onProgress, onSuccess: this.onSuccess }, this.props, { beforeUpload: this.beforeUpload });
             delete rcUploadProps.className;
-            var uploadList = showUploadList ? React.createElement(
+            var uploadList = showUploadList ? React$1.createElement(
                 LocaleReceiver,
                 { componentName: 'Upload', defaultLocale: defaultLocale.Upload },
                 this.renderUploadList
@@ -102246,16 +102246,16 @@ var Upload$1 = function (_React$Component) {
                 var dragCls = classnames(prefixCls, (_classNames = {}, _defineProperty$7(_classNames, prefixCls + '-drag', true), _defineProperty$7(_classNames, prefixCls + '-drag-uploading', this.state.fileList.some(function (file) {
                     return file.status === 'uploading';
                 })), _defineProperty$7(_classNames, prefixCls + '-drag-hover', this.state.dragState === 'dragover'), _defineProperty$7(_classNames, prefixCls + '-disabled', disabled), _classNames));
-                return React.createElement(
+                return React$1.createElement(
                     'span',
                     { className: className },
-                    React.createElement(
+                    React$1.createElement(
                         'div',
                         { className: dragCls, onDrop: this.onFileDrop, onDragOver: this.onFileDrop, onDragLeave: this.onFileDrop },
-                        React.createElement(
+                        React$1.createElement(
                             Upload,
                             _extends$23({}, rcUploadProps, { ref: this.saveUpload, className: prefixCls + '-btn' }),
-                            React.createElement(
+                            React$1.createElement(
                                 'div',
                                 { className: prefixCls + '-drag-container' },
                                 children
@@ -102266,20 +102266,20 @@ var Upload$1 = function (_React$Component) {
                 );
             }
             var uploadButtonCls = classnames(prefixCls, (_classNames2 = {}, _defineProperty$7(_classNames2, prefixCls + '-select', true), _defineProperty$7(_classNames2, prefixCls + '-select-' + listType, true), _defineProperty$7(_classNames2, prefixCls + '-disabled', disabled), _classNames2));
-            var uploadButton = React.createElement(
+            var uploadButton = React$1.createElement(
                 'div',
                 { className: uploadButtonCls, style: { display: children ? '' : 'none' } },
-                React.createElement(Upload, _extends$23({}, rcUploadProps, { ref: this.saveUpload }))
+                React$1.createElement(Upload, _extends$23({}, rcUploadProps, { ref: this.saveUpload }))
             );
             if (listType === 'picture-card') {
-                return React.createElement(
+                return React$1.createElement(
                     'span',
                     { className: className },
                     uploadList,
                     uploadButton
                 );
             }
-            return React.createElement(
+            return React$1.createElement(
                 'span',
                 { className: className },
                 uploadButton,
@@ -102289,7 +102289,7 @@ var Upload$1 = function (_React$Component) {
     }]);
 
     return Upload$$1;
-}(React.Component);
+}(React$1.Component);
 
 Upload$1.defaultProps = {
     prefixCls: 'ant-upload',
@@ -102320,12 +102320,12 @@ var Dragger = function (_React$Component) {
         value: function render() {
             var props = this.props;
 
-            return React.createElement(Upload$1, _extends$23({}, props, { type: 'drag', style: _extends$23({}, props.style, { height: props.height }) }));
+            return React$1.createElement(Upload$1, _extends$23({}, props, { type: 'drag', style: _extends$23({}, props.style, { height: props.height }) }));
         }
     }]);
 
     return Dragger;
-}(React.Component);
+}(React$1.Component);
 
 Upload$1.Dragger = Dragger;
 
@@ -103494,13 +103494,13 @@ var filterDropdown = (function (name, type, options) {
 		    clearFilters = _ref.clearFilters;
 
 
-		return React__default.createElement(
+		return React$1__default.createElement(
 			'div',
 			{ className: 'custom-filter-dropdown' },
-			type === 'checkbox' ? React__default.createElement(
+			type === 'checkbox' ? React$1__default.createElement(
 				'span',
 				null,
-				React__default.createElement(Checkbox$1, {
+				React$1__default.createElement(Checkbox$1, {
 					value: selectedKeys,
 					onChange: function onChange(e) {
 						return setSelectedKeys(e.target.checked.toString());
@@ -103509,8 +103509,8 @@ var filterDropdown = (function (name, type, options) {
 						confirm();
 					}
 				}),
-				React__default.createElement('br', null)
-			) : type === 'select' ? React__default.createElement(
+				React$1__default.createElement('br', null)
+			) : type === 'select' ? React$1__default.createElement(
 				Select$1,
 				{
 					value: selectedKeys,
@@ -103524,7 +103524,7 @@ var filterDropdown = (function (name, type, options) {
 					style: { width: '130px', marginRight: '8px' }
 				},
 				options.map(function (opt) {
-					return React__default.createElement(
+					return React$1__default.createElement(
 						Option$2,
 						{ value: opt.value, key: opt.value, onClick: function onClick(e) {
 								setSelectedKeys(opt.value);setTimeout(function () {
@@ -103534,7 +103534,7 @@ var filterDropdown = (function (name, type, options) {
 						opt.text
 					);
 				})
-			) : React__default.createElement(Input, {
+			) : React$1__default.createElement(Input, {
 				type: type,
 				placeholder: '\u041F\u043E\u0438\u0441\u043A',
 				value: selectedKeys,
@@ -103545,14 +103545,14 @@ var filterDropdown = (function (name, type, options) {
 					confirm();
 				}
 			}),
-			React__default.createElement(
+			React$1__default.createElement(
 				Button,
 				{ type: 'primary', onClick: function onClick() {
 						confirm();
 					} },
 				'\u041F\u043E\u0438\u0441\u043A'
 			),
-			React__default.createElement(
+			React$1__default.createElement(
 				Button,
 				{ onClick: function onClick() {
 						clearFilters();
@@ -104569,7 +104569,7 @@ var wrapAsElement = function wrapAsElement(css, names) {
     }
 
     // eslint-disable-next-line react/no-danger
-    return React__default.createElement('style', _extends$42({}, props, { dangerouslySetInnerHTML: { __html: css() } }));
+    return React$1__default.createElement('style', _extends$42({}, props, { dangerouslySetInnerHTML: { __html: css() } }));
   };
 };
 
@@ -105228,7 +105228,7 @@ var StyleSheet = function () {
 
     return this.tags.map(function (tag, i) {
       var key = 'sc-' + id + '-' + i;
-      return React.cloneElement(tag.toElement(), { key: key });
+      return React$1.cloneElement(tag.toElement(), { key: key });
     });
   };
 
@@ -105693,7 +105693,7 @@ function isDerivedReactComponent(fn) {
 
 // 
 
-var ThemeContext = React.createContext();
+var ThemeContext = React$1.createContext();
 
 var ThemeConsumer = ThemeContext.Consumer;
 
@@ -105717,7 +105717,7 @@ var ThemeProvider = function (_Component) {
   ThemeProvider.prototype.render = function render() {
     if (!this.props.children) return null;
 
-    return React__default.createElement(
+    return React$1__default.createElement(
       ThemeContext.Consumer,
       null,
       this.renderInner
@@ -105727,10 +105727,10 @@ var ThemeProvider = function (_Component) {
   ThemeProvider.prototype.renderInner = function renderInner(outerTheme) {
     var context = this.getContext(this.props.theme, outerTheme);
 
-    return React__default.createElement(
+    return React$1__default.createElement(
       ThemeContext.Provider,
       { value: context },
-      React__default.Children.only(this.props.children)
+      React$1__default.Children.only(this.props.children)
     );
   };
 
@@ -105759,11 +105759,11 @@ var ThemeProvider = function (_Component) {
   };
 
   return ThemeProvider;
-}(React.Component);
+}(React$1.Component);
 
 // 
 
-var StyleSheetContext = React.createContext();
+var StyleSheetContext = React$1.createContext();
 
 var StyleSheetConsumer = StyleSheetContext.Consumer;
 
@@ -105796,15 +105796,15 @@ var StyleSheetManager = function (_Component) {
         target = _props.target;
 
     var context = this.getContext(sheet, target);
-    return React__default.createElement(
+    return React$1__default.createElement(
       StyleSheetContext.Provider,
       { value: context },
-      React__default.Children.only(children)
+      React$1__default.Children.only(children)
     );
   };
 
   return StyleSheetManager;
-}(React.Component);
+}(React$1.Component);
 
 // 
 
@@ -105844,7 +105844,7 @@ var StyledComponent = function (_Component) {
   }
 
   StyledComponent.prototype.render = function render() {
-    return React__default.createElement(
+    return React$1__default.createElement(
       StyleSheetConsumer,
       null,
       this.renderOuter
@@ -105854,7 +105854,7 @@ var StyledComponent = function (_Component) {
   StyledComponent.prototype.renderOuter = function renderOuter(styleSheet) {
     this.styleSheet = styleSheet;
 
-    return React__default.createElement(
+    return React$1__default.createElement(
       ThemeConsumer,
       null,
       this.renderInner
@@ -105894,7 +105894,7 @@ var StyledComponent = function (_Component) {
 
     propsForElement.className = [this.props.className, styledComponentId, this.attrs.className, generatedClassName].filter(Boolean).join(' ');
 
-    return React.createElement(elementToBeCreated, propsForElement);
+    return React$1.createElement(elementToBeCreated, propsForElement);
   };
 
   StyledComponent.prototype.buildExecutionContext = function buildExecutionContext(theme, props, attrs) {
@@ -105942,7 +105942,7 @@ var StyledComponent = function (_Component) {
   };
 
   return StyledComponent;
-}(React.Component);
+}(React$1.Component);
 
 function createStyledComponent(target, options, rules) {
   var isTargetStyledComp = isStyledComponent(target);
@@ -105972,8 +105972,8 @@ function createStyledComponent(target, options, rules) {
    * forwardRef creates a new interim component, which we'll take advantage of
    * instead of extending ParentComponent to create _another_ interim class
    */
-  var WrappedStyledComponent = React__default.forwardRef(function (props, ref) {
-    return React__default.createElement(ParentComponent, _extends$42({}, props, { forwardedClass: WrappedStyledComponent, forwardedRef: ref }));
+  var WrappedStyledComponent = React$1__default.forwardRef(function (props, ref) {
+    return React$1__default.createElement(ParentComponent, _extends$42({}, props, { forwardedClass: WrappedStyledComponent, forwardedRef: ref }));
   });
 
   // $FlowFixMe
@@ -106117,23 +106117,23 @@ var Action = function (_Component) {
 			    row = _props.row;
 
 
-			return React__default.createElement(
+			return React$1__default.createElement(
 				'p',
 				null,
-				React__default.createElement(
+				React$1__default.createElement(
 					ActionStyled,
 					null,
-					React__default.createElement(
+					React$1__default.createElement(
 						'a',
 						{ title: data.name, href: data.url, target: '_blank', className: 'crud-action' },
-						React__default.createElement(Icon, { type: this.getIcon(data.id), onClick: this.handleClick })
+						React$1__default.createElement(Icon, { type: this.getIcon(data.id), onClick: this.handleClick })
 					)
 				)
 			);
 		}
 	}]);
 	return Action;
-}(React.Component);
+}(React$1.Component);
 
 Action.propTypes = {
 	data: propTypes.object.isRequired,
@@ -106146,14 +106146,14 @@ var Action$1 = connect(function (state, props) {
 }, { push: lib_7 })(Action);
 
 var DateCell = function DateCell(data) {
-	return React__default.createElement(
+	return React$1__default.createElement(
 		'p',
 		null,
 		hooks(data).format('DD.MM.YYYY')
 	);
 };
 var TextCell = function TextCell(text) {
-	return React__default.createElement(
+	return React$1__default.createElement(
 		'p',
 		null,
 		text
@@ -106161,7 +106161,7 @@ var TextCell = function TextCell(text) {
 };
 var ArrTextCell = function ArrTextCell(arr) {
 	return arr.map(function (elem) {
-		return React__default.createElement(
+		return React$1__default.createElement(
 			'p',
 			null,
 			elem
@@ -106170,7 +106170,7 @@ var ArrTextCell = function ArrTextCell(arr) {
 };
 var ActionsCell = function ActionsCell(row, modelName) {
 	return row.actions.map(function (action) {
-		return React__default.createElement(Action$1, { data: action, row: row, key: action.id, modelName: modelName });
+		return React$1__default.createElement(Action$1, { data: action, row: row, key: action.id, modelName: modelName });
 	});
 };
 
@@ -107379,7 +107379,7 @@ var Router = function (_React$Component) {
         history = _props.history;
 
 
-    invariant_1(children == null || React__default.Children.count(children) === 1, "A <Router> may have only one child element");
+    invariant_1(children == null || React$1__default.Children.count(children) === 1, "A <Router> may have only one child element");
 
     // Do this here so we can setState when a <Redirect> changes the
     // location in componentWillMount. This happens e.g. when doing
@@ -107402,11 +107402,11 @@ var Router = function (_React$Component) {
   Router.prototype.render = function render() {
     var children = this.props.children;
 
-    return children ? React__default.Children.only(children) : null;
+    return children ? React$1__default.Children.only(children) : null;
   };
 
   return Router;
-}(React__default.Component);
+}(React$1__default.Component);
 
 Router.propTypes = {
   history: propTypes.object.isRequired,
@@ -107451,11 +107451,11 @@ var BrowserRouter = function (_React$Component) {
   };
 
   BrowserRouter.prototype.render = function render() {
-    return React__default.createElement(Router, { history: this.history, children: this.props.children });
+    return React$1__default.createElement(Router, { history: this.history, children: this.props.children });
   };
 
   return BrowserRouter;
-}(React__default.Component);
+}(React$1__default.Component);
 
 BrowserRouter.propTypes = {
   basename: propTypes.string,
@@ -107495,11 +107495,11 @@ var HashRouter = function (_React$Component) {
   };
 
   HashRouter.prototype.render = function render() {
-    return React__default.createElement(Router, { history: this.history, children: this.props.children });
+    return React$1__default.createElement(Router, { history: this.history, children: this.props.children });
   };
 
   return HashRouter;
-}(React__default.Component);
+}(React$1__default.Component);
 
 HashRouter.propTypes = {
   basename: propTypes.string,
@@ -107579,11 +107579,11 @@ var Link = function (_React$Component) {
     var location = typeof to === "string" ? createLocation(to, null, null, history.location) : to;
 
     var href = history.createHref(location);
-    return React__default.createElement("a", _extends$48({}, props, { onClick: this.handleClick, href: href, ref: innerRef }));
+    return React$1__default.createElement("a", _extends$48({}, props, { onClick: this.handleClick, href: href, ref: innerRef }));
   };
 
   return Link;
-}(React__default.Component);
+}(React$1__default.Component);
 
 Link.propTypes = {
   onClick: propTypes.func,
@@ -107635,11 +107635,11 @@ var MemoryRouter = function (_React$Component) {
   };
 
   MemoryRouter.prototype.render = function render() {
-    return React__default.createElement(Router, { history: this.history, children: this.props.children });
+    return React$1__default.createElement(Router, { history: this.history, children: this.props.children });
   };
 
   return MemoryRouter;
-}(React__default.Component);
+}(React$1__default.Component);
 
 MemoryRouter.propTypes = {
   initialEntries: propTypes.array,
@@ -108162,7 +108162,7 @@ function _possibleConstructorReturn$43(self, call) { if (!self) { throw new Refe
 function _inherits$43(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var isEmptyChildren = function isEmptyChildren(children) {
-  return React__default.Children.count(children) === 0;
+  return React$1__default.Children.count(children) === 0;
 };
 
 /**
@@ -108248,19 +108248,19 @@ var Route = function (_React$Component) {
     var location = this.props.location || route.location;
     var props = { match: match, location: location, history: history, staticContext: staticContext };
 
-    if (component) return match ? React__default.createElement(component, props) : null;
+    if (component) return match ? React$1__default.createElement(component, props) : null;
 
     if (render) return match ? render(props) : null;
 
     if (typeof children === "function") return children(props);
 
-    if (children && !isEmptyChildren(children)) return React__default.Children.only(children);
+    if (children && !isEmptyChildren(children)) return React$1__default.Children.only(children);
 
     return null;
   };
 
   return Route;
-}(React__default.Component);
+}(React$1__default.Component);
 
 Route.propTypes = {
   computedMatch: propTypes.object, // private, from <Switch>
@@ -108313,7 +108313,7 @@ var NavLink = function NavLink(_ref) {
   // Regex taken from: https://github.com/pillarjs/path-to-regexp/blob/master/index.js#L202
   var escapedPath = path && path.replace(/([.+*?=^!:${}()[\]|/\\])/g, "\\$1");
 
-  return React__default.createElement(Route, {
+  return React$1__default.createElement(Route, {
     path: escapedPath,
     exact: exact,
     strict: strict,
@@ -108324,7 +108324,7 @@ var NavLink = function NavLink(_ref) {
 
       var isActive = !!(getIsActive ? getIsActive(match, location) : match);
 
-      return React__default.createElement(Link, _extends$50({
+      return React$1__default.createElement(Link, _extends$50({
         to: to,
         className: isActive ? [className, activeClassName].filter(function (i) {
           return i;
@@ -108410,7 +108410,7 @@ var Prompt = function (_React$Component) {
   };
 
   return Prompt;
-}(React__default.Component);
+}(React$1__default.Component);
 
 Prompt.propTypes = {
   when: propTypes.bool,
@@ -108546,7 +108546,7 @@ var Redirect = function (_React$Component) {
   };
 
   return Redirect;
-}(React__default.Component);
+}(React$1__default.Component);
 
 Redirect.propTypes = {
   computedMatch: propTypes.object, // private, from <Switch>
@@ -108691,11 +108691,11 @@ var StaticRouter = function (_React$Component) {
       block: this.handleBlock
     };
 
-    return React__default.createElement(Router, _extends$52({}, props, { history: history }));
+    return React$1__default.createElement(Router, _extends$52({}, props, { history: history }));
   };
 
   return StaticRouter;
-}(React__default.Component);
+}(React$1__default.Component);
 
 StaticRouter.propTypes = {
   basename: propTypes.string,
@@ -108749,8 +108749,8 @@ var Switch$3 = function (_React$Component) {
 
     var match = void 0,
         child = void 0;
-    React__default.Children.forEach(children, function (element) {
-      if (match == null && React__default.isValidElement(element)) {
+    React$1__default.Children.forEach(children, function (element) {
+      if (match == null && React$1__default.isValidElement(element)) {
         var _element$props = element.props,
             pathProp = _element$props.path,
             exact = _element$props.exact,
@@ -108765,11 +108765,11 @@ var Switch$3 = function (_React$Component) {
       }
     });
 
-    return match ? React__default.cloneElement(child, { location: location, computedMatch: match }) : null;
+    return match ? React$1__default.cloneElement(child, { location: location, computedMatch: match }) : null;
   };
 
   return Switch;
-}(React__default.Component);
+}(React$1__default.Component);
 
 Switch$3.contextTypes = {
   router: propTypes.shape({
@@ -108805,7 +108805,7 @@ var dataRenderer = (function (row, column, modelName) {
             var actionView = row.actions.find(function (e) {
                 return e.id === 'view';
             });
-            return actionView && actionView.url ? React__default.createElement(
+            return actionView && actionView.url ? React$1__default.createElement(
                 Link,
                 { to: actionView.url },
                 row[column.id]
@@ -108814,6 +108814,10 @@ var dataRenderer = (function (row, column, modelName) {
             return TextCell(row[column.id]);
     }
 });
+
+var antIcon = React.createElement(Icon, { type: "loading", style: { fontSize: 24 }, spin: true });
+
+var Loader = React.createElement(Spin, { indicator: antIcon });
 
 var fetchCrudModels = actions.fetchCrudModels;
 
@@ -108876,6 +108880,8 @@ var CrudView = function (_Component) {
 			    TableWrapper = _props2.TableWrapper,
 			    fixActionColumn = _props2.fixActionColumn;
 
+
+			if (items && !items.data && items.loading) return React$1__default.createElement(Loader, null);
 			if (!items || !items.data) return null;
 
 			var listItems = items.data.items.map(function (elem) {
@@ -108896,7 +108902,7 @@ var CrudView = function (_Component) {
 					},
 					filters: _this2.getFiterValues(col),
 					filterIcon: col.filter.can ? function (filtered) {
-						return React__default.createElement(Icon, { type: 'filter', style: { color: filtered ? '#108ee9' : '#aaa' } });
+						return React$1__default.createElement(Icon, { type: 'filter', style: { color: filtered ? '#108ee9' : '#aaa' } });
 					} : null,
 					filterDropdown: col.filter.can ? filterRenderer(col.filter.type, col.id, _this2.getFiterValues(col)) : null,
 					sorter: col.order.can ? function () {} : null //(a, b) => Number(a.id) - Number(b.id),
@@ -108905,7 +108911,7 @@ var CrudView = function (_Component) {
 
 			var TableComponent = TableWrapper || Table$1;
 
-			return React__default.createElement(TableComponent, {
+			return React$1__default.createElement(TableComponent, {
 				columns: columns,
 				dataSource: listItems,
 				className: 'isoSortingTable',
@@ -108922,7 +108928,7 @@ var CrudView = function (_Component) {
 		}
 	}]);
 	return CrudView;
-}(React.Component);
+}(React$1.Component);
 
 CrudView.propTypes = {
 	modelName: propTypes.string.isRequired,
@@ -113740,7 +113746,7 @@ var renderField = function renderField(_ref) {
 	    defaultValue = _ref.defaultValue,
 	    addonAfter = _ref.addonAfter,
 	    enterButton = _ref.enterButton;
-	return React__default.createElement(
+	return React$1__default.createElement(
 		Form$1.Item,
 		_extends({
 			hasFeedback: true
@@ -113752,7 +113758,7 @@ var renderField = function renderField(_ref) {
 		function () {
 			switch (type) {
 				case 'select':
-					return React__default.createElement(
+					return React$1__default.createElement(
 						Select$1,
 						_extends({}, input, {
 							value: input.value || [],
@@ -113761,7 +113767,7 @@ var renderField = function renderField(_ref) {
 							placeholder: placeholder
 						}),
 						options.map(function (elem) {
-							return React__default.createElement(
+							return React$1__default.createElement(
 								SelectOption,
 								{ value: elem.id, key: elem.id },
 								elem.name
@@ -113769,20 +113775,20 @@ var renderField = function renderField(_ref) {
 						})
 					);
 				case 'textarea':
-					return React__default.createElement(Input.TextArea, _extends({}, input, {
+					return React$1__default.createElement(Input.TextArea, _extends({}, input, {
 						placeholder: placeholder,
 						type: type,
 						className: 'form-control',
 						rows: rows
 					}));
 				case 'checkbox':
-					return React__default.createElement(
+					return React$1__default.createElement(
 						Checkbox$1,
 						input,
 						placeholder
 					);
 				case 'search':
-					return React__default.createElement(Search$2, _extends({
+					return React$1__default.createElement(Search$2, _extends({
 						onPressEnter: onPressEnter
 					}, input, {
 						value: input.value || defaultValue,
@@ -113791,7 +113797,7 @@ var renderField = function renderField(_ref) {
 					}));
 				case 'date':
 					console.log(input);
-					return React__default.createElement(DatePicker, _extends({
+					return React$1__default.createElement(DatePicker, _extends({
 						style: { width: '100%' },
 						onPressEnter: onPressEnter
 					}, input, {
@@ -113802,7 +113808,7 @@ var renderField = function renderField(_ref) {
 						locale: locale$3
 					}));
 				default:
-					return React__default.createElement(Input, _extends({
+					return React$1__default.createElement(Input, _extends({
 						onPressEnter: onPressEnter
 					}, input, {
 						value: input.value || defaultValue,
@@ -113840,11 +113846,11 @@ var CreateModalForm = function (_Component) {
 			_this.props.onCreate(form);
 		}, _this.handleAdd = function () {}, _this.mapFields = function (fields) {
 			return fields.map(function (props) {
-				return props.fields ? React__default.createElement(
+				return props.fields ? React$1__default.createElement(
 					'div',
 					{ key: props.name },
 					_this.mapFields(props.fields)
-				) : React__default.createElement(Field, _extends({}, props, {
+				) : React$1__default.createElement(Field, _extends({}, props, {
 					component: props.component || renderField,
 					key: props.name
 				}));
@@ -113866,10 +113872,10 @@ var CreateModalForm = function (_Component) {
 			    crudCreateModalLoading = _props.crudCreateModalLoading;
 
 
-			return React__default.createElement(
+			return React$1__default.createElement(
 				'div',
 				null,
-				React__default.createElement(
+				React$1__default.createElement(
 					Modal,
 					{
 						title: modalType === 'edit' ? titleEdit : title,
@@ -113880,7 +113886,7 @@ var CreateModalForm = function (_Component) {
 						onOk: this.props.handleSubmit(this.handleSubmit),
 						okText: modalType === 'edit' ? 'Сохранить' : 'Создать'
 					},
-					React__default.createElement(
+					React$1__default.createElement(
 						'form',
 						{ onSubmit: this.props.handleSubmit(this.handleSubmit) },
 						this.mapFields(fields)
@@ -113890,7 +113896,7 @@ var CreateModalForm = function (_Component) {
 		}
 	}]);
 	return CreateModalForm;
-}(React.Component);
+}(React$1.Component);
 
 CreateModalForm.propTypes = {
 	modalType: propTypes.string,
@@ -113932,165 +113938,155 @@ var toggleCreateModelModal = actions.toggleCreateModelModal,
     setCrudParams = actions.setCrudParams;
 
 var CrudFull = function (_Component) {
-	inherits(CrudFull, _Component);
+    inherits(CrudFull, _Component);
 
-	function CrudFull() {
-		var _ref;
+    function CrudFull() {
+        var _ref;
 
-		var _temp, _this, _ret;
+        var _temp, _this, _ret;
 
-		classCallCheck(this, CrudFull);
+        classCallCheck(this, CrudFull);
 
-		for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-			args[_key] = arguments[_key];
-		}
+        for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+            args[_key] = arguments[_key];
+        }
 
-		return _ret = (_temp = (_this = possibleConstructorReturn(this, (_ref = CrudFull.__proto__ || Object.getPrototypeOf(CrudFull)).call.apply(_ref, [this].concat(args))), _this), _this.actionsFunc = function (action, elem) {
-			var customActionsFunc = _this.props.customActionsFunc;
+        return _ret = (_temp = (_this = possibleConstructorReturn(this, (_ref = CrudFull.__proto__ || Object.getPrototypeOf(CrudFull)).call.apply(_ref, [this].concat(args))), _this), _this.actionsFunc = function (action, elem) {
+            var customActionsFunc = _this.props.customActionsFunc;
 
-			switch (action.id) {
-				case 'update':
-					_this.openUpdateFrom(action, elem);
-					break;
-				case 'delete':
-					_this.handleDelete(action, elem);
-					break;
-				case 'restore':
-					_this.handleRestore(action, elem);
-					break;
-				default:
-					return customActionsFunc ? customActionsFunc(action, elem) : null;
-			}
-		}, _this.openUpdateFrom = function (action, elem) {
-			_this.props.setModelModalForm('edit', elem, action);
-			_this.toggleModal();
-		}, _this.toggleModal = function () {
-			_this.props.toggleCreateModelModal();
-		}, _this.handleClose = function () {
-			_this.toggleModal();
-			_this.props.setModelModalForm(null, null);
-		}, _this.handleUpdate = function (form) {
-			_this.props.changeModel(form, _this.props.objectModal.action, _this.props.modelName);
-		}, _this.handleCreate = function (form) {
-			_this.props.createModel(form, _this.props.crudCreate, _this.props.modelName);
-		}, _this.handleDelete = function (action, elem) {
-			var conf = window.confirm('\u0425\u043E\u0442\u0438\u0442\u0435 \u0443\u0434\u0430\u043B\u0438\u0442\u044C "' + elem.name + '" (ID: ' + elem.id + ')?');
+            switch (action.id) {
+                case 'update':
+                    _this.openUpdateFrom(action, elem);
+                    break;
+                case 'delete':
+                    _this.handleDelete(action, elem);
+                    break;
+                case 'restore':
+                    _this.handleRestore(action, elem);
+                    break;
+                default:
+                    return customActionsFunc ? customActionsFunc(action, elem) : null;
+            }
+        }, _this.openUpdateFrom = function (action, elem) {
+            _this.props.setModelModalForm('edit', elem, action);
+            _this.toggleModal();
+        }, _this.toggleModal = function () {
+            _this.props.toggleCreateModelModal();
+        }, _this.handleClose = function () {
+            _this.toggleModal();
+            _this.props.setModelModalForm(null, null);
+        }, _this.handleUpdate = function (form) {
+            _this.props.changeModel(form, _this.props.objectModal.action, _this.props.modelName);
+        }, _this.handleCreate = function (form) {
+            _this.props.createModel(form, _this.props.crudCreate, _this.props.modelName);
+        }, _this.handleDelete = function (action, elem) {
+            var conf = window.confirm('\u0425\u043E\u0442\u0438\u0442\u0435 \u0443\u0434\u0430\u043B\u0438\u0442\u044C "' + elem.name + '" (ID: ' + elem.id + ')?');
 
-			if (conf) _this.props.deleteModel(elem.id, action.url, _this.props.modelName);
-		}, _this.handleRestore = function (action, elem) {
-			var conf = window.confirm('\u0425\u043E\u0442\u0438\u0442\u0435 \u0432\u043E\u0441\u0441\u0442\u0430\u043D\u043E\u0432\u0438\u0442\u044C "' + elem.name + '" (ID: ' + elem.id + ')?');
+            if (conf) _this.props.deleteModel(elem.id, action.url, _this.props.modelName);
+        }, _this.handleRestore = function (action, elem) {
+            var conf = window.confirm('\u0425\u043E\u0442\u0438\u0442\u0435 \u0432\u043E\u0441\u0441\u0442\u0430\u043D\u043E\u0432\u0438\u0442\u044C "' + elem.name + '" (ID: ' + elem.id + ')?');
 
-			if (conf) _this.props.restoreModel(elem.id, action.url, _this.props.modelName);
-		}, _temp), possibleConstructorReturn(_this, _ret);
-	}
+            if (conf) _this.props.restoreModel(elem.id, action.url, _this.props.modelName);
+        }, _temp), possibleConstructorReturn(_this, _ret);
+    }
 
-	createClass(CrudFull, [{
-		key: 'componentDidMount',
-		value: function componentDidMount() {
-			this.props.setCrudActionsFunc(this.actionsFunc, this.props.modelName);
-			this.props.setCrudParams({
-				crudRead: this.props.crudRead,
-				modelName: this.props.modelName,
-				submitShape: this.props.submitShape
-			});
-		}
-	}, {
-		key: 'render',
-		value: function render() {
-			var _props = this.props,
-			    objectModal = _props.objectModal,
-			    isModalOpen = _props.isModalOpen,
-			    modelName = _props.modelName,
-			    crudRead = _props.crudRead,
-			    createButtonTitle = _props.createButtonTitle,
-			    createFormOptions = _props.createFormOptions,
-			    createDisabled = _props.createDisabled,
-			    btnStyle = _props.btnStyle,
-			    tableStyle = _props.tableStyle,
-			    tableWrapper = _props.tableWrapper,
-			    fixActionColumn = _props.fixActionColumn;
+    createClass(CrudFull, [{
+        key: 'componentDidMount',
+        value: function componentDidMount() {
+            this.props.setCrudActionsFunc(this.actionsFunc, this.props.modelName);
+            this.props.setCrudParams({
+                crudRead: this.props.crudRead,
+                modelName: this.props.modelName,
+                submitShape: this.props.submitShape
+            });
+        }
+    }, {
+        key: 'render',
+        value: function render() {
+            var _props = this.props,
+                objectModal = _props.objectModal,
+                isModalOpen = _props.isModalOpen,
+                modelName = _props.modelName,
+                crudRead = _props.crudRead,
+                createButtonTitleId = _props.createButtonTitleId,
+                createFormOptions = _props.createFormOptions,
+                createDisabled = _props.createDisabled,
+                updateShape = _props.updateShape,
+                fixActionColumn = _props.fixActionColumn;
 
-			var _ref2 = createFormOptions || {},
-			    title = _ref2.title,
-			    titleEdit = _ref2.titleEdit,
-			    fields = _ref2.fields;
+            var _ref2 = createFormOptions || {},
+                title = _ref2.title,
+                titleEdit = _ref2.titleEdit,
+                fields = _ref2.fields;
 
-			return React__default.createElement(
-				'div',
-				null,
-				!createDisabled ? React__default.createElement(
-					Button,
-					{
-						type: 'primary',
-						onClick: this.toggleModal,
-						style: _extends({}, btnStyle, { marginBottom: '20px' })
-					},
-					createButtonTitle
-				) : null,
-				React__default.createElement(CrudView$1, {
-					modelName: modelName,
-					url: crudRead,
-					tableStyle: tableStyle,
-					TableWrapper: tableWrapper,
-					fixActionColumn: fixActionColumn
-				}),
-				isModalOpen && !createDisabled ? React__default.createElement(CreateModelView, {
-					title: title || 'Создать',
-					titleEdit: titleEdit || 'Редактировать',
-					modalType: objectModal.modalType,
-					onClose: this.handleClose,
-					onCreate: objectModal.modalType === 'edit' ? this.handleUpdate : this.handleCreate,
-					fields: fields,
-					initialValues: objectModal.initialValues
-				}) : ''
-			);
-		}
-	}]);
-	return CrudFull;
-}(React.Component);
+            return React$1__default.createElement(
+                'div',
+                null,
+                !createDisabled ? React$1__default.createElement(
+                    Button,
+                    { type: 'primary', onClick: this.toggleModal, style: { marginBottom: '20px' } },
+                    React$1__default.createElement(IntlMessages, { id: createButtonTitleId })
+                ) : null,
+                React$1__default.createElement(CrudView$1, {
+                    modelName: modelName,
+                    url: crudRead,
+                    fixActionColumn: fixActionColumn
+                }),
+                isModalOpen && !createDisabled ? React$1__default.createElement(CreateModelView, {
+                    title: title || 'Создать',
+                    titleEdit: titleEdit || 'Редактировать',
+                    modalType: objectModal.modalType,
+                    onClose: this.handleClose,
+                    onCreate: objectModal.modalType === 'edit' ? this.handleUpdate : this.handleCreate,
+                    fields: fields,
+                    initialValues: objectModal.initialValues ? updateShape(objectModal.initialValues) : {} // init form values - make by redux-form itself
+                }) : ''
+            );
+        }
+    }]);
+    return CrudFull;
+}(React$1.Component);
 
 CrudFull.propTypes = {
-	crudCreate: propTypes.string,
-	crudRead: propTypes.string.isRequired,
-	modelName: propTypes.string.isRequired,
-	customActionsFunc: propTypes.func,
-	createButtonTitle: propTypes.oneOfType[(propTypes.object, propTypes.node, propTypes.string)],
-	createFormOptions: propTypes.shape({
-		fields: propTypes.array.isRequired
-	}),
-	submitShape: propTypes.func,
-	createDisabled: propTypes.bool,
-	btnStyle: propTypes.object,
-	tableStyle: propTypes.object,
-	tableWrapper: propTypes.oneOfType([propTypes.object, propTypes.node]),
-	fixActionColumn: propTypes.bool
+    crudCreate: propTypes.string,
+    crudRead: propTypes.string.isRequired,
+    modelName: propTypes.string.isRequired,
+    customActionsFunc: propTypes.func,
+    createButtonTitleId: propTypes.string,
+    createFormOptions: propTypes.shape({
+        fields: propTypes.array.isRequired
+    }),
+    submitShape: propTypes.func,
+    updateShape: propTypes.func,
+    createDisabled: propTypes.bool,
+    fixActionColumn: propTypes.bool
 };
 
 CrudFull.defaultProps = {
-	createButtonTitleId: "crud.button.new",
-	submitShape: function submitShape(form) {
-		return form;
-	},
-	createDisabled: true,
-	btnStyle: {},
-	tableStyle: {},
-	tableWrapper: null
+    createButtonTitleId: "crud.button.new",
+    submitShape: function submitShape(form) {
+        return form;
+    },
+    updateShape: function updateShape(elem) {
+        return elem;
+    },
+    createDisabled: true
 };
 
 var crudFull = connect(function (state) {
-	return {
-		objectModal: state.modelModalForm,
-		isModalOpen: state.isOpenModelModal
-	};
+    return {
+        objectModal: state.modelModalForm,
+        isModalOpen: state.isOpenModelModal
+    };
 }, {
-	toggleCreateModelModal: toggleCreateModelModal,
-	deleteModel: deleteModel,
-	restoreModel: restoreModel,
-	createModel: createModel,
-	changeModel: changeModel,
-	setModelModalForm: setModelModalForm,
-	setCrudActionsFunc: setCrudActionsFunc,
-	setCrudParams: setCrudParams
+    toggleCreateModelModal: toggleCreateModelModal,
+    deleteModel: deleteModel,
+    restoreModel: restoreModel,
+    createModel: createModel,
+    changeModel: changeModel,
+    setModelModalForm: setModelModalForm,
+    setCrudActionsFunc: setCrudActionsFunc,
+    setCrudParams: setCrudParams
 })(CrudFull);
 
 var reducer$3 = crudReducers;
