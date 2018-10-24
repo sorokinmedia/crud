@@ -66,7 +66,7 @@ class CrudFull extends Component {
             isModalOpen,
             modelName,
             crudRead,
-            createButtonTitleId,
+            createButtonTitle,
             createFormOptions,
             createDisabled,
             updateShape,
