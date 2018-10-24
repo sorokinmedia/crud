@@ -72,7 +72,8 @@ class CrudFull extends Component {
             btnStyle,
             tableStyle,
             tableWrapper,
-            fixActionColumn
+            fixActionColumn,
+            updateShape
 		} = this.props;
 
 		const {title, titleEdit, fields} = createFormOptions || {};
@@ -135,6 +136,7 @@ CrudFull.propTypes = {
 		fields: PropTypes.array.isRequired
 	}),
 	submitShape: PropTypes.func,
+    updateShape: PropTypes.func,
 	createDisabled: PropTypes.bool,
 	btnStyle: PropTypes.object,
 	tableStyle: PropTypes.object,
@@ -145,6 +147,7 @@ CrudFull.propTypes = {
 CrudFull.defaultProps = {
 	createButtonTitleId: "crud.button.new",
 	submitShape: form => form,
+    updateShape: elem => elem,
 	createDisabled: true,
     btnStyle: {},
     tableStyle: {},
