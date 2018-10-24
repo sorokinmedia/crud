@@ -5,6 +5,7 @@ import {Icon, Input, Button, Pagination, Table} from 'antd';
 import crudActions from '../../redux/actions'
 import filterRenderer from './filterRenderer'
 import dataRenderer from './dataRenderer'
+import Loader from './loader'
 
 const {fetchCrudModels} = crudActions;
 const isBigDesctop = window.document.documentElement.scrollWidth > 1646;
@@ -40,6 +41,8 @@ class CrudView extends Component {
 
 	render() {
 		const {items, modelName, tableStyle, TableWrapper, fixActionColumn} = this.props;
+
+        if(items && !items.data && items.loading) return <Loader/>;
 		if(!items || !items.data) return null;
 
 		const listItems = items.data.items.map((elem) => ({
