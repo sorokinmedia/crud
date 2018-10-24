@@ -76,7 +76,7 @@ class CrudFull extends Component {
         const {title, titleEdit, fields} = createFormOptions || {};
         return <div>
             {!createDisabled ? <Button type="primary" onClick={this.toggleModal} style={{marginBottom: '20px'}}>
-                <IntlMessages id={createButtonTitleId}/>
+                {createButtonTitle}
             </Button> : null}
             <CrudView
                 modelName={modelName}
@@ -121,7 +121,7 @@ CrudFull.propTypes = {
     crudRead: PropTypes.string.isRequired,
     modelName: PropTypes.string.isRequired,
     customActionsFunc: PropTypes.func,
-    createButtonTitleId: PropTypes.string,
+    createButtonTitle: PropTypes.string,
     createFormOptions: PropTypes.shape({
         fields: PropTypes.array.isRequired
     }),
@@ -132,7 +132,7 @@ CrudFull.propTypes = {
 };
 
 CrudFull.defaultProps = {
-    createButtonTitleId: "crud.button.new",
+    createButtonTitle: "crud.button.new",
     submitShape: form => form,
     updateShape: elem => elem,
     createDisabled: true

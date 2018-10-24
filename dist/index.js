@@ -114025,7 +114025,7 @@ var CrudFull = function (_Component) {
                 !createDisabled ? React__default.createElement(
                     Button,
                     { type: 'primary', onClick: this.toggleModal, style: { marginBottom: '20px' } },
-                    React__default.createElement(IntlMessages, { id: createButtonTitleId })
+                    createButtonTitle
                 ) : null,
                 React__default.createElement(CrudView$1, {
                     modelName: modelName,
@@ -114052,7 +114052,7 @@ CrudFull.propTypes = {
     crudRead: propTypes.string.isRequired,
     modelName: propTypes.string.isRequired,
     customActionsFunc: propTypes.func,
-    createButtonTitleId: propTypes.string,
+    createButtonTitle: propTypes.string,
     createFormOptions: propTypes.shape({
         fields: propTypes.array.isRequired
     }),
@@ -114063,7 +114063,7 @@ CrudFull.propTypes = {
 };
 
 CrudFull.defaultProps = {
-    createButtonTitleId: "crud.button.new",
+    createButtonTitle: "crud.button.new",
     submitShape: function submitShape(form) {
         return form;
     },
