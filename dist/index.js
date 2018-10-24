@@ -108816,7 +108816,9 @@ var dataRenderer = (function (row, column, modelName) {
 });
 
 var antIcon = React__default.createElement(Icon, { type: 'loading', style: { fontSize: 24 }, spin: true });
-var Loader = React__default.createElement(Spin, { indicator: antIcon });
+var Loader = function Loader() {
+  return React__default.createElement(Spin, { indicator: antIcon });
+};
 
 var fetchCrudModels = actions.fetchCrudModels;
 
