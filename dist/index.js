@@ -113938,155 +113938,165 @@ var toggleCreateModelModal = actions.toggleCreateModelModal,
     setCrudParams = actions.setCrudParams;
 
 var CrudFull = function (_Component) {
-    inherits(CrudFull, _Component);
+	inherits(CrudFull, _Component);
 
-    function CrudFull() {
-        var _ref;
+	function CrudFull() {
+		var _ref;
 
-        var _temp, _this, _ret;
+		var _temp, _this, _ret;
 
-        classCallCheck(this, CrudFull);
+		classCallCheck(this, CrudFull);
 
-        for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-            args[_key] = arguments[_key];
-        }
+		for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+			args[_key] = arguments[_key];
+		}
 
-        return _ret = (_temp = (_this = possibleConstructorReturn(this, (_ref = CrudFull.__proto__ || Object.getPrototypeOf(CrudFull)).call.apply(_ref, [this].concat(args))), _this), _this.actionsFunc = function (action, elem) {
-            var customActionsFunc = _this.props.customActionsFunc;
+		return _ret = (_temp = (_this = possibleConstructorReturn(this, (_ref = CrudFull.__proto__ || Object.getPrototypeOf(CrudFull)).call.apply(_ref, [this].concat(args))), _this), _this.actionsFunc = function (action, elem) {
+			var customActionsFunc = _this.props.customActionsFunc;
 
-            switch (action.id) {
-                case 'update':
-                    _this.openUpdateFrom(action, elem);
-                    break;
-                case 'delete':
-                    _this.handleDelete(action, elem);
-                    break;
-                case 'restore':
-                    _this.handleRestore(action, elem);
-                    break;
-                default:
-                    return customActionsFunc ? customActionsFunc(action, elem) : null;
-            }
-        }, _this.openUpdateFrom = function (action, elem) {
-            _this.props.setModelModalForm('edit', elem, action);
-            _this.toggleModal();
-        }, _this.toggleModal = function () {
-            _this.props.toggleCreateModelModal();
-        }, _this.handleClose = function () {
-            _this.toggleModal();
-            _this.props.setModelModalForm(null, null);
-        }, _this.handleUpdate = function (form) {
-            _this.props.changeModel(form, _this.props.objectModal.action, _this.props.modelName);
-        }, _this.handleCreate = function (form) {
-            _this.props.createModel(form, _this.props.crudCreate, _this.props.modelName);
-        }, _this.handleDelete = function (action, elem) {
-            var conf = window.confirm('\u0425\u043E\u0442\u0438\u0442\u0435 \u0443\u0434\u0430\u043B\u0438\u0442\u044C "' + elem.name + '" (ID: ' + elem.id + ')?');
+			switch (action.id) {
+				case 'update':
+					_this.openUpdateFrom(action, elem);
+					break;
+				case 'delete':
+					_this.handleDelete(action, elem);
+					break;
+				case 'restore':
+					_this.handleRestore(action, elem);
+					break;
+				default:
+					return customActionsFunc ? customActionsFunc(action, elem) : null;
+			}
+		}, _this.openUpdateFrom = function (action, elem) {
+			_this.props.setModelModalForm('edit', elem, action);
+			_this.toggleModal();
+		}, _this.toggleModal = function () {
+			_this.props.toggleCreateModelModal();
+		}, _this.handleClose = function () {
+			_this.toggleModal();
+			_this.props.setModelModalForm(null, null);
+		}, _this.handleUpdate = function (form) {
+			_this.props.changeModel(form, _this.props.objectModal.action, _this.props.modelName);
+		}, _this.handleCreate = function (form) {
+			_this.props.createModel(form, _this.props.crudCreate, _this.props.modelName);
+		}, _this.handleDelete = function (action, elem) {
+			var conf = window.confirm('\u0425\u043E\u0442\u0438\u0442\u0435 \u0443\u0434\u0430\u043B\u0438\u0442\u044C "' + elem.name + '" (ID: ' + elem.id + ')?');
 
-            if (conf) _this.props.deleteModel(elem.id, action.url, _this.props.modelName);
-        }, _this.handleRestore = function (action, elem) {
-            var conf = window.confirm('\u0425\u043E\u0442\u0438\u0442\u0435 \u0432\u043E\u0441\u0441\u0442\u0430\u043D\u043E\u0432\u0438\u0442\u044C "' + elem.name + '" (ID: ' + elem.id + ')?');
+			if (conf) _this.props.deleteModel(elem.id, action.url, _this.props.modelName);
+		}, _this.handleRestore = function (action, elem) {
+			var conf = window.confirm('\u0425\u043E\u0442\u0438\u0442\u0435 \u0432\u043E\u0441\u0441\u0442\u0430\u043D\u043E\u0432\u0438\u0442\u044C "' + elem.name + '" (ID: ' + elem.id + ')?');
 
-            if (conf) _this.props.restoreModel(elem.id, action.url, _this.props.modelName);
-        }, _temp), possibleConstructorReturn(_this, _ret);
-    }
+			if (conf) _this.props.restoreModel(elem.id, action.url, _this.props.modelName);
+		}, _temp), possibleConstructorReturn(_this, _ret);
+	}
 
-    createClass(CrudFull, [{
-        key: 'componentDidMount',
-        value: function componentDidMount() {
-            this.props.setCrudActionsFunc(this.actionsFunc, this.props.modelName);
-            this.props.setCrudParams({
-                crudRead: this.props.crudRead,
-                modelName: this.props.modelName,
-                submitShape: this.props.submitShape
-            });
-        }
-    }, {
-        key: 'render',
-        value: function render() {
-            var _props = this.props,
-                objectModal = _props.objectModal,
-                isModalOpen = _props.isModalOpen,
-                modelName = _props.modelName,
-                crudRead = _props.crudRead,
-                createButtonTitle = _props.createButtonTitle,
-                createFormOptions = _props.createFormOptions,
-                createDisabled = _props.createDisabled,
-                updateShape = _props.updateShape,
-                fixActionColumn = _props.fixActionColumn;
+	createClass(CrudFull, [{
+		key: 'componentDidMount',
+		value: function componentDidMount() {
+			this.props.setCrudActionsFunc(this.actionsFunc, this.props.modelName);
+			this.props.setCrudParams({
+				crudRead: this.props.crudRead,
+				modelName: this.props.modelName,
+				submitShape: this.props.submitShape
+			});
+		}
+	}, {
+		key: 'render',
+		value: function render() {
+			var _props = this.props,
+			    objectModal = _props.objectModal,
+			    isModalOpen = _props.isModalOpen,
+			    modelName = _props.modelName,
+			    crudRead = _props.crudRead,
+			    createButtonTitle = _props.createButtonTitle,
+			    createFormOptions = _props.createFormOptions,
+			    createDisabled = _props.createDisabled,
+			    btnStyle = _props.btnStyle,
+			    tableStyle = _props.tableStyle,
+			    tableWrapper = _props.tableWrapper,
+			    fixActionColumn = _props.fixActionColumn;
 
-            var _ref2 = createFormOptions || {},
-                title = _ref2.title,
-                titleEdit = _ref2.titleEdit,
-                fields = _ref2.fields;
+			var _ref2 = createFormOptions || {},
+			    title = _ref2.title,
+			    titleEdit = _ref2.titleEdit,
+			    fields = _ref2.fields;
 
-            return React__default.createElement(
-                'div',
-                null,
-                !createDisabled ? React__default.createElement(
-                    Button,
-                    { type: 'primary', onClick: this.toggleModal, style: { marginBottom: '20px' } },
-                    createButtonTitle
-                ) : null,
-                React__default.createElement(CrudView$1, {
-                    modelName: modelName,
-                    url: crudRead,
-                    fixActionColumn: fixActionColumn
-                }),
-                isModalOpen && !createDisabled ? React__default.createElement(CreateModelView, {
-                    title: title || 'Создать',
-                    titleEdit: titleEdit || 'Редактировать',
-                    modalType: objectModal.modalType,
-                    onClose: this.handleClose,
-                    onCreate: objectModal.modalType === 'edit' ? this.handleUpdate : this.handleCreate,
-                    fields: fields,
-                    initialValues: objectModal.initialValues ? updateShape(objectModal.initialValues) : {} // init form values - make by redux-form itself
-                }) : ''
-            );
-        }
-    }]);
-    return CrudFull;
+			return React__default.createElement(
+				'div',
+				null,
+				!createDisabled ? React__default.createElement(
+					Button,
+					{
+						type: 'primary',
+						onClick: this.toggleModal,
+						style: _extends({}, btnStyle, { marginBottom: '20px' })
+					},
+					createButtonTitle
+				) : null,
+				React__default.createElement(CrudView$1, {
+					modelName: modelName,
+					url: crudRead,
+					tableStyle: tableStyle,
+					TableWrapper: tableWrapper,
+					fixActionColumn: fixActionColumn
+				}),
+				isModalOpen && !createDisabled ? React__default.createElement(CreateModelView, {
+					title: title || 'Создать',
+					titleEdit: titleEdit || 'Редактировать',
+					modalType: objectModal.modalType,
+					onClose: this.handleClose,
+					onCreate: objectModal.modalType === 'edit' ? this.handleUpdate : this.handleCreate,
+					fields: fields,
+					initialValues: objectModal.initialValues ? updateShape(objectModal.initialValues) : {} // init form values - make by redux-form itself
+				}) : ''
+			);
+		}
+	}]);
+	return CrudFull;
 }(React.Component);
 
 CrudFull.propTypes = {
-    crudCreate: propTypes.string,
-    crudRead: propTypes.string.isRequired,
-    modelName: propTypes.string.isRequired,
-    customActionsFunc: propTypes.func,
-    createButtonTitle: propTypes.string,
-    createFormOptions: propTypes.shape({
-        fields: propTypes.array.isRequired
-    }),
-    submitShape: propTypes.func,
-    updateShape: propTypes.func,
-    createDisabled: propTypes.bool,
-    fixActionColumn: propTypes.bool
+	crudCreate: propTypes.string,
+	crudRead: propTypes.string.isRequired,
+	modelName: propTypes.string.isRequired,
+	customActionsFunc: propTypes.func,
+	createButtonTitle: propTypes.oneOfType[(propTypes.object, propTypes.node, propTypes.string)],
+	createFormOptions: propTypes.shape({
+		fields: propTypes.array.isRequired
+	}),
+	submitShape: propTypes.func,
+	createDisabled: propTypes.bool,
+	btnStyle: propTypes.object,
+	tableStyle: propTypes.object,
+	tableWrapper: propTypes.oneOfType([propTypes.object, propTypes.node]),
+	fixActionColumn: propTypes.bool
 };
 
 CrudFull.defaultProps = {
-    createButtonTitle: "crud.button.new",
-    submitShape: function submitShape(form) {
-        return form;
-    },
-    updateShape: function updateShape(elem) {
-        return elem;
-    },
-    createDisabled: true
+	createButtonTitleId: "crud.button.new",
+	submitShape: function submitShape(form) {
+		return form;
+	},
+	createDisabled: true,
+	btnStyle: {},
+	tableStyle: {},
+	tableWrapper: null
 };
 
 var crudFull = connect(function (state) {
-    return {
-        objectModal: state.modelModalForm,
-        isModalOpen: state.isOpenModelModal
-    };
+	return {
+		objectModal: state.modelModalForm,
+		isModalOpen: state.isOpenModelModal
+	};
 }, {
-    toggleCreateModelModal: toggleCreateModelModal,
-    deleteModel: deleteModel,
-    restoreModel: restoreModel,
-    createModel: createModel,
-    changeModel: changeModel,
-    setModelModalForm: setModelModalForm,
-    setCrudActionsFunc: setCrudActionsFunc,
-    setCrudParams: setCrudParams
+	toggleCreateModelModal: toggleCreateModelModal,
+	deleteModel: deleteModel,
+	restoreModel: restoreModel,
+	createModel: createModel,
+	changeModel: changeModel,
+	setModelModalForm: setModelModalForm,
+	setCrudActionsFunc: setCrudActionsFunc,
+	setCrudParams: setCrudParams
 })(CrudFull);
 
 var reducer$3 = crudReducers;
