@@ -1,7 +1,7 @@
-import { all, takeEvery, put, select } from 'redux-saga/effects';
+import { all, takeEvery, put, select, fork } from 'redux-saga/effects';
 import { buildUrlSearch, buildUrlSearchForArray } from 'sm-string-helper'
 import { SITE, SORT_ASC, SORT_DESC, SUCCESS, ERROR, SUCCESS_REQ } from '../constants';
-import { request } from 'sm-redux-saga-request'
+import requestMiddleware, { request } from 'sm-redux-saga-request'
 import { stopSubmit } from 'redux-form';
 import notification from '../notification';
 import actions from './actions';
@@ -199,6 +199,8 @@ export default function* rootSaga() {
 		takeEvery(actions.CHANGE_MODEL + SUCCESS, updateModelsSaga),
 		takeEvery(actions.CHANGE_MODEL + SUCCESS, notifySaga),
 		takeEvery(actions.CHANGE_MODEL + ERROR, submitModelsModalFormFailSaga),
+
+		fork(requestMiddleware)
 
 	]);
 }

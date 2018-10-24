@@ -14,29 +14,33 @@ const ActionStyled = styled.span`
 
 class Action extends Component {
 
-	getIcon = (id) => {
-		switch (id) {
-			case 'update':
-				return 'edit';
-			case 'delete':
-				return 'delete';
-			case 'create':
-				return 'plus-circle';
-			case 'restore':
-				return 'select';
-			case 'view-back':
-			case 'view':
-				return 'eye';
-			case 'check':
-				return 'user';
-			case 'took':
-				return 'user-add';
-			case 'return':
-				return 'user-delete';
-			default:
-				return ''
-		}
-	};
+    getIcon = id => {
+        switch (id) {
+            case 'update':
+                return 'edit';
+            case 'delete':
+                return 'delete';
+            case 'create':
+                return 'plus-circle';
+            case 'restore':
+                return 'select';
+            case 'view-back':
+            case 'view':
+                return 'eye';
+            case 'check':
+                return 'user';
+            case 'took':
+                return 'login';
+            case 'return':
+                return 'logout';
+            case 'finish':
+                return 'check-circle';
+            case 'logs':
+                return 'form';
+            default:
+                return ''
+        }
+    };
 
 	handleClick = (ev) => {
 		const { data, row } = this.props;
