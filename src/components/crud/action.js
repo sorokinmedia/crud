@@ -66,7 +66,7 @@ class Action extends Component {
 		return (<p>
 			<ActionStyled>
 				<a title={data.name} href={data.url} target="_blank" className="crud-action">
-					<Icon type={this.getIcon(data.id)} onClick={this.handleClick} />
+					<Icon type={this.getIcon(data.id)} onClick={this.handleClick} theme={'outlined'} />
 				</a>
 			</ActionStyled>
 		</p>)
