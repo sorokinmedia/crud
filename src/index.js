@@ -12,3 +12,4 @@ export const saga = crudSagas;
 export const actions = crudActions;
 export const CrudView = crudView;
 export const CrudFull = crudFull;
+import './style.css'

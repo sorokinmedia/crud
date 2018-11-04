@@ -5,19 +5,19 @@
 	"main": "dist/index.js",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/varenik163/crud.git"
+		"url": "git+https://github.com/sorokinmedia/crud.git"
 	},
 	"keywords": [
 		"react",
 		"components",
 		"crud"
 	],
-	"author": "varenik163",
+	"author": "sorokinmedia",
 	"license": "BSD-3-Clause",
 	"bugs": {
-		"url": "https://github.com/varenik163/crud/issues"
+		"url": "https://github.com/sorokinmedia/crud/issues"
 	},
-	"homepage": "https://github.com/varenik163/crud#readme",
+	"homepage": "https://github.com/sorokinmedia/crud#readme",
 	"peerDependencies": {},
 	"devDependencies": {
 		"babel-core": "^6.26.0",
