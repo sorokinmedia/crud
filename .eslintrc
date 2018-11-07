@@ -49,7 +49,7 @@
 			}
 		],
 		"no-unneeded-ternary": "off",
-		"max-len": 120,
+		"max-len": 0,
 		"no-plusplus": "off",
 		"no-unused-vars": "warn",
 		"camelcase": "warn",
