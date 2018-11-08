@@ -1,4 +1,4 @@
-import {reducer} from '../../lib'
+import {reducer} from '../../src/index'
 
 export default {
     ...reducer

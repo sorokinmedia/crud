@@ -1,6 +1,7 @@
-import { saga } from '../../lib'
-import { takeEvery } from 'redux-saga/effects'
-import {START, ERROR, SUCCESS} from './constants';
+import { saga } from '../../src/index'
+import { takeEvery, all, put, call } from 'redux-saga/effects'
+import { START, ERROR, SUCCESS } from './constants';
+import regeneratorRuntime from 'regenerator-runtime'
 
 const API = 'http://api.rofl.kosmoz.online'
 
@@ -9,7 +10,7 @@ export function* requestSaga(action) {
 		payload, method, url, auth, oldType: type, token_is_active
 	} = action;
 
-	const token = '';
+	const token = 'f9ad75859d9a7acd94e7a3acc639e0be';
 
 	//if (auth && !token_is_active) return;
 

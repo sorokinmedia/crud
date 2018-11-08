@@ -12,11 +12,10 @@
 		"curly": "off",
 		"indent": [
 			"error",
-			"tab",
-			{
-				"SwitchCase": 1
-			}
+			"tab"
 		],
+        "react/prefer-stateless-function": "off",
+        "react/jsx-indent-props": "off",
 		"no-tabs": "off",
 		"comma-dangle": "off",
 		"linebreak-style": "off",
@@ -26,12 +25,10 @@
 			"error",
 			"tab"
 		],
+		"no-mixed-spaces-and-tabs": "off",
 		"no-mixed-operators": "off",
 		"no-restricted-globals": "off",
-		"react/jsx-indent-props": [
-			"error",
-			"tab"
-		],
+        "import/extensions": "off",
 		"react/jsx-filename-extension": "off",
 		"react/jsx-first-prop-new-line": "off",
 		"react/no-unused-prop-types": "warn",
