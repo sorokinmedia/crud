@@ -14,7 +14,7 @@ class App extends Component {
 			crudCreate="/v1/admin/object/type/create"
 			modelName="objectTypes"
 			createDisabled={false}
-			createButtonTitleId="sidebar.objects.type.new"
+			createButtonTitle={'Добавить тип'}
 			createFormOptions={{
 			    fields: createFormFileds,
 			    title: 'Создать новый тип',
