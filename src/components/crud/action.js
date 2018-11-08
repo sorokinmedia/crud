@@ -61,12 +61,12 @@ class Action extends Component {
 	};
 
 	render() {
-		const { data, row } = this.props;
+		const { data, row, iconTheme } = this.props;
 
 		return (<p>
 			<ActionStyled>
 				<a title={data.name} href={data.url} target="_blank" className="crud-action">
-					<Icon type={this.getIcon(data.id)} onClick={this.handleClick} theme={'outlined'} />
+					<Icon type={this.getIcon(data.id)} onClick={this.handleClick} theme={iconTheme} />
 				</a>
 			</ActionStyled>
 		</p>)
@@ -76,7 +76,8 @@ class Action extends Component {
 Action.propTypes = {
 	data: PropTypes.object.isRequired,
 	row: PropTypes.object.isRequired,
-	modelName: PropTypes.string
+	modelName: PropTypes.string,
+	iconTheme: PropTypes.string
 };
 
 export default connect((state, props) => ({ actionsFunc: state.crudActionsFunc[props.modelName] }), { push })(Action)

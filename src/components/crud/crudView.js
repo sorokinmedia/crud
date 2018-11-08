@@ -1,24 +1,24 @@
-import React, {Component} from 'react';
-import {connect} from 'react-redux'
+import React, { Component } from 'react';
+import { connect } from 'react-redux'
 import PropTypes from 'prop-types';
-import {Icon, Input, Button, Pagination, Table} from 'antd';
+import { Icon, Input, Button, Pagination, Table } from 'antd';
 import crudActions from '../../redux/actions'
 import filterRenderer from './filterRenderer'
 import dataRenderer from './dataRenderer'
 import Loader from './loader'
 
-const {fetchCrudModels} = crudActions;
+const { fetchCrudModels } = crudActions;
 const isBigDesctop = window.document.documentElement.scrollWidth > 1646;
 
 class CrudView extends Component {
 
 	componentDidMount() {
-		const {modelName, url} = this.props;
-		this.props.fetchCrudModels({modelName, url});
+		const { modelName, url } = this.props;
+		this.props.fetchCrudModels({ modelName, url });
 	}
 
 	handleTableChange = (pagination, filters, sorter) => {
-		//console.log(pagination, filters, sorter);
+		// console.log(pagination, filters, sorter);
 		this.props.fetchCrudModels({
 			modelName: this.props.modelName,
 			url: this.props.url,
@@ -28,77 +28,74 @@ class CrudView extends Component {
 		}, filters);
 	};
 
-	getFiterValues = col => {
-		const {filterValues} = this.props;
+	getFiterValues = (col) => {
+		const { filterValues } = this.props;
 
 		return filterValues && col.filter.can && filterValues[col.id] && filterValues[col.id] ?
 			filterValues[col.id].map(elem => ({
 				text: elem.name,
 				value: elem.id
 			}))
-		: []
+			: []
 	};
 
 	render() {
-		const {items, modelName, tableStyle, TableWrapper, fixActionColumn} = this.props;
+		const {
+			items, modelName, tableStyle, TableWrapper, fixActionColumn, iconTheme
+		} = this.props;
 
-        if(items && !items.data && items.loading) return <Loader/>;
-		if(!items || !items.data) return null;
+		if (items && !items.data && items.loading) return <Loader />;
+		if (!items || !items.data) return null;
 
-		const listItems = items.data.items.map((elem) => ({
+		const listItems = items.data.items.map(elem => ({
 			...elem,
 			key: elem.id,
 		}));
-		//console.log(fixActionColumn, isBigDesctop)
+		// console.log(fixActionColumn, isBigDesctop)
 
 		const columns = items.data.columns.map(col => ({
-			title: col.title,//<IntlMessages id="antTable.title.id"/>,
+			title: col.title, // <IntlMessages id="antTable.title.id"/>,
 			key: col.id,
-            fixed: col.id === 'actions' && !isBigDesctop && fixActionColumn ? 'right' : null,
-            width: col.id === 'actions' && !isBigDesctop && fixActionColumn ? 100 : 'auto',
-			render: object => dataRenderer(object, col, modelName),
+			fixed: col.id === 'actions' && !isBigDesctop && fixActionColumn ? 'right' : null,
+			width: col.id === 'actions' && !isBigDesctop && fixActionColumn ? 100 : 'auto',
+			render: object => dataRenderer(object, col, modelName, iconTheme),
 			filters: this.getFiterValues(col),
 			filterIcon: col.filter.can ?
-				filtered => <Icon type="filter" style={{ color: filtered ? '#108ee9' : '#aaa' }} theme={'outlined'} />
+				filtered => <Icon type="filter" style={{ color: filtered ? '#108ee9' : '#aaa' }} theme={iconTheme} />
 				: null,
 			filterDropdown: col.filter.can ? filterRenderer(col.filter.type, col.id, this.getFiterValues(col)) : null,
-			sorter: col.order.can ? () => {} : null//(a, b) => Number(a.id) - Number(b.id),
+			sorter: col.order.can ? () => {} : null// (a, b) => Number(a.id) - Number(b.id),
 		}));
 
 		const TableComponent = TableWrapper || Table;
 
-		return <TableComponent
-            columns={columns}
-            dataSource={listItems}
-            className="isoSortingTable"
-            onChange={this.handleTableChange}
-            pagination={{
-                defaultCurrent: 1,
-                pageSize: 20,
-                total: items.data.count,
-                hideOnSinglePage: true
-            }}
-            loading={items.loading}
-            scroll={!isBigDesctop && fixActionColumn ? { x: 1300 } : {} }
-        />;
+		return (<TableComponent
+			columns={columns}
+			dataSource={listItems}
+			className="isoSortingTable"
+			onChange={this.handleTableChange}
+			pagination={{
+				defaultCurrent: 1,
+				pageSize: 20,
+				total: items.data.count,
+				hideOnSinglePage: true
+			}}
+			loading={items.loading}
+			scroll={!isBigDesctop && fixActionColumn ? { x: 1300 } : {}}
+		/>);
 	}
 }
 
 CrudView.propTypes = {
 	modelName: PropTypes.string.isRequired,
 	url: PropTypes.string.isRequired,
-    fixActionColumn: PropTypes.bool
+	fixActionColumn: PropTypes.bool,
+	iconTheme: PropTypes.string
 };
 
-CrudView.defaultProps = {
-    fixActionColumn: true
-};
+CrudView.defaultProps = { fixActionColumn: true };
 
-export default connect((state, props) => {
-	return {
-		items: state.crudModels[props.modelName],
-		filterValues: state.crudFilterValues[props.modelName]
-	}
-}, {
-	fetchCrudModels
-})(CrudView);
+export default connect((state, props) => ({
+	items: state.crudModels[props.modelName],
+	filterValues: state.crudFilterValues[props.modelName]
+}), { fetchCrudModels })(CrudView);

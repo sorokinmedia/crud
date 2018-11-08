@@ -10,7 +10,7 @@ import {
 import {Link} from 'react-router-dom'
 
 
-export default (row, column, modelName) => {
+export default (row, column, modelName, iconTheme) => {
     if(!row[column.id]) return null;
 
 
@@ -18,7 +18,7 @@ export default (row, column, modelName) => {
         case 'object':
             return TextCell(row[column.id].alias || row[column.id].name);
         case 'actions':
-            return ActionsCell(row, modelName);
+            return ActionsCell(row, modelName, iconTheme);
         case 'array':
             return ArrTextCell(row[column.id]);
         case 'date':
