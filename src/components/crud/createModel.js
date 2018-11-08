@@ -30,6 +30,7 @@ class CreateModalForm extends Component {
 			{...props}
 			component={props.component || renderField}
 			key={props.name}
+			options={this.props.options[props.optionsKey] || props.options || []}
 		/>)
 	};
 
@@ -76,8 +77,21 @@ CreateModalForm = reduxForm({
 	}
 })(CreateModalForm);
 
-CreateModalForm =  connect((state, props) => ({
-    crudCreateModalLoading: state.crudCreateModalLoading
-}), {})(CreateModalForm);
+CreateModalForm =  connect((state, props) => {
+	const options = props.fields.reduce((acc, field) => {
+		if(state[field.optionsKey]) {
+			acc[field.optionsKey] = state[field.optionsKey].data
+		}
+
+		return acc;
+	}, {});
+
+	return {
+		crudCreateModalLoading: state.crudCreateModalLoading,
+		options: options
+	}
+}, {
+
+})(CreateModalForm);
 
 export default CreateModalForm
