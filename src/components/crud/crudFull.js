@@ -4,7 +4,7 @@ import { connect } from 'react-redux'
 import actions from '../../redux/actions';
 import CrudView from './crudView'
 import CreateModelView from './createModel'
-import { Button } from 'antd';
+import { Button, Icon } from 'antd';
 
 const {
 	toggleCreateModelModal,
@@ -80,13 +80,13 @@ class CrudFull extends Component {
 		const { title, titleEdit, fields } = createFormOptions || {};
 
 		return (<div>
-			{!createDisabled ? <Button
+			{ !createDisabled ? <Button
 				type="primary"
 				onClick={this.toggleModal}
 				style={{ ...btnStyle, marginBottom: '20px' }}
 			>
 				{createButtonTitle}
-                      </Button> : null}
+			</Button> : null }
 			<CrudView
 				modelName={modelName}
 				url={crudRead}

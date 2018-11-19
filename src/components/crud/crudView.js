@@ -61,7 +61,7 @@ class CrudView extends Component {
 			render: object => dataRenderer(object, col, modelName, iconTheme),
 			filters: this.getFiterValues(col),
 			filterIcon: col.filter.can ?
-				filtered => <Icon type="filter" style={{ color: filtered ? '#108ee9' : '#aaa' }} theme={iconTheme} />
+				filtered => <Icon type="filter" style={{ color: filtered ? '#108ee9' : '#aaa' }} />
 				: null,
 			filterDropdown: col.filter.can ? filterRenderer(col.filter.type, col.id, this.getFiterValues(col)) : null,
 			sorter: col.order.can ? () => {} : null// (a, b) => Number(a.id) - Number(b.id),
