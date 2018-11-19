@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux'
 import PropTypes from 'prop-types';
-import { Input, Button, Pagination, Table } from 'antd';
+import { Icon, Table } from 'antd';
 import crudActions from '../../redux/actions'
 import filterRenderer from './filterRenderer'
 import dataRenderer from './dataRenderer'
@@ -61,7 +61,7 @@ class CrudView extends Component {
 			render: object => dataRenderer(object, col, modelName, iconTheme),
 			filters: this.getFiterValues(col),
 			filterIcon: col.filter.can ?
-				filtered => ''/*<Icon type="filter" style={{ color: filtered ? '#108ee9' : '#aaa' }} />*/
+				filtered => <Icon type="filter" style={{ color: filtered ? '#108ee9' : '#aaa' }} theme={'outline'} />
 				: null,
 			filterDropdown: col.filter.can ? filterRenderer(col.filter.type, col.id, this.getFiterValues(col)) : null,
 			sorter: col.order.can ? () => {} : null// (a, b) => Number(a.id) - Number(b.id),
