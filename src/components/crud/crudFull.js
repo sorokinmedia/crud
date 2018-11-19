@@ -4,7 +4,8 @@ import { connect } from 'react-redux'
 import actions from '../../redux/actions';
 import CrudView from './crudView'
 import CreateModelView from './createModel'
-import { Button, Icon } from 'antd';
+import { Button } from 'antd';
+import '../../style.css'
 
 const {
 	toggleCreateModelModal,

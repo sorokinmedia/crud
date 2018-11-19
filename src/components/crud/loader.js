@@ -1,7 +1,7 @@
 import React from 'react'
-import { Spin, Icon } from 'antd';
+//import { Spin } from 'antd';
 
-const antIcon = <Icon type="loading" style={{ fontSize: 24 }} spin />;
-const Loader = () => <Spin indicator={antIcon} />;
+/*const antIcon = <Icon type="loading" style={{ fontSize: 24 }} spin />;*/
+const Loader = () => null//<Spin indicator={antIcon} />;
 
 export default Loader

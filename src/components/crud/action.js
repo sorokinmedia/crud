@@ -2,7 +2,6 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { push } from 'react-router-redux'
-import { Icon } from 'antd';
 
 import styled from 'styled-components';
 
@@ -68,7 +67,7 @@ class Action extends Component {
 		return (<p>
 			<ActionStyled>
 				<a title={data.name} href={data.url} target="_blank" className="crud-action">
-					<Icon type={this.getIcon(data.id)} onClick={this.handleClick} />
+					{/*<Icon type={this.getIcon(data.id)} onClick={this.handleClick} />*/}
 				</a>
 			</ActionStyled>
 		</p>)
