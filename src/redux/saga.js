@@ -1,6 +1,6 @@
 import { all, takeEvery, put, select, fork } from 'redux-saga/effects';
 import { buildUrlSearch, buildUrlSearchForArray } from 'sm-string-helper'
-import { SITE, SORT_ASC, SORT_DESC, SUCCESS, ERROR, SUCCESS_REQ } from '../constants';
+import { SORT_ASC, SORT_DESC, SUCCESS, ERROR, SUCCESS_REQ } from '../constants';
 import requestMiddleware, { request } from 'sm-redux-saga-request'
 import { stopSubmit } from 'redux-form';
 import notification from '../notification';

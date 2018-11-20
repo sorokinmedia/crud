@@ -1,8 +1,6 @@
 import React from 'react'
 import {
 	DateCell,
-	ImageCell,
-	LinkCell,
 	TextCell,
 	ArrTextCell,
 	ActionsCell
