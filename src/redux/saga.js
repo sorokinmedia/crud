@@ -5,7 +5,7 @@ import requestMiddleware, { request } from 'sm-redux-saga-request'
 import { stopSubmit } from 'redux-form';
 import notification from '../notification';
 import actions from './actions';
-import moment from 'moment'
+import moment from 'moment';
 import regeneratorRuntime from 'regenerator-runtime'
 
 export const selecrCrudParams = state => state.crudParams;
@@ -163,13 +163,22 @@ export function* closeModalSaga() {
 
 export function* submitModelsModalFormFailSaga(action) {
 	const errors = { [action.error.targetField || 'name']: action.error.message };
-	yield put(stopSubmit('createModel', errors))
+	yield put(stopSubmit('createModel', errors));
 	yield notification('error', action.error.message)
 }
 
 export function* notifySaga(action) {
-	if (action.error) yield notification('error', action.error.message)
+	if (action.error) yield notification('error', action.error.message);
 	if (action.response.status === SUCCESS_REQ) yield notification('success', action.response.message)
+}
+
+export function* fetchCrudChildrenSaga(action) {
+	yield put(request({
+		...action,
+		method: 'GET',
+		auth: true,
+		url: `/v1/owner/object/${action.payload.id}/child`
+	}))
 }
 
 export default function* rootSaga() {
@@ -199,6 +208,8 @@ export default function* rootSaga() {
 		takeEvery(actions.CHANGE_MODEL + SUCCESS, updateModelsSaga),
 		takeEvery(actions.CHANGE_MODEL + SUCCESS, notifySaga),
 		takeEvery(actions.CHANGE_MODEL + ERROR, submitModelsModalFormFailSaga),
+
+		takeEvery(actions.FETCH_CRUD_CHILDREN, fetchCrudChildrenSaga),
 
 		fork(requestMiddleware)
 

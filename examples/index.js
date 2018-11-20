@@ -4,21 +4,22 @@ import { store } from './redux/store';
 import { render } from 'react-dom';
 import { CrudFull } from '../lib/index';
 import createFormFileds from './createObjectTypeFields'
+import { BrowserRouter as Router } from 'react-router-dom'
 import 'antd/dist/antd.css';
 
 class App extends Component {
 
 	render() {
     	return (<CrudFull
-			crudRead="/v1/admin/object/type/list"
-			crudCreate="/v1/admin/object/type/create"
+			crudRead="/v1/owner/object/list"
+			//crudCreate="/v1/admin/object/type/create"
 			modelName="objectTypes"
-			createDisabled={false}
-			createButtonTitle={'Добавить тип'}
+			createDisabled={true}
+			createButtonTitle={'Добавить'}
 			createFormOptions={{
 			    fields: createFormFileds,
-			    title: 'Создать новый тип',
-			    editTitle: 'Редактировать тип',
+			    title: 'Создать новый',
+			    editTitle: 'Редактировать',
 			}}
 			submitShape={form => ({ Type: { name: form.name, description: form.description } })}
     	/>)
@@ -30,7 +31,9 @@ App.defaultProps = {};
 
 render(
 	<Provider store={store}>
-		<App />
+		<Router>
+			<App />
+		</Router>
 	</Provider>,
 	document.getElementById('root')
 );

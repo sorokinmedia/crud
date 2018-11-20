@@ -8,7 +8,8 @@ import styled from 'styled-components';
 
 const ActionStyled = styled.span`
 	.crud-action {
-		font-size: 20px
+		font-size: 20px;
+		padding: 0 5px;
 	}
 `;
 
@@ -61,17 +62,13 @@ class Action extends Component {
 	};
 
 	render() {
-		const { data, row, iconTheme } = this.props;
+		const { data, row } = this.props;
 
-		console.log(iconTheme)
-
-		return (<p>
-			<ActionStyled>
-				<a title={data.name} href={data.url} target="_blank" className="crud-action">
-					<Icon type={this.getIcon(data.id)} onClick={this.handleClick} />
-				</a>
-			</ActionStyled>
-		</p>)
+		return (<ActionStyled>
+			<a title={data.name} href={data.url} target="_blank" className="crud-action">
+				<Icon type={this.getIcon(data.id)} onClick={this.handleClick} />
+			</a>
+		</ActionStyled>)
 	}
 }
 
@@ -82,8 +79,6 @@ Action.propTypes = {
 	iconTheme: PropTypes.string
 };
 
-Action.defaultProps = {
-	iconTheme: 'outlined'
-}
+Action.defaultProps = { iconTheme: 'outlined' }
 
 export default connect((state, props) => ({ actionsFunc: state.crudActionsFunc[props.modelName] }), { push })(Action)

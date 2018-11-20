@@ -10,7 +10,7 @@ export function* requestSaga(action) {
 		payload, method, url, auth, oldType: type, token_is_active
 	} = action;
 
-	const token = 'f9ad75859d9a7acd94e7a3acc639e0be';
+	const token = '259251b818d7170ffee7f19128f332db'//'f9ad75859d9a7acd94e7a3acc639e0be';
 
 	//if (auth && !token_is_active) return;
 

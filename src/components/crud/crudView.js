@@ -7,7 +7,7 @@ import filterRenderer from './filterRenderer'
 import dataRenderer from './dataRenderer'
 import Loader from './loader'
 
-const { fetchCrudModels } = crudActions;
+const { fetchCrudModels, fetchCrudChildren } = crudActions;
 const isBigDesctop = window.document.documentElement.scrollWidth > 1646;
 
 class CrudView extends Component {
@@ -26,6 +26,10 @@ class CrudView extends Component {
 			order_by: sorter.columnKey,
 			order: sorter.order
 		}, filters);
+	};
+
+	handleExpand = (isExpanded, row) => {
+		if(isExpanded) this.props.fetchCrudChildren(row.id, this.props.modelName)
 	};
 
 	getFiterValues = (col) => {
@@ -50,6 +54,7 @@ class CrudView extends Component {
 		const listItems = items.data.items.map(elem => ({
 			...elem,
 			key: elem.id,
+			children: elem.has_child ? elem.children || [] : null
 		}));
 		// console.log(fixActionColumn, isBigDesctop)
 
@@ -82,6 +87,7 @@ class CrudView extends Component {
 			}}
 			loading={items.loading}
 			scroll={!isBigDesctop && fixActionColumn ? { x: 1300 } : {}}
+			onExpand={this.handleExpand}
 		/>);
 	}
 }
@@ -98,4 +104,4 @@ CrudView.defaultProps = { fixActionColumn: true };
 export default connect((state, props) => ({
 	items: state.crudModels[props.modelName],
 	filterValues: state.crudFilterValues[props.modelName]
-}), { fetchCrudModels })(CrudView);
+}), { fetchCrudModels, fetchCrudChildren })(CrudView);
