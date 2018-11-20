@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Provider } from 'react-redux'
 import { store } from './redux/store';
 import { render } from 'react-dom';
-import { CrudFull } from '../src/index';
+import { CrudFull } from '../dist/index';
 import createFormFileds from './createObjectTypeFields'
 import 'antd/dist/antd.css';
 

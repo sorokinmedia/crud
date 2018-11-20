@@ -4,6 +4,8 @@ import resolve from 'rollup-plugin-node-resolve';
 import replace from 'rollup-plugin-replace';
 import postcss from 'rollup-plugin-postcss'
 import json from 'rollup-plugin-json';
+import { uglify } from 'rollup-plugin-uglify'
+import image from 'rollup-plugin-image'
 
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const outputFile = NODE_ENV === 'production' ? './dist/index.js' : './lib/index.js';
@@ -30,6 +32,7 @@ export default {
 			jsnext: true,
 			main: true
 		}),
+		image(),
 		babel({
 			exclude: 'node_modules/**',
 			plugins: ['external-helpers']
@@ -74,6 +77,7 @@ export default {
 				]
 			},  // Default: undefined
 		}),
-		json()
+		json(),
+		uglify(),
 	],
 };
