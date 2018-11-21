@@ -182,7 +182,8 @@ export function* fetchCrudChildrenSaga(action) {
 	}))
 }
 
-export default function* rootSaga() {
+export default function* rootSaga(action) {
+	console.log(action)
 	yield all([
 		takeEvery(actions.FETCH_CRUD_MODELS, fetchCrudModelsSaga),
 		takeEvery(actions.FETCH_CRUD_MODELS + SUCCESS, fetchCrudModelsSuccessSaga),
