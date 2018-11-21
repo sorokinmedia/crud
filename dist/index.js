@@ -11743,7 +11743,8 @@ var CrudView = function (_Component) {
 			    TableWrapper = _props2.TableWrapper,
 			    fixActionColumn = _props2.fixActionColumn,
 			    iconTheme = _props2.iconTheme,
-			    size = _props2.size;
+			    size = _props2.size,
+			    tdClass = _props2.tdClass;
 
 
 			if (items && !items.data && items.loading) return React__default.createElement(Loader, null);
@@ -11759,6 +11760,7 @@ var CrudView = function (_Component) {
 
 			var columns = items.data.columns.map(function (col) {
 				return {
+					className: 'crud-table-column' + (tdClass ? tdClass : ''),
 					title: col.title, // <IntlMessages id="antTable.title.id"/>,
 					key: col.id,
 					fixed: col.id === 'actions' && !isBigDesctop && fixActionColumn ? 'right' : null,
@@ -11804,7 +11806,8 @@ CrudView.propTypes = {
 	fixActionColumn: propTypes.bool,
 	iconTheme: propTypes.string,
 	getChildrenUrl: propTypes.func,
-	size: propTypes.string
+	size: propTypes.string,
+	tdClass: propTypes.string
 };
 
 CrudView.defaultProps = { fixActionColumn: true };
@@ -25616,7 +25619,7 @@ function styleInject(css, ref) {
   }
 }
 
-var css$1 = ".anticon:before {\n\tdisplay: initial !important;\n}\n";
+var css$1 = ".anticon:before {\n\tdisplay: initial !important;\n}\n\n.crud-table-column {\n    min-width: 100px!important;\n}\n";
 styleInject(css$1);
 
 var toggleCreateModelModal = actions.toggleCreateModelModal,
@@ -25710,7 +25713,8 @@ var CrudFull = function (_Component) {
 			    iconTheme = _props.iconTheme,
 			    getChildrenUrl = _props.getChildrenUrl,
 			    ButtonComponent = _props.ButtonComponent,
-			    size = _props.size;
+			    size = _props.size,
+			    tdClass = _props.tdClass;
 
 			var _ref2 = createFormOptions || {},
 			    title = _ref2.title,
@@ -25739,7 +25743,8 @@ var CrudFull = function (_Component) {
 					fixActionColumn: fixActionColumn,
 					iconTheme: iconTheme,
 					getChildrenUrl: getChildrenUrl,
-					size: size
+					size: size,
+					tdClass: tdClass
 				}),
 				isModalOpen && !createDisabled ? React__default.createElement(CreateModelView, {
 					title: title || 'Создать',
@@ -25773,7 +25778,8 @@ CrudFull.propTypes = {
 	tableWrapper: propTypes.oneOfType([propTypes.object, propTypes.node]),
 	fixActionColumn: propTypes.bool,
 	iconTheme: propTypes.string,
-	size: propTypes.string
+	size: propTypes.string,
+	tdClass: propTypes.string
 };
 
 CrudFull.defaultProps = {

@@ -1,3 +1,7 @@
 .anticon:before {
 	display: initial !important;
 }
+
+.crud-table-column {
+    min-width: 100px!important;
+}

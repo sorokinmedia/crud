@@ -45,7 +45,7 @@ class CrudView extends Component {
 
 	render() {
 		const {
-			items, modelName, tableStyle, TableWrapper, fixActionColumn, iconTheme, size
+			items, modelName, tableStyle, TableWrapper, fixActionColumn, iconTheme, size, tdClass
 		} = this.props;
 
 		if (items && !items.data && items.loading) return <Loader />;
@@ -59,6 +59,7 @@ class CrudView extends Component {
 		// console.log(fixActionColumn, isBigDesctop)
 
 		const columns = items.data.columns.map(col => ({
+			className: 'crud-table-column' + (tdClass ? tdClass : ''),
 			title: col.title, // <IntlMessages id="antTable.title.id"/>,
 			key: col.id,
 			fixed: col.id === 'actions' && !isBigDesctop && fixActionColumn ? 'right' : null,
@@ -99,7 +100,8 @@ CrudView.propTypes = {
 	fixActionColumn: PropTypes.bool,
 	iconTheme: PropTypes.string,
 	getChildrenUrl: PropTypes.func,
-	size: PropTypes.string
+	size: PropTypes.string,
+	tdClass: PropTypes.string
 };
 
 CrudView.defaultProps = { fixActionColumn: true };
