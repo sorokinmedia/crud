@@ -173,6 +173,7 @@ export function* notifySaga(action) {
 }
 
 export function* fetchCrudChildrenSaga(action) {
+	console.log(action)
 	yield put(request({
 		...action,
 		method: 'GET',

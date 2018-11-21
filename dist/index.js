@@ -11708,7 +11708,6 @@ var CrudView = function (_Component) {
 				order: sorter.order
 			}, filters);
 		}, _this.handleExpand = function (isExpanded, row) {
-			console.log(isExpanded, row, _this.props.getChildrenUrl);
 			if (isExpanded) _this.props.fetchCrudChildren(row.id, _this.props.modelName, _this.props.getChildrenUrl(row.id));
 		}, _this.getFiterValues = function (col) {
 			var filterValues = _this.props.filterValues;
@@ -27561,14 +27560,15 @@ function fetchCrudChildrenSaga(action) {
 		while (1) {
 			switch (_context12.prev = _context12.next) {
 				case 0:
-					_context12.next = 2;
+					console.log(action);
+					_context12.next = 3;
 					return put(dist_1$1(_extends$5({}, action, {
 						method: 'GET',
 						auth: true,
 						url: action.payload.url
 					})));
 
-				case 2:
+				case 3:
 				case 'end':
 					return _context12.stop();
 			}

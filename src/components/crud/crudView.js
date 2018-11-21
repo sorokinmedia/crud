@@ -29,7 +29,6 @@ class CrudView extends Component {
 	};
 
 	handleExpand = (isExpanded, row) => {
-		console.log(isExpanded, row, this.props.getChildrenUrl);
 		if(isExpanded) this.props.fetchCrudChildren(row.id, this.props.modelName, this.props.getChildrenUrl(row.id))
 	};
 
