@@ -76,19 +76,21 @@ class CrudFull extends Component {
 			fixActionColumn,
 			updateShape,
 			iconTheme,
-			getChildrenUrl
+			getChildrenUrl,
+			ButtontComponent
 		} = this.props;
 
 		const { title, titleEdit, fields } = createFormOptions || {};
+		const Btn = ButtontComponent || Button;
 
 		return (<div>
-			{ !createDisabled ? <Button
+			{ !createDisabled ? <Btn
 				type="primary"
 				onClick={this.toggleModal}
 				style={{ ...btnStyle, marginBottom: '20px' }}
 			>
 				{createButtonTitle}
-			</Button> : null }
+			</Btn> : null }
 			<CrudView
 				modelName={modelName}
 				url={crudRead}
@@ -143,6 +145,7 @@ CrudFull.propTypes = {
 	getChildrenUrl: PropTypes.func,
 	createDisabled: PropTypes.bool,
 	btnStyle: PropTypes.object,
+	ButtontComponent: PropTypes.object,
 	tableStyle: PropTypes.object,
 	tableWrapper: PropTypes.oneOfType([PropTypes.object, PropTypes.node]),
 	fixActionColumn: PropTypes.bool,

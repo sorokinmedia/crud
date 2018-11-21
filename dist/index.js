@@ -25705,18 +25705,21 @@ var CrudFull = function (_Component) {
 			    fixActionColumn = _props.fixActionColumn,
 			    updateShape = _props.updateShape,
 			    iconTheme = _props.iconTheme,
-			    getChildrenUrl = _props.getChildrenUrl;
+			    getChildrenUrl = _props.getChildrenUrl,
+			    ButtontComponent = _props.ButtontComponent;
 
 			var _ref2 = createFormOptions || {},
 			    title = _ref2.title,
 			    titleEdit = _ref2.titleEdit,
 			    fields = _ref2.fields;
 
+			var Btn = ButtontComponent || antd.Button;
+
 			return React__default.createElement(
 				'div',
 				null,
 				!createDisabled ? React__default.createElement(
-					antd.Button,
+					Btn,
 					{
 						type: 'primary',
 						onClick: this.toggleModal,
@@ -25760,6 +25763,7 @@ CrudFull.propTypes = {
 	getChildrenUrl: propTypes.func,
 	createDisabled: propTypes.bool,
 	btnStyle: propTypes.object,
+	ButtontComponent: propTypes.object,
 	tableStyle: propTypes.object,
 	tableWrapper: propTypes.oneOfType([propTypes.object, propTypes.node]),
 	fixActionColumn: propTypes.bool,
