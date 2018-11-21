@@ -11793,7 +11793,8 @@ var CrudView = function (_Component) {
 				loading: items.loading,
 				scroll: !isBigDesctop && fixActionColumn ? { x: 1300 } : {},
 				onExpand: this.handleExpand,
-				size: size
+				size: size,
+				tableStyle: tableStyle
 			});
 		}
 	}]);

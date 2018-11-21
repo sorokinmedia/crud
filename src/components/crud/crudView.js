@@ -90,6 +90,7 @@ class CrudView extends Component {
 			scroll={!isBigDesctop && fixActionColumn ? { x: 1300 } : {}}
 			onExpand={this.handleExpand}
 			size={size}
+			tableStyle={tableStyle}
 		/>);
 	}
 }
