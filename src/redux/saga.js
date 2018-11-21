@@ -177,7 +177,7 @@ export function* fetchCrudChildrenSaga(action) {
 		...action,
 		method: 'GET',
 		auth: true,
-		url: `/v1/owner/object/${action.payload.id}/child`
+		url: action.payload.url
 	}))
 }
 

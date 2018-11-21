@@ -1304,8 +1304,8 @@ var actions = {
 	TOGGLE_CREATE_MODEL_MODAL: 'TOGGLE_CREATE_MODEL_MODAL',
 	SET_MODEL_MODAL_FORM: 'SET_MODEL_MODAL_FORM',
 	FETCH_CRUD_CHILDREN: 'FETCH_CRUD_CHILDREN',
-	fetchCrudChildren: function fetchCrudChildren(id, modelName) {
-		return { type: actions.FETCH_CRUD_CHILDREN, payload: { id: id, modelName: modelName } };
+	fetchCrudChildren: function fetchCrudChildren(id, modelName, url) {
+		return { type: actions.FETCH_CRUD_CHILDREN, payload: { id: id, modelName: modelName, url: url } };
 	},
 	toggleCreateModelModal: function toggleCreateModelModal() {
 		return { type: actions.TOGGLE_CREATE_MODEL_MODAL };
@@ -11708,7 +11708,8 @@ var CrudView = function (_Component) {
 				order: sorter.order
 			}, filters);
 		}, _this.handleExpand = function (isExpanded, row) {
-			if (isExpanded) _this.props.fetchCrudChildren(row.id, _this.props.modelName);
+			console.log(isExpanded, row, _this.props.getChildrenUrl);
+			if (isExpanded) _this.props.fetchCrudChildren(row.id, _this.props.modelName, _this.props.getChildrenUrl(row.id));
 		}, _this.getFiterValues = function (col) {
 			var filterValues = _this.props.filterValues;
 
@@ -11800,7 +11801,8 @@ CrudView.propTypes = {
 	modelName: propTypes.string.isRequired,
 	url: propTypes.string.isRequired,
 	fixActionColumn: propTypes.bool,
-	iconTheme: propTypes.string
+	iconTheme: propTypes.string,
+	getChildrenUrl: propTypes.func
 };
 
 CrudView.defaultProps = { fixActionColumn: true };
@@ -25703,7 +25705,8 @@ var CrudFull = function (_Component) {
 			    tableWrapper = _props.tableWrapper,
 			    fixActionColumn = _props.fixActionColumn,
 			    updateShape = _props.updateShape,
-			    iconTheme = _props.iconTheme;
+			    iconTheme = _props.iconTheme,
+			    getChildrenUrl = _props.getChildrenUrl;
 
 			var _ref2 = createFormOptions || {},
 			    title = _ref2.title,
@@ -25728,7 +25731,8 @@ var CrudFull = function (_Component) {
 					tableStyle: tableStyle,
 					TableWrapper: tableWrapper,
 					fixActionColumn: fixActionColumn,
-					iconTheme: iconTheme
+					iconTheme: iconTheme,
+					getChildrenUrl: getChildrenUrl
 				}),
 				isModalOpen && !createDisabled ? React__default.createElement(CreateModelView, {
 					title: title || 'Создать',
@@ -25754,6 +25758,7 @@ CrudFull.propTypes = {
 	createFormOptions: propTypes.shape({ fields: propTypes.array.isRequired }),
 	submitShape: propTypes.func,
 	updateShape: propTypes.func,
+	getChildrenUrl: propTypes.func,
 	createDisabled: propTypes.bool,
 	btnStyle: propTypes.object,
 	tableStyle: propTypes.object,
@@ -27560,7 +27565,7 @@ function fetchCrudChildrenSaga(action) {
 					return put(dist_1$1(_extends$5({}, action, {
 						method: 'GET',
 						auth: true,
-						url: '/v1/owner/object/' + action.payload.id + '/child'
+						url: action.payload.url
 					})));
 
 				case 2:

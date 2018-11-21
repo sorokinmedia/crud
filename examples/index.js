@@ -22,6 +22,7 @@ class App extends Component {
 			    editTitle: 'Редактировать',
 			}}
 			submitShape={form => ({ Type: { name: form.name, description: form.description } })}
+			getChildrenUrl={id => `/v1/owner/object/${id}/child`}
     	/>)
 	}
 }

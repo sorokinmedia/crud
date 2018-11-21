@@ -75,7 +75,8 @@ class CrudFull extends Component {
 			tableWrapper,
 			fixActionColumn,
 			updateShape,
-			iconTheme
+			iconTheme,
+			getChildrenUrl
 		} = this.props;
 
 		const { title, titleEdit, fields } = createFormOptions || {};
@@ -95,6 +96,7 @@ class CrudFull extends Component {
 				TableWrapper={tableWrapper}
 				fixActionColumn={fixActionColumn}
 				iconTheme={iconTheme}
+				getChildrenUrl={getChildrenUrl}
 			/>
 			{isModalOpen && !createDisabled ? <CreateModelView
 				title={title || 'Создать'}
@@ -138,6 +140,7 @@ CrudFull.propTypes = {
 	createFormOptions: PropTypes.shape({ fields: PropTypes.array.isRequired }),
 	submitShape: PropTypes.func,
 	updateShape: PropTypes.func,
+	getChildrenUrl: PropTypes.func,
 	createDisabled: PropTypes.bool,
 	btnStyle: PropTypes.object,
 	tableStyle: PropTypes.object,

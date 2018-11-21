@@ -29,7 +29,8 @@ class CrudView extends Component {
 	};
 
 	handleExpand = (isExpanded, row) => {
-		if(isExpanded) this.props.fetchCrudChildren(row.id, this.props.modelName)
+		console.log(isExpanded, row, this.props.getChildrenUrl);
+		if(isExpanded) this.props.fetchCrudChildren(row.id, this.props.modelName, this.props.getChildrenUrl(row.id))
 	};
 
 	getFiterValues = (col) => {
@@ -96,7 +97,8 @@ CrudView.propTypes = {
 	modelName: PropTypes.string.isRequired,
 	url: PropTypes.string.isRequired,
 	fixActionColumn: PropTypes.bool,
-	iconTheme: PropTypes.string
+	iconTheme: PropTypes.string,
+	getChildrenUrl: PropTypes.func
 };
 
 CrudView.defaultProps = { fixActionColumn: true };
