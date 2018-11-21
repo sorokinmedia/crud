@@ -77,11 +77,12 @@ class CrudFull extends Component {
 			updateShape,
 			iconTheme,
 			getChildrenUrl,
-			ButtontComponent
+			ButtonComponent,
+			size
 		} = this.props;
 
 		const { title, titleEdit, fields } = createFormOptions || {};
-		const Btn = ButtontComponent || Button;
+		const Btn = ButtonComponent || Button;
 
 		return (<div>
 			{ !createDisabled ? <Btn
@@ -99,6 +100,7 @@ class CrudFull extends Component {
 				fixActionColumn={fixActionColumn}
 				iconTheme={iconTheme}
 				getChildrenUrl={getChildrenUrl}
+				size={size}
 			/>
 			{isModalOpen && !createDisabled ? <CreateModelView
 				title={title || 'Создать'}
@@ -145,11 +147,12 @@ CrudFull.propTypes = {
 	getChildrenUrl: PropTypes.func,
 	createDisabled: PropTypes.bool,
 	btnStyle: PropTypes.object,
-	ButtontComponent: PropTypes.object,
+	ButtonComponent: PropTypes.object,
 	tableStyle: PropTypes.object,
 	tableWrapper: PropTypes.oneOfType([PropTypes.object, PropTypes.node]),
 	fixActionColumn: PropTypes.bool,
-	iconTheme: PropTypes.string
+	iconTheme: PropTypes.string,
+	size: PropTypes.string
 };
 
 CrudFull.defaultProps = {
@@ -160,7 +163,8 @@ CrudFull.defaultProps = {
 	btnStyle: {},
 	tableStyle: {},
 	tableWrapper: null,
-	iconTheme: 'outline'
+	iconTheme: 'outline',
+	size: 'default'
 };
 
 export default connect(state => ({

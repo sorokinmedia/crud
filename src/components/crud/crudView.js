@@ -45,7 +45,7 @@ class CrudView extends Component {
 
 	render() {
 		const {
-			items, modelName, tableStyle, TableWrapper, fixActionColumn, iconTheme
+			items, modelName, tableStyle, TableWrapper, fixActionColumn, iconTheme, size
 		} = this.props;
 
 		if (items && !items.data && items.loading) return <Loader />;
@@ -88,6 +88,7 @@ class CrudView extends Component {
 			loading={items.loading}
 			scroll={!isBigDesctop && fixActionColumn ? { x: 1300 } : {}}
 			onExpand={this.handleExpand}
+			size={size}
 		/>);
 	}
 }
@@ -97,7 +98,8 @@ CrudView.propTypes = {
 	url: PropTypes.string.isRequired,
 	fixActionColumn: PropTypes.bool,
 	iconTheme: PropTypes.string,
-	getChildrenUrl: PropTypes.func
+	getChildrenUrl: PropTypes.func,
+	size: PropTypes.string
 };
 
 CrudView.defaultProps = { fixActionColumn: true };

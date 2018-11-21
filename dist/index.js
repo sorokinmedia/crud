@@ -11742,7 +11742,8 @@ var CrudView = function (_Component) {
 			    tableStyle = _props2.tableStyle,
 			    TableWrapper = _props2.TableWrapper,
 			    fixActionColumn = _props2.fixActionColumn,
-			    iconTheme = _props2.iconTheme;
+			    iconTheme = _props2.iconTheme,
+			    size = _props2.size;
 
 
 			if (items && !items.data && items.loading) return React__default.createElement(Loader, null);
@@ -11789,7 +11790,8 @@ var CrudView = function (_Component) {
 				},
 				loading: items.loading,
 				scroll: !isBigDesctop && fixActionColumn ? { x: 1300 } : {},
-				onExpand: this.handleExpand
+				onExpand: this.handleExpand,
+				size: size
 			});
 		}
 	}]);
@@ -11801,7 +11803,8 @@ CrudView.propTypes = {
 	url: propTypes.string.isRequired,
 	fixActionColumn: propTypes.bool,
 	iconTheme: propTypes.string,
-	getChildrenUrl: propTypes.func
+	getChildrenUrl: propTypes.func,
+	size: propTypes.string
 };
 
 CrudView.defaultProps = { fixActionColumn: true };
@@ -25706,14 +25709,15 @@ var CrudFull = function (_Component) {
 			    updateShape = _props.updateShape,
 			    iconTheme = _props.iconTheme,
 			    getChildrenUrl = _props.getChildrenUrl,
-			    ButtontComponent = _props.ButtontComponent;
+			    ButtonComponent = _props.ButtonComponent,
+			    size = _props.size;
 
 			var _ref2 = createFormOptions || {},
 			    title = _ref2.title,
 			    titleEdit = _ref2.titleEdit,
 			    fields = _ref2.fields;
 
-			var Btn = ButtontComponent || antd.Button;
+			var Btn = ButtonComponent || antd.Button;
 
 			return React__default.createElement(
 				'div',
@@ -25734,7 +25738,8 @@ var CrudFull = function (_Component) {
 					TableWrapper: tableWrapper,
 					fixActionColumn: fixActionColumn,
 					iconTheme: iconTheme,
-					getChildrenUrl: getChildrenUrl
+					getChildrenUrl: getChildrenUrl,
+					size: size
 				}),
 				isModalOpen && !createDisabled ? React__default.createElement(CreateModelView, {
 					title: title || 'Создать',
@@ -25763,11 +25768,12 @@ CrudFull.propTypes = {
 	getChildrenUrl: propTypes.func,
 	createDisabled: propTypes.bool,
 	btnStyle: propTypes.object,
-	ButtontComponent: propTypes.object,
+	ButtonComponent: propTypes.object,
 	tableStyle: propTypes.object,
 	tableWrapper: propTypes.oneOfType([propTypes.object, propTypes.node]),
 	fixActionColumn: propTypes.bool,
-	iconTheme: propTypes.string
+	iconTheme: propTypes.string,
+	size: propTypes.string
 };
 
 CrudFull.defaultProps = {
@@ -25782,7 +25788,8 @@ CrudFull.defaultProps = {
 	btnStyle: {},
 	tableStyle: {},
 	tableWrapper: null,
-	iconTheme: 'outline'
+	iconTheme: 'outline',
+	size: 'default'
 };
 
 var crudFull = connect(function (state) {
