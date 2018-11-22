@@ -8961,6 +8961,13 @@ var TextCell = function TextCell(text) {
 		text
 	);
 };
+var BooleanCell = function BooleanCell(value) {
+	return React__default.createElement(
+		'span',
+		null,
+		value ? 'Да' : 'Нет'
+	);
+};
 var ArrTextCell = function ArrTextCell(arr) {
 	return arr.map(function (elem) {
 		return React__default.createElement(
@@ -11653,7 +11660,7 @@ Switch.propTypes = {
 // Written in this round about way for babel-transform-imports
 
 var dataRenderer = (function (row, column, modelName, iconTheme) {
-	if (!row[column.id]) return null;
+	if (!row[column.id] && row[column.id] !== false) return null;
 
 	switch (column.type) {
 		case 'object':
@@ -11674,7 +11681,7 @@ var dataRenderer = (function (row, column, modelName, iconTheme) {
 				row[column.id]
 			) : TextCell(row[column.id]);
 		case 'boolean':
-			return row[column] ? 'Да' : 'Нет';
+			return BooleanCell(row[column.id]);
 		default:
 			return TextCell(row[column.id]);
 	}
@@ -27607,11 +27614,10 @@ function rootSaga(action) {
 		while (1) {
 			switch (_context13.prev = _context13.next) {
 				case 0:
-					console.log(action);
-					_context13.next = 3;
+					_context13.next = 2;
 					return all([takeEvery$2(actions.FETCH_CRUD_MODELS, fetchCrudModelsSaga), takeEvery$2(actions.FETCH_CRUD_MODELS + SUCCESS$1, fetchCrudModelsSuccessSaga), takeEvery$2(actions.FETCH_CRUD_FILTER_VALUES, fetchCrudFilterValuesSaga), takeEvery$2(actions.CREATE_MODEL, createModelSaga), takeEvery$2(actions.CREATE_MODEL + SUCCESS$1, closeModalSaga), takeEvery$2(actions.CREATE_MODEL + SUCCESS$1, updateModelsSaga), takeEvery$2(actions.CREATE_MODEL + SUCCESS$1, notifySaga), takeEvery$2(actions.CREATE_MODEL + ERROR, submitModelsModalFormFailSaga), takeEvery$2(actions.DELETE_MODEL, deleteModelSaga), takeEvery$2(actions.DELETE_MODEL + SUCCESS$1, updateModelsSaga), takeEvery$2(actions.DELETE_MODEL + SUCCESS$1, notifySaga), takeEvery$2(actions.DELETE_MODEL + ERROR, notifySaga), takeEvery$2(actions.RESTORE_MODEL, restoreModelSaga), takeEvery$2(actions.RESTORE_MODEL + SUCCESS$1, updateModelsSaga), takeEvery$2(actions.RESTORE_MODEL + SUCCESS$1, notifySaga), takeEvery$2(actions.RESTORE_MODEL + ERROR, notifySaga), takeEvery$2(actions.CHANGE_MODEL, changeModelSaga), takeEvery$2(actions.CHANGE_MODEL + SUCCESS$1, closeModalSaga), takeEvery$2(actions.CHANGE_MODEL + SUCCESS$1, updateModelsSaga), takeEvery$2(actions.CHANGE_MODEL + SUCCESS$1, notifySaga), takeEvery$2(actions.CHANGE_MODEL + ERROR, submitModelsModalFormFailSaga), takeEvery$2(actions.FETCH_CRUD_CHILDREN, fetchCrudChildrenSaga), fork(requestMiddleware)]);
 
-				case 3:
+				case 2:
 				case 'end':
 					return _context13.stop();
 			}

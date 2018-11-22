@@ -3,13 +3,14 @@ import {
 	DateCell,
 	TextCell,
 	ArrTextCell,
-	ActionsCell
+	ActionsCell,
+	BooleanCell
 } from '../tables/helperCells';
 import { Link } from 'react-router-dom'
 
 
 export default (row, column, modelName, iconTheme) => {
-	if (!row[column.id]) return null;
+	if (!row[column.id] && row[column.id] !== false) return null;
 
 
 	switch (column.type) {
@@ -25,9 +26,9 @@ export default (row, column, modelName, iconTheme) => {
 		const actionView = row.actions.find(e => e.id === 'view');
 		return actionView && actionView.url ? <Link to={actionView.url}>
 			{row[column.id]}
-        </Link> : TextCell(row[column.id]);
+		</Link> : TextCell(row[column.id]);
 	case 'boolean':
-		return row[column] ? 'Да' : 'Нет'
+		return BooleanCell(row[column.id]);
 	default:
 		return TextCell(row[column.id]);
 	}
