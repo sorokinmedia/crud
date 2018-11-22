@@ -26,6 +26,8 @@ export default (row, column, modelName, iconTheme) => {
 		return actionView && actionView.url ? <Link to={actionView.url}>
 			{row[column.id]}
         </Link> : TextCell(row[column.id]);
+	case 'boolean':
+		return row[column] ? 'Да' : 'Нет'
 	default:
 		return TextCell(row[column.id]);
 	}
