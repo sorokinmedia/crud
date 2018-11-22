@@ -11673,6 +11673,8 @@ var dataRenderer = (function (row, column, modelName, iconTheme) {
 				{ to: actionView.url },
 				row[column.id]
 			) : TextCell(row[column.id]);
+		case 'boolean':
+			return row[column] ? 'Да' : 'Нет';
 		default:
 			return TextCell(row[column.id]);
 	}
@@ -25851,7 +25853,6 @@ var crudModelsReducer = function crudModelsReducer() {
 				loading: true
 			})));
 		case actions.FETCH_CRUD_CHILDREN + SUCCESS$1:
-			console.log(payload);
 			return _extends$5({}, state, defineProperty$2({}, payload.params.modelName, _extends$5({}, state[payload.params.modelName], {
 				loading: false,
 				data: _extends$5({}, state[payload.params.modelName].data, {
