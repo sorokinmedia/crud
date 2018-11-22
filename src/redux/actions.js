@@ -11,7 +11,10 @@ const actions = {
 	TOGGLE_CREATE_MODEL_MODAL: 'TOGGLE_CREATE_MODEL_MODAL',
 	SET_MODEL_MODAL_FORM: 'SET_MODEL_MODAL_FORM',
 	FETCH_CRUD_CHILDREN: 'FETCH_CRUD_CHILDREN',
-	fetchCrudChildren: (id, modelName, url) => ({type: actions.FETCH_CRUD_CHILDREN, payload: { id, modelName, url } }),
+	fetchCrudChildren: (id, modelName, url) => ({
+		type: actions.FETCH_CRUD_CHILDREN,
+		payload: { id, params: { modelName }, url }
+	}),
 	toggleCreateModelModal: () => ({ type: actions.TOGGLE_CREATE_MODEL_MODAL }),
 
 	deleteModel: (id, url, modelName) => ({

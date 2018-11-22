@@ -59,7 +59,7 @@ class CrudView extends Component {
 		// console.log(fixActionColumn, isBigDesctop)
 
 		const columns = items.data.columns.map(col => ({
-			className: 'crud-table-column' + (tdClass ? tdClass : ''),
+			className: 'crud-table-column' + (tdClass ? ' ' + tdClass : ''),
 			title: col.title, // <IntlMessages id="antTable.title.id"/>,
 			key: col.id,
 			fixed: col.id === 'actions' && !isBigDesctop && fixActionColumn ? 'right' : null,

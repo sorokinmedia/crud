@@ -28,11 +28,12 @@ export const crudModelsReducer = (state = {}, action) => {
 	case actions.FETCH_CRUD_CHILDREN + SUCCESS:
 		return {
 			...state,
-			[payload.modelName]: {
-				...state[payload.modelName],
+			[payload.params.modelName]: {
+				...state[payload.params.modelName],
+				loading: false,
 				data: {
-					...state[payload.modelName].data,
-					items: state[payload.modelName].data.items.map(e => ({
+					...state[payload.params.modelName].data,
+					items: state[payload.params.modelName].data.items.map(e => ({
 						...e,
 						children: response.data.items.map(elem => ({
 							...elem,
