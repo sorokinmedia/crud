@@ -63,7 +63,7 @@ class CrudView extends Component {
 			title: col.title, // <IntlMessages id="antTable.title.id"/>,
 			key: col.id,
 			fixed: col.id === 'actions' && !isBigDesctop && fixActionColumn ? 'right' : null,
-			width: col.id === 'actions' && !isBigDesctop && fixActionColumn ? 100 : 'auto',
+			width: col.id === 'actions' && !isBigDesctop && fixActionColumn ? 150 : 'auto',
 			render: object => dataRenderer(object, col, modelName, iconTheme),
 			filters: this.getFiterValues(col),
 			filterIcon: col.filter.can ?

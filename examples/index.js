@@ -10,8 +10,8 @@ import 'antd/dist/antd.css';
 class App extends Component {
 
 	render() {
-    	return (<CrudFull
-			crudRead="/v1/owner/object/26/inventories"
+    	return (<div style={{width: '80%'}}><CrudFull
+			crudRead="/v1/admin/user/list"
 			//crudCreate="/v1/admin/object/type/create"
 			modelName="objectTypes"
 			createDisabled={true}
@@ -23,7 +23,7 @@ class App extends Component {
 			}}
 			submitShape={form => ({ Type: { name: form.name, description: form.description } })}
 			getChildrenUrl={id => `/v1/owner/object/${id}/child`}
-    	/>)
+    	/></div>)
 	}
 }
 
