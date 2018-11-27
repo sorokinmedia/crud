@@ -5,7 +5,6 @@ import crudActions from './redux/actions'
 import crudReducers from './redux/reducer'
 import crudSagas from './redux/saga'
 import './style.css'
-import 'antd/dist/antd.css';
 
 export const reducer = crudReducers;
 export const saga = crudSagas;
