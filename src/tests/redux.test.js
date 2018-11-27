@@ -42,4 +42,9 @@ function testingReducer(initialState, action, reducer, error, response) {
 		const response =  {data: {token: token} } || response;
 		expect(reducer(initialState, {type: action + SUCCESS, response } )).toEqual(response);
 	});
-};
+}
+
+describe(() => {
+
+});
+
