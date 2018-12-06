@@ -28,6 +28,7 @@ function isDateColumn(columns, key) {
 }
 
 export const selectColumns = modelName => state => state.crudModels[modelName];
+
 export function* fetchCrudModelsSaga(action) {
 	const { payload } = action;
 	const {
@@ -162,9 +163,9 @@ export function* closeModalSaga() {
 }
 
 export function* submitModelsModalFormFailSaga(action) {
-	const errors = { [action.error.targetField || 'name']: action.error.message };
-	yield put(stopSubmit('createModel', errors))
-	yield notification('error', action.error.message)
+	const errors = yield { [action.error.targetField || 'name']: action.error.message };
+	yield put(stopSubmit('createModel', errors));
+	yield notification('error', action.error.message);
 }
 
 export function* notifySaga(action) {

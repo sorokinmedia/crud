@@ -1,6 +1,11 @@
 import actions from '../redux/actions'
 import saga, {
-	deleteModelSaga
+	deleteModelSaga,
+	restoreModelSaga,
+	closeModalSaga,
+	submitModelsModalFormFailSaga,
+	notifySaga,
+	fetchCrudFilterValuesSaga
 } from '../redux/saga'
 import {
 	crudFilterValuesReducer,
@@ -14,6 +19,9 @@ import {
 import { ERROR, START, SUCCESS } from '../constants';
 import { request } from 'sm-redux-saga-request';
 import { put } from 'redux-saga/effects'
+import { stopSubmit } from 'redux-form';
+import notification from "../notification";
+import {SUCCESS_REQ} from "../../examples/redux/constants";
 
 
 function testingReducer(initialState, action, reducer, error, response) {
@@ -334,3 +342,89 @@ describe('delete model saga', () => {
 		})))
 	})
 });
+
+describe('restore model saga', () => {
+	const restoreAction = {
+		type: actions.RESTORE_MODEL,
+		payload: {url: 'url'}
+	};
+	it('should dispatch request action RESTORE_MODEL', () => {
+		expect(restoreModelSaga(restoreAction).next().value).toEqual(put(request({
+			...restoreAction,
+			method: 'POST',
+			auth: true,
+			url: `${restoreAction.payload.url}`,
+			payload: restoreAction.payload
+		})))
+	})
+});
+
+describe('close Modal saga', () => {
+	const generator = closeModalSaga();
+	it('should dispatch TOGGLE_CREATE_MODAL action', () => {
+		expect(generator.next().value).toEqual(put(actions.toggleCreateModelModal()))
+	});
+
+	it('should dispatch SET_MODEL_MODAL_FORM action', () => {
+		expect(generator.next().value).toEqual(put(actions.setModelModalForm(null, null)))
+	});
+});
+
+describe('submitModelsModalFormFailSaga', () => {
+	const action = {
+		error: { message: 'error', targetField: 'field' },
+	};
+	const errors = { [action.error.targetField || 'name']: action.error.message };
+	const generator = submitModelsModalFormFailSaga(action);
+
+	it('should return errors', () => {
+		expect(generator.next().value).toEqual(errors)
+	});
+
+	it('should stop submit', () => {
+		expect(generator.next().value).toEqual(put(stopSubmit('createModel', errors)))
+	});
+
+	it('should invoke notification', () => {
+		expect(generator.next().value).toEqual(notification('error', action.error.message))
+	});
+});
+
+
+describe('notifySaga', () => {
+	const actionError = {
+		error: { message: 'error' }
+	};
+	const actionSuccess = {
+		response: {
+			status: SUCCESS_REQ,
+			message: 'message'
+		}
+	};
+	const generatorError = notifySaga(actionError);
+	const generatorSuccess = notifySaga(actionSuccess);
+
+	it('should invoke error notification', () => {
+		expect(generatorError.next().value).toEqual(notification('error', actionError.error.message))
+	});
+
+	it('should invoke success notification', () => {
+		expect(generatorSuccess.next().value).toEqual(notification('success', actionSuccess.response.message))
+	});
+});
+
+describe('fetchCrudFilterValuesSaga', () => {
+	const action = {
+		type: actions.FETCH_CRUD_FILTER_VALUES,
+		payload: { query: 'query' }
+	};
+	it('should dispatch request action RESTORE_MODEL', () => {
+		expect(fetchCrudFilterValuesSaga(action).next().value).toEqual(put(request({
+			...action,
+			method: 'GET',
+			auth: true,
+			url: `${action.payload.query}`
+		})))
+	})
+});
+
