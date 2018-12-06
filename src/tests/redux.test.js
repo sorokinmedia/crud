@@ -1,5 +1,7 @@
 import actions from '../redux/actions'
-import saga from '../redux/saga'
+import saga, {
+	deleteModelSaga
+} from '../redux/saga'
 import {
 	crudFilterValuesReducer,
 	crudModelsReducer,
@@ -10,6 +12,8 @@ import {
 	crudCreateModalLoadingReducer
 } from '../redux/reducer'
 import { ERROR, START, SUCCESS } from '../constants';
+import { request } from 'sm-redux-saga-request';
+import { put } from 'redux-saga/effects'
 
 
 function testingReducer(initialState, action, reducer, error, response) {
@@ -315,6 +319,18 @@ describe('actions', () => {
 	});
 });
 
-describe('sagas', () => {
-
+describe('delete model saga', () => {
+	const deleteAction = {
+		type: actions.DELETE_MODEL,
+		payload: {url: 'url'}
+	};
+	it('should dispatch request action DELETE_MODEL', () => {
+		expect(deleteModelSaga(deleteAction).next().value).toEqual(put(request({
+			...deleteAction,
+			method: 'POST',
+			auth: true,
+			url: `${deleteAction.payload.url}`,
+			payload: deleteAction.payload
+		})))
+	})
 });
