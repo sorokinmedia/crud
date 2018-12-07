@@ -8,7 +8,7 @@ import actions from './actions';
 import moment from 'moment'
 import regeneratorRuntime from 'regenerator-runtime'
 
-export const selecrCrudParams = state => state.crudParams;
+export const selectCrudParams = state => state.crudParams;
 
 function getFiltersValues(filters, columns) {
 
@@ -34,7 +34,7 @@ export function* fetchCrudModelsSaga(action) {
 	const {
 		order, order_by, page, modelName, url: passedUrl
 	} = payload.params || {};
-	const crudParams = yield select(selecrCrudParams);
+	const crudParams = yield select(selectCrudParams);
 
 	const url = passedUrl || crudParams[modelName].crudRead;
 
@@ -102,7 +102,7 @@ export function* fetchCrudFilterValuesSaga(action) {
 
 
 export function* createModelSaga(action) {
-	const params = yield select(selecrCrudParams);
+	const params = yield select(selectCrudParams);
 	const { modelName } = action.payload;
 	const form = params[modelName].submitShape(action.payload.form);
 
@@ -117,7 +117,8 @@ export function* createModelSaga(action) {
 }
 
 export function* updateModelsSaga(action) {
-	const params = yield select(selecrCrudParams);
+	const params = yield select(selectCrudParams);
+	console.log(action)
 	const { modelName, crudRead } = params[action.modelName || action.payload.modelName];
 
 	yield put(actions.fetchCrudModels({ modelName, url: crudRead }));
@@ -145,7 +146,7 @@ export function* restoreModelSaga(action) {
 
 export function* changeModelSaga(action) {
 	const { name, description, id } = action.payload.form;
-	const params = yield select(selecrCrudParams);
+	const params = yield select(selectCrudParams);
 
 	yield put(request({
 		...action,

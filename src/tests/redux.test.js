@@ -1,11 +1,16 @@
 import actions from '../redux/actions'
-import saga, {
+import {
 	deleteModelSaga,
 	restoreModelSaga,
 	closeModalSaga,
 	submitModelsModalFormFailSaga,
 	notifySaga,
-	fetchCrudFilterValuesSaga
+	fetchCrudFilterValuesSaga,
+	createModelSaga,
+	selectCrudParams,
+	changeModelSaga,
+	updateModelsSaga,
+	fetchCrudModelsSuccessSaga
 } from '../redux/saga'
 import {
 	crudFilterValuesReducer,
@@ -18,11 +23,10 @@ import {
 } from '../redux/reducer'
 import { ERROR, START, SUCCESS } from '../constants';
 import { request } from 'sm-redux-saga-request';
-import { put } from 'redux-saga/effects'
+import { put, select } from 'redux-saga/effects'
 import { stopSubmit } from 'redux-form';
-import notification from "../notification";
-import {SUCCESS_REQ} from "../../examples/redux/constants";
-
+import notification from '../notification';
+import {SUCCESS_REQ} from '../../examples/redux/constants';
 
 function testingReducer(initialState, action, reducer, error, response) {
 	it('should return initialState', () => {
@@ -40,8 +44,8 @@ function testingReducer(initialState, action, reducer, error, response) {
 
 	it('should return response', () => {
 		const token = 'token';
-		const response = { data: { token } } || response;
-		expect(reducer(initialState, { type: action + SUCCESS, response })).toEqual(response);
+		const res = { data: { token } } || response;
+		expect(reducer(initialState, { type: action + SUCCESS, res })).toEqual(res);
 	});
 }
 
@@ -425,6 +429,135 @@ describe('fetchCrudFilterValuesSaga', () => {
 			auth: true,
 			url: `${action.payload.query}`
 		})))
+	})
+});
+
+describe('createModelSaga', () => {
+	const action = {
+		type: actions.CREATE_MODEL,
+		payload: {
+			modelName: 'ModelName',
+			form: {},
+			action: {}
+		}
+
+	};
+
+	const gen = createModelSaga(action);
+
+	it('should select params', () => {
+		expect(gen.next().value).toEqual(select(selectCrudParams));
+	});
+
+	it('should dispatch request action CREATE_MODEL', () => {
+		expect(gen.next(createParams).value).toEqual(put(request({
+			...action,
+			method: 'POST',
+			auth: true,
+			url: `${action.payload.action.url}`,
+			payload: createParams[action.payload.modelName].submitShape(action.payload.form),
+			modelName: action.payload.modelName
+		})))
+	})
+});
+
+const action = {
+	type: actions.CREATE_MODEL,
+	payload: {
+		modelName: 'ModelName',
+		form: {},
+		action: {}
+	}
+
+};
+
+const createParams = { ModelName: {
+	submitShape: () => {}
+}};
+describe('createModelSaga', () => {
+	const gen = createModelSaga(action);
+
+	it('should select params', () => {
+		expect(gen.next().value).toEqual(select(selectCrudParams));
+	});
+
+	it('should dispatch request action CREATE_MODEL', () => {
+		expect(gen.next(createParams).value).toEqual(put(request({
+			...action,
+			method: 'POST',
+			auth: true,
+			url: `${action.payload.action.url}`,
+			payload: createParams[action.payload.modelName].submitShape(action.payload.form),
+			modelName: action.payload.modelName
+		})))
+	})
+});
+
+describe('changeModelSaga', () => {
+	const changeAction = {...action, type: actions.CHANGE_MODEL};
+	const gen = changeModelSaga(changeAction);
+
+	it('should select params', () => {
+		expect(gen.next().value).toEqual(select(selectCrudParams));
+	});
+
+	it('should dispatch request action CHANGE_MODEL', () => {
+		expect(gen.next(createParams).value).toEqual(put(request({
+			...changeAction,
+			method: 'POST',
+			auth: true,
+			url: `${changeAction.payload.action.url}`,
+			payload: createParams[changeAction.payload.modelName].submitShape(changeAction.payload.form),
+			modelName: changeAction.payload.modelName
+		})))
+	})
+});
+
+describe('updateModelsSaga', () => {
+	const updateAction = {
+		payload: { name: 'name' },
+		modelName: 'model'
+	};
+	const gen = updateModelsSaga(updateAction);
+	const params = { model: {
+		modelName: 'ModelName',
+		crudRead: 'url'
+	}};
+
+	it('should select params', () => {
+		expect(gen.next().value).toEqual(select(selectCrudParams));
+	});
+
+	it('should dispatch fetch action', () => {
+		expect(gen.next(params).value).toEqual(put(actions.fetchCrudModels({
+			modelName: params.model.modelName, url: params.model.crudRead
+		})));
+	});
+});
+
+describe('fetchCrudModelsSuccessSaga', () => {
+	const payload = {
+		params: { modelName: 'ModelName' }
+	};
+	const response = {
+		data: {
+			columns: [
+				{
+					filter: {
+						query: 'query',
+						can: true
+					},
+					id: 'id',
+				}
+			]
+		}
+	};
+	const fetchSuccessAction = { payload, response };
+
+	it('should dispatch request actions for fetching filters', () => {
+		expect(fetchCrudModelsSuccessSaga(fetchSuccessAction).next().value).toEqual(
+			put(actions.fetchCrudFilterValues(payload.params.modelName, 'id', 'query'))
+		)
 	})
 });
 
