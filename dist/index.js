@@ -25707,7 +25707,8 @@ var CrudFull = function (_Component) {
 			this.props.setCrudParams({
 				crudRead: this.props.crudRead,
 				modelName: this.props.modelName,
-				submitShape: this.props.submitShape
+				submitShape: this.props.submitShape,
+				initialValues: this.props.initialValues
 			});
 		}
 	}, {
@@ -25730,7 +25731,8 @@ var CrudFull = function (_Component) {
 			    getChildrenUrl = _props.getChildrenUrl,
 			    ButtonComponent = _props.ButtonComponent,
 			    size = _props.size,
-			    tdClass = _props.tdClass;
+			    tdClass = _props.tdClass,
+			    initialModal = _props.initialModal;
 
 			var _ref2 = createFormOptions || {},
 			    title = _ref2.title,
@@ -25769,7 +25771,7 @@ var CrudFull = function (_Component) {
 					onClose: this.handleClose,
 					onCreate: objectModal.modalType === 'edit' ? this.handleUpdate : this.handleCreate,
 					fields: fields,
-					initialValues: objectModal.initialValues ? updateShape(objectModal.initialValues) : {}
+					initialValues: objectModal.initialValues ? updateShape(objectModal.initialValues) : initialModal || {}
 				}) : ''
 			);
 		}
@@ -25795,7 +25797,8 @@ CrudFull.propTypes = {
 	fixActionColumn: propTypes.bool,
 	iconTheme: propTypes.string,
 	size: propTypes.string,
-	tdClass: propTypes.string
+	tdClass: propTypes.string,
+	initialModal: propTypes.object
 };
 
 CrudFull.defaultProps = {

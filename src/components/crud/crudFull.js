@@ -25,7 +25,8 @@ class CrudFull extends Component {
 		this.props.setCrudParams({
 			crudRead: this.props.crudRead,
 			modelName: this.props.modelName,
-			submitShape: this.props.submitShape
+			submitShape: this.props.submitShape,
+			initialValues: this.props.initialValues,
 		})
 	}
 
@@ -79,7 +80,8 @@ class CrudFull extends Component {
 			getChildrenUrl,
 			ButtonComponent,
 			size,
-			tdClass
+			tdClass,
+			initialModal
 		} = this.props;
 
 		const { title, titleEdit, fields } = createFormOptions || {};
@@ -111,9 +113,9 @@ class CrudFull extends Component {
 				onClose={this.handleClose}
 				onCreate={objectModal.modalType === 'edit' ? this.handleUpdate : this.handleCreate}
 				fields={fields}
-				initialValues={objectModal.initialValues ? updateShape(objectModal.initialValues) : {}}
+				initialValues={objectModal.initialValues ? updateShape(objectModal.initialValues) : initialModal || {}}
 			/> : '' }
-          </div>)
+		</div>)
 	}
 
 	handleUpdate = (form) => {
@@ -155,7 +157,8 @@ CrudFull.propTypes = {
 	fixActionColumn: PropTypes.bool,
 	iconTheme: PropTypes.string,
 	size: PropTypes.string,
-	tdClass: PropTypes.string
+	tdClass: PropTypes.string,
+	initialModal: PropTypes.object
 };
 
 CrudFull.defaultProps = {
