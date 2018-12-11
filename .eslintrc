@@ -28,6 +28,7 @@
 		"no-mixed-spaces-and-tabs": "off",
 		"no-mixed-operators": "off",
 		"no-restricted-globals": "off",
+		"no-trailing-spaces": "off",
         "import/extensions": "off",
 		"react/jsx-filename-extension": "off",
 		"react/jsx-first-prop-new-line": "off",

@@ -17,31 +17,11 @@ export const crudModelsReducer = (state = {}, action) => {
 			}
 		};
 	case actions.FETCH_CRUD_MODELS + START:
-	case actions.FETCH_CRUD_CHILDREN + START:
 		return {
 			...state,
 			[payload.params.modelName]: {
 				...state[payload.params.modelName],
 				loading: true
-			}
-		};
-	case actions.FETCH_CRUD_CHILDREN + SUCCESS:
-		return {
-			...state,
-			[payload.params.modelName]: {
-				...state[payload.params.modelName],
-				loading: false,
-				data: {
-					...state[payload.params.modelName].data,
-					items: state[payload.params.modelName].data.items.map(e => ({
-						...e,
-						children: response.data.items.map(elem => ({
-							...elem,
-							key: elem.id,
-							children: elem.has_child ? elem.children || [] : null
-						}))
-					}))
-				}
 			}
 		};
 	default:
@@ -125,15 +105,16 @@ export const crudParamsReducer = (state = {}, action) => {
 };
 
 export const crudCreateModalLoadingReducer = (state = false, action) => {
+
 	switch (action.type) {
 	case actions.CREATE_MODEL + START:
 	case actions.CHANGE_MODEL + START:
 		return true;
 	case actions.CREATE_MODEL + SUCCESS:
 	case actions.CHANGE_MODEL + SUCCESS:
-	case actions.CREATE_MODEL + SUCCESS:
+	case actions.CREATE_MODEL + ERROR:
 	case actions.CHANGE_MODEL + ERROR:
-		return false
+		return false;
 	default:
 		return state;
 	}

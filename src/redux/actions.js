@@ -35,6 +35,7 @@ const actions = {
 			form, url, modelName
 		}
 	}),
+
 	changeModel: (form, action, modelName) => ({
 		type: actions.CHANGE_MODEL,
 		payload: {

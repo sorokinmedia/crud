@@ -5,10 +5,10 @@ import requestMiddleware, { request } from 'sm-redux-saga-request'
 import { stopSubmit } from 'redux-form';
 import notification from '../notification';
 import actions from './actions';
-import moment from 'moment';
+import moment from 'moment'
 import regeneratorRuntime from 'regenerator-runtime'
 
-export const selecrCrudParams = state => state.crudParams;
+export const selectCrudParams = state => state.crudParams;
 
 function getFiltersValues(filters, columns) {
 
@@ -28,12 +28,13 @@ function isDateColumn(columns, key) {
 }
 
 export const selectColumns = modelName => state => state.crudModels[modelName];
+
 export function* fetchCrudModelsSaga(action) {
 	const { payload } = action;
 	const {
 		order, order_by, page, modelName, url: passedUrl
 	} = payload.params || {};
-	const crudParams = yield select(selecrCrudParams);
+	const crudParams = yield select(selectCrudParams);
 
 	const url = passedUrl || crudParams[modelName].crudRead;
 
@@ -101,7 +102,7 @@ export function* fetchCrudFilterValuesSaga(action) {
 
 
 export function* createModelSaga(action) {
-	const params = yield select(selecrCrudParams);
+	const params = yield select(selectCrudParams);
 	const { modelName } = action.payload;
 	const form = params[modelName].submitShape(action.payload.form);
 
@@ -116,7 +117,8 @@ export function* createModelSaga(action) {
 }
 
 export function* updateModelsSaga(action) {
-	const params = yield select(selecrCrudParams);
+	const params = yield select(selectCrudParams);
+	console.log(action)
 	const { modelName, crudRead } = params[action.modelName || action.payload.modelName];
 
 	yield put(actions.fetchCrudModels({ modelName, url: crudRead }));
@@ -144,7 +146,7 @@ export function* restoreModelSaga(action) {
 
 export function* changeModelSaga(action) {
 	const { name, description, id } = action.payload.form;
-	const params = yield select(selecrCrudParams);
+	const params = yield select(selectCrudParams);
 
 	yield put(request({
 		...action,
@@ -162,26 +164,17 @@ export function* closeModalSaga() {
 }
 
 export function* submitModelsModalFormFailSaga(action) {
-	const errors = { [action.error.targetField || 'name']: action.error.message };
+	const errors = yield { [action.error.targetField || 'name']: action.error.message };
 	yield put(stopSubmit('createModel', errors));
-	yield notification('error', action.error.message)
+	yield notification('error', action.error.message);
 }
 
 export function* notifySaga(action) {
-	if (action.error) yield notification('error', action.error.message);
+	if (action.error) yield notification('error', action.error.message)
 	if (action.response.status === SUCCESS_REQ) yield notification('success', action.response.message)
 }
 
-export function* fetchCrudChildrenSaga(action) {
-	yield put(request({
-		...action,
-		method: 'GET',
-		auth: true,
-		url: action.payload.url,
-	}))
-}
-
-export default function* rootSaga(action) {
+export default function* rootSaga() {
 	yield all([
 		takeEvery(actions.FETCH_CRUD_MODELS, fetchCrudModelsSaga),
 		takeEvery(actions.FETCH_CRUD_MODELS + SUCCESS, fetchCrudModelsSuccessSaga),
@@ -208,8 +201,6 @@ export default function* rootSaga(action) {
 		takeEvery(actions.CHANGE_MODEL + SUCCESS, updateModelsSaga),
 		takeEvery(actions.CHANGE_MODEL + SUCCESS, notifySaga),
 		takeEvery(actions.CHANGE_MODEL + ERROR, submitModelsModalFormFailSaga),
-
-		takeEvery(actions.FETCH_CRUD_CHILDREN, fetchCrudChildrenSaga),
 
 		fork(requestMiddleware)
 
