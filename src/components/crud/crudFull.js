@@ -86,15 +86,17 @@ class CrudFull extends Component {
 
 		const { title, titleEdit, fields } = createFormOptions || {};
 		const Btn = ButtonComponent || Button;
-
+		{console.log(isModalOpen && !createDisabled)}
 		return (<div>
 			{ !createDisabled ? <Btn
 				type="primary"
+				name={'createButton'}
 				onClick={this.toggleModal}
 				style={{ ...btnStyle, marginBottom: '20px' }}
 			>
 				{createButtonTitle}
 			</Btn> : null }
+
 			<CrudView
 				modelName={modelName}
 				url={crudRead}

@@ -3,7 +3,7 @@ import { takeEvery, all, put, call } from 'redux-saga/effects'
 import { START, ERROR, SUCCESS } from './constants';
 import regeneratorRuntime from 'regenerator-runtime'
 
-const API = 'http://api.rofl.kosmoz.online'
+const API = 'http://api.rentrika.kosmoz.online'
 
 export function* requestSaga(action) {
 	const {

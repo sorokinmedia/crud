@@ -1,9 +1,9 @@
 import React, {Component} from 'react'
 import PropTypes from 'prop-types'
-import {connect} from 'react-redux'
-import {Modal} from 'antd';
-import {reduxForm, Field} from 'redux-form'
-import {renderField} from "../../helpers/renderField"
+import { connect } from 'react-redux'
+import { Modal } from 'antd';
+import { reduxForm, Field } from 'redux-form'
+import { renderField } from '../../helpers/renderField'
 
 class CreateModalForm extends Component {
 
@@ -35,9 +35,9 @@ class CreateModalForm extends Component {
 	};
 
 	render() {
-		const {modalType, title, titleEdit, fields, crudCreateModalLoading} = this.props;
+		const { modalType, title, titleEdit, fields, crudCreateModalLoading } = this.props;
 
-		return <div>
+		return <div className={'create-model-modal'}>
 			<Modal
 				title={modalType === 'edit' ? titleEdit : title}
 				visible={true}
@@ -79,7 +79,7 @@ CreateModalForm = reduxForm({
 
 CreateModalForm =  connect((state, props) => {
 	const options = props.fields.reduce((acc, field) => {
-		if(state[field.optionsKey]) {
+		if (state[field.optionsKey]) {
 			acc[field.optionsKey] = state[field.optionsKey].data
 		}
 
