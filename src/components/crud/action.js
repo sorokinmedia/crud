@@ -81,4 +81,8 @@ Action.propTypes = {
 
 Action.defaultProps = { iconTheme: 'outlined' }
 
-export default connect((state, props) => ({ actionsFunc: state.crudActionsFunc[props.modelName] }), { push })(Action)
+export default connect((state, props) => ({
+	actionsFunc: state.crudActionsFunc[props.modelName]
+}), {
+	push
+})(Action)

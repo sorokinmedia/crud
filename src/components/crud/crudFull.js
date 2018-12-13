@@ -18,7 +18,7 @@ const {
 	setCrudParams
 } = actions;
 
-class CrudFull extends Component {
+export class CrudFull extends Component {
 
 	componentDidMount() {
 		this.props.setCrudActionsFunc(this.actionsFunc, this.props.modelName);
@@ -62,7 +62,7 @@ class CrudFull extends Component {
 		this.props.setModelModalForm(null, null);
 	};
 
-	render() {
+	render () {
 		const {
 			objectModal,
 			isModalOpen,
@@ -86,7 +86,7 @@ class CrudFull extends Component {
 
 		const { title, titleEdit, fields } = createFormOptions || {};
 		const Btn = ButtonComponent || Button;
-		{console.log(isModalOpen && !createDisabled)}
+
 		return (<div>
 			{ !createDisabled ? <Btn
 				type="primary"

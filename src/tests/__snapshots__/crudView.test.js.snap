@@ -1,0 +1,256 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`it should render CrudFull it should render SignUp connected container 1`] = `null`;
+
+exports[`it should render CrudView it should render SignUp connected container 1`] = `
+<CrudView
+  fetchCrudChildren={[Function]}
+  fetchCrudModels={[Function]}
+  fixActionColumn={true}
+  handleSubmit={[Function]}
+  items={
+    Object {
+      "data": Object {
+        "columns": Array [
+          Object {
+            "filter": Object {
+              "can": true,
+              "defaultValue": "",
+              "query": "",
+              "type": "input_number",
+            },
+            "id": "id",
+            "order": Object {
+              "can": true,
+              "orders": Array [
+                "SORT_ASC",
+                "SORT_DESC",
+              ],
+            },
+            "title": "ID",
+            "type": "integer",
+          },
+          Object {
+            "filter": Object {
+              "can": true,
+              "defaultValue": "",
+              "query": "",
+              "type": "input_text",
+            },
+            "id": "name",
+            "order": Object {
+              "can": true,
+              "orders": Array [
+                "SORT_ASC",
+                "SORT_DESC",
+              ],
+            },
+            "title": "Название",
+            "type": "string",
+          },
+          Object {
+            "filter": Object {
+              "can": true,
+              "defaultValue": "",
+              "query": "",
+              "type": "boolean",
+            },
+            "id": "is_deleted",
+            "order": Object {
+              "can": true,
+              "orders": Array [
+                "SORT_ASC",
+                "SORT_DESC",
+              ],
+            },
+            "title": "Удален",
+            "type": "boolean",
+          },
+          Object {
+            "filter": Object {
+              "can": false,
+              "defaultValue": "",
+              "query": "",
+              "type": "",
+            },
+            "id": "actions",
+            "order": Object {
+              "can": false,
+              "orders": Array [],
+            },
+            "title": "Действия",
+            "type": "actions",
+          },
+        ],
+        "count": 5,
+        "filter": Object {
+          "id": null,
+          "is_deleted": null,
+          "limit": 100,
+          "name": null,
+          "offset": 0,
+          "order": "SORT_DESC",
+          "order_by": "id",
+        },
+        "items": Array [
+          Object {
+            "actions": Array [
+              Object {
+                "icon": "fa fa-pencil-square-o",
+                "id": "update",
+                "method": "POST",
+                "name": "Изменить",
+                "type": "query",
+                "url": "/v1/admin/object/property/type/5/update",
+              },
+              Object {
+                "icon": "fa fa-trash",
+                "id": "delete",
+                "method": "POST",
+                "name": "Удалить",
+                "type": "query",
+                "url": "/v1/admin/object/property/type/5/delete",
+              },
+            ],
+            "id": 5,
+            "is_deleted": "Нет",
+            "name": "Иное",
+          },
+          Object {
+            "actions": Array [
+              Object {
+                "icon": "fa fa-pencil-square-o",
+                "id": "update",
+                "method": "POST",
+                "name": "Изменить",
+                "type": "query",
+                "url": "/v1/admin/object/property/type/4/update",
+              },
+              Object {
+                "icon": "fa fa-trash",
+                "id": "delete",
+                "method": "POST",
+                "name": "Удалить",
+                "type": "query",
+                "url": "/v1/admin/object/property/type/4/delete",
+              },
+            ],
+            "id": 4,
+            "is_deleted": "Нет",
+            "name": "Сантехника",
+          },
+          Object {
+            "actions": Array [
+              Object {
+                "icon": "fa fa-pencil-square-o",
+                "id": "update",
+                "method": "POST",
+                "name": "Изменить",
+                "type": "query",
+                "url": "/v1/admin/object/property/type/3/update",
+              },
+              Object {
+                "icon": "fa fa-trash",
+                "id": "delete",
+                "method": "POST",
+                "name": "Удалить",
+                "type": "query",
+                "url": "/v1/admin/object/property/type/3/delete",
+              },
+            ],
+            "id": 3,
+            "is_deleted": "Нет",
+            "name": "Ремонт",
+          },
+          Object {
+            "actions": Array [
+              Object {
+                "icon": "fa fa-pencil-square-o",
+                "id": "update",
+                "method": "POST",
+                "name": "Изменить",
+                "type": "query",
+                "url": "/v1/admin/object/property/type/2/update",
+              },
+              Object {
+                "icon": "fa fa-trash",
+                "id": "delete",
+                "method": "POST",
+                "name": "Удалить",
+                "type": "query",
+                "url": "/v1/admin/object/property/type/2/delete",
+              },
+            ],
+            "id": 2,
+            "is_deleted": "Нет",
+            "name": "Мебель",
+          },
+          Object {
+            "actions": Array [
+              Object {
+                "icon": "fa fa-pencil-square-o",
+                "id": "update",
+                "method": "POST",
+                "name": "Изменить",
+                "type": "query",
+                "url": "/v1/admin/object/property/type/1/update",
+              },
+              Object {
+                "icon": "fa fa-trash",
+                "id": "delete",
+                "method": "POST",
+                "name": "Удалить",
+                "type": "query",
+                "url": "/v1/admin/object/property/type/1/delete",
+              },
+            ],
+            "id": 1,
+            "is_deleted": "Нет",
+            "name": "Техника",
+          },
+        ],
+      },
+      "messages": Array [
+        Object {
+          "message": "Данные получены",
+          "targetField": null,
+          "type": 3,
+        },
+      ],
+      "status": 0,
+    }
+  }
+  modelName="model"
+  store={
+    Object {
+      "clearActions": [Function],
+      "dispatch": [Function],
+      "getActions": [Function],
+      "getState": [Function],
+      "replaceReducer": [Function],
+      "subscribe": [Function],
+    }
+  }
+  storeSubscription={
+    Subscription {
+      "listeners": Object {
+        "clear": [Function],
+        "get": [Function],
+        "notify": [Function],
+        "subscribe": [Function],
+      },
+      "onStateChange": [Function],
+      "parentSub": undefined,
+      "store": Object {
+        "clearActions": [Function],
+        "dispatch": [Function],
+        "getActions": [Function],
+        "getState": [Function],
+        "replaceReducer": [Function],
+        "subscribe": [Function],
+      },
+      "unsubscribe": [Function],
+    }
+  }
+/>
+`;

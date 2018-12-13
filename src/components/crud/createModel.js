@@ -37,21 +37,19 @@ class CreateModalForm extends Component {
 	render() {
 		const { modalType, title, titleEdit, fields, crudCreateModalLoading } = this.props;
 
-		return <div className={'create-model-modal'}>
-			<Modal
-				title={modalType === 'edit' ? titleEdit : title}
-				visible={true}
-				onCancel={this.handleCancel}
-				cancelText="Отмена"
-				confirmLoading={crudCreateModalLoading}
-				onOk={this.props.handleSubmit(this.handleSubmit)}
-				okText={modalType === 'edit' ? 'Сохранить' : 'Создать'}
-			>
-				<form onSubmit={this.props.handleSubmit(this.handleSubmit)}>
-					{this.mapFields(fields)}
-				</form>
-			</Modal>
-		</div>
+		return <Modal
+			title={modalType === 'edit' ? titleEdit : title}
+			visible={true}
+			onCancel={this.handleCancel}
+			cancelText="Отмена"
+			confirmLoading={crudCreateModalLoading}
+			onOk={this.props.handleSubmit(this.handleSubmit)}
+			okText={modalType === 'edit' ? 'Сохранить' : 'Создать'}
+		>
+			<form onSubmit={this.props.handleSubmit(this.handleSubmit)}>
+				{this.mapFields(fields)}
+			</form>
+		</Modal>
 	}
 }
 
