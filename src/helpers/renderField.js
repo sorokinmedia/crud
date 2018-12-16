@@ -25,7 +25,8 @@ export const renderField = ({
 	onPressEnter,
 	defaultValue,
 	addonAfter,
-	enterButton
+	enterButton,
+	dropdownRender
 }) => (<Form.Item
 	hasFeedback
 	{...layout}
@@ -45,11 +46,12 @@ export const renderField = ({
 				mode={mode}
 				style={{ width: '100%' }}
 				placeholder={placeholder}
+				dropdownRender={dropdownRender}
 			>
 				{options.map(elem => (<SelectOption value={elem.id} key={elem.id}>
 					{elem.name}
-                </SelectOption>))}
-           </Select>);
+				</SelectOption>))}
+			</Select>);
 		case 'textarea':
 			return (<Input.TextArea
 				{...input}

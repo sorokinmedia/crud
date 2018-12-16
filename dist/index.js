@@ -1338,6 +1338,7 @@ var actions = {
 			}
 		};
 	},
+
 	changeModel: function changeModel(form, action, modelName) {
 		return {
 			type: actions.CHANGE_MODEL,
@@ -4448,8 +4449,12 @@ Action.propTypes = {
 Action.defaultProps = { iconTheme: 'outlined' };
 
 var Action$1 = connect(function (state, props) {
-	return { actionsFunc: state.crudActionsFunc[props.modelName] };
-}, { push: lib_7 })(Action);
+	return {
+		actionsFunc: state.crudActionsFunc[props.modelName]
+	};
+}, {
+	push: lib_7
+})(Action);
 
 var hookCallback;
 
@@ -25415,7 +25420,8 @@ var renderField = function renderField(_ref) {
 	    onPressEnter = _ref.onPressEnter,
 	    defaultValue = _ref.defaultValue,
 	    addonAfter = _ref.addonAfter,
-	    enterButton = _ref.enterButton;
+	    enterButton = _ref.enterButton,
+	    dropdownRender = _ref.dropdownRender;
 	return React__default.createElement(
 		antd.Form.Item,
 		_extends$5({
@@ -25434,7 +25440,8 @@ var renderField = function renderField(_ref) {
 							value: input.value || [],
 							mode: mode,
 							style: { width: '100%' },
-							placeholder: placeholder
+							placeholder: placeholder,
+							dropdownRender: dropdownRender
 						}),
 						options.map(function (elem) {
 							return React__default.createElement(
@@ -25544,24 +25551,20 @@ var CreateModalForm = function (_Component) {
 
 
 			return React__default.createElement(
-				'div',
-				null,
+				antd.Modal,
+				{
+					title: modalType === 'edit' ? titleEdit : title,
+					visible: true,
+					onCancel: this.handleCancel,
+					cancelText: '\u041E\u0442\u043C\u0435\u043D\u0430',
+					confirmLoading: crudCreateModalLoading,
+					onOk: this.props.handleSubmit(this.handleSubmit),
+					okText: modalType === 'edit' ? 'Сохранить' : 'Создать'
+				},
 				React__default.createElement(
-					antd.Modal,
-					{
-						title: modalType === 'edit' ? titleEdit : title,
-						visible: true,
-						onCancel: this.handleCancel,
-						cancelText: '\u041E\u0442\u043C\u0435\u043D\u0430',
-						confirmLoading: crudCreateModalLoading,
-						onOk: this.props.handleSubmit(this.handleSubmit),
-						okText: modalType === 'edit' ? 'Сохранить' : 'Создать'
-					},
-					React__default.createElement(
-						'form',
-						{ onSubmit: this.props.handleSubmit(this.handleSubmit) },
-						this.mapFields(fields)
-					)
+					'form',
+					{ onSubmit: this.props.handleSubmit(this.handleSubmit) },
+					this.mapFields(fields)
 				)
 			);
 		}
@@ -25646,6 +25649,7 @@ var toggleCreateModelModal = actions.toggleCreateModelModal,
     setModelModalForm = actions.setModelModalForm,
     setCrudActionsFunc = actions.setCrudActionsFunc,
     setCrudParams = actions.setCrudParams;
+
 
 var CrudFull = function (_Component) {
 	inherits$1(CrudFull, _Component);
@@ -25748,6 +25752,7 @@ var CrudFull = function (_Component) {
 					Btn,
 					{
 						type: 'primary',
+						name: 'createButton',
 						onClick: this.toggleModal,
 						style: _extends$5({}, btnStyle, { marginBottom: '20px' })
 					},
@@ -25858,25 +25863,8 @@ var crudModelsReducer = function crudModelsReducer() {
 				error: error
 			})));
 		case actions.FETCH_CRUD_MODELS + START:
-		case actions.FETCH_CRUD_CHILDREN + START:
 			return _extends$5({}, state, defineProperty$2({}, payload.params.modelName, _extends$5({}, state[payload.params.modelName], {
 				loading: true
-			})));
-		case actions.FETCH_CRUD_CHILDREN + SUCCESS$1:
-			return _extends$5({}, state, defineProperty$2({}, payload.params.modelName, _extends$5({}, state[payload.params.modelName], {
-				loading: false,
-				data: _extends$5({}, state[payload.params.modelName].data, {
-					items: state[payload.params.modelName].data.items.map(function (e) {
-						return _extends$5({}, e, {
-							children: response.data.items.map(function (elem) {
-								return _extends$5({}, elem, {
-									key: elem.id,
-									children: elem.has_child ? elem.children || [] : null
-								});
-							})
-						});
-					})
-				})
 			})));
 		default:
 			return state;
@@ -25979,13 +25967,14 @@ var crudCreateModalLoadingReducer = function crudCreateModalLoadingReducer() {
 	var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
 	var action = arguments[1];
 
+
 	switch (action.type) {
 		case actions.CREATE_MODEL + START:
 		case actions.CHANGE_MODEL + START:
 			return true;
 		case actions.CREATE_MODEL + SUCCESS$1:
 		case actions.CHANGE_MODEL + SUCCESS$1:
-		case actions.CREATE_MODEL + SUCCESS$1:
+		case actions.CREATE_MODEL + ERROR:
 		case actions.CHANGE_MODEL + ERROR:
 			return false;
 		default:
@@ -27232,10 +27221,9 @@ var _marked = /*#__PURE__*/runtimeModule.mark(fetchCrudModelsSaga),
     _marked9 = /*#__PURE__*/runtimeModule.mark(closeModalSaga),
     _marked10 = /*#__PURE__*/runtimeModule.mark(submitModelsModalFormFailSaga),
     _marked11 = /*#__PURE__*/runtimeModule.mark(notifySaga),
-    _marked12 = /*#__PURE__*/runtimeModule.mark(fetchCrudChildrenSaga),
-    _marked13 = /*#__PURE__*/runtimeModule.mark(rootSaga);
+    _marked12 = /*#__PURE__*/runtimeModule.mark(rootSaga);
 
-var selecrCrudParams = function selecrCrudParams(state) {
+var selectCrudParams = function selectCrudParams(state) {
 	return state.crudParams;
 };
 
@@ -27260,6 +27248,7 @@ var selectColumns = function selectColumns(modelName) {
 		return state.crudModels[modelName];
 	};
 };
+
 function fetchCrudModelsSaga(action) {
 	var payload, _ref, order, order_by, page, modelName, passedUrl, crudParams, url, model, columns, filters, params, paramsArr, paramsStr;
 
@@ -27270,7 +27259,7 @@ function fetchCrudModelsSaga(action) {
 					payload = action.payload;
 					_ref = payload.params || {}, order = _ref.order, order_by = _ref.order_by, page = _ref.page, modelName = _ref.modelName, passedUrl = _ref.url;
 					_context.next = 4;
-					return select(selecrCrudParams);
+					return select(selectCrudParams);
 
 				case 4:
 					crudParams = _context.sent;
@@ -27401,7 +27390,7 @@ function createModelSaga(action) {
 			switch (_context4.prev = _context4.next) {
 				case 0:
 					_context4.next = 2;
-					return select(selecrCrudParams);
+					return select(selectCrudParams);
 
 				case 2:
 					params = _context4.sent;
@@ -27432,15 +27421,17 @@ function updateModelsSaga(action) {
 			switch (_context5.prev = _context5.next) {
 				case 0:
 					_context5.next = 2;
-					return select(selecrCrudParams);
+					return select(selectCrudParams);
 
 				case 2:
 					params = _context5.sent;
+
+					console.log(action);
 					_params = params[action.modelName || action.payload.modelName], modelName = _params.modelName, crudRead = _params.crudRead;
-					_context5.next = 6;
+					_context5.next = 7;
 					return put(actions.fetchCrudModels({ modelName: modelName, url: crudRead }));
 
-				case 6:
+				case 7:
 				case 'end':
 					return _context5.stop();
 			}
@@ -27499,7 +27490,7 @@ function changeModelSaga(action) {
 				case 0:
 					_action$payload$form = action.payload.form, name = _action$payload$form.name, description = _action$payload$form.description, id = _action$payload$form.id;
 					_context8.next = 3;
-					return select(selecrCrudParams);
+					return select(selectCrudParams);
 
 				case 3:
 					params = _context8.sent;
@@ -27546,15 +27537,19 @@ function submitModelsModalFormFailSaga(action) {
 		while (1) {
 			switch (_context10.prev = _context10.next) {
 				case 0:
-					errors = defineProperty$2({}, action.error.targetField || 'name', action.error.message);
-					_context10.next = 3;
+					_context10.next = 2;
+					return defineProperty$2({}, action.error.targetField || 'name', action.error.message);
+
+				case 2:
+					errors = _context10.sent;
+					_context10.next = 5;
 					return put(stopSubmit$1('createModel', errors));
 
-				case 3:
-					_context10.next = 5;
+				case 5:
+					_context10.next = 7;
 					return createNotification('error', action.error.message);
 
-				case 5:
+				case 7:
 				case 'end':
 					return _context10.stop();
 			}
@@ -27592,17 +27587,13 @@ function notifySaga(action) {
 	}, _marked11, this);
 }
 
-function fetchCrudChildrenSaga(action) {
-	return runtimeModule.wrap(function fetchCrudChildrenSaga$(_context12) {
+function rootSaga() {
+	return runtimeModule.wrap(function rootSaga$(_context12) {
 		while (1) {
 			switch (_context12.prev = _context12.next) {
 				case 0:
 					_context12.next = 2;
-					return put(dist_1$1(_extends$5({}, action, {
-						method: 'GET',
-						auth: true,
-						url: action.payload.url
-					})));
+					return all([takeEvery$2(actions.FETCH_CRUD_MODELS, fetchCrudModelsSaga), takeEvery$2(actions.FETCH_CRUD_MODELS + SUCCESS$1, fetchCrudModelsSuccessSaga), takeEvery$2(actions.FETCH_CRUD_FILTER_VALUES, fetchCrudFilterValuesSaga), takeEvery$2(actions.CREATE_MODEL, createModelSaga), takeEvery$2(actions.CREATE_MODEL + SUCCESS$1, closeModalSaga), takeEvery$2(actions.CREATE_MODEL + SUCCESS$1, updateModelsSaga), takeEvery$2(actions.CREATE_MODEL + SUCCESS$1, notifySaga), takeEvery$2(actions.CREATE_MODEL + ERROR, submitModelsModalFormFailSaga), takeEvery$2(actions.DELETE_MODEL, deleteModelSaga), takeEvery$2(actions.DELETE_MODEL + SUCCESS$1, updateModelsSaga), takeEvery$2(actions.DELETE_MODEL + SUCCESS$1, notifySaga), takeEvery$2(actions.DELETE_MODEL + ERROR, notifySaga), takeEvery$2(actions.RESTORE_MODEL, restoreModelSaga), takeEvery$2(actions.RESTORE_MODEL + SUCCESS$1, updateModelsSaga), takeEvery$2(actions.RESTORE_MODEL + SUCCESS$1, notifySaga), takeEvery$2(actions.RESTORE_MODEL + ERROR, notifySaga), takeEvery$2(actions.CHANGE_MODEL, changeModelSaga), takeEvery$2(actions.CHANGE_MODEL + SUCCESS$1, closeModalSaga), takeEvery$2(actions.CHANGE_MODEL + SUCCESS$1, updateModelsSaga), takeEvery$2(actions.CHANGE_MODEL + SUCCESS$1, notifySaga), takeEvery$2(actions.CHANGE_MODEL + ERROR, submitModelsModalFormFailSaga), fork(requestMiddleware)]);
 
 				case 2:
 				case 'end':
@@ -27610,22 +27601,6 @@ function fetchCrudChildrenSaga(action) {
 			}
 		}
 	}, _marked12, this);
-}
-
-function rootSaga(action) {
-	return runtimeModule.wrap(function rootSaga$(_context13) {
-		while (1) {
-			switch (_context13.prev = _context13.next) {
-				case 0:
-					_context13.next = 2;
-					return all([takeEvery$2(actions.FETCH_CRUD_MODELS, fetchCrudModelsSaga), takeEvery$2(actions.FETCH_CRUD_MODELS + SUCCESS$1, fetchCrudModelsSuccessSaga), takeEvery$2(actions.FETCH_CRUD_FILTER_VALUES, fetchCrudFilterValuesSaga), takeEvery$2(actions.CREATE_MODEL, createModelSaga), takeEvery$2(actions.CREATE_MODEL + SUCCESS$1, closeModalSaga), takeEvery$2(actions.CREATE_MODEL + SUCCESS$1, updateModelsSaga), takeEvery$2(actions.CREATE_MODEL + SUCCESS$1, notifySaga), takeEvery$2(actions.CREATE_MODEL + ERROR, submitModelsModalFormFailSaga), takeEvery$2(actions.DELETE_MODEL, deleteModelSaga), takeEvery$2(actions.DELETE_MODEL + SUCCESS$1, updateModelsSaga), takeEvery$2(actions.DELETE_MODEL + SUCCESS$1, notifySaga), takeEvery$2(actions.DELETE_MODEL + ERROR, notifySaga), takeEvery$2(actions.RESTORE_MODEL, restoreModelSaga), takeEvery$2(actions.RESTORE_MODEL + SUCCESS$1, updateModelsSaga), takeEvery$2(actions.RESTORE_MODEL + SUCCESS$1, notifySaga), takeEvery$2(actions.RESTORE_MODEL + ERROR, notifySaga), takeEvery$2(actions.CHANGE_MODEL, changeModelSaga), takeEvery$2(actions.CHANGE_MODEL + SUCCESS$1, closeModalSaga), takeEvery$2(actions.CHANGE_MODEL + SUCCESS$1, updateModelsSaga), takeEvery$2(actions.CHANGE_MODEL + SUCCESS$1, notifySaga), takeEvery$2(actions.CHANGE_MODEL + ERROR, submitModelsModalFormFailSaga), takeEvery$2(actions.FETCH_CRUD_CHILDREN, fetchCrudChildrenSaga), fork(requestMiddleware)]);
-
-				case 2:
-				case 'end':
-					return _context13.stop();
-			}
-		}
-	}, _marked13, this);
 }
 
 var reducer$3 = crudReducers;
