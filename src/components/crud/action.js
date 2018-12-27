@@ -38,6 +38,8 @@ class Action extends Component {
     		return 'check-circle';
     	case 'logs':
     		return 'form';
+	    case 'transfer':
+		    return 'switcher';
     	default:
     		return ''
     	}
