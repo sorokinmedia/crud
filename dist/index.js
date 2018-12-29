@@ -4433,7 +4433,7 @@ var Action = function (_Component) {
 				React__default.createElement(
 					'a',
 					{ title: data.name, href: data.url, target: '_blank', className: 'crud-action' },
-					React__default.createElement(antd.Icon, { type: this.getIcon(data.id), onClick: this.handleClick })
+					React__default.createElement(antd.Icon, { type: this.getIcon(data.id) || data.icon, onClick: this.handleClick })
 				)
 			);
 		}
