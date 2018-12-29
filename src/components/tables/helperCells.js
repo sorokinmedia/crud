@@ -10,6 +10,7 @@ const BooleanCell = value => <span>{value ?
 	: <Icon type={'close'} style={{color: 'red'}} />
 }</span>;
 const ArrTextCell = arr => arr.map(elem => <p>{elem}</p>);
+const HtmlCell = html => <span dangerouslySetInnerHTML={{__html: html}}></span>;
 const ActionsCell = (row, modelName, iconTheme) => row.actions.map(action =>
 	<Action data={action} row={row} key={action.id} modelName={modelName} iconTheme={iconTheme} />
 );
@@ -19,5 +20,6 @@ export {
 	TextCell,
 	ArrTextCell,
 	ActionsCell,
-	BooleanCell
+	BooleanCell,
+	HtmlCell
 };

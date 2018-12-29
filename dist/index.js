@@ -8984,6 +8984,9 @@ var ArrTextCell = function ArrTextCell(arr) {
 		);
 	});
 };
+var HtmlCell = function HtmlCell(html) {
+	return React__default.createElement('span', { dangerouslySetInnerHTML: { __html: html } });
+};
 var ActionsCell = function ActionsCell(row, modelName, iconTheme) {
 	return row.actions.map(function (action) {
 		return React__default.createElement(Action$1, { data: action, row: row, key: action.id, modelName: modelName, iconTheme: iconTheme });
@@ -11689,6 +11692,8 @@ var dataRenderer = (function (row, column, modelName, iconTheme) {
 			) : TextCell(row[column.id]);
 		case 'boolean':
 			return BooleanCell(row[column.id]);
+		case 'html':
+			return HtmlCell(row[column.id]);
 		default:
 			return TextCell(row[column.id]);
 	}

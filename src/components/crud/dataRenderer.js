@@ -4,7 +4,8 @@ import {
 	TextCell,
 	ArrTextCell,
 	ActionsCell,
-	BooleanCell
+	BooleanCell,
+	HtmlCell
 } from '../tables/helperCells';
 import { Link } from 'react-router-dom'
 
@@ -29,6 +30,8 @@ export default (row, column, modelName, iconTheme) => {
 		</Link> : TextCell(row[column.id]);
 	case 'boolean':
 		return BooleanCell(row[column.id]);
+	case 'html':
+		return HtmlCell(row[column.id]);
 	default:
 		return TextCell(row[column.id]);
 	}
