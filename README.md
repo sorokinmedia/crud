@@ -64,6 +64,17 @@ provides a function to set a shape of update payload
 ##### createDisabled
 disables create mode
 
+##### iconsProvider
+provides a function to choose an icon by id
+
+```
+(id) => {
+    switch (id) {
+        case 'update':
+            return 'edit';
+...
+```
+
 #### Example
 ./createFormFields
 

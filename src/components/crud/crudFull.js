@@ -27,6 +27,7 @@ export class CrudFull extends Component {
 			modelName: this.props.modelName,
 			submitShape: this.props.submitShape,
 			initialValues: this.props.initialValues,
+			iconsProvider: this.props.actionIcons
 		})
 	}
 
@@ -160,7 +161,8 @@ CrudFull.propTypes = {
 	iconTheme: PropTypes.string,
 	size: PropTypes.string,
 	tdClass: PropTypes.string,
-	initialModal: PropTypes.object
+	initialModal: PropTypes.object,
+	iconsProvider: PropTypes.func
 };
 
 CrudFull.defaultProps = {
@@ -172,7 +174,8 @@ CrudFull.defaultProps = {
 	tableStyle: {},
 	tableWrapper: null,
 	iconTheme: 'outline',
-	size: 'default'
+	size: 'default',
+	iconsProvider: () => '',
 };
 
 export default connect(state => ({
