@@ -27,7 +27,7 @@ export class CrudFull extends Component {
 			modelName: this.props.modelName,
 			submitShape: this.props.submitShape,
 			initialValues: this.props.initialValues,
-			iconsProvider: this.props.actionIcons
+			iconsProvider: this.props.iconsProvider
 		})
 	}
 
