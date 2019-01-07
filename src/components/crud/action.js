@@ -67,8 +67,8 @@ class Action extends Component {
 		const { data, row } = this.props;
 
 		return (<ActionStyled>
-			<a title={data.name} href={data.url} target="_blank" className="crud-action">
-				<Icon type={this.getIcon(data.id) || data.icon} onClick={this.handleClick} />
+			<a title={data.name} href={data.url} target="_blank" className="crud-action" onClick={this.handleClick}>
+				<Icon type={this.getIcon(data.id) || data.icon} />
 			</a>
 		</ActionStyled>)
 	}
