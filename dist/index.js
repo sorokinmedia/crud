@@ -4395,7 +4395,7 @@ var Action = function (_Component) {
 				case 'transfer':
 					return 'switcher';
 				default:
-					return '';
+					return _this.props.iconsProvider(id);
 			}
 		}, _this.handleClick = function (ev) {
 			var _this$props = _this.props,
@@ -4445,14 +4445,16 @@ Action.propTypes = {
 	data: propTypes.object.isRequired,
 	row: propTypes.object.isRequired,
 	modelName: propTypes.string,
-	iconTheme: propTypes.string
+	iconTheme: propTypes.string,
+	iconsProvider: propTypes.func
 };
 
 Action.defaultProps = { iconTheme: 'outlined' };
 
 var Action$1 = connect(function (state, props) {
 	return {
-		actionsFunc: state.crudActionsFunc[props.modelName]
+		actionsFunc: state.crudActionsFunc[props.modelName],
+		params: state.crudParams[props.modelName]
 	};
 }, {
 	push: lib_7
@@ -25719,7 +25721,8 @@ var CrudFull = function (_Component) {
 				crudRead: this.props.crudRead,
 				modelName: this.props.modelName,
 				submitShape: this.props.submitShape,
-				initialValues: this.props.initialValues
+				initialValues: this.props.initialValues,
+				iconsProvider: this.props.actionIcons
 			});
 		}
 	}, {
@@ -25810,7 +25813,8 @@ CrudFull.propTypes = {
 	iconTheme: propTypes.string,
 	size: propTypes.string,
 	tdClass: propTypes.string,
-	initialModal: propTypes.object
+	initialModal: propTypes.object,
+	iconsProvider: propTypes.func
 };
 
 CrudFull.defaultProps = {
@@ -25826,7 +25830,10 @@ CrudFull.defaultProps = {
 	tableStyle: {},
 	tableWrapper: null,
 	iconTheme: 'outline',
-	size: 'default'
+	size: 'default',
+	iconsProvider: function iconsProvider() {
+		return '';
+	}
 };
 
 var crudFull = connect(function (state) {
