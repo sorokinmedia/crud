@@ -58,6 +58,7 @@ class Action extends Component {
 			ev.preventDefault();
 			this.props.push(data.url);
 			break;
+		case 'out-link':
 		default:
 			return null;
 		}
