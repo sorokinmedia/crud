@@ -4395,7 +4395,7 @@ var Action = function (_Component) {
 				case 'transfer':
 					return 'switcher';
 				default:
-					return _this.props.iconsProvider(id);
+					return _this.props.params.iconsProvider(id);
 			}
 		}, _this.handleClick = function (ev) {
 			var _this$props = _this.props,
