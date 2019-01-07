@@ -25722,7 +25722,7 @@ var CrudFull = function (_Component) {
 				modelName: this.props.modelName,
 				submitShape: this.props.submitShape,
 				initialValues: this.props.initialValues,
-				iconsProvider: this.props.actionIcons
+				iconsProvider: this.props.iconsProvider
 			});
 		}
 	}, {
