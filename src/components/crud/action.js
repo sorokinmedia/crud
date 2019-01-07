@@ -41,7 +41,7 @@ class Action extends Component {
 		    case 'transfer':
 			    return 'switcher';
 	        default:
-	            return this.props.iconsProvider(id)
+	            return this.props.params.iconsProvider(id)
     	}
     };
 
