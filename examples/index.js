@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Provider } from 'react-redux'
 import { store } from './redux/store';
 import { render } from 'react-dom';
-import { CrudFull } from '../lib/index';
+import { CrudFull } from '../src/index';
 import createFormFileds from './createObjectTypeFields'
 import { BrowserRouter as Router } from 'react-router-dom'
 import 'antd/dist/antd.css';
@@ -11,7 +11,7 @@ class App extends Component {
 
 	render() {
     	return (<div style={{width: '80%'}}>
-		    <CrudFull
+		    {/*<CrudFull
 				crudRead="/v1/admin/object/type/list"
 				crudCreate="/v1/admin/object/type/create"
 				modelName="objectTypes"
@@ -27,7 +27,15 @@ class App extends Component {
 				}}
 				submitShape={form => ({ Type: { name: form.name, description: form.description } })}
 				getChildrenUrl={id => `/v1/owner/object/${id}/child`}
-	        />
+	        />*/}
+		    <CrudFull
+			    crudRead={`/v1/owner/object/list`}
+			    modelName={'object'}
+			    customActionsFunc={this.actionsFunc}
+			    getChildrenUrl={id => `/v1/owner/object/${id}/child`}
+			    //tableWrapper={TableWrapper}
+			    //size={'small'}
+		    />
 	    </div>)
 	}
 }

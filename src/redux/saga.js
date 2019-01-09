@@ -158,6 +158,16 @@ export function* changeModelSaga(action) {
 	}));
 }
 
+export function* fetchCrudChildrenSaga(action) {
+	yield put(request({
+		...action,
+		method: 'GET',
+		auth: true,
+		url: `${action.payload.url}`,
+		payload: action.payload
+	}))
+}
+
 export function* closeModalSaga() {
 	yield put(actions.toggleCreateModelModal());
 	yield put(actions.setModelModalForm(null, null));
@@ -179,6 +189,8 @@ export default function* rootSaga() {
 		takeEvery(actions.FETCH_CRUD_MODELS, fetchCrudModelsSaga),
 		takeEvery(actions.FETCH_CRUD_MODELS + SUCCESS, fetchCrudModelsSuccessSaga),
 		takeEvery(actions.FETCH_CRUD_FILTER_VALUES, fetchCrudFilterValuesSaga),
+
+		takeEvery(actions.FETCH_CRUD_CHILDREN, fetchCrudChildrenSaga),
 
 		takeEvery(actions.CREATE_MODEL, createModelSaga),
 		takeEvery(actions.CREATE_MODEL + SUCCESS, closeModalSaga),

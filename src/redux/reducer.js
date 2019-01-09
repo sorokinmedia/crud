@@ -24,6 +24,21 @@ export const crudModelsReducer = (state = {}, action) => {
 				loading: true
 			}
 		};
+	case actions.FETCH_CRUD_CHILDREN + SUCCESS:
+		const model = state[payload.params.modelName];
+		return {
+			...state,
+			[payload.params.modelName]: {
+				...model,
+				data: {
+					...model.data,
+					items: model.data.items.map(elem => elem.id === payload.id ? {
+						...elem,
+						children: response.data.items
+					} : elem)
+				}
+			}
+		};
 	default:
 		return state;
 	}

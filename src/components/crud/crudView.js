@@ -29,7 +29,10 @@ class CrudView extends Component {
 	};
 
 	handleExpand = (isExpanded, row) => {
-		if (isExpanded) this.props.fetchCrudChildren(row.id, this.props.modelName, this.props.getChildrenUrl(row.id))
+
+		if (isExpanded) {
+			this.props.fetchCrudChildren(row.id, this.props.modelName, this.props.getChildrenUrl(row.id))
+		}
 	};
 
 	getFiterValues = (col) => {

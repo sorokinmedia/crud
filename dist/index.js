@@ -11738,7 +11738,10 @@ var CrudView = function (_Component) {
 				order: sorter.order
 			}, filters);
 		}, _this.handleExpand = function (isExpanded, row) {
-			if (isExpanded) _this.props.fetchCrudChildren(row.id, _this.props.modelName, _this.props.getChildrenUrl(row.id));
+
+			if (isExpanded) {
+				_this.props.fetchCrudChildren(row.id, _this.props.modelName, _this.props.getChildrenUrl(row.id));
+			}
 		}, _this.getFiterValues = function (col) {
 			var filterValues = _this.props.filterValues;
 
@@ -25881,6 +25884,17 @@ var crudModelsReducer = function crudModelsReducer() {
 			return _extends$5({}, state, defineProperty$2({}, payload.params.modelName, _extends$5({}, state[payload.params.modelName], {
 				loading: true
 			})));
+		case actions.FETCH_CRUD_CHILDREN + SUCCESS$1:
+			var model = state[payload.params.modelName];
+			return _extends$5({}, state, defineProperty$2({}, payload.params.modelName, _extends$5({}, model, {
+				data: _extends$5({}, model.data, {
+					items: model.data.items.map(function (elem) {
+						return elem.id === payload.id ? _extends$5({}, elem, {
+							children: response.data.items
+						}) : elem;
+					})
+				})
+			})));
 		default:
 			return state;
 	}
@@ -27233,10 +27247,11 @@ var _marked = /*#__PURE__*/runtimeModule.mark(fetchCrudModelsSaga),
     _marked6 = /*#__PURE__*/runtimeModule.mark(deleteModelSaga),
     _marked7 = /*#__PURE__*/runtimeModule.mark(restoreModelSaga),
     _marked8 = /*#__PURE__*/runtimeModule.mark(changeModelSaga),
-    _marked9 = /*#__PURE__*/runtimeModule.mark(closeModalSaga),
-    _marked10 = /*#__PURE__*/runtimeModule.mark(submitModelsModalFormFailSaga),
-    _marked11 = /*#__PURE__*/runtimeModule.mark(notifySaga),
-    _marked12 = /*#__PURE__*/runtimeModule.mark(rootSaga);
+    _marked9 = /*#__PURE__*/runtimeModule.mark(fetchCrudChildrenSaga),
+    _marked10 = /*#__PURE__*/runtimeModule.mark(closeModalSaga),
+    _marked11 = /*#__PURE__*/runtimeModule.mark(submitModelsModalFormFailSaga),
+    _marked12 = /*#__PURE__*/runtimeModule.mark(notifySaga),
+    _marked13 = /*#__PURE__*/runtimeModule.mark(rootSaga);
 
 var selectCrudParams = function selectCrudParams(state) {
 	return state.crudParams;
@@ -27526,19 +27541,20 @@ function changeModelSaga(action) {
 	}, _marked8, this);
 }
 
-function closeModalSaga() {
-	return runtimeModule.wrap(function closeModalSaga$(_context9) {
+function fetchCrudChildrenSaga(action) {
+	return runtimeModule.wrap(function fetchCrudChildrenSaga$(_context9) {
 		while (1) {
 			switch (_context9.prev = _context9.next) {
 				case 0:
 					_context9.next = 2;
-					return put(actions.toggleCreateModelModal());
+					return put(dist_1$1(_extends$5({}, action, {
+						method: 'GET',
+						auth: true,
+						url: '' + action.payload.url,
+						payload: action.payload
+					})));
 
 				case 2:
-					_context9.next = 4;
-					return put(actions.setModelModalForm(null, null));
-
-				case 4:
 				case 'end':
 					return _context9.stop();
 			}
@@ -27546,25 +27562,19 @@ function closeModalSaga() {
 	}, _marked9, this);
 }
 
-function submitModelsModalFormFailSaga(action) {
-	var errors;
-	return runtimeModule.wrap(function submitModelsModalFormFailSaga$(_context10) {
+function closeModalSaga() {
+	return runtimeModule.wrap(function closeModalSaga$(_context10) {
 		while (1) {
 			switch (_context10.prev = _context10.next) {
 				case 0:
 					_context10.next = 2;
-					return defineProperty$2({}, action.error.targetField || 'name', action.error.message);
+					return put(actions.toggleCreateModelModal());
 
 				case 2:
-					errors = _context10.sent;
-					_context10.next = 5;
-					return put(stopSubmit$1('createModel', errors));
+					_context10.next = 4;
+					return put(actions.setModelModalForm(null, null));
 
-				case 5:
-					_context10.next = 7;
-					return createNotification('error', action.error.message);
-
-				case 7:
+				case 4:
 				case 'end':
 					return _context10.stop();
 			}
@@ -27572,29 +27582,25 @@ function submitModelsModalFormFailSaga(action) {
 	}, _marked10, this);
 }
 
-function notifySaga(action) {
-	return runtimeModule.wrap(function notifySaga$(_context11) {
+function submitModelsModalFormFailSaga(action) {
+	var errors;
+	return runtimeModule.wrap(function submitModelsModalFormFailSaga$(_context11) {
 		while (1) {
 			switch (_context11.prev = _context11.next) {
 				case 0:
-					if (!action.error) {
-						_context11.next = 3;
-						break;
-					}
+					_context11.next = 2;
+					return defineProperty$2({}, action.error.targetField || 'name', action.error.message);
 
-					_context11.next = 3;
+				case 2:
+					errors = _context11.sent;
+					_context11.next = 5;
+					return put(stopSubmit$1('createModel', errors));
+
+				case 5:
+					_context11.next = 7;
 					return createNotification('error', action.error.message);
 
-				case 3:
-					if (!(action.response.status === SUCCESS_REQ)) {
-						_context11.next = 6;
-						break;
-					}
-
-					_context11.next = 6;
-					return createNotification('success', action.response.message);
-
-				case 6:
+				case 7:
 				case 'end':
 					return _context11.stop();
 			}
@@ -27602,20 +27608,50 @@ function notifySaga(action) {
 	}, _marked11, this);
 }
 
-function rootSaga() {
-	return runtimeModule.wrap(function rootSaga$(_context12) {
+function notifySaga(action) {
+	return runtimeModule.wrap(function notifySaga$(_context12) {
 		while (1) {
 			switch (_context12.prev = _context12.next) {
 				case 0:
-					_context12.next = 2;
-					return all([takeEvery$2(actions.FETCH_CRUD_MODELS, fetchCrudModelsSaga), takeEvery$2(actions.FETCH_CRUD_MODELS + SUCCESS$1, fetchCrudModelsSuccessSaga), takeEvery$2(actions.FETCH_CRUD_FILTER_VALUES, fetchCrudFilterValuesSaga), takeEvery$2(actions.CREATE_MODEL, createModelSaga), takeEvery$2(actions.CREATE_MODEL + SUCCESS$1, closeModalSaga), takeEvery$2(actions.CREATE_MODEL + SUCCESS$1, updateModelsSaga), takeEvery$2(actions.CREATE_MODEL + SUCCESS$1, notifySaga), takeEvery$2(actions.CREATE_MODEL + ERROR, submitModelsModalFormFailSaga), takeEvery$2(actions.DELETE_MODEL, deleteModelSaga), takeEvery$2(actions.DELETE_MODEL + SUCCESS$1, updateModelsSaga), takeEvery$2(actions.DELETE_MODEL + SUCCESS$1, notifySaga), takeEvery$2(actions.DELETE_MODEL + ERROR, notifySaga), takeEvery$2(actions.RESTORE_MODEL, restoreModelSaga), takeEvery$2(actions.RESTORE_MODEL + SUCCESS$1, updateModelsSaga), takeEvery$2(actions.RESTORE_MODEL + SUCCESS$1, notifySaga), takeEvery$2(actions.RESTORE_MODEL + ERROR, notifySaga), takeEvery$2(actions.CHANGE_MODEL, changeModelSaga), takeEvery$2(actions.CHANGE_MODEL + SUCCESS$1, closeModalSaga), takeEvery$2(actions.CHANGE_MODEL + SUCCESS$1, updateModelsSaga), takeEvery$2(actions.CHANGE_MODEL + SUCCESS$1, notifySaga), takeEvery$2(actions.CHANGE_MODEL + ERROR, submitModelsModalFormFailSaga), fork(requestMiddleware)]);
+					if (!action.error) {
+						_context12.next = 3;
+						break;
+					}
 
-				case 2:
+					_context12.next = 3;
+					return createNotification('error', action.error.message);
+
+				case 3:
+					if (!(action.response.status === SUCCESS_REQ)) {
+						_context12.next = 6;
+						break;
+					}
+
+					_context12.next = 6;
+					return createNotification('success', action.response.message);
+
+				case 6:
 				case 'end':
 					return _context12.stop();
 			}
 		}
 	}, _marked12, this);
+}
+
+function rootSaga() {
+	return runtimeModule.wrap(function rootSaga$(_context13) {
+		while (1) {
+			switch (_context13.prev = _context13.next) {
+				case 0:
+					_context13.next = 2;
+					return all([takeEvery$2(actions.FETCH_CRUD_MODELS, fetchCrudModelsSaga), takeEvery$2(actions.FETCH_CRUD_MODELS + SUCCESS$1, fetchCrudModelsSuccessSaga), takeEvery$2(actions.FETCH_CRUD_FILTER_VALUES, fetchCrudFilterValuesSaga), takeEvery$2(actions.FETCH_CRUD_CHILDREN, fetchCrudChildrenSaga), takeEvery$2(actions.CREATE_MODEL, createModelSaga), takeEvery$2(actions.CREATE_MODEL + SUCCESS$1, closeModalSaga), takeEvery$2(actions.CREATE_MODEL + SUCCESS$1, updateModelsSaga), takeEvery$2(actions.CREATE_MODEL + SUCCESS$1, notifySaga), takeEvery$2(actions.CREATE_MODEL + ERROR, submitModelsModalFormFailSaga), takeEvery$2(actions.DELETE_MODEL, deleteModelSaga), takeEvery$2(actions.DELETE_MODEL + SUCCESS$1, updateModelsSaga), takeEvery$2(actions.DELETE_MODEL + SUCCESS$1, notifySaga), takeEvery$2(actions.DELETE_MODEL + ERROR, notifySaga), takeEvery$2(actions.RESTORE_MODEL, restoreModelSaga), takeEvery$2(actions.RESTORE_MODEL + SUCCESS$1, updateModelsSaga), takeEvery$2(actions.RESTORE_MODEL + SUCCESS$1, notifySaga), takeEvery$2(actions.RESTORE_MODEL + ERROR, notifySaga), takeEvery$2(actions.CHANGE_MODEL, changeModelSaga), takeEvery$2(actions.CHANGE_MODEL + SUCCESS$1, closeModalSaga), takeEvery$2(actions.CHANGE_MODEL + SUCCESS$1, updateModelsSaga), takeEvery$2(actions.CHANGE_MODEL + SUCCESS$1, notifySaga), takeEvery$2(actions.CHANGE_MODEL + ERROR, submitModelsModalFormFailSaga), fork(requestMiddleware)]);
+
+				case 2:
+				case 'end':
+					return _context13.stop();
+			}
+		}
+	}, _marked13, this);
 }
 
 var reducer$3 = crudReducers;
