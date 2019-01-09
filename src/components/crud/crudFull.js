@@ -82,7 +82,8 @@ export class CrudFull extends Component {
 			ButtonComponent,
 			size,
 			tdClass,
-			initialModal
+			initialModal,
+			scrollX
 		} = this.props;
 
 		const { title, titleEdit, fields } = createFormOptions || {};
@@ -108,6 +109,7 @@ export class CrudFull extends Component {
 				getChildrenUrl={getChildrenUrl}
 				size={size}
 				tdClass={tdClass}
+				scrollX={scrollX}
 			/>
 			{isModalOpen && !createDisabled ? <CreateModelView
 				title={title || 'Создать'}
@@ -162,7 +164,8 @@ CrudFull.propTypes = {
 	size: PropTypes.string,
 	tdClass: PropTypes.string,
 	initialModal: PropTypes.object,
-	iconsProvider: PropTypes.func
+	iconsProvider: PropTypes.func,
+	scrollX: PropTypes.number
 };
 
 CrudFull.defaultProps = {

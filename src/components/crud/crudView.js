@@ -48,7 +48,15 @@ class CrudView extends Component {
 
 	render() {
 		const {
-			items, modelName, tableStyle, TableWrapper, fixActionColumn, iconTheme, size, tdClass
+			items,
+			modelName,
+			tableStyle,
+			TableWrapper,
+			fixActionColumn,
+			iconTheme,
+			size,
+			tdClass,
+			scrollX
 		} = this.props;
 
 		if (items && !items.data && items.loading) return <Loader />;
@@ -90,7 +98,7 @@ class CrudView extends Component {
 				hideOnSinglePage: true
 			}}
 			loading={items.loading}
-			scroll={!isBigDesctop && fixActionColumn ? { x: 1300 } : {}}
+			scroll={!isBigDesctop && fixActionColumn ? { x: scrollX } : {}}
 			onExpand={this.handleExpand}
 			size={size}
 			tableStyle={tableStyle}
@@ -105,10 +113,14 @@ CrudView.propTypes = {
 	iconTheme: PropTypes.string,
 	getChildrenUrl: PropTypes.func,
 	size: PropTypes.string,
-	tdClass: PropTypes.string
+	tdClass: PropTypes.string,
+	scrollX: PropTypes.number,
 };
 
-CrudView.defaultProps = { fixActionColumn: true };
+CrudView.defaultProps = {
+	fixActionColumn: true,
+	scrollX: 1300
+};
 
 export default connect((state, props) => ({
 	items: state.crudModels[props.modelName],
