@@ -11777,7 +11777,8 @@ var CrudView = function (_Component) {
 			    fixActionColumn = _props2.fixActionColumn,
 			    iconTheme = _props2.iconTheme,
 			    size = _props2.size,
-			    tdClass = _props2.tdClass;
+			    tdClass = _props2.tdClass,
+			    scrollX = _props2.scrollX;
 
 
 			if (items && !items.data && items.loading) return React__default.createElement(Loader, null);
@@ -11824,7 +11825,7 @@ var CrudView = function (_Component) {
 					hideOnSinglePage: true
 				},
 				loading: items.loading,
-				scroll: !isBigDesctop && fixActionColumn ? { x: 1300 } : {},
+				scroll: !isBigDesctop && fixActionColumn ? { x: scrollX } : {},
 				onExpand: this.handleExpand,
 				size: size,
 				tableStyle: tableStyle
@@ -11841,10 +11842,14 @@ CrudView.propTypes = {
 	iconTheme: propTypes.string,
 	getChildrenUrl: propTypes.func,
 	size: propTypes.string,
-	tdClass: propTypes.string
+	tdClass: propTypes.string,
+	scrollX: propTypes.number
 };
 
-CrudView.defaultProps = { fixActionColumn: true };
+CrudView.defaultProps = {
+	fixActionColumn: true,
+	scrollX: 1300
+};
 
 var CrudView$1 = connect(function (state, props) {
 	return {
@@ -25750,7 +25755,8 @@ var CrudFull = function (_Component) {
 			    ButtonComponent = _props.ButtonComponent,
 			    size = _props.size,
 			    tdClass = _props.tdClass,
-			    initialModal = _props.initialModal;
+			    initialModal = _props.initialModal,
+			    scrollX = _props.scrollX;
 
 			var _ref2 = createFormOptions || {},
 			    title = _ref2.title,
@@ -25781,7 +25787,8 @@ var CrudFull = function (_Component) {
 					iconTheme: iconTheme,
 					getChildrenUrl: getChildrenUrl,
 					size: size,
-					tdClass: tdClass
+					tdClass: tdClass,
+					scrollX: scrollX
 				}),
 				isModalOpen && !createDisabled ? React__default.createElement(CreateModelView, {
 					title: title || 'Создать',
@@ -25818,7 +25825,8 @@ CrudFull.propTypes = {
 	size: propTypes.string,
 	tdClass: propTypes.string,
 	initialModal: propTypes.object,
-	iconsProvider: propTypes.func
+	iconsProvider: propTypes.func,
+	scrollX: propTypes.number
 };
 
 CrudFull.defaultProps = {
