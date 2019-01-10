@@ -1,24 +1,42 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import Action from '../crud/action'
 import moment from 'moment'
 import { Icon } from 'antd'
 
-const DateCell = data => <p>{moment(data).format('DD.MM.YYYY')}</p>;
+const DateCell = data => <p>{moment(data)
+	.format('DD.MM.YYYY')}</p>;
 const TextCell = text => <span>{text}</span>;
-const BooleanCell = value => <span>{value ?
-	<Icon type={'check'} style={{color: 'green'}} />
-	: <Icon type={'close'} style={{color: 'red'}} />
-}</span>;
+const BooleanCell = value => (
+	<span>
+		{value
+			? <Icon type="check" style={{ color: 'green' }} />
+			: <Icon type="close" style={{ color: 'red' }} />
+		}
+	</span>);
 const ArrTextCell = arr => arr.map(elem => <p>{elem}</p>);
-const HtmlCell = html => <span dangerouslySetInnerHTML={{__html: html}}></span>;
-const ActionsCell = (row, modelName, iconTheme) => row.actions.map(action =>
-	<Action data={action} row={row} key={action.id} modelName={modelName} iconTheme={iconTheme} />
-);
+const HtmlCell = html => <span dangerouslySetInnerHTML={{ __html: html }} />;
+const ActionsCell = (row, modelName, iconTheme) => row.actions.map(action => (
+	<Action data={action} row={row} key={action.id} modelName={modelName} iconTheme={iconTheme} />))
+const ArrObjectCell = (obj) => {
+	if (obj.length) {
+		obj.map(arr => arr.map(({ created_at = false, updated_at = false, ...rest }) => {
+			const restAttributes = rest ? rest.map(el => <span>{el}</span>) : ''
+			return (
+				<Fragment>
+					<p>{created_at ? moment(created_at)
+						.format('DD.MM.YYYY') : ''} {updated_at ? moment(updated_at)
+						.format('DD.MM.YYYY') : ''} {restAttributes}</p>
+				</Fragment>)
+		}))
+	}
+	return null
+}
 
 export {
 	DateCell,
 	TextCell,
 	ArrTextCell,
+	ArrObjectCell,
 	ActionsCell,
 	BooleanCell,
 	HtmlCell

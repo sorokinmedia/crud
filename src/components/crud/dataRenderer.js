@@ -1,3 +1,4 @@
+/* eslint-disable no-case-declarations */
 import React from 'react'
 import {
 	DateCell,
@@ -5,6 +6,7 @@ import {
 	ArrTextCell,
 	ActionsCell,
 	BooleanCell,
+	ArrObjectCell,
 	HtmlCell
 } from '../tables/helperCells';
 import { Link } from 'react-router-dom'
@@ -12,8 +14,6 @@ import { Link } from 'react-router-dom'
 
 export default (row, column, modelName, iconTheme) => {
 	if (!row[column.id] && row[column.id] !== false) return null;
-
-
 	switch (column.type) {
 	case 'object':
 		return TextCell(row[column.id].alias || row[column.id].name);
@@ -21,13 +21,18 @@ export default (row, column, modelName, iconTheme) => {
 		return ActionsCell(row, modelName, iconTheme);
 	case 'array':
 		return ArrTextCell(row[column.id]);
+	case 'array_objects':
+	    return ArrObjectCell(row[column.id]);
 	case 'date':
 		return DateCell(Number(row[column.id]) * 1000);
 	case 'link':
 		const actionView = row.actions.find(e => e.id === 'view');
-		return actionView && actionView.url ? <Link to={actionView.url}>
-			{row[column.id]}
-		</Link> : TextCell(row[column.id]);
+		return actionView && actionView.url
+			? (
+				<Link to={actionView.url}>
+					{row[column.id]}
+				</Link>)
+			: TextCell(row[column.id]);
 	case 'boolean':
 		return BooleanCell(row[column.id]);
 	case 'html':

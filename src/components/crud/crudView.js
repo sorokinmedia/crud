@@ -14,7 +14,10 @@ class CrudView extends Component {
 
 	componentDidMount() {
 		const { modelName, url } = this.props;
-		this.props.fetchCrudModels({ modelName, url });
+		this.props.fetchCrudModels({
+			modelName,
+			url
+		});
 	}
 
 	handleTableChange = (pagination, filters, sorter) => {
@@ -77,12 +80,18 @@ class CrudView extends Component {
 			width: col.id === 'actions' && !isBigDesctop && fixActionColumn ? 150 : 'auto',
 			render: object => dataRenderer(object, col, modelName, iconTheme),
 			filters: this.getFiterValues(col),
-			filterIcon: col.filter.can ?
-				filtered => <Icon type="filter" style={{ color: filtered ? '#108ee9' : '#aaa' }} theme="outlined" />
+			filterIcon: col.filter.can
+				? filtered => (
+					<Icon
+						type="filter"
+						style={{ color: filtered ? '#108ee9' : '#aaa' }}
+						theme="outlined"
+					/>)
 				: null,
 			filterDropdown: col.filter.can ? filterRenderer(col.filter.type, col.id, this.getFiterValues(col)) : null,
-			sorter: col.order.can ? () => {} : null// (a, b) => Number(a.id) - Number(b.id),
-		}));
+			sorter: col.order.can ? () => {
+			} : null// (a, b) => Number(a.id) - Number(b.id),
+		}))
 
 		const TableComponent = TableWrapper || Table;
 
@@ -125,4 +134,7 @@ CrudView.defaultProps = {
 export default connect((state, props) => ({
 	items: state.crudModels[props.modelName],
 	filterValues: state.crudFilterValues[props.modelName]
-}), { fetchCrudModels, fetchCrudChildren })(CrudView);
+}), {
+	fetchCrudModels,
+	fetchCrudChildren
+})(CrudView);
