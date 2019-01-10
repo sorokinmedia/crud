@@ -18,8 +18,11 @@ const HtmlCell = html => <span dangerouslySetInnerHTML={{ __html: html }} />;
 const ActionsCell = (row, modelName, iconTheme) => row.actions.map(action => (
 	<Action data={action} row={row} key={action.id} modelName={modelName} iconTheme={iconTheme} />))
 const ArrObjectCell = (obj) => {
+	console.log('obj', obj)
 	if (obj.length) {
+		console.log('obj.lenght', obj.length)
 		return obj.map(({ created_at = false, updated_at = false, ...rest }) => {
+			console.log('rest', rest)
 			const restAttributes = rest ? <span>{Object.values(rest)}</span> : ''
 			return (
 				<Fragment>
