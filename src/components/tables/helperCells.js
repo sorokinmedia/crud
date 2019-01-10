@@ -19,15 +19,18 @@ const ActionsCell = (row, modelName, iconTheme) => row.actions.map(action => (
 	<Action data={action} row={row} key={action.id} modelName={modelName} iconTheme={iconTheme} />))
 const ArrObjectCell = (obj) => {
 	if (obj.length) {
-		obj.map(arr => arr.map(({ created_at = false, updated_at = false, ...rest }) => {
-			const restAttributes = rest ? rest.map(el => <span>{el}</span>) : ''
+		return obj.map(({ created_at = false, updated_at = false, ...rest }) => {
+			const restAttributes = rest ? <span>{Object.values(rest)}</span> : ''
 			return (
 				<Fragment>
-					<p>{created_at ? moment(created_at)
-						.format('DD.MM.YYYY') : ''} {updated_at ? moment(updated_at)
-						.format('DD.MM.YYYY') : ''} {restAttributes}</p>
+					<p>
+						{created_at ? moment.unix(created_at)
+							.format('DD.MM.YYYY') : ''} {updated_at ? moment.unix(updated_at)
+						.format('DD.MM.YYYY') : ''} {restAttributes}
+					</p>
 				</Fragment>)
-		}))
+		})
+
 	}
 	return null
 }
