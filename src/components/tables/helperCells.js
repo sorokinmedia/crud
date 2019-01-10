@@ -1,3 +1,4 @@
+/* eslint-disable react/no-array-index-key */
 import React, { Fragment } from 'react';
 import Action from '../crud/action'
 import moment from 'moment'
@@ -23,7 +24,11 @@ const ArrObjectCell = (obj) => {
 		console.log('obj.lenght', obj.length)
 		return obj.map(({ created_at = false, updated_at = false, ...rest }) => {
 			console.log('rest', rest)
-			const restAttributes = rest ? <span>{Object.values(rest)}</span> : ''
+			const restValues = rest ? Object.values(rest) : false
+			const restAttributes = restValues
+				? restValues.map((el, i) => <span key={i}>{el}</span>) : ''
+			console.log(restValues)
+			console.log(restAttributes)
 			return (
 				<Fragment>
 					<p>
