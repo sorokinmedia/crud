@@ -20,27 +20,25 @@ const ActionsCell = (row, modelName, iconTheme) => row.actions.map(action => (
 	<Action data={action} row={row} key={action.id} modelName={modelName} iconTheme={iconTheme} />))
 const ArrObjectCell = (obj) => {
 	console.log('obj', obj)
-	if (obj.length) {
-		console.log('obj.lenght', obj.length)
-		return obj.map(({ created_at = false, updated_at = false, ...rest }) => {
-			console.log('rest', rest)
-			const restValues = rest ? Object.values(rest) : false
-			const restAttributes = restValues
-				? restValues.map((el, i) => <span key={i}>{el}</span>) : ''
-			console.log(restValues)
-			console.log(restAttributes)
-			return (
-				<Fragment>
-					<p>
-						{created_at ? moment.unix(created_at)
-							.format('DD.MM.YYYY') : ''} {updated_at ? moment.unix(updated_at)
-						.format('DD.MM.YYYY') : ''} {restAttributes}
-					</p>
-				</Fragment>)
-		})
+	if (!Array.isArray(obj) || !obj.length) return null
 
-	}
-	return null
+	console.log('obj.lenght', obj.length)
+	return obj.map(({ created_at = false, updated_at = false, ...rest }) => {
+		console.log('rest', rest)
+		const restValues = rest ? Object.values(rest) : false
+		const restAttributes = restValues
+			? restValues.map((el, i) => <span key={i}>{el}</span>) : ''
+		console.log('restValues', restValues)
+		console.log('restAttributes', restAttributes)
+		return (
+			<Fragment>
+				<p>
+					{created_at ? moment.unix(created_at)
+						.format('DD.MM.YYYY') : ''} {updated_at ? moment.unix(updated_at)
+					.format('DD.MM.YYYY') : ''} {restAttributes}
+				</p>
+			</Fragment>)
+	})
 }
 
 export {
