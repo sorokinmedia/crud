@@ -93,7 +93,7 @@ export class CrudFull extends Component {
 			{ !createDisabled ? <Btn
 				type="primary"
 				name={'createButton'}
-				onClick={this.toggleModal}
+				onClick={() => this.toggleModal(modelName)}
 				style={{ ...btnStyle, marginBottom: '20px' }}
 			>
 				{createButtonTitle}
