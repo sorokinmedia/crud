@@ -51,14 +51,14 @@ export class CrudFull extends Component {
 
 	openUpdateFrom = (action, elem) => {
 		this.props.setModelModalForm('edit', elem, action);
-		this.toggleModal();
+		this.toggleModal(this.props.modelName);
 	};
 
-	toggleModal = () => {
-		this.props.toggleCreateModelModal();
+	toggleModal = (modelName) => {
+		this.props.toggleCreateModelModal(modelName);
 	};
 
-	handleClose = () => {
+	handleClose = (modelName) => {
 		this.toggleModal();
 		this.props.setModelModalForm(null, null);
 	};
@@ -111,7 +111,7 @@ export class CrudFull extends Component {
 				tdClass={tdClass}
 				scrollX={scrollX}
 			/>
-			{isModalOpen && !createDisabled ? <CreateModelView
+			{isModalOpen === modelName && !createDisabled ? <CreateModelView
 				title={title || 'Создать'}
 				titleEdit={titleEdit || 'Редактировать'}
 				modalType={objectModal.modalType}

@@ -15,7 +15,7 @@ const actions = {
 		type: actions.FETCH_CRUD_CHILDREN,
 		payload: { id, params: { modelName }, url }
 	}),
-	toggleCreateModelModal: () => ({ type: actions.TOGGLE_CREATE_MODEL_MODAL }),
+	toggleCreateModelModal: modelName => ({ type: actions.TOGGLE_CREATE_MODEL_MODAL, payload: { modelName } }),
 
 	deleteModel: (id, url, modelName) => ({
 		type: actions.DELETE_MODEL,

@@ -1310,8 +1310,8 @@ var actions = {
 			payload: { id: id, params: { modelName: modelName }, url: url }
 		};
 	},
-	toggleCreateModelModal: function toggleCreateModelModal() {
-		return { type: actions.TOGGLE_CREATE_MODEL_MODAL };
+	toggleCreateModelModal: function toggleCreateModelModal(modelName) {
+		return { type: actions.TOGGLE_CREATE_MODEL_MODAL, payload: { modelName: modelName } };
 	},
 
 	deleteModel: function deleteModel(id, url, modelName) {
@@ -25761,10 +25761,10 @@ var CrudFull = function (_Component) {
 			}
 		}, _this.openUpdateFrom = function (action, elem) {
 			_this.props.setModelModalForm('edit', elem, action);
-			_this.toggleModal();
-		}, _this.toggleModal = function () {
-			_this.props.toggleCreateModelModal();
-		}, _this.handleClose = function () {
+			_this.toggleModal(_this.props.modelName);
+		}, _this.toggleModal = function (modelName) {
+			_this.props.toggleCreateModelModal(modelName);
+		}, _this.handleClose = function (modelName) {
 			_this.toggleModal();
 			_this.props.setModelModalForm(null, null);
 		}, _this.handleUpdate = function (form) {
@@ -25850,7 +25850,7 @@ var CrudFull = function (_Component) {
 					tdClass: tdClass,
 					scrollX: scrollX
 				}),
-				isModalOpen && !createDisabled ? React__default.createElement(CreateModelView, {
+				isModalOpen === modelName && !createDisabled ? React__default.createElement(CreateModelView, {
 					title: title || 'Создать',
 					titleEdit: titleEdit || 'Редактировать',
 					modalType: objectModal.modalType,
@@ -26020,7 +26020,7 @@ var isOpenModelModalReducer = function isOpenModelModalReducer() {
 
 	switch (type) {
 		case actions.TOGGLE_CREATE_MODEL_MODAL:
-			return !state;
+			return state ? null : payload.modelName;
 		default:
 			return state;
 	}
