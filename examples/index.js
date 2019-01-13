@@ -10,8 +10,8 @@ import 'antd/dist/antd.css';
 class App extends Component {
 
 	render() {
-    	return (<div style={{width: '80%'}}>
-		    {/*<CrudFull
+		return (<div style={{ width: '80%' }}>
+			{/*<CrudFull
 				crudRead="/v1/admin/object/type/list"
 				crudCreate="/v1/admin/object/type/create"
 				modelName="objectTypes"
@@ -28,15 +28,27 @@ class App extends Component {
 				submitShape={form => ({ Type: { name: form.name, description: form.description } })}
 				getChildrenUrl={id => `/v1/owner/object/${id}/child`}
 	        />*/}
-		    <CrudFull
-			    crudRead={`/v1/owner/object/list`}
-			    modelName={'object'}
-			    customActionsFunc={this.actionsFunc}
-			    getChildrenUrl={id => `/v1/owner/object/${id}/child`}
-			    //tableWrapper={TableWrapper}
-			    //size={'small'}
-		    />
-	    </div>)
+			{/*<CrudFull*/}
+			{/*crudRead={`/v1/owner/object/list`}*/}
+			{/*modelName={'object'}*/}
+			{/*customActionsFunc={this.actionsFunc}*/}
+			{/*getChildrenUrl={id => `/v1/owner/object/${id}/child`}*/}
+			{/*//tableWrapper={TableWrapper}*/}
+			{/*//size={'small'}*/}
+			{/*/>*/}
+
+
+			<CrudFull
+				crudRead="/v2/admin/user/backend-list"
+				modelName="objectsName"
+				fixActionColumn
+				scrollX={1400}
+				customActionsFunc={(action, object) => {
+					console.log(object, action)
+				}}
+			/>
+
+		</div>)
 	}
 }
 
