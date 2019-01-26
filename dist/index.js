@@ -25937,7 +25937,8 @@ var SUCCESS_REQ = 0,
     SORT_ASC = 'SORT_ASC',
     START = '_START',
     SUCCESS$1 = '_SUCCESS',
-    ERROR = '_ERROR';
+    ERROR = '_ERROR',
+    FAIL = 'FAIL';
 
 var crudModelsReducer = function crudModelsReducer() {
 	var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
@@ -26303,6 +26304,7 @@ var IO = /*#__PURE__*/sym('IO');
 var TAKE = 'TAKE';
 var PUT = 'PUT';
 var ALL = 'ALL';
+var CALL = 'CALL';
 var FORK = 'FORK';
 var SELECT = 'SELECT';
 
@@ -26377,6 +26379,14 @@ function getFnCallDesc(meth, fn, args) {
   check(fn, is$2.func, meth + ': argument ' + fn + ' is not a function');
 
   return { context: context, fn: fn, args: args };
+}
+
+function call(fn) {
+  for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+    args[_key - 1] = arguments[_key];
+  }
+
+  return effect(CALL, getFnCallDesc('call', fn, args));
 }
 
 function fork(fn) {
@@ -27730,14 +27740,144 @@ function rootSaga() {
 	}, _marked13, this);
 }
 
+var _marked$1 = /*#__PURE__*/regeneratorRuntime.mark(requestSaga),
+    _marked2$1 = /*#__PURE__*/regeneratorRuntime.mark(requests);
+
+function getCookie(name) {
+	var matches = document.cookie.match(new RegExp('(?:^|; )' + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + '=([^;]*)'));
+
+	return matches ? decodeURIComponent(matches[1]) : undefined;
+}
+
+var getError$1 = function getError(data, response) {
+	if (data.status === 0) return {
+		message: 'Unknow error: check your authorization. ' + 'No \'Access-Control-Allow-Origin\' header is present on the requested resource.'
+	};
+	if (data.status === 500) return response;
+	if (response.messages) return response.messages[0];
+
+	return '';
+};
+
+function requestSaga(action) {
+	var payload, method, url, auth, type, token_is_active, SITE, token, body, headers, params, data, response, error;
+	return regeneratorRuntime.wrap(function requestSaga$(_context) {
+		while (1) {
+			switch (_context.prev = _context.next) {
+				case 0:
+					payload = action.payload, method = action.method, url = action.url, auth = action.auth, type = action.oldType, token_is_active = action.token_is_active;
+					_context.next = 3;
+					return select(function (state) {
+						return state.apiAdress;
+					});
+
+				case 3:
+					SITE = _context.sent;
+					token = getCookie('auth_token');
+					_context.prev = 5;
+					_context.next = 8;
+					return put(_extends$5({}, action, {
+						type: type + START
+					}));
+
+				case 8:
+					body = payload ? JSON.stringify(payload) : '';
+					headers = new Headers({ 'Content-Type': 'application/json' });
+
+					if (auth) headers.set('Authorization', 'Bearer ' + token);
+
+					params = {
+						method: method,
+						headers: headers,
+						mode: 'cors'
+					};
+
+
+					if (body && method !== 'GET') params.body = body;
+
+					_context.next = 15;
+					return call(fetch, SITE + url, params);
+
+				case 15:
+					data = _context.sent;
+					_context.next = 18;
+					return data.json();
+
+				case 18:
+					response = _context.sent;
+
+					if (!(data.status !== 200)) {
+						_context.next = 25;
+						break;
+					}
+
+					error = getError$1(data, response);
+					_context.next = 23;
+					return put(_extends$5({}, action, {
+						type: type + FAIL,
+						error: error
+					}));
+
+				case 23:
+					_context.next = 27;
+					break;
+
+				case 25:
+					_context.next = 27;
+					return put(_extends$5({}, action, {
+						type: type + SUCCESS$1,
+						response: {
+							data: response.response,
+							error: response.status === 100 || response.messages[0].type === 2 ? response.messages[0].message : null,
+							status: response.status,
+							message: response.status === 0 || response.messages[0].type === 0 ? response.messages[0].message : null
+						}
+					}));
+
+				case 27:
+					_context.next = 32;
+					break;
+
+				case 29:
+					_context.prev = 29;
+					_context.t0 = _context['catch'](5);
+
+					console.log(_context.t0);
+
+				case 32:
+				case 'end':
+					return _context.stop();
+			}
+		}
+	}, _marked$1, this, [[5, 29]]);
+}
+
+function requests() {
+	return regeneratorRuntime.wrap(function requests$(_context2) {
+		while (1) {
+			switch (_context2.prev = _context2.next) {
+				case 0:
+					_context2.next = 2;
+					return all([takeEvery$2('REQUEST', requestSaga)]);
+
+				case 2:
+				case 'end':
+					return _context2.stop();
+			}
+		}
+	}, _marked2$1, this);
+}
+
 var reducer$3 = crudReducers;
 var saga = rootSaga;
+var requestSaga$1 = requests;
 var actions$4 = actions;
 var CrudView$2 = CrudView$1;
 var CrudFull$1 = crudFull;
 
 exports.reducer = reducer$3;
 exports.saga = saga;
+exports.requestSaga = requestSaga$1;
 exports.actions = actions$4;
 exports.CrudView = CrudView$2;
 exports.CrudFull = CrudFull$1;
