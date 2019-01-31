@@ -180,8 +180,9 @@ export function* submitModelsModalFormFailSaga(action) {
 }
 
 export function* notifySaga(action) {
-	if (action.error) yield notification('error', action.error.message)
-	if (action.response.status === SUCCESS_REQ) yield notification('success', action.response.message)
+	if (action.error) yield notification('error', action.error.message);
+	if (action.response && action.response.status === SUCCESS_REQ)
+		yield notification('success', action.response.message);
 }
 
 export default function* rootSaga() {

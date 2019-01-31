@@ -27715,7 +27715,7 @@ function notifySaga(action) {
 					return createNotification('error', action.error.message);
 
 				case 3:
-					if (!(action.response.status === SUCCESS_REQ)) {
+					if (!(action.response && action.response.status === SUCCESS_REQ)) {
 						_context12.next = 6;
 						break;
 					}
