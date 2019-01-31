@@ -11835,7 +11835,8 @@ var CrudView = function (_Component) {
 			    iconTheme = _props2.iconTheme,
 			    size = _props2.size,
 			    tdClass = _props2.tdClass,
-			    scrollX = _props2.scrollX;
+			    scrollX = _props2.scrollX,
+			    pageSize = _props2.pageSize;
 
 
 			if (items && !items.data && items.loading) return React__default.createElement(Loader, null);
@@ -11881,7 +11882,7 @@ var CrudView = function (_Component) {
 				onChange: this.handleTableChange,
 				pagination: {
 					defaultCurrent: 1,
-					pageSize: 20,
+					pageSize: pageSize,
 					total: items.data.count,
 					hideOnSinglePage: true
 				},
@@ -11904,12 +11905,14 @@ CrudView.propTypes = {
 	getChildrenUrl: propTypes.func,
 	size: propTypes.string,
 	tdClass: propTypes.string,
-	scrollX: propTypes.number
+	scrollX: propTypes.number,
+	pageSize: propTypes.number
 };
 
 CrudView.defaultProps = {
 	fixActionColumn: true,
-	scrollX: 1300
+	scrollX: 1300,
+	pageSize: 20
 };
 
 var CrudView$1 = connect(function (state, props) {
@@ -25822,7 +25825,8 @@ var CrudFull = function (_Component) {
 			    size = _props.size,
 			    tdClass = _props.tdClass,
 			    initialModal = _props.initialModal,
-			    scrollX = _props.scrollX;
+			    scrollX = _props.scrollX,
+			    pageSize = _props.pageSize;
 
 			var _ref2 = createFormOptions || {},
 			    title = _ref2.title,
@@ -25856,7 +25860,8 @@ var CrudFull = function (_Component) {
 					getChildrenUrl: getChildrenUrl,
 					size: size,
 					tdClass: tdClass,
-					scrollX: scrollX
+					scrollX: scrollX,
+					pageSize: pageSize
 				}),
 				isModalOpen === modelName && !createDisabled ? React__default.createElement(CreateModelView, {
 					title: title || 'Создать',
@@ -25894,7 +25899,8 @@ CrudFull.propTypes = {
 	tdClass: propTypes.string,
 	initialModal: propTypes.object,
 	iconsProvider: propTypes.func,
-	scrollX: propTypes.number
+	scrollX: propTypes.number,
+	pageSize: propTypes.number
 };
 
 CrudFull.defaultProps = {
@@ -25913,7 +25919,8 @@ CrudFull.defaultProps = {
 	size: 'default',
 	iconsProvider: function iconsProvider() {
 		return '';
-	}
+	},
+	pageSize: 20
 };
 
 var crudFull = connect(function (state) {
@@ -27730,7 +27737,7 @@ function rootSaga() {
 			switch (_context13.prev = _context13.next) {
 				case 0:
 					_context13.next = 2;
-					return all([takeEvery$2(actions.FETCH_CRUD_MODELS, fetchCrudModelsSaga), takeEvery$2(actions.FETCH_CRUD_MODELS + SUCCESS$1, fetchCrudModelsSuccessSaga), takeEvery$2(actions.FETCH_CRUD_FILTER_VALUES, fetchCrudFilterValuesSaga), takeEvery$2(actions.FETCH_CRUD_CHILDREN, fetchCrudChildrenSaga), takeEvery$2(actions.CREATE_MODEL, createModelSaga), takeEvery$2(actions.CREATE_MODEL + SUCCESS$1, closeModalSaga), takeEvery$2(actions.CREATE_MODEL + SUCCESS$1, updateModelsSaga), takeEvery$2(actions.CREATE_MODEL + SUCCESS$1, notifySaga), takeEvery$2(actions.CREATE_MODEL + ERROR, submitModelsModalFormFailSaga), takeEvery$2(actions.DELETE_MODEL, deleteModelSaga), takeEvery$2(actions.DELETE_MODEL + SUCCESS$1, updateModelsSaga), takeEvery$2(actions.DELETE_MODEL + SUCCESS$1, notifySaga), takeEvery$2(actions.DELETE_MODEL + ERROR, notifySaga), takeEvery$2(actions.RESTORE_MODEL, restoreModelSaga), takeEvery$2(actions.RESTORE_MODEL + SUCCESS$1, updateModelsSaga), takeEvery$2(actions.RESTORE_MODEL + SUCCESS$1, notifySaga), takeEvery$2(actions.RESTORE_MODEL + ERROR, notifySaga), takeEvery$2(actions.CHANGE_MODEL, changeModelSaga), takeEvery$2(actions.CHANGE_MODEL + SUCCESS$1, closeModalSaga), takeEvery$2(actions.CHANGE_MODEL + SUCCESS$1, updateModelsSaga), takeEvery$2(actions.CHANGE_MODEL + SUCCESS$1, notifySaga), takeEvery$2(actions.CHANGE_MODEL + ERROR, submitModelsModalFormFailSaga), fork(requestMiddleware)]);
+					return all([takeEvery$2(actions.FETCH_CRUD_MODELS, fetchCrudModelsSaga), takeEvery$2(actions.FETCH_CRUD_MODELS + SUCCESS$1, fetchCrudModelsSuccessSaga), takeEvery$2(actions.FETCH_CRUD_FILTER_VALUES, fetchCrudFilterValuesSaga), takeEvery$2(actions.FETCH_CRUD_CHILDREN, fetchCrudChildrenSaga), takeEvery$2(actions.CREATE_MODEL, createModelSaga), takeEvery$2(actions.CREATE_MODEL + SUCCESS$1, closeModalSaga), takeEvery$2(actions.CREATE_MODEL + SUCCESS$1, updateModelsSaga), takeEvery$2(actions.CREATE_MODEL + SUCCESS$1, notifySaga), takeEvery$2(actions.CREATE_MODEL + ERROR, submitModelsModalFormFailSaga), takeEvery$2(actions.DELETE_MODEL, deleteModelSaga), takeEvery$2(actions.DELETE_MODEL + SUCCESS$1, updateModelsSaga), takeEvery$2(actions.DELETE_MODEL + SUCCESS$1, notifySaga), takeEvery$2(actions.DELETE_MODEL + ERROR, notifySaga), takeEvery$2(actions.RESTORE_MODEL, restoreModelSaga), takeEvery$2(actions.RESTORE_MODEL + SUCCESS$1, updateModelsSaga), takeEvery$2(actions.RESTORE_MODEL + SUCCESS$1, notifySaga), takeEvery$2(actions.RESTORE_MODEL + ERROR, notifySaga), takeEvery$2(actions.CHANGE_MODEL, changeModelSaga), takeEvery$2(actions.CHANGE_MODEL + SUCCESS$1, closeModalSaga), takeEvery$2(actions.CHANGE_MODEL + SUCCESS$1, updateModelsSaga), takeEvery$2(actions.CHANGE_MODEL + SUCCESS$1, notifySaga), takeEvery$2(actions.CHANGE_MODEL + ERROR, notifySaga), takeEvery$2(actions.CHANGE_MODEL + ERROR, submitModelsModalFormFailSaga), fork(requestMiddleware)]);
 
 				case 2:
 				case 'end':

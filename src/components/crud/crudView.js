@@ -59,7 +59,8 @@ class CrudView extends Component {
 			iconTheme,
 			size,
 			tdClass,
-			scrollX
+			scrollX,
+			pageSize
 		} = this.props;
 
 		if (items && !items.data && items.loading) return <Loader />;
@@ -102,7 +103,7 @@ class CrudView extends Component {
 			onChange={this.handleTableChange}
 			pagination={{
 				defaultCurrent: 1,
-				pageSize: 20,
+				pageSize: pageSize,
 				total: items.data.count,
 				hideOnSinglePage: true
 			}}
@@ -124,11 +125,13 @@ CrudView.propTypes = {
 	size: PropTypes.string,
 	tdClass: PropTypes.string,
 	scrollX: PropTypes.number,
+	pageSize: PropTypes.number
 };
 
 CrudView.defaultProps = {
 	fixActionColumn: true,
-	scrollX: 1300
+	scrollX: 1300,
+	pageSize: 20
 };
 
 export default connect((state, props) => ({

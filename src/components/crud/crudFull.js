@@ -83,7 +83,8 @@ export class CrudFull extends Component {
 			size,
 			tdClass,
 			initialModal,
-			scrollX
+			scrollX,
+			pageSize
 		} = this.props;
 
 		const { title, titleEdit, fields } = createFormOptions || {};
@@ -110,6 +111,7 @@ export class CrudFull extends Component {
 				size={size}
 				tdClass={tdClass}
 				scrollX={scrollX}
+				pageSize={pageSize}
 			/>
 			{isModalOpen === modelName && !createDisabled ? <CreateModelView
 				title={title || 'Создать'}
@@ -165,7 +167,8 @@ CrudFull.propTypes = {
 	tdClass: PropTypes.string,
 	initialModal: PropTypes.object,
 	iconsProvider: PropTypes.func,
-	scrollX: PropTypes.number
+	scrollX: PropTypes.number,
+	pageSize: PropTypes.number,
 };
 
 CrudFull.defaultProps = {
@@ -179,6 +182,7 @@ CrudFull.defaultProps = {
 	iconTheme: 'outline',
 	size: 'default',
 	iconsProvider: () => '',
+	pageSize: 20
 };
 
 export default connect(state => ({

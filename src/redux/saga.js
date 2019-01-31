@@ -212,6 +212,7 @@ export default function* rootSaga() {
 		takeEvery(actions.CHANGE_MODEL + SUCCESS, closeModalSaga),
 		takeEvery(actions.CHANGE_MODEL + SUCCESS, updateModelsSaga),
 		takeEvery(actions.CHANGE_MODEL + SUCCESS, notifySaga),
+		takeEvery(actions.CHANGE_MODEL + ERROR, notifySaga),
 		takeEvery(actions.CHANGE_MODEL + ERROR, submitModelsModalFormFailSaga),
 
 		fork(requestMiddleware)
