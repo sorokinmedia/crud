@@ -136,7 +136,8 @@ const objects = <CrudFull
     }}
 />
 ```
+
 ####requestSaga && apiAdress
 
-Define apiAdress in your store to use requestSaga for requests. 
-It cab be used for fetching data or creating a new record.
+You have to define apiAdress in your store to use requestSaga for requests. 
+It can be used for fetching data or creating a new record.

@@ -3,7 +3,7 @@ import { Input, Button, Checkbox, Select } from 'antd';
 
 const { Option } = Select;
 
-export default (name, type, options) => ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => <div
+export default (name, type, options) => ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (<div
 	className="custom-filter-dropdown"
 >
 	{type === 'checkbox' ? <span><Checkbox
@@ -11,7 +11,7 @@ export default (name, type, options) => ({ setSelectedKeys, selectedKeys, confir
 		onChange={e => setSelectedKeys(e.target.checked.toString())}
 		onPressEnter={() => { confirm() }}
 	/><br />
-	</span>
+                        </span>
 		:
 		type === 'select' ? <Select
 			value={selectedKeys}
@@ -31,13 +31,13 @@ export default (name, type, options) => ({ setSelectedKeys, selectedKeys, confir
 			</Option>))}
 		</Select>
 			:
-		<Input
-			type={type}
-			placeholder="Поиск"
-			value={selectedKeys}
-			onChange={e => setSelectedKeys(e.target.value ? e.target.value : null)}
-			onPressEnter={() => { confirm() }}
+			<Input
+				type={type}
+				placeholder="Поиск"
+				value={selectedKeys}
+				onChange={e => setSelectedKeys(e.target.value ? e.target.value : null)}
+				onPressEnter={() => { confirm() }}
 		/>}
 	<Button type="primary" onClick={() => { confirm() }}>Поиск</Button>
 	<Button onClick={() => { clearFilters() }}>Сбросить</Button>
-</div>;
+                                                                                                       </div>);
