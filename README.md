@@ -59,14 +59,13 @@ options to create form - fields key is required
 provides a function to set a shape of submit payload 
 ```form => {data: form, model: 'modelName'}```
 ##### updateShape
-provides a function to set a shape of update payload 
+provides a function to set shape of updating payload 
 ```form => {data: form, model: 'updateModelName'}```
 ##### createDisabled
 disables create mode
 
 ##### iconsProvider
-provides a function to choose an icon by id
-
+provides a function to chose an icon by id
 ```
 (id) => {
     switch (id) {
@@ -74,6 +73,33 @@ provides a function to choose an icon by id
             return 'edit';
 ...
 ```
+
+##### btnStyle
+styles object for default button component
+
+##### ButtonComponent
+custom button component
+
+##### tableStyle
+style object for table
+
+##### tableWrapper
+component to wrap the table
+
+##### fixActionColumn
+bool prop to fix action column on the right side
+
+##### iconTheme
+antd icon theme (default: 'outline')
+
+##### size
+antd table size (default: 'default')
+
+##### tdClass
+specify class for td tag
+
+##### initialModal
+provides an object to initialize modal form
 
 #### Example
 ./createFormFields
@@ -122,6 +148,10 @@ const objects = <CrudFull
         name: form.name.toUpperCase(), 
         description: form.description.toLowerCase()
     })}
+    updateShape={elem => ({
+        name: elem.name, 
+        description: elem.description.toLowerCase()
+    })}
     customActionsFunc={(action, object) => {
         switch(action.id) {
             case 'took':
@@ -141,3 +171,32 @@ const objects = <CrudFull
 
 You have to define apiAdress in your store to use requestSaga for requests. 
 It can be used for fetching data or creating a new record.
+
+### Modal form logic
+
+#### Redux Store Key
+You can specify store key to set options property for select or another data for your field
+```
+   ...
+   {
+   	name: 'status_id',
+   	type: 'select',
+   	placeholder: 'Enter a status',
+   	label: <strong>Status</strong>,
+   	component: props => <Status {...props} />
+   	optionsKey: 'statusOptions'
+   },
+   ... 
+```
+#### Dynamic
+
+Sometimes you need to change fields array dynamically depending on the usability logic.
+
+To impliment it, use  createFormOptions and provides modified fields array by the 'fields' key:
+```
+createFormOptions={{
+    fields: modifiedCreateFormFileds,
+    title: 'Create record',
+    editTitle: 'Edit record',
+}}
+```
