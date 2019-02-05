@@ -154,9 +154,9 @@ const objects = <CrudFull
         name: form.name.toUpperCase(), 
         description: form.description.toLowerCase()
     })}
-    updateShape={elem => ({
-        name: elem.name, 
-        description: elem.description.toLowerCase()
+    updateShape={record => ({
+        name: record.name, 
+        description: record.description.toLowerCase()
     })}
     customActionsFunc={(action, object) => {
         switch(action.id) {
