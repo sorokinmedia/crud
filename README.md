@@ -206,3 +206,4 @@ createFormOptions={{
     editTitle: 'Edit record',
 }}
 ```
+Available field types: text, textarea, number, date, select, checkbox
