@@ -194,7 +194,7 @@ You can specify store key to set options property for select or another data for
    },
    ... 
 ```
-#### Dynamic
+#### Dynamics
 
 Sometimes you need to change fields array dynamically depending on the usability logic.
 
