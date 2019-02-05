@@ -107,6 +107,9 @@ scroll size whian actions column is fixed (default: 1300)
 ##### pageSize
 items count on one page (default: 20)
 
+#### getChildrenUrl
+url to fetch children
+
 #### Example
 ./createFormFields
 
@@ -131,6 +134,10 @@ export default [
 	type: 'select',
 	placeholder: 'Enter a status',
 	label: <strong>Status</strong>,
+	options: [
+	    {id: 1, name: 'Да'},
+	    {id: 2, name: 'Нет'}
+	],
 	component: props => <Status {...props} />
 }]
 ```
