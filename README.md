@@ -198,7 +198,7 @@ You can specify store key to set options property for select or another data for
 
 Sometimes you need to change fields array dynamically depending on the usability logic.
 
-To impliment it, use  createFormOptions and provides modified fields array by the 'fields' key:
+To impliment it, use  createFormOptions and provide modified fields array by the 'fields' key:
 ```
 createFormOptions={{
     fields: modifiedCreateFormFileds,
