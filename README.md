@@ -41,7 +41,7 @@ const store = createStore(
 ## CrudFull
 Renders a list of items with a button to create new one. Items can be sorted/filtred by the each sorted/filtred column.
 
-## API
+## FRONTEND API
 ##### crudCreate
 an URL to make a creating item request.
 
@@ -233,4 +233,43 @@ createFormOptions={{
     title: 'Create record',
     editTitle: 'Edit record',
 }}
+```
+## BACKEND API
+Backend response must contains four fields at least:
+ - columns : array;
+ - count : number;
+ - filter : object;
+ - items : array. 
+ 
+#### Columns
+Columns is an array of columns() you want to render into the table. Each column includes several fields:
+ - id : number, uniq identificator, which is matched with record key;
+ - title: string, text you want to render as a column name;
+ - type: string, type of the data you send under the key;
+ - order: object, inlides fields 'can' (setting order available or not) and 'orders' (an array of available orders ).       
+ - filter: object, inlides fields:
+    - can (setting filter available or not),
+    - type (type of filter input),
+    - defaultValue (default filter input value)
+    - query (url to fetch filter options)
+     
+ Available filter types: 
+ - input_number (input type 'number')
+ - input_text (input type 'text')
+ - date_picker ( antd date picker)
+ - select_one (select, can select one option)
+ - select (miltiple select)
+ - boolean (checkbox)  
+
+#### Items
+ It's an array of records and a main table info. It must includes keys that are matched with culumns ids and contains
+ the same type of data that are specified in columns type. Example is below.
+ 
+ ```
+    {
+        columns: [
+            {id: "type", title: "Тип", type: "object",…}
+            1: {id: "object", title: "Объект", type: "object",…}
+        ]
+    }
 ```
