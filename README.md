@@ -101,6 +101,12 @@ specify class for td tag
 ##### initialModal
 provides an object to initialize modal form
 
+##### scrollX
+scroll size whian actions column is fixed (default: 1300)
+
+##### pageSize
+items count on one page (default: 20)
+
 #### Example
 ./createFormFields
 
