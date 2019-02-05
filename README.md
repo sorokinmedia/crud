@@ -187,8 +187,29 @@ It can be used for fetching data or creating a new record.
 
 ### Modal form logic
 
+#### Field object
+
+Field object may contains following
+
+name: string - input name,
+
+type: string - input type,
+
+placeholder: string - placeholder text,
+
+label: string or html - label,
+
+component: react class or function - renderer for input,
+
+dropdownRender: react class or function - antd dropdown for input,
+
+optionsKey: string - key in store to get input options arr.
+
+Available field types: text, textarea, number, date, select, checkbox
+
+
 #### Redux Store Key
-You can specify store key to set options property for select or another data for your field
+You can specify store key to set options property for select or another data for your field.
 ```
    ...
    {
@@ -213,4 +234,3 @@ createFormOptions={{
     editTitle: 'Edit record',
 }}
 ```
-Available field types: text, textarea, number, date, select, checkbox
