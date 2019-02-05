@@ -136,7 +136,7 @@ export default [
 ```
 Use case
 ```
-import createFormFileds from './createFormFileds
+import createFormFileds from './createFormFileds'
 import {crudFull} from 'sm-react-crud'
 
 const objects = <CrudFull
