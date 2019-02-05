@@ -243,7 +243,7 @@ Backend response must contains four fields at least:
  
 #### Columns
 Columns is an array of columns() you want to render into the table. Each column includes several fields:
- - id : number, uniq identificator, which is matched with record key;
+ - id : number, uniq identificator, which is matched with key in record;
  - title: string, text you want to render as a column name;
  - type: string, type of the data you send under the key;
  - order: object, inlides fields 'can' (setting order available or not) and 'orders' (an array of available orders ).       
@@ -266,10 +266,76 @@ Columns is an array of columns() you want to render into the table. Each column 
  the same type of data that are specified in columns type. Example is below.
  
  ```
-    {
-        columns: [
-            {id: "type", title: "Тип", type: "object",…}
-            1: {id: "object", title: "Объект", type: "object",…}
-        ]
+    {"response":
+        {
+            "items":[
+                {
+                    "objectType": 'room',
+                    "object":{
+                        "id":22,
+                        "name":"Ул. Чапаевская 210 / Вилоновская 10, кв 3 (Квартира)"
+                    },
+                    "worker":{
+                        "id":44,
+                        "name":"var1232enik163_yandex_ru"
+                    },
+                    "description":"hh",
+                    "action_date":1549224000,
+                    "updated_at":1549280956,
+                },
+                {
+                    "objectType": 'flat',
+                    "object":{
+                        "id":22,
+                        "name":"Ул. Чапаевская 210 / Вилоновская 10, кв 3 (Квартира)"},
+                        "worker":{
+                            "id":25,
+                            "name":"DSTS"
+                        },
+                    "description":"ghjgh",
+                    "action_date":1549137600,
+                    "updated_at":1549186595,
+                }
+            ],
+            "columns":[
+                {
+                    "id":"objectType",
+                    "title":"Тип",
+                    "type":"string",
+                    "filter": {
+                        "can":true,
+                        "type":"select_one",
+                        "defaultValue":"",
+                        "query":"/v1/owner/tenant/filter/action-types"
+                    },
+                    "order":{
+                        "can":true,
+                        "orders":[
+                            "SORT_ASC",
+                            "SORT_DESC"
+                        ]
+                    }
+                },{
+                    "id":"object",
+                    "title":"Объект",
+                    "type":"object",
+                    "filter":{
+                        "can":true,
+                        "type":"select_one",
+                        "defaultValue":"",
+                        "query":"/v1/owner/tenant/filter/objects"
+                    },
+                    "order":{
+                        "can":false,
+                        "orders":[]
+                    }
+                }
+            ],
+            count: 2,
+            filter: {}
+        }
     }
 ```
+You can see that column with id 'objectType' has field 'type' with value 'string'. In item object
+we have a field 'objectType' which is string, what is matched with column field 'type'.
+There is a ralation column id -> items key.
