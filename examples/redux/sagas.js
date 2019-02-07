@@ -83,14 +83,14 @@ export const getError = (data, response) => {
 	return ''
 };
 
-const WHO_API = 'https://api.workhard.online'
+const WHO_API = 'http://api.workhard.kosmoz.online'
 
 export function* requestWHOSaga(action) {
 	const {
 		payload, method, url, auth, oldType: type, token_is_active
 	} = action;
 
-	const token = '4e128efac435b2c7bf20ea3d28c43c6e'
+	const token = '4aed4789b1a8402380e4ee092295d3dd'
 
 	try {
 		yield put({
@@ -115,7 +115,6 @@ export function* requestWHOSaga(action) {
 			WHO_API + url,
 			params
 		);
-
 		const response = yield data.json();
 		if (data.status !== 200) {
 			const error = getError(data, response);

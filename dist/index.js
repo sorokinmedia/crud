@@ -9105,7 +9105,8 @@ var ArrObjectCell = function ArrObjectCell(obj) {
 				updated_at ? hooks.unix(updated_at).format('DD.MM.YYYY') : '',
 				' ',
 				restAttributes
-			)
+			),
+			React__default.createElement('br', null)
 		);
 	});
 };

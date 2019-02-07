@@ -1,15 +1,38 @@
 export default [
 	{
-		name: 'name',
-		type: 'text',
-		placeholder: 'Название',
+		name: 'task_type_id',
+		type: 'select',
+		placeholder: 'Тип задачи',
 		validateFunc: (values, errors) => {
-			if(!values.name) errors.name = 'Введите название';
+			if (!values.task_type_id) errors.task_type_id = 'Выберите тип задачи';
 			return errors;
-		},
-	}, {
-		name: 'description',
-		type: 'text',
-		placeholder: 'Описание',
+		}
+	},
+	{
+		name: 'user_tag_id',
+		type: 'select',
+		placeholder: 'Тег заказчика',
+		validateFunc: (values, errors) => {
+			if (!values.user_tag_id) errors.user_tag_id = 'Выберите тег заказчика';
+			return errors;
+		}
+	},
+	{
+		name: 'commission_task',
+		type: 'number',
+		placeholder: 'Комиссия за задачу в %',
+		validateFunc: (values, errors) => {
+			if (values.commission_task && values.commission_task < 0) errors.commission_task = 'Отрицательная комиссия';
+			return errors;
+		}
+	},
+	{
+		name: 'commission_check',
+		type: 'number',
+		placeholder: 'Комиссия за проверку в %',
+		validateFunc: (values, errors) => {
+			if (values.commission_task && values.commission_check < 0) errors.commission_check = 'Отрицательная комиссия';
+			return errors;
+		}
 	}
 ]
