@@ -88,7 +88,7 @@ export const isOpenModelModalReducer = (state = false, action) => {
 
 	switch (type) {
 	case actions.TOGGLE_CREATE_MODEL_MODAL:
-		return !state;
+		return state ? null : payload.modelName;
 	default:
 		return state;
 	}

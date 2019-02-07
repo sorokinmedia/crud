@@ -68,7 +68,7 @@ CreateModalForm = reduxForm({
 		let errors = {};
 		//if(!values.name) errors.name = 'Введите название';
 		props.fields.forEach(field => {
-			if(field.validateFunc) errors = field.validateFunc(values, errors)
+			if (field.validateFunc) errors = field.validateFunc(values, errors)
 		});
 
 		return errors;

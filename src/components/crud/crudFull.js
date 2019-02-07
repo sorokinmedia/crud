@@ -51,14 +51,14 @@ export class CrudFull extends Component {
 
 	openUpdateFrom = (action, elem) => {
 		this.props.setModelModalForm('edit', elem, action);
-		this.toggleModal();
+		this.toggleModal(this.props.modelName);
 	};
 
-	toggleModal = () => {
-		this.props.toggleCreateModelModal();
+	toggleModal = (modelName) => {
+		this.props.toggleCreateModelModal(modelName);
 	};
 
-	handleClose = () => {
+	handleClose = (modelName) => {
 		this.toggleModal();
 		this.props.setModelModalForm(null, null);
 	};
@@ -83,7 +83,8 @@ export class CrudFull extends Component {
 			size,
 			tdClass,
 			initialModal,
-			scrollX
+			scrollX,
+			pageSize
 		} = this.props;
 
 		const { title, titleEdit, fields } = createFormOptions || {};
@@ -93,7 +94,7 @@ export class CrudFull extends Component {
 			{ !createDisabled ? <Btn
 				type="primary"
 				name={'createButton'}
-				onClick={this.toggleModal}
+				onClick={() => this.toggleModal(modelName)}
 				style={{ ...btnStyle, marginBottom: '20px' }}
 			>
 				{createButtonTitle}
@@ -110,8 +111,9 @@ export class CrudFull extends Component {
 				size={size}
 				tdClass={tdClass}
 				scrollX={scrollX}
+				pageSize={pageSize}
 			/>
-			{isModalOpen && !createDisabled ? <CreateModelView
+			{isModalOpen === modelName && !createDisabled ? <CreateModelView
 				title={title || 'Создать'}
 				titleEdit={titleEdit || 'Редактировать'}
 				modalType={objectModal.modalType}
@@ -165,7 +167,8 @@ CrudFull.propTypes = {
 	tdClass: PropTypes.string,
 	initialModal: PropTypes.object,
 	iconsProvider: PropTypes.func,
-	scrollX: PropTypes.number
+	scrollX: PropTypes.number,
+	pageSize: PropTypes.number,
 };
 
 CrudFull.defaultProps = {
@@ -179,6 +182,7 @@ CrudFull.defaultProps = {
 	iconTheme: 'outline',
 	size: 'default',
 	iconsProvider: () => '',
+	pageSize: 20
 };
 
 export default connect(state => ({

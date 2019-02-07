@@ -4,4 +4,5 @@ export const
 	SORT_ASC = 'SORT_ASC',
 	START = '_START',
 	SUCCESS = '_SUCCESS',
-	ERROR = '_ERROR';
+	ERROR = '_ERROR',
+	FAIL = 'FAIL';

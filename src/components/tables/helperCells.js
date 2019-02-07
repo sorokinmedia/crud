@@ -19,7 +19,7 @@ const ActionsCell = (row, modelName, iconTheme) => row.actions.map(action => (
 	<Action data={action} row={row} key={action.id} modelName={modelName} iconTheme={iconTheme} />))
 const ArrObjectCell = (obj) => {
 	if (!Array.isArray(obj) || !obj.length) return null
-	console.log('obj.lenght', obj.length)
+	console.log('obj.lenght', obj.length);
 	return obj.map(({ created_at = false, updated_at = false, ...rest }) => {
 		console.log('rest', rest)
 		const restValues = rest ? Object.values(rest) : false

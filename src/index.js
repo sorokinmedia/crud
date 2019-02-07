@@ -4,10 +4,12 @@ import crudView from './components/crud/crudView'
 import crudActions from './redux/actions'
 import crudReducers from './redux/reducer'
 import crudSagas from './redux/saga'
+import { requests  } from './redux/requestSaga'
 import './style.css'
 
 export const reducer = crudReducers;
 export const saga = crudSagas;
+export const requestSaga = requests;
 export const actions = crudActions;
 export const CrudView = crudView;
 export const CrudFull = crudFull;
