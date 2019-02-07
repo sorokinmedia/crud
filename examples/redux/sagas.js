@@ -44,7 +44,6 @@ export function* requestSaga(action) {
 
 		if (data.status !== 200 || (data.status === 200 && response.status === 100)) {
 			const error = getError(data, response);
-
 			yield put({
 				...action,
 				type: type + ERROR,

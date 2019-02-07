@@ -1,12 +1,8 @@
-import React, { Component } from 'react';
-import { Provider, connect } from 'react-redux'
-import { store } from './../redux/store';
-import { render } from 'react-dom';
+import 'antd/dist/antd.css';
+import React from 'react';
+import { connect } from 'react-redux'
 import { CrudFull } from '../../src/index';
 import createCommissionFields from './../createObjectTypeFields'
-import { BrowserRouter as Router } from 'react-router-dom'
-import 'antd/dist/antd.css';
-
 
 // commission_list_container
 
