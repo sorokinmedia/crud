@@ -180,10 +180,8 @@ export function* submitModelsModalFormFailSaga(action) {
 }
 
 export function* notifySaga(action) {
-	if (action.error) yield notification('error', action.error.message);
-	if (action.response && action.response.status === SUCCESS_REQ)
-		yield notification('success', action.response.message);
-	if (action.response.error) yield notification('error', action.response.error)
+	if (action.error) yield notification('error', action.error.message)
+	if (action.response.status === SUCCESS_REQ) yield notification('success', action.response.message)
 }
 
 export default function* rootSaga() {
@@ -214,7 +212,6 @@ export default function* rootSaga() {
 		takeEvery(actions.CHANGE_MODEL + SUCCESS, closeModalSaga),
 		takeEvery(actions.CHANGE_MODEL + SUCCESS, updateModelsSaga),
 		takeEvery(actions.CHANGE_MODEL + SUCCESS, notifySaga),
-		takeEvery(actions.CHANGE_MODEL + ERROR, notifySaga),
 		takeEvery(actions.CHANGE_MODEL + ERROR, submitModelsModalFormFailSaga),
 
 		fork(requestMiddleware)

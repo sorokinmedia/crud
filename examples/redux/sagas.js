@@ -1,7 +1,7 @@
+import regeneratorRuntime from 'regenerator-runtime'
 import { saga } from '../../src/index'
 import { takeEvery, all, put, call } from 'redux-saga/effects'
 import { START, ERROR, SUCCESS } from './constants';
-import regeneratorRuntime from 'regenerator-runtime'
 
 const API = 'http://api.rentrika.kosmoz.online'
 
@@ -116,13 +116,14 @@ export function* requestWHOSaga(action) {
 			params
 		);
 		const response = yield data.json();
-		if (data.status !== 200) {
+		if (data.status !== 200 || (data.status === 200 && response.status === 100)) {
 			const error = getError(data, response);
 
 			yield put({
 				...action,
 				type: type + ERROR,
-				error
+				error,
+				messages: response.messages,
 			})
 		} else {
 			yield put({
@@ -130,9 +131,6 @@ export function* requestWHOSaga(action) {
 				type: type + SUCCESS,
 				response: {
 					data: response.response,
-					error: response.status === 100 || response.messages[0].type === 2
-						? response.messages[0].message
-						: null,
 					status: response.status,
 					message: response.status === 0 || response.messages[0].type === 0
 						? response.messages[0].message
