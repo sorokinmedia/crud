@@ -1,5 +1,6 @@
 import { all, call, put, takeEvery, select } from 'redux-saga/effects'
 import { FAIL, START, SUCCESS } from '../constants'
+import regeneratorRuntime from 'regenerator-runtime'
 
 export function getCookie(name) {
 	const matches = document.cookie.match(new RegExp(

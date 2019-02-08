@@ -6,7 +6,7 @@ import { buildUrlSearch, buildUrlSearchForArray } from 'sm-string-helper'
 import { ERROR, SORT_ASC, SORT_DESC, SUCCESS, SUCCESS_REQ } from '../constants';
 import notification from '../notification';
 import actions from './actions';
-
+import regeneratorRuntime from 'regenerator-runtime'
 export const selectCrudParams = state => state.crudParams;
 
 function getFiltersValues(filters, columns) {

@@ -3,6 +3,7 @@ import thunk from 'redux-thunk';
 import createSagaMiddleware from 'redux-saga';
 import reducers from './reducers';
 import rootSaga from './sagas';
+import regeneratorRuntime from 'regenerator-runtime'
 
 const sagaMiddleware = createSagaMiddleware();
 export const middlewares = [
