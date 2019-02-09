@@ -11764,7 +11764,8 @@ var Loader = function Loader() {
 }; //<Spin indicator={antIcon} />;
 
 var fetchCrudModels = actions.fetchCrudModels,
-    fetchCrudChildren = actions.fetchCrudChildren;
+    fetchCrudChildren = actions.fetchCrudChildren,
+    setCrudParams = actions.setCrudParams;
 
 var isBigDesctop = window.document.documentElement.scrollWidth > 1646;
 
@@ -11791,6 +11792,13 @@ var CrudView = function (_Component) {
 				order_by: sorter.columnKey,
 				order: sorter.order
 			}, filters);
+
+			_this.props.setCrudParams(_extends$5({}, _this.props.crudParams[_this.props.modelName], {
+				page: pagination.current,
+				order_by: sorter.columnKey,
+				order: sorter.order,
+				filters: filters
+			}));
 		}, _this.handleExpand = function (isExpanded, row) {
 
 			if (isExpanded) {
@@ -11918,11 +11926,13 @@ CrudView.defaultProps = {
 var CrudView$1 = connect(function (state, props) {
 	return {
 		items: state.crudModels[props.modelName],
-		filterValues: state.crudFilterValues[props.modelName]
+		filterValues: state.crudFilterValues[props.modelName],
+		crudParams: state.crudParams
 	};
 }, {
 	fetchCrudModels: fetchCrudModels,
-	fetchCrudChildren: fetchCrudChildren
+	fetchCrudChildren: fetchCrudChildren,
+	setCrudParams: setCrudParams
 })(CrudView);
 
 var prefix = '@@redux-form/';
@@ -25733,7 +25743,7 @@ var toggleCreateModelModal = actions.toggleCreateModelModal,
     changeModel = actions.changeModel,
     setModelModalForm = actions.setModelModalForm,
     setCrudActionsFunc = actions.setCrudActionsFunc,
-    setCrudParams = actions.setCrudParams;
+    setCrudParams$1 = actions.setCrudParams;
 
 
 var CrudFull = function (_Component) {
@@ -25881,7 +25891,6 @@ var CrudFull = function (_Component) {
 CrudFull.propTypes = {
 	crudCreate: propTypes.string,
 	crudRead: propTypes.string.isRequired,
-	modelName: propTypes.string.isRequired,
 	customActionsFunc: propTypes.func,
 	createButtonTitle: propTypes.oneOfType([propTypes.string, propTypes.object, propTypes.node]),
 	createFormOptions: propTypes.shape({ fields: propTypes.array.isRequired }),
@@ -25900,6 +25909,7 @@ CrudFull.propTypes = {
 	initialModal: propTypes.object,
 	iconsProvider: propTypes.func,
 	scrollX: propTypes.number,
+	modelName: propTypes.string.isRequired,
 	pageSize: propTypes.number
 };
 
@@ -25936,16 +25946,16 @@ var crudFull = connect(function (state) {
 	changeModel: changeModel,
 	setModelModalForm: setModelModalForm,
 	setCrudActionsFunc: setCrudActionsFunc,
-	setCrudParams: setCrudParams
+	setCrudParams: setCrudParams$1
 })(CrudFull);
 
-var SUCCESS_REQ = 0,
-    SORT_DESC = 'SORT_DESC',
-    SORT_ASC = 'SORT_ASC',
-    START = '_START',
-    SUCCESS$1 = '_SUCCESS',
-    ERROR = '_ERROR',
-    FAIL = 'FAIL';
+var SUCCESS_REQ = 0;
+var SORT_DESC = 'SORT_DESC';
+var SORT_ASC = 'SORT_ASC';
+var START = '_START';
+var SUCCESS$1 = '_SUCCESS';
+var ERROR = '_ERROR';
+var FAIL = 'FAIL';
 
 var crudModelsReducer = function crudModelsReducer() {
 	var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
@@ -26430,64 +26440,6 @@ var dist = createCommonjsModule(function (module, exports) {
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
-function insertIntoStr(str, pos, toIn) {
-	return str.substr(0, pos) + toIn + str.substr(pos, str.length);
-}
-
-function replaceInStr(str, begin, start, subj) {
-	return str.slice(0, begin) + subj + str.slice(start, str.length);
-}
-
-function stripTags(str) {
-	return str.replace(/<[^>]*>/gi, '');
-}
-
-function parseAllATags(str) {
-	var res = str.match(/<a href=[^>]+>(.+?)<\/a>/g);
-	return res ? res : [];
-}
-
-function stripATags(str) {
-	return str.replace(/<a[^>]*>/gi, '').replace(/<[^>]*a>/gi, '');
-}
-
-function buildUrlSearch(params) {
-	if (!params) return '';
-
-	var res = Object.keys(params).reduce(function (acc, key) {
-		return params[key] || params[key] === 0 || params[key] === false || params[key] === 'false' ? acc + (!acc ? '' : '&') + (key + '=' + params[key]) : acc;
-	}, '');
-	return res ? '?' + res : '';
-}
-
-function buildUrlSearchForArray(arr, arrName) {
-	return arr.reduce(function (acc, elem) {
-		return acc + (acc ? '&' : '') + (arrName + '[]=' + elem);
-	}, '');
-}
-
-exports.insertIntoStr = insertIntoStr;
-exports.replaceInStr = replaceInStr;
-exports.stripTags = stripTags;
-exports.parseAllATags = parseAllATags;
-exports.stripATags = stripATags;
-exports.buildUrlSearch = buildUrlSearch;
-exports.buildUrlSearchForArray = buildUrlSearchForArray;
-});
-
-unwrapExports(dist);
-var dist_1 = dist.insertIntoStr;
-var dist_2 = dist.replaceInStr;
-var dist_3 = dist.stripTags;
-var dist_4 = dist.parseAllATags;
-var dist_5 = dist.stripATags;
-var dist_6 = dist.buildUrlSearch;
-var dist_7 = dist.buildUrlSearchForArray;
-
-var dist$1 = createCommonjsModule(function (module, exports) {
-
-Object.defineProperty(exports, '__esModule', { value: true });
-
 var _extends = Object.assign || function (target) {
   for (var i = 1; i < arguments.length; i++) {
     var source = arguments[i];
@@ -26561,8 +26513,66 @@ exports.request = request$1;
 exports.default = requestMiddleware;
 });
 
-var requestMiddleware = unwrapExports(dist$1);
-var dist_1$1 = dist$1.request;
+var requestMiddleware = unwrapExports(dist);
+var dist_1 = dist.request;
+
+var dist$1 = createCommonjsModule(function (module, exports) {
+
+Object.defineProperty(exports, '__esModule', { value: true });
+
+function insertIntoStr(str, pos, toIn) {
+	return str.substr(0, pos) + toIn + str.substr(pos, str.length);
+}
+
+function replaceInStr(str, begin, start, subj) {
+	return str.slice(0, begin) + subj + str.slice(start, str.length);
+}
+
+function stripTags(str) {
+	return str.replace(/<[^>]*>/gi, '');
+}
+
+function parseAllATags(str) {
+	var res = str.match(/<a href=[^>]+>(.+?)<\/a>/g);
+	return res ? res : [];
+}
+
+function stripATags(str) {
+	return str.replace(/<a[^>]*>/gi, '').replace(/<[^>]*a>/gi, '');
+}
+
+function buildUrlSearch(params) {
+	if (!params) return '';
+
+	var res = Object.keys(params).reduce(function (acc, key) {
+		return params[key] || params[key] === 0 || params[key] === false || params[key] === 'false' ? acc + (!acc ? '' : '&') + (key + '=' + params[key]) : acc;
+	}, '');
+	return res ? '?' + res : '';
+}
+
+function buildUrlSearchForArray(arr, arrName) {
+	return arr.reduce(function (acc, elem) {
+		return acc + (acc ? '&' : '') + (arrName + '[]=' + elem);
+	}, '');
+}
+
+exports.insertIntoStr = insertIntoStr;
+exports.replaceInStr = replaceInStr;
+exports.stripTags = stripTags;
+exports.parseAllATags = parseAllATags;
+exports.stripATags = stripATags;
+exports.buildUrlSearch = buildUrlSearch;
+exports.buildUrlSearchForArray = buildUrlSearchForArray;
+});
+
+unwrapExports(dist$1);
+var dist_1$1 = dist$1.insertIntoStr;
+var dist_2 = dist$1.replaceInStr;
+var dist_3 = dist$1.stripTags;
+var dist_4 = dist$1.parseAllATags;
+var dist_5 = dist$1.stripATags;
+var dist_6 = dist$1.buildUrlSearch;
+var dist_7 = dist$1.buildUrlSearchForArray;
 
 var createNotification = function createNotification(type, message, description) {
     antd.notification[type]({
@@ -27345,7 +27355,6 @@ var _marked = /*#__PURE__*/runtimeModule.mark(fetchCrudModelsSaga),
     _marked11 = /*#__PURE__*/runtimeModule.mark(submitModelsModalFormFailSaga),
     _marked12 = /*#__PURE__*/runtimeModule.mark(notifySaga),
     _marked13 = /*#__PURE__*/runtimeModule.mark(rootSaga);
-
 var selectCrudParams = function selectCrudParams(state) {
 	return state.crudParams;
 };
@@ -27420,7 +27429,7 @@ function fetchCrudModelsSaga(action) {
 						return acc + start + delimiter + e;
 					}, '');
 					_context.next = 19;
-					return put(dist_1$1(_extends$5({}, action, {
+					return put(dist_1(_extends$5({}, action, {
 						method: 'GET',
 						auth: true,
 						url: '' + url + paramsStr
@@ -27488,7 +27497,7 @@ function fetchCrudFilterValuesSaga(action) {
 			switch (_context3.prev = _context3.next) {
 				case 0:
 					_context3.next = 2;
-					return put(dist_1$1(_extends$5({}, action, {
+					return put(dist_1(_extends$5({}, action, {
 						method: 'GET',
 						auth: true,
 						url: '' + action.payload.query
@@ -27520,7 +27529,7 @@ function createModelSaga(action) {
 					modelName = action.payload.modelName;
 					form = params[modelName].submitShape(action.payload.form);
 					_context4.next = 7;
-					return put(dist_1$1(_extends$5({}, action, {
+					return put(dist_1(_extends$5({}, action, {
 						method: 'POST',
 						auth: true,
 						url: '' + action.payload.url,
@@ -27537,7 +27546,7 @@ function createModelSaga(action) {
 }
 
 function updateModelsSaga(action) {
-	var params, _params, modelName, crudRead;
+	var params, _params, modelName, crudRead, filters, page, order, order_by;
 
 	return runtimeModule.wrap(function updateModelsSaga$(_context5) {
 		while (1) {
@@ -27549,10 +27558,18 @@ function updateModelsSaga(action) {
 				case 2:
 					params = _context5.sent;
 
-					console.log(action);
-					_params = params[action.modelName || action.payload.modelName], modelName = _params.modelName, crudRead = _params.crudRead;
+					//console.log(action)
+					_params = params[action.modelName || action.payload.modelName], modelName = _params.modelName, crudRead = _params.crudRead, filters = _params.filters, page = _params.page, order = _params.order, order_by = _params.order_by;
+
+					console.log(params[action.modelName]);
 					_context5.next = 7;
-					return put(actions.fetchCrudModels({ modelName: modelName, url: crudRead }));
+					return put(actions.fetchCrudModels({
+						modelName: modelName,
+						url: crudRead,
+						page: page,
+						order_by: order_by,
+						order: order
+					}, filters));
 
 				case 7:
 				case 'end':
@@ -27568,7 +27585,7 @@ function deleteModelSaga(action) {
 			switch (_context6.prev = _context6.next) {
 				case 0:
 					_context6.next = 2;
-					return put(dist_1$1(_extends$5({}, action, {
+					return put(dist_1(_extends$5({}, action, {
 						method: 'POST',
 						auth: true,
 						url: '' + action.payload.url,
@@ -27589,7 +27606,7 @@ function restoreModelSaga(action) {
 			switch (_context7.prev = _context7.next) {
 				case 0:
 					_context7.next = 2;
-					return put(dist_1$1(_extends$5({}, action, {
+					return put(dist_1(_extends$5({}, action, {
 						method: 'POST',
 						auth: true,
 						url: '' + action.payload.url,
@@ -27618,7 +27635,7 @@ function changeModelSaga(action) {
 				case 3:
 					params = _context8.sent;
 					_context8.next = 6;
-					return put(dist_1$1(_extends$5({}, action, {
+					return put(dist_1(_extends$5({}, action, {
 						method: 'POST',
 						auth: true,
 						url: '' + action.payload.action.url,
@@ -27640,7 +27657,7 @@ function fetchCrudChildrenSaga(action) {
 			switch (_context9.prev = _context9.next) {
 				case 0:
 					_context9.next = 2;
-					return put(dist_1$1(_extends$5({}, action, {
+					return put(dist_1(_extends$5({}, action, {
 						method: 'GET',
 						auth: true,
 						url: '' + action.payload.url,
@@ -27715,7 +27732,7 @@ function notifySaga(action) {
 					return createNotification('error', action.error.message);
 
 				case 3:
-					if (!(action.response && action.response.status === SUCCESS_REQ)) {
+					if (!(action.response.status === SUCCESS_REQ)) {
 						_context12.next = 6;
 						break;
 					}
@@ -27737,7 +27754,7 @@ function rootSaga() {
 			switch (_context13.prev = _context13.next) {
 				case 0:
 					_context13.next = 2;
-					return all([takeEvery$2(actions.FETCH_CRUD_MODELS, fetchCrudModelsSaga), takeEvery$2(actions.FETCH_CRUD_MODELS + SUCCESS$1, fetchCrudModelsSuccessSaga), takeEvery$2(actions.FETCH_CRUD_FILTER_VALUES, fetchCrudFilterValuesSaga), takeEvery$2(actions.FETCH_CRUD_CHILDREN, fetchCrudChildrenSaga), takeEvery$2(actions.CREATE_MODEL, createModelSaga), takeEvery$2(actions.CREATE_MODEL + SUCCESS$1, closeModalSaga), takeEvery$2(actions.CREATE_MODEL + SUCCESS$1, updateModelsSaga), takeEvery$2(actions.CREATE_MODEL + SUCCESS$1, notifySaga), takeEvery$2(actions.CREATE_MODEL + ERROR, submitModelsModalFormFailSaga), takeEvery$2(actions.DELETE_MODEL, deleteModelSaga), takeEvery$2(actions.DELETE_MODEL + SUCCESS$1, updateModelsSaga), takeEvery$2(actions.DELETE_MODEL + SUCCESS$1, notifySaga), takeEvery$2(actions.DELETE_MODEL + ERROR, notifySaga), takeEvery$2(actions.RESTORE_MODEL, restoreModelSaga), takeEvery$2(actions.RESTORE_MODEL + SUCCESS$1, updateModelsSaga), takeEvery$2(actions.RESTORE_MODEL + SUCCESS$1, notifySaga), takeEvery$2(actions.RESTORE_MODEL + ERROR, notifySaga), takeEvery$2(actions.CHANGE_MODEL, changeModelSaga), takeEvery$2(actions.CHANGE_MODEL + SUCCESS$1, closeModalSaga), takeEvery$2(actions.CHANGE_MODEL + SUCCESS$1, updateModelsSaga), takeEvery$2(actions.CHANGE_MODEL + SUCCESS$1, notifySaga), takeEvery$2(actions.CHANGE_MODEL + ERROR, notifySaga), takeEvery$2(actions.CHANGE_MODEL + ERROR, submitModelsModalFormFailSaga), fork(requestMiddleware)]);
+					return all([takeEvery$2(actions.FETCH_CRUD_MODELS, fetchCrudModelsSaga), takeEvery$2(actions.FETCH_CRUD_MODELS + SUCCESS$1, fetchCrudModelsSuccessSaga), takeEvery$2(actions.FETCH_CRUD_FILTER_VALUES, fetchCrudFilterValuesSaga), takeEvery$2(actions.FETCH_CRUD_CHILDREN, fetchCrudChildrenSaga), takeEvery$2(actions.CREATE_MODEL, createModelSaga), takeEvery$2(actions.CREATE_MODEL + SUCCESS$1, closeModalSaga), takeEvery$2(actions.CREATE_MODEL + SUCCESS$1, updateModelsSaga), takeEvery$2(actions.CREATE_MODEL + SUCCESS$1, notifySaga), takeEvery$2(actions.CREATE_MODEL + ERROR, submitModelsModalFormFailSaga), takeEvery$2(actions.DELETE_MODEL, deleteModelSaga), takeEvery$2(actions.DELETE_MODEL + SUCCESS$1, updateModelsSaga), takeEvery$2(actions.DELETE_MODEL + SUCCESS$1, notifySaga), takeEvery$2(actions.DELETE_MODEL + ERROR, notifySaga), takeEvery$2(actions.RESTORE_MODEL, restoreModelSaga), takeEvery$2(actions.RESTORE_MODEL + SUCCESS$1, updateModelsSaga), takeEvery$2(actions.RESTORE_MODEL + SUCCESS$1, notifySaga), takeEvery$2(actions.RESTORE_MODEL + ERROR, notifySaga), takeEvery$2(actions.CHANGE_MODEL, changeModelSaga), takeEvery$2(actions.CHANGE_MODEL + SUCCESS$1, closeModalSaga), takeEvery$2(actions.CHANGE_MODEL + SUCCESS$1, updateModelsSaga), takeEvery$2(actions.CHANGE_MODEL + SUCCESS$1, notifySaga), takeEvery$2(actions.CHANGE_MODEL + ERROR, submitModelsModalFormFailSaga), fork(requestMiddleware)]);
 
 				case 2:
 				case 'end':
@@ -27747,8 +27764,8 @@ function rootSaga() {
 	}, _marked13, this);
 }
 
-var _marked$1 = /*#__PURE__*/regeneratorRuntime.mark(requestSaga),
-    _marked2$1 = /*#__PURE__*/regeneratorRuntime.mark(requests);
+var _marked$1 = /*#__PURE__*/runtimeModule.mark(requestSaga),
+    _marked2$1 = /*#__PURE__*/runtimeModule.mark(requests);
 
 function getCookie(name) {
 	var matches = document.cookie.match(new RegExp('(?:^|; )' + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + '=([^;]*)'));
@@ -27768,7 +27785,7 @@ var getError$1 = function getError(data, response) {
 
 function requestSaga(action) {
 	var payload, method, url, auth, type, token_is_active, SITE, token, body, headers, params, data, response, error;
-	return regeneratorRuntime.wrap(function requestSaga$(_context) {
+	return runtimeModule.wrap(function requestSaga$(_context) {
 		while (1) {
 			switch (_context.prev = _context.next) {
 				case 0:
@@ -27860,7 +27877,7 @@ function requestSaga(action) {
 }
 
 function requests() {
-	return regeneratorRuntime.wrap(function requests$(_context2) {
+	return runtimeModule.wrap(function requests$(_context2) {
 		while (1) {
 			switch (_context2.prev = _context2.next) {
 				case 0:
