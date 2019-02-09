@@ -149,7 +149,6 @@ export class CrudFull extends Component {
 CrudFull.propTypes = {
 	crudCreate: PropTypes.string,
 	crudRead: PropTypes.string.isRequired,
-	modelName: PropTypes.string.isRequired,
 	customActionsFunc: PropTypes.func,
 	createButtonTitle: PropTypes.oneOfType([PropTypes.string, PropTypes.object, PropTypes.node]),
 	createFormOptions: PropTypes.shape({ fields: PropTypes.array.isRequired }),
@@ -168,6 +167,7 @@ CrudFull.propTypes = {
 	initialModal: PropTypes.object,
 	iconsProvider: PropTypes.func,
 	scrollX: PropTypes.number,
+	modelName: PropTypes.string.isRequired,
 	pageSize: PropTypes.number,
 };
 

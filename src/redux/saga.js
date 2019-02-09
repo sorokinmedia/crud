@@ -117,10 +117,16 @@ export function* createModelSaga(action) {
 
 export function* updateModelsSaga(action) {
 	const params = yield select(selectCrudParams);
-	console.log(action)
-	const { modelName, crudRead } = params[action.modelName || action.payload.modelName];
-
-	yield put(actions.fetchCrudModels({ modelName, url: crudRead }));
+	//console.log(action)
+	const { modelName, crudRead, filters, page, order, order_by } = params[action.modelName || action.payload.modelName];
+	console.log(params[action.modelName]);
+	yield put(actions.fetchCrudModels({
+		modelName,
+		url: crudRead,
+		page,
+		order_by,
+		order
+	}, filters));
 }
 
 export function* deleteModelSaga(action) {

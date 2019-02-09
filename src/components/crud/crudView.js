@@ -7,7 +7,7 @@ import filterRenderer from './filterRenderer'
 import dataRenderer from './dataRenderer'
 import Loader from './loader'
 
-const { fetchCrudModels, fetchCrudChildren } = crudActions;
+const { fetchCrudModels, fetchCrudChildren, setCrudParams } = crudActions;
 const isBigDesctop = window.document.documentElement.scrollWidth > 1646;
 
 class CrudView extends Component {
@@ -29,6 +29,14 @@ class CrudView extends Component {
 			order_by: sorter.columnKey,
 			order: sorter.order
 		}, filters);
+
+		this.props.setCrudParams({
+			...this.props.crudParams[this.props.modelName],
+			page: pagination.current,
+			order_by: sorter.columnKey,
+			order: sorter.order,
+			filters
+		})
 	};
 
 	handleExpand = (isExpanded, row) => {
@@ -136,8 +144,10 @@ CrudView.defaultProps = {
 
 export default connect((state, props) => ({
 	items: state.crudModels[props.modelName],
-	filterValues: state.crudFilterValues[props.modelName]
+	filterValues: state.crudFilterValues[props.modelName],
+	crudParams: state.crudParams
 }), {
 	fetchCrudModels,
-	fetchCrudChildren
+	fetchCrudChildren,
+	setCrudParams
 })(CrudView);
