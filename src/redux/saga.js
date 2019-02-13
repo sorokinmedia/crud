@@ -44,7 +44,7 @@ export function* fetchCrudModelsSaga(action) {
 
 	const params = payload ? buildUrlSearch({
 		...filters,
-		order: order === 'ascend' ? SORT_ASC : SORT_DESC,
+		order: !order ? null : order === 'ascend' ? SORT_ASC : SORT_DESC,
 		order_by,
 		page
 
