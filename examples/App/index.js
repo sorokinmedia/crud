@@ -46,6 +46,7 @@ function App({ taskType, userTag }) {
 					commission_check: form.commission_check
 				})}
 				fixActionColumn={false}
+				pageSize={5}
 			/>
 		</div>
 	)

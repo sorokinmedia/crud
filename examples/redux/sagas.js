@@ -3,14 +3,14 @@ import { saga } from '../../src/index'
 import { takeEvery, all, put, call } from 'redux-saga/effects'
 import { START, ERROR, SUCCESS } from './constants';
 
-const API = 'http://api.rentrika.kosmoz.online'
+const API = 'http://api.workhard.kosmoz.online'
 
 export function* requestSaga(action) {
 	const {
 		payload, method, url, auth, oldType: type, token_is_active
 	} = action;
 
-	const token = 'f47b0afb4a5a96611df0c399ea612e3f'
+	const token = '8df22f5b2da4f999538ec42fd8ebffc4'
 	//'f9ad75859d9a7acd94e7a3acc639e0be';
 	//'cef506b12fd189faf83b95c2af29d6c6'
 
@@ -89,7 +89,7 @@ export function* requestWHOSaga(action) {
 		payload, method, url, auth, oldType: type, token_is_active
 	} = action;
 
-	const token = '4aed4789b1a8402380e4ee092295d3dd'
+	const token = '8df22f5b2da4f999538ec42fd8ebffc4'
 
 	try {
 		yield put({
@@ -146,7 +146,7 @@ export function* requestWHOSaga(action) {
 export default function* rootSaga() {
 	yield all([
 		saga(),
-		// takeEvery('REQUEST', requestSaga),
-		takeEvery('REQUEST', requestWHOSaga),
+		 takeEvery('REQUEST', requestSaga),
+		//takeEvery('REQUEST', requestWHOSaga),
 	]);
 }

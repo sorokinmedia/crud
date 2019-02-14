@@ -7,6 +7,7 @@ import { ERROR, SORT_ASC, SORT_DESC, SUCCESS, SUCCESS_REQ } from '../constants';
 import notification from '../notification';
 import actions from './actions';
 import regeneratorRuntime from 'regenerator-runtime'
+import reduceMessages from "../helpers/reduceMessages";
 export const selectCrudParams = state => state.crudParams;
 
 function getFiltersValues(filters, columns) {
@@ -179,7 +180,7 @@ export function* closeModalSaga() {
 }
 
 export function* submitModelsModalFormFailSaga(action) {
-	const errors = yield { [action.error.targetField || 'name']: action.error.message };
+	const errors = reduceMessages(action.messages);
 	yield put(stopSubmit('createModel', errors));
 	yield notification('error', action.error.message);
 }
