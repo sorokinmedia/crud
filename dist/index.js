@@ -27901,6 +27901,7 @@ function requests() {
 
 var reducer$3 = crudReducers;
 var saga = rootSaga;
+var updateModel = updateModelsSaga;
 var requestSaga$1 = requests;
 var actions$4 = actions;
 var CrudView$2 = CrudView$1;
@@ -27908,6 +27909,7 @@ var CrudFull$1 = crudFull;
 
 exports.reducer = reducer$3;
 exports.saga = saga;
+exports.updateModel = updateModel;
 exports.requestSaga = requestSaga$1;
 exports.actions = actions$4;
 exports.CrudView = CrudView$2;
