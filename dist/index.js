@@ -25789,7 +25789,7 @@ var CrudFull = function (_Component) {
 		}, _this.handleCreate = function (form) {
 			_this.props.createModel(form, _this.props.crudCreate, _this.props.modelName);
 		}, _this.handleDelete = function (action, elem) {
-			var conf = window.confirm('\u0425\u043E\u0442\u0438\u0442\u0435 \u0443\u0434\u0430\u043B\u0438\u0442\u044C "' + elem.name + '" (ID: ' + elem.id + ')?');
+			var conf = window.confirm(_this.props.onDeleteConfirmMessageFunc(elem));
 
 			if (conf) _this.props.deleteModel(elem.id, action.url, _this.props.modelName);
 		}, _this.handleRestore = function (action, elem) {
@@ -25910,7 +25910,8 @@ CrudFull.propTypes = {
 	iconsProvider: propTypes.func,
 	scrollX: propTypes.number,
 	modelName: propTypes.string.isRequired,
-	pageSize: propTypes.number
+	pageSize: propTypes.number,
+	onDeleteConfirmMessageFunc: propTypes.func
 };
 
 CrudFull.defaultProps = {
@@ -25930,7 +25931,10 @@ CrudFull.defaultProps = {
 	iconsProvider: function iconsProvider() {
 		return '';
 	},
-	pageSize: 20
+	pageSize: 20,
+	onDeleteConfirmMessageFunc: function onDeleteConfirmMessageFunc(elem) {
+		return '\u0425\u043E\u0442\u0438\u0442\u0435 \u0443\u0434\u0430\u043B\u0438\u0442\u044C "' + elem.name + '" (ID: ' + elem.id + ')?';
+	}
 };
 
 var crudFull = connect(function (state) {

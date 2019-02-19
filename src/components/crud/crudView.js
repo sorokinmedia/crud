@@ -97,30 +97,34 @@ class CrudView extends Component {
 						theme="outlined"
 					/>)
 				: null,
-			filterDropdown: col.filter.can ? filterRenderer(col.filter.type, col.id, this.getFiterValues(col)) : null,
+			filterDropdown: col.filter.can
+				? filterRenderer(col.filter.type, col.id, this.getFiterValues(col))
+				: null,
 			sorter: col.order.can ? () => {
 			} : null// (a, b) => Number(a.id) - Number(b.id),
-		}))
+		}));
 
 		const TableComponent = TableWrapper || Table;
 
-		return (<TableComponent
-			columns={columns}
-			dataSource={listItems}
-			className="isoSortingTable"
-			onChange={this.handleTableChange}
-			pagination={{
-				defaultCurrent: 1,
-				pageSize: pageSize,
-				total: items.data.count,
-				hideOnSinglePage: true
-			}}
-			loading={items.loading}
-			scroll={!isBigDesctop && fixActionColumn ? { x: scrollX } : {}}
-			onExpand={this.handleExpand}
-			size={size}
-			tableStyle={tableStyle}
-		/>);
+		return (
+			<TableComponent
+				columns={columns}
+				dataSource={listItems}
+				className="isoSortingTable"
+				onChange={this.handleTableChange}
+				pagination={{
+					defaultCurrent: 1,
+					pageSize: pageSize,
+					total: items.data.count,
+					hideOnSinglePage: true
+				}}
+				loading={items.loading}
+				scroll={!isBigDesctop && fixActionColumn ? { x: scrollX } : {}}
+				onExpand={this.handleExpand}
+				size={size}
+				tableStyle={tableStyle}
+			/>
+		);
 	}
 }
 
