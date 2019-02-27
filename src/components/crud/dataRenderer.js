@@ -7,7 +7,7 @@ import {
 	ActionsCell,
 	BooleanCell,
 	ArrObjectCell,
-	HtmlCell
+	HtmlCell, ArrayCell
 } from '../tables/helperCells';
 import { Link } from 'react-router-dom'
 
@@ -21,6 +21,8 @@ export default (row, column, modelName, iconTheme) => {
 		return ActionsCell(row, modelName, iconTheme);
 	case 'array':
 		return ArrTextCell(row[column.id]);
+	case 'array_ext':
+		return ArrayCell(row[column.id]);
 	case 'array_objects':
 	    return ArrObjectCell(row[column.id]);
 	case 'date':
