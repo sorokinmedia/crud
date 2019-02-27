@@ -51,7 +51,7 @@ const ArrayCell = (arr) => {
 	return arr.map(({
 		value, type, delimiter, style, isHtml, dateFormat
 	}) => (
-		<span style={isHtml && style ? style : null} dangerouslySetInnerHTML={{__html: value}} >
+		<span style={isHtml && style ? style : null} dangerouslySetInnerHTML={{__html: isHtml ? value : null}} >
 			{!isHtml && renderer(value, type, dateFormat)}
 			{delimiter}
 		</span>
