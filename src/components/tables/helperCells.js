@@ -45,15 +45,14 @@ const renderer = (value, type, dateFormat) => {
 		return value;
 	}
 };
-const ArrayCell = (arr) => {
-	if (!Array.isArray(arr) || !arr.length) return null;
+const ArrayCell = ({ values, type, delimiter, style, isHtml, dateFormat }) => {
+	if (!Array.isArray(values) || !values.length) return null;
 
-	return arr.map(({
-		value, type, delimiter, style, isHtml, dateFormat
-	}) => (
-		<span style={isHtml && style ? style : null} dangerouslySetInnerHTML={{__html: isHtml ? value : null}} >
+	return values.map((value, index) => (
+		<span style={isHtml && style ? style : null}>
+			{isHtml ? <span dangerouslySetInnerHTML={{ __html: value }} /> : ''}
 			{!isHtml && renderer(value, type, dateFormat)}
-			{delimiter}
+			{index < (values.length - 1) && delimiter}
 		</span>
 	))
 };

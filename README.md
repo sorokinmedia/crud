@@ -339,3 +339,23 @@ Columns is an array of columns() you want to render into the table. Each column 
 You can see that column with id 'objectType' has field 'type' with value 'string'. In item object
 we have a field 'objectType' which is string, what is matched with column field 'type'.
 There is a ralation column id -> items key.
+
+##### ArrayCell
+You can specify 'array_ext' column type to render an array data as you wish using following parameters:
+- "values", data you wont to render
+- "type", data type ("text", "date", "array_ext"), default 'text'
+- "isHtml", indicates whether the data is html, default 'false'
+- "delimiter", separator for "values" item, default none
+- "dateFormat", indicates format of rendering date, for example 'DD-MM-YYYY', default: 'DD.MM.YYYY'
+- "style", style object for item
+
+Example: 
+
+```
+users: {
+    values: ['<div><strong><a>Alex</a></strong></div>', '<div><em><a>Masha</a></em></div>'],
+    isHtml: true,
+    type: 'text',
+    delimiter: '----'
+}
+```

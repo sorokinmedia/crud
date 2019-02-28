@@ -9011,7 +9011,6 @@ var ActionsCell = function ActionsCell(row, modelName, iconTheme) {
 };
 var ArrObjectCell = function ArrObjectCell(obj) {
 	if (!Array.isArray(obj) || !obj.length) return null;
-	console.log('obj.lenght', obj.length);
 	return obj.map(function (_ref) {
 		var _ref$created_at = _ref.created_at,
 		    created_at = _ref$created_at === undefined ? false : _ref$created_at,
@@ -9019,7 +9018,6 @@ var ArrObjectCell = function ArrObjectCell(obj) {
 		    updated_at = _ref$updated_at === undefined ? false : _ref$updated_at,
 		    rest = objectWithoutProperties$1(_ref, ['created_at', 'updated_at']);
 
-		console.log('rest', rest);
 		var restValues = rest ? Object.values(rest) : false;
 		var restAttributes = restValues ? restValues.map(function (el, i) {
 			return React__default.createElement(
@@ -9028,8 +9026,6 @@ var ArrObjectCell = function ArrObjectCell(obj) {
 				el
 			);
 		}) : '';
-		console.log('restValues', restValues);
-		console.log('restAttributes', restAttributes);
 		return React__default.createElement(
 			React.Fragment,
 			null,
@@ -9043,6 +9039,34 @@ var ArrObjectCell = function ArrObjectCell(obj) {
 				restAttributes
 			),
 			React__default.createElement('br', null)
+		);
+	});
+};
+var renderer = function renderer(value, type, dateFormat) {
+	switch (type) {
+		case 'date':
+			return hooks.unix(value).format(dateFormat || 'DD.MM.YYYY');
+		case 'array_ext':
+			return ArrayCell(value);
+		default:
+			return value;
+	}
+};
+var ArrayCell = function ArrayCell(arr) {
+	if (!Array.isArray(arr) || !arr.length) return null;
+
+	return arr.map(function (_ref2) {
+		var value = _ref2.value,
+		    type = _ref2.type,
+		    delimiter = _ref2.delimiter,
+		    style = _ref2.style,
+		    isHtml = _ref2.isHtml,
+		    dateFormat = _ref2.dateFormat;
+		return React__default.createElement(
+			'span',
+			{ style: isHtml && style ? style : null, dangerouslySetInnerHTML: { __html: isHtml ? value : null } },
+			!isHtml && renderer(value, type, dateFormat),
+			delimiter
 		);
 	});
 };
@@ -11734,6 +11758,8 @@ var dataRenderer = (function (row, column, modelName, iconTheme) {
 			return ActionsCell(row, modelName, iconTheme);
 		case 'array':
 			return ArrTextCell(row[column.id]);
+		case 'array_ext':
+			return ArrayCell(row[column.id]);
 		case 'array_objects':
 			return ArrObjectCell(row[column.id]);
 		case 'date':
@@ -25961,6 +25987,103 @@ var SUCCESS$1 = '_SUCCESS';
 var ERROR = '_ERROR';
 var FAIL = 'FAIL';
 
+var fitureResp = {
+	"response": {
+		"items": [{
+			"id": 1,
+			"task_type": { "id": 6, "name": "Копирайтинг" },
+			"user_tag": { "id": 1, "name": "Сорокин Алексей" },
+			"commission_task": null,
+			"commission_check": null,
+			"users": [{
+				value: 'Alex',
+				type: 'text',
+				delimiter: ', '
+			}, {
+				value: 'Alex',
+				type: 'text',
+				delimiter: ', '
+			}],
+			"actions": [{
+				"id": "update",
+				"icon": null,
+				"btn_class": null,
+				"name": "Изменить",
+				"type": "query",
+				"method": "POST",
+				"url": "/v2/admin/task/commission/1/update",
+				"disabled": false
+			}, {
+				"id": "delete",
+				"icon": null,
+				"btn_class": null,
+				"name": "Удалить",
+				"type": "query",
+				"method": "POST",
+				"url": "/v2/admin/task/commission/1/delete",
+				"disabled": false
+			}]
+		}],
+		"columns": [{
+			"id": "id",
+			"title": "ID",
+			"type": "integer",
+			"filter": { "can": false, "type": "", "defaultValue": "", "query": "" },
+			"order": { "can": false, "orders": [] }
+		}, {
+			"id": "task_type",
+			"title": "Тип задачи",
+			"type": "object",
+			"filter": {
+				"can": true,
+				"type": "select_one",
+				"defaultValue": "",
+				"query": "/v2/admin/task/commission/filter/task-types"
+			},
+			"order": { "can": true, "orders": ["SORT_ASC", "SORT_DESC"] }
+		}, {
+			"id": "user_tag",
+			"title": "Тег заказчика",
+			"type": "object",
+			"filter": {
+				"can": true,
+				"type": "select_one",
+				"defaultValue": "",
+				"query": "/v2/admin/task/commission/filter/user-tags"
+			},
+			"order": { "can": true, "orders": ["SORT_ASC", "SORT_DESC"] }
+		}, {
+			"id": "commission_task",
+			"title": "Комиссия за задачу",
+			"type": "number",
+			"filter": { "can": false, "type": "", "defaultValue": "", "query": "" },
+			"order": { "can": true, "orders": ["SORT_ASC", "SORT_DESC"] }
+		}, {
+			"id": "commission_check",
+			"title": "Комиссия за проверку",
+			"type": "number",
+			"filter": { "can": false, "type": "", "defaultValue": "", "query": "" },
+			"order": { "can": true, "orders": ["SORT_ASC", "SORT_DESC"] }
+		}, {
+			"id": "actions",
+			"title": "Действия",
+			"type": "actions",
+			"filter": { "can": false, "type": "", "defaultValue": "", "query": "" },
+			"order": { "can": false, "orders": [] }
+		}, {
+			"id": "users",
+			"title": "Юзеры",
+			"type": "array_ext",
+			"filter": { "can": false, "type": "", "defaultValue": "", "query": "" },
+			"order": { "can": false, "orders": [] }
+		}], "count": 1, "filter": {
+			"task_type": null, "user_tag": null, "offset": 0, "limit": 20, "order_by": "task_type", "order": "SORT_ASC"
+		}
+	},
+	"status": 0,
+	"messages": [{ "type": 3, "message": "Данные получены", "targetField": null }]
+};
+
 var crudModelsReducer = function crudModelsReducer() {
 	var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	var action = arguments[1];
@@ -25972,7 +26095,7 @@ var crudModelsReducer = function crudModelsReducer() {
 
 	switch (type) {
 		case actions.FETCH_CRUD_MODELS + SUCCESS$1:
-			return _extends$5({}, state, defineProperty$2({}, payload.params.modelName, response));
+			return _extends$5({}, state, defineProperty$2({}, payload.params.modelName, fitureResp.response));
 		case actions.FETCH_CRUD_MODELS + ERROR:
 			return _extends$5({}, state, defineProperty$2({}, payload.params.modelName, _extends$5({}, state[payload.params.modelName], {
 				loading: false,
