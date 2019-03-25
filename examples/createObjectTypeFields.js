@@ -9,15 +9,6 @@ export default [
 		}
 	},
 	{
-		name: 'add_date',
-		type: 'date',
-		placeholder: 'Дата',
-		validateFunc: (values, errors) => {
-			if (!values.add_date) errors.add_date = 'Выберите тег заказчика';
-			return errors;
-		}
-	},
-	{
 		name: 'user_tag_id',
 		type: 'select',
 		placeholder: 'Тег заказчика',
