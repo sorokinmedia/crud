@@ -19,6 +19,15 @@ export default [
 	},
 	{
 		name: 'commission_task',
+		type: 'date',
+		placeholder: 'какая то дата',
+		validateFunc: (values, errors) => {
+			if (values.commission_task && values.commission_task < 0) errors.commission_task = 'Отрицательная комиссия';
+			return errors;
+		}
+	},
+	{
+		name: 'commission_task',
 		type: 'number',
 		placeholder: 'Комиссия за задачу в %',
 		validateFunc: (values, errors) => {

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Input, Form, Checkbox, Select, DatePicker } from 'antd'
 import moment from 'moment'
-import 'moment/locale/ru'
+//import 'moment/locale/ru'
 //import locale from 'antd/lib/date-picker/locale/ru_RU'
 moment.locale('ru');
 
@@ -74,7 +74,6 @@ export const renderField = ({
 				enterButton={enterButton}
 			/>);
 		case 'date':
-			console.log(input)
 			return (<DatePicker
 				style={{ width: '100%' }}
 				onPressEnter={onPressEnter}
