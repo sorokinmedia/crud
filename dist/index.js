@@ -25028,409 +25028,6 @@ var ru = createCommonjsModule(function (module, exports) {
 })));
 });
 
-var _global = createCommonjsModule(function (module) {
-// https://github.com/zloirock/core-js/issues/86#issuecomment-115759028
-var global = module.exports = typeof window != 'undefined' && window.Math == Math
-  ? window : typeof self != 'undefined' && self.Math == Math ? self
-  // eslint-disable-next-line no-new-func
-  : Function('return this')();
-if (typeof __g == 'number') __g = global; // eslint-disable-line no-undef
-});
-
-var _core = createCommonjsModule(function (module) {
-var core = module.exports = { version: '2.5.7' };
-if (typeof __e == 'number') __e = core; // eslint-disable-line no-undef
-});
-var _core_1 = _core.version;
-
-var _aFunction = function (it) {
-  if (typeof it != 'function') throw TypeError(it + ' is not a function!');
-  return it;
-};
-
-// optional / simple context binding
-
-var _ctx = function (fn, that, length) {
-  _aFunction(fn);
-  if (that === undefined) return fn;
-  switch (length) {
-    case 1: return function (a) {
-      return fn.call(that, a);
-    };
-    case 2: return function (a, b) {
-      return fn.call(that, a, b);
-    };
-    case 3: return function (a, b, c) {
-      return fn.call(that, a, b, c);
-    };
-  }
-  return function (/* ...args */) {
-    return fn.apply(that, arguments);
-  };
-};
-
-var _isObject = function (it) {
-  return typeof it === 'object' ? it !== null : typeof it === 'function';
-};
-
-var _anObject = function (it) {
-  if (!_isObject(it)) throw TypeError(it + ' is not an object!');
-  return it;
-};
-
-var _fails = function (exec) {
-  try {
-    return !!exec();
-  } catch (e) {
-    return true;
-  }
-};
-
-// Thank's IE8 for his funny defineProperty
-var _descriptors = !_fails(function () {
-  return Object.defineProperty({}, 'a', { get: function () { return 7; } }).a != 7;
-});
-
-var document$1 = _global.document;
-// typeof document.createElement is 'object' in old IE
-var is$1 = _isObject(document$1) && _isObject(document$1.createElement);
-var _domCreate = function (it) {
-  return is$1 ? document$1.createElement(it) : {};
-};
-
-var _ie8DomDefine = !_descriptors && !_fails(function () {
-  return Object.defineProperty(_domCreate('div'), 'a', { get: function () { return 7; } }).a != 7;
-});
-
-// 7.1.1 ToPrimitive(input [, PreferredType])
-
-// instead of the ES6 spec version, we didn't implement @@toPrimitive case
-// and the second argument - flag - preferred type is a string
-var _toPrimitive = function (it, S) {
-  if (!_isObject(it)) return it;
-  var fn, val;
-  if (S && typeof (fn = it.toString) == 'function' && !_isObject(val = fn.call(it))) return val;
-  if (typeof (fn = it.valueOf) == 'function' && !_isObject(val = fn.call(it))) return val;
-  if (!S && typeof (fn = it.toString) == 'function' && !_isObject(val = fn.call(it))) return val;
-  throw TypeError("Can't convert object to primitive value");
-};
-
-var dP = Object.defineProperty;
-
-var f = _descriptors ? Object.defineProperty : function defineProperty(O, P, Attributes) {
-  _anObject(O);
-  P = _toPrimitive(P, true);
-  _anObject(Attributes);
-  if (_ie8DomDefine) try {
-    return dP(O, P, Attributes);
-  } catch (e) { /* empty */ }
-  if ('get' in Attributes || 'set' in Attributes) throw TypeError('Accessors not supported!');
-  if ('value' in Attributes) O[P] = Attributes.value;
-  return O;
-};
-
-var _objectDp = {
-	f: f
-};
-
-var _propertyDesc = function (bitmap, value) {
-  return {
-    enumerable: !(bitmap & 1),
-    configurable: !(bitmap & 2),
-    writable: !(bitmap & 4),
-    value: value
-  };
-};
-
-var _hide = _descriptors ? function (object, key, value) {
-  return _objectDp.f(object, key, _propertyDesc(1, value));
-} : function (object, key, value) {
-  object[key] = value;
-  return object;
-};
-
-var hasOwnProperty$14 = {}.hasOwnProperty;
-var _has = function (it, key) {
-  return hasOwnProperty$14.call(it, key);
-};
-
-var PROTOTYPE = 'prototype';
-
-var $export = function (type, name, source) {
-  var IS_FORCED = type & $export.F;
-  var IS_GLOBAL = type & $export.G;
-  var IS_STATIC = type & $export.S;
-  var IS_PROTO = type & $export.P;
-  var IS_BIND = type & $export.B;
-  var IS_WRAP = type & $export.W;
-  var exports = IS_GLOBAL ? _core : _core[name] || (_core[name] = {});
-  var expProto = exports[PROTOTYPE];
-  var target = IS_GLOBAL ? _global : IS_STATIC ? _global[name] : (_global[name] || {})[PROTOTYPE];
-  var key, own, out;
-  if (IS_GLOBAL) source = name;
-  for (key in source) {
-    // contains in native
-    own = !IS_FORCED && target && target[key] !== undefined;
-    if (own && _has(exports, key)) continue;
-    // export native or passed
-    out = own ? target[key] : source[key];
-    // prevent global pollution for namespaces
-    exports[key] = IS_GLOBAL && typeof target[key] != 'function' ? source[key]
-    // bind timers to global for call from export context
-    : IS_BIND && own ? _ctx(out, _global)
-    // wrap global constructors for prevent change them in library
-    : IS_WRAP && target[key] == out ? (function (C) {
-      var F = function (a, b, c) {
-        if (this instanceof C) {
-          switch (arguments.length) {
-            case 0: return new C();
-            case 1: return new C(a);
-            case 2: return new C(a, b);
-          } return new C(a, b, c);
-        } return C.apply(this, arguments);
-      };
-      F[PROTOTYPE] = C[PROTOTYPE];
-      return F;
-    // make static versions for prototype methods
-    })(out) : IS_PROTO && typeof out == 'function' ? _ctx(Function.call, out) : out;
-    // export proto methods to core.%CONSTRUCTOR%.methods.%NAME%
-    if (IS_PROTO) {
-      (exports.virtual || (exports.virtual = {}))[key] = out;
-      // export proto methods to core.%CONSTRUCTOR%.prototype.%NAME%
-      if (type & $export.R && expProto && !expProto[key]) _hide(expProto, key, out);
-    }
-  }
-};
-// type bitmap
-$export.F = 1;   // forced
-$export.G = 2;   // global
-$export.S = 4;   // static
-$export.P = 8;   // proto
-$export.B = 16;  // bind
-$export.W = 32;  // wrap
-$export.U = 64;  // safe
-$export.R = 128; // real proto method for `library`
-var _export = $export;
-
-var toString$2 = {}.toString;
-
-var _cof = function (it) {
-  return toString$2.call(it).slice(8, -1);
-};
-
-// fallback for non-array-like ES3 and non-enumerable old V8 strings
-
-// eslint-disable-next-line no-prototype-builtins
-var _iobject = Object('z').propertyIsEnumerable(0) ? Object : function (it) {
-  return _cof(it) == 'String' ? it.split('') : Object(it);
-};
-
-// 7.2.1 RequireObjectCoercible(argument)
-var _defined = function (it) {
-  if (it == undefined) throw TypeError("Can't call method on  " + it);
-  return it;
-};
-
-// to indexed object, toObject with fallback for non-array-like ES3 strings
-
-
-var _toIobject = function (it) {
-  return _iobject(_defined(it));
-};
-
-// 7.1.4 ToInteger
-var ceil = Math.ceil;
-var floor = Math.floor;
-var _toInteger = function (it) {
-  return isNaN(it = +it) ? 0 : (it > 0 ? floor : ceil)(it);
-};
-
-// 7.1.15 ToLength
-
-var min$1 = Math.min;
-var _toLength = function (it) {
-  return it > 0 ? min$1(_toInteger(it), 0x1fffffffffffff) : 0; // pow(2, 53) - 1 == 9007199254740991
-};
-
-var max$1 = Math.max;
-var min$2 = Math.min;
-var _toAbsoluteIndex = function (index, length) {
-  index = _toInteger(index);
-  return index < 0 ? max$1(index + length, 0) : min$2(index, length);
-};
-
-// false -> Array#indexOf
-// true  -> Array#includes
-
-
-
-var _arrayIncludes = function (IS_INCLUDES) {
-  return function ($this, el, fromIndex) {
-    var O = _toIobject($this);
-    var length = _toLength(O.length);
-    var index = _toAbsoluteIndex(fromIndex, length);
-    var value;
-    // Array#includes uses SameValueZero equality algorithm
-    // eslint-disable-next-line no-self-compare
-    if (IS_INCLUDES && el != el) while (length > index) {
-      value = O[index++];
-      // eslint-disable-next-line no-self-compare
-      if (value != value) return true;
-    // Array#indexOf ignores holes, Array#includes - not
-    } else for (;length > index; index++) if (IS_INCLUDES || index in O) {
-      if (O[index] === el) return IS_INCLUDES || index || 0;
-    } return !IS_INCLUDES && -1;
-  };
-};
-
-var _library = true;
-
-var _shared = createCommonjsModule(function (module) {
-var SHARED = '__core-js_shared__';
-var store = _global[SHARED] || (_global[SHARED] = {});
-
-(module.exports = function (key, value) {
-  return store[key] || (store[key] = value !== undefined ? value : {});
-})('versions', []).push({
-  version: _core.version,
-  mode: _library ? 'pure' : 'global',
-  copyright: '© 2018 Denis Pushkarev (zloirock.ru)'
-});
-});
-
-var id$1 = 0;
-var px = Math.random();
-var _uid = function (key) {
-  return 'Symbol('.concat(key === undefined ? '' : key, ')_', (++id$1 + px).toString(36));
-};
-
-var shared = _shared('keys');
-
-var _sharedKey = function (key) {
-  return shared[key] || (shared[key] = _uid(key));
-};
-
-var arrayIndexOf = _arrayIncludes(false);
-var IE_PROTO = _sharedKey('IE_PROTO');
-
-var _objectKeysInternal = function (object, names) {
-  var O = _toIobject(object);
-  var i = 0;
-  var result = [];
-  var key;
-  for (key in O) if (key != IE_PROTO) _has(O, key) && result.push(key);
-  // Don't enum bug & hidden keys
-  while (names.length > i) if (_has(O, key = names[i++])) {
-    ~arrayIndexOf(result, key) || result.push(key);
-  }
-  return result;
-};
-
-// IE 8- don't enum bug keys
-var _enumBugKeys = (
-  'constructor,hasOwnProperty,isPrototypeOf,propertyIsEnumerable,toLocaleString,toString,valueOf'
-).split(',');
-
-// 19.1.2.14 / 15.2.3.14 Object.keys(O)
-
-
-
-var _objectKeys = Object.keys || function keys(O) {
-  return _objectKeysInternal(O, _enumBugKeys);
-};
-
-var f$1 = Object.getOwnPropertySymbols;
-
-var _objectGops = {
-	f: f$1
-};
-
-var f$2 = {}.propertyIsEnumerable;
-
-var _objectPie = {
-	f: f$2
-};
-
-// 7.1.13 ToObject(argument)
-
-var _toObject = function (it) {
-  return Object(_defined(it));
-};
-
-// 19.1.2.1 Object.assign(target, source, ...)
-
-
-
-
-
-var $assign = Object.assign;
-
-// should work with symbols and should have deterministic property order (V8 bug)
-var _objectAssign = !$assign || _fails(function () {
-  var A = {};
-  var B = {};
-  // eslint-disable-next-line no-undef
-  var S = Symbol();
-  var K = 'abcdefghijklmnopqrst';
-  A[S] = 7;
-  K.split('').forEach(function (k) { B[k] = k; });
-  return $assign({}, A)[S] != 7 || Object.keys($assign({}, B)).join('') != K;
-}) ? function assign(target, source) { // eslint-disable-line no-unused-vars
-  var T = _toObject(target);
-  var aLen = arguments.length;
-  var index = 1;
-  var getSymbols = _objectGops.f;
-  var isEnum = _objectPie.f;
-  while (aLen > index) {
-    var S = _iobject(arguments[index++]);
-    var keys = getSymbols ? _objectKeys(S).concat(getSymbols(S)) : _objectKeys(S);
-    var length = keys.length;
-    var j = 0;
-    var key;
-    while (length > j) if (isEnum.call(S, key = keys[j++])) T[key] = S[key];
-  } return T;
-} : $assign;
-
-// 19.1.3.1 Object.assign(target, source)
-
-
-_export(_export.S + _export.F, 'Object', { assign: _objectAssign });
-
-var assign = _core.Object.assign;
-
-var assign$1 = createCommonjsModule(function (module) {
-module.exports = { "default": assign, __esModule: true };
-});
-
-unwrapExports(assign$1);
-
-var _extends$32 = createCommonjsModule(function (module, exports) {
-
-exports.__esModule = true;
-
-
-
-var _assign2 = _interopRequireDefault(assign$1);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-exports.default = _assign2.default || function (target) {
-  for (var i = 1; i < arguments.length; i++) {
-    var source = arguments[i];
-
-    for (var key in source) {
-      if (Object.prototype.hasOwnProperty.call(source, key)) {
-        target[key] = source[key];
-      }
-    }
-  }
-
-  return target;
-};
-});
-
-unwrapExports(_extends$32);
-
 var ru_RU = createCommonjsModule(function (module, exports) {
 
 exports.__esModule = true;
@@ -25471,14 +25068,16 @@ var ru_RU$2 = createCommonjsModule(function (module, exports) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports["default"] = void 0;
+
 /**
  * Created by Andrey Gayvoronsky on 13/04/16.
  */
 var locale = {
   placeholder: 'Выберите время'
 };
-exports['default'] = locale;
-module.exports = exports['default'];
+var _default = locale;
+exports["default"] = _default;
 });
 
 unwrapExports(ru_RU$2);
@@ -25488,32 +25087,27 @@ var ru_RU$4 = createCommonjsModule(function (module, exports) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports["default"] = void 0;
 
+var _ru_RU = _interopRequireDefault(ru_RU);
 
+var _ru_RU2 = _interopRequireDefault(ru_RU$2);
 
-var _extends3 = _interopRequireDefault(_extends$32);
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
+function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
-
-var _ru_RU2 = _interopRequireDefault(ru_RU);
-
-
-
-var _ru_RU4 = _interopRequireDefault(ru_RU$2);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-/**
- * Created by Andrey Gayvoronsky on 13/04/16.
- */
 var locale = {
-  lang: (0, _extends3['default'])({ placeholder: 'Выберите дату', rangePlaceholder: ['Начальная дата', 'Конечная дата'] }, _ru_RU2['default']),
-  timePickerLocale: (0, _extends3['default'])({}, _ru_RU4['default'])
-};
-// All settings at:
+  lang: _extends({
+    placeholder: 'Выберите дату',
+    rangePlaceholder: ['Начальная дата', 'Конечная дата']
+  }, _ru_RU["default"]),
+  timePickerLocale: _extends({}, _ru_RU2["default"])
+}; // All settings at:
 // https://github.com/ant-design/ant-design/blob/master/components/date-picker/locale/example.json
-exports['default'] = locale;
-module.exports = exports['default'];
+
+var _default = locale;
+exports["default"] = _default;
 });
 
 var locale$1 = unwrapExports(ru_RU$4);
@@ -26166,12 +25760,12 @@ function check(value, predicate, error) {
   }
 }
 
-var hasOwnProperty$15 = Object.prototype.hasOwnProperty;
+var hasOwnProperty$14 = Object.prototype.hasOwnProperty;
 function hasOwn$1(object, property) {
-  return is$2.notUndef(object) && hasOwnProperty$15.call(object, property);
+  return is$1.notUndef(object) && hasOwnProperty$14.call(object, property);
 }
 
-var is$2 = {
+var is$1 = {
   undef: function undef(v) {
     return v === null || v === undefined;
   },
@@ -26189,37 +25783,37 @@ var is$2 = {
   },
   array: Array.isArray,
   object: function object(obj) {
-    return obj && !is$2.array(obj) && (typeof obj === 'undefined' ? 'undefined' : _typeof$8(obj)) === 'object';
+    return obj && !is$1.array(obj) && (typeof obj === 'undefined' ? 'undefined' : _typeof$8(obj)) === 'object';
   },
   promise: function promise(p) {
-    return p && is$2.func(p.then);
+    return p && is$1.func(p.then);
   },
   iterator: function iterator(it) {
-    return it && is$2.func(it.next) && is$2.func(it.throw);
+    return it && is$1.func(it.next) && is$1.func(it.throw);
   },
   iterable: function iterable(it) {
-    return it && is$2.func(Symbol) ? is$2.func(it[Symbol.iterator]) : is$2.array(it);
+    return it && is$1.func(Symbol) ? is$1.func(it[Symbol.iterator]) : is$1.array(it);
   },
   task: function task(t) {
     return t && t[TASK];
   },
   observable: function observable(ob) {
-    return ob && is$2.func(ob.subscribe);
+    return ob && is$1.func(ob.subscribe);
   },
   buffer: function buffer(buf) {
-    return buf && is$2.func(buf.isEmpty) && is$2.func(buf.take) && is$2.func(buf.put);
+    return buf && is$1.func(buf.isEmpty) && is$1.func(buf.take) && is$1.func(buf.put);
   },
   pattern: function pattern(pat) {
-    return pat && (is$2.string(pat) || (typeof pat === 'undefined' ? 'undefined' : _typeof$8(pat)) === 'symbol' || is$2.func(pat) || is$2.array(pat));
+    return pat && (is$1.string(pat) || (typeof pat === 'undefined' ? 'undefined' : _typeof$8(pat)) === 'symbol' || is$1.func(pat) || is$1.array(pat));
   },
   channel: function channel(ch) {
-    return ch && is$2.func(ch.take) && is$2.func(ch.close);
+    return ch && is$1.func(ch.take) && is$1.func(ch.close);
   },
   helper: function helper(it) {
     return it && it[HELPER];
   },
   stringableFunc: function stringableFunc(f) {
-    return is$2.func(f) && hasOwn$1(f, 'toString');
+    return is$1.func(f) && hasOwn$1(f, 'toString');
   }
 };
 
@@ -26277,7 +25871,7 @@ var done = { done: true, value: undefined };
 var qEnd = {};
 
 function safeName(patternOrChannel) {
-  if (is$2.channel(patternOrChannel)) {
+  if (is$1.channel(patternOrChannel)) {
     return 'channel';
   } else if (Array.isArray(patternOrChannel)) {
     return String(patternOrChannel.map(function (entry) {
@@ -26367,12 +25961,12 @@ function take() {
   var patternOrChannel = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '*';
 
   if (arguments.length) {
-    check(arguments[0], is$2.notUndef, 'take(patternOrChannel): patternOrChannel is undefined');
+    check(arguments[0], is$1.notUndef, 'take(patternOrChannel): patternOrChannel is undefined');
   }
-  if (is$2.pattern(patternOrChannel)) {
+  if (is$1.pattern(patternOrChannel)) {
     return effect(TAKE, { pattern: patternOrChannel });
   }
-  if (is$2.channel(patternOrChannel)) {
+  if (is$1.channel(patternOrChannel)) {
     return effect(TAKE, { channel: patternOrChannel });
   }
   throw new Error('take(patternOrChannel): argument ' + String(patternOrChannel) + ' is not valid channel or a valid pattern');
@@ -26386,11 +25980,11 @@ take.maybe = function () {
 
 function put(channel, action) {
   if (arguments.length > 1) {
-    check(channel, is$2.notUndef, 'put(channel, action): argument channel is undefined');
-    check(channel, is$2.channel, 'put(channel, action): argument ' + channel + ' is not a valid channel');
-    check(action, is$2.notUndef, 'put(channel, action): argument action is undefined');
+    check(channel, is$1.notUndef, 'put(channel, action): argument channel is undefined');
+    check(channel, is$1.channel, 'put(channel, action): argument ' + channel + ' is not a valid channel');
+    check(action, is$1.notUndef, 'put(channel, action): argument action is undefined');
   } else {
-    check(channel, is$2.notUndef, 'put(action): argument action is undefined');
+    check(channel, is$1.notUndef, 'put(action): argument action is undefined');
     action = channel;
     channel = null;
   }
@@ -26410,10 +26004,10 @@ function all(effects) {
 }
 
 function getFnCallDesc(meth, fn, args) {
-  check(fn, is$2.notUndef, meth + ': argument fn is undefined');
+  check(fn, is$1.notUndef, meth + ': argument fn is undefined');
 
   var context = null;
-  if (is$2.array(fn)) {
+  if (is$1.array(fn)) {
     var _fn = fn;
     context = _fn[0];
     fn = _fn[1];
@@ -26422,10 +26016,10 @@ function getFnCallDesc(meth, fn, args) {
     context = _fn2.context;
     fn = _fn2.fn;
   }
-  if (context && is$2.string(fn) && is$2.func(context[fn])) {
+  if (context && is$1.string(fn) && is$1.func(context[fn])) {
     fn = context[fn];
   }
-  check(fn, is$2.func, meth + ': argument ' + fn + ' is not a function');
+  check(fn, is$1.func, meth + ': argument ' + fn + ' is not a function');
 
   return { context: context, fn: fn, args: args };
 }
@@ -26454,8 +26048,8 @@ function select(selector) {
   if (arguments.length === 0) {
     selector = ident;
   } else {
-    check(selector, is$2.notUndef, 'select(selector,[...]): argument selector is undefined');
-    check(selector, is$2.func, 'select(selector,[...]): argument ' + selector + ' is not a function');
+    check(selector, is$1.notUndef, 'select(selector,[...]): argument selector is undefined');
+    check(selector, is$1.func, 'select(selector,[...]): argument ' + selector + ' is not a function');
   }
   return effect(SELECT, { selector: selector, args: args });
 }
