@@ -1,7 +1,7 @@
 import React from 'react';
 import { Input, Form, Checkbox, Select, DatePicker } from 'antd'
 import moment from 'moment'
-//import 'moment/locale/ru'
+import 'moment/locale/ru'
 //import locale from 'antd/lib/date-picker/locale/ru_RU'
 moment.locale('ru');
 
@@ -78,7 +78,7 @@ export const renderField = ({
 				style={{ width: '100%' }}
 				onPressEnter={onPressEnter}
 				{...input}
-				//value={input.value ? moment(input.value, 'DD/MM/YYYY') : null}
+				value={input.value ? moment(input.value, 'DD/MM/YYYY') : null}
 				placeholder={placeholder}
 				// onChange={(value) => console.log(value)}
 				format="DD/MM/YYYY"
