@@ -25221,7 +25221,7 @@ var ru = createCommonjsModule(function (module, exports) {
 });
 
 //import locale from 'antd/lib/date-picker/locale/ru_RU'
-hooks.locale('ru');
+//moment.locale('ru');
 
 var SelectOption = antd.Select.Option;
 
@@ -25249,7 +25249,8 @@ var renderField = function renderField(_ref) {
 	    defaultValue = _ref.defaultValue,
 	    addonAfter = _ref.addonAfter,
 	    enterButton = _ref.enterButton,
-	    dropdownRender = _ref.dropdownRender;
+	    dropdownRender = _ref.dropdownRender,
+	    locale = _ref.locale;
 	return React__default.createElement(
 		antd.Form.Item,
 		_extends$5({
@@ -25305,7 +25306,7 @@ var renderField = function renderField(_ref) {
 						style: { width: '100%' },
 						onPressEnter: onPressEnter
 					}, input, {
-						value: input.value ? hooks(input.value, 'DD/MM/YYYY') : null,
+						value: input.value ? hooks(input.value, 'DD/MM/YYYY').locale(locale || 'ru') : null,
 						placeholder: placeholder
 						// onChange={(value) => console.log(value)}
 						, format: 'DD/MM/YYYY'

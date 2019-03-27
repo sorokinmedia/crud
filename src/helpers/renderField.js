@@ -3,7 +3,7 @@ import { Input, Form, Checkbox, Select, DatePicker } from 'antd'
 import moment from 'moment'
 import 'moment/locale/ru'
 //import locale from 'antd/lib/date-picker/locale/ru_RU'
-moment.locale('ru');
+//moment.locale('ru');
 
 const { Option: SelectOption } = Select;
 const Search = Input.Search;
@@ -27,7 +27,8 @@ export const renderField = ({
 	defaultValue,
 	addonAfter,
 	enterButton,
-	dropdownRender
+	dropdownRender,
+	locale
 }) => (<Form.Item
 	hasFeedback
 	{...layout}
@@ -78,7 +79,7 @@ export const renderField = ({
 				style={{ width: '100%' }}
 				onPressEnter={onPressEnter}
 				{...input}
-				value={input.value ? moment(input.value, 'DD/MM/YYYY') : null}
+				value={input.value ? moment(input.value, 'DD/MM/YYYY').locale(locale || 'ru') : null}
 				placeholder={placeholder}
 				// onChange={(value) => console.log(value)}
 				format="DD/MM/YYYY"
