@@ -104,7 +104,8 @@ export class CrudFull extends Component {
 			tdClass,
 			initialModal,
 			scrollX,
-			pageSize
+			pageSize,
+			renderField
 		} = this.props;
 
 		const { title, titleEdit, fields } = createFormOptions || {};
@@ -147,6 +148,7 @@ export class CrudFull extends Component {
 						? updateShape(objectModal.initialValues)
 						: initialModal || {}
 					}
+					renderField={renderField}
 				/> : '' }
 			</div>
 		)
@@ -176,7 +178,8 @@ CrudFull.propTypes = {
 	scrollX: PropTypes.number,
 	modelName: PropTypes.string.isRequired,
 	pageSize: PropTypes.number,
-	onDeleteConfirmMessageFunc: PropTypes.func
+	onDeleteConfirmMessageFunc: PropTypes.func,
+	renderField: PropTypes.func
 };
 
 CrudFull.defaultProps = {

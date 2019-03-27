@@ -25357,7 +25357,7 @@ var CreateModalForm = function (_Component) {
 					{ key: props.name },
 					_this.mapFields(props.fields)
 				) : React__default.createElement(Field, _extends$5({}, props, {
-					component: props.component || renderField,
+					component: props.component || _this.props.renderField,
 					key: props.name,
 					options: _this.props.options[props.optionsKey] || props.options || []
 				}));
@@ -25407,8 +25407,13 @@ CreateModalForm.propTypes = {
 	onCreate: propTypes.func.isRequired,
 	title: propTypes.string,
 	titleEdit: propTypes.string,
-	fields: propTypes.array.isRequired
+	fields: propTypes.array.isRequired,
+	renderField: propTypes.oneOfType([propTypes.func, propTypes.object])
 };
+CreateModalForm.defaultProps = {
+	renderField: renderField
+};
+
 
 CreateModalForm = reduxForm({
 	form: 'createModel',
@@ -25570,7 +25575,8 @@ var CrudFull = function (_Component) {
 			    tdClass = _props.tdClass,
 			    initialModal = _props.initialModal,
 			    scrollX = _props.scrollX,
-			    pageSize = _props.pageSize;
+			    pageSize = _props.pageSize,
+			    renderField = _props.renderField;
 
 			var _ref2 = createFormOptions || {},
 			    title = _ref2.title,
@@ -25614,7 +25620,8 @@ var CrudFull = function (_Component) {
 					onClose: this.handleClose,
 					onCreate: objectModal.modalType === 'edit' ? this.handleUpdate : this.handleCreate,
 					fields: fields,
-					initialValues: objectModal.initialValues ? updateShape(objectModal.initialValues) : initialModal || {}
+					initialValues: objectModal.initialValues ? updateShape(objectModal.initialValues) : initialModal || {},
+					renderField: renderField
 				}) : ''
 			);
 		}
@@ -25645,7 +25652,8 @@ CrudFull.propTypes = {
 	scrollX: propTypes.number,
 	modelName: propTypes.string.isRequired,
 	pageSize: propTypes.number,
-	onDeleteConfirmMessageFunc: propTypes.func
+	onDeleteConfirmMessageFunc: propTypes.func,
+	renderField: propTypes.func
 };
 
 CrudFull.defaultProps = {
