@@ -75,6 +75,7 @@ export const renderField = ({
 				enterButton={enterButton}
 			/>);
 		case 'date':
+			console.log(moment.locale())
 			return (<DatePicker
 				style={{ width: '100%' }}
 				onPressEnter={onPressEnter}

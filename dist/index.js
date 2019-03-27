@@ -25302,6 +25302,7 @@ var renderField = function renderField(_ref) {
 						enterButton: enterButton
 					}));
 				case 'date':
+					console.log(hooks.locale());
 					return React__default.createElement(antd.DatePicker, _extends$5({
 						style: { width: '100%' },
 						onPressEnter: onPressEnter
