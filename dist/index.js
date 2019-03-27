@@ -25306,7 +25306,7 @@ var renderField = function renderField(_ref) {
 						style: { width: '100%' },
 						onPressEnter: onPressEnter
 					}, input, {
-						value: input.value ? hooks(input.value, 'DD/MM/YYYY').locale(locale || 'ru') : null,
+						value: input.value ? hooks(input.value, 'DD/MM/YYYY').locale('ru') : null,
 						placeholder: placeholder
 						// onChange={(value) => console.log(value)}
 						, format: 'DD/MM/YYYY'

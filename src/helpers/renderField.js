@@ -79,7 +79,7 @@ export const renderField = ({
 				style={{ width: '100%' }}
 				onPressEnter={onPressEnter}
 				{...input}
-				value={input.value ? moment(input.value, 'DD/MM/YYYY').locale(locale || 'ru') : null}
+				value={input.value ? moment(input.value, 'DD/MM/YYYY').locale('ru') : null}
 				placeholder={placeholder}
 				// onChange={(value) => console.log(value)}
 				format="DD/MM/YYYY"
