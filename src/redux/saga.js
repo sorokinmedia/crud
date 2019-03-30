@@ -10,21 +10,21 @@ import regeneratorRuntime from 'regenerator-runtime'
 import reduceMessages from "../helpers/reduceMessages";
 export const selectCrudParams = state => state.crudParams;
 
+function isDateColumn(columns, key) {
+	return !!columns.find(e => e.type === 'date' && e.id === key);
+}
+
 function getFiltersValues(filters, columns) {
 
 	const res = Object.keys(filters).reduce((acc, key) => ({
 		...acc,
-		[key]: isDateColumn(columns, key) ? moment(filters[key]).unix()
+		[key]: isDateColumn(columns, key) ? (filters[key] instanceof Array || null) ? null : moment(filters[key]).unix()
 			: filters[key].constructor !== Array ? filters[key]
 				: null
 	}), {});
 	// buildUrlSearchForArray(filters[key], key)
 
 	return res;
-}
-
-function isDateColumn(columns, key) {
-	return !!columns.find(e => e.type === 'date' && e.id === key);
 }
 
 export const selectColumns = modelName => state => state.crudModels[modelName];

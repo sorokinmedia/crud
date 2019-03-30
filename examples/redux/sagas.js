@@ -3,14 +3,14 @@ import { saga } from '../../src/index'
 import { takeEvery, all, put, call } from 'redux-saga/effects'
 import { START, ERROR, SUCCESS } from './constants';
 
-const API = 'http://api.workhard.kosmoz.online'
+const API = 'http://api.rentrika.kosmoz.online'
 
 export function* requestSaga(action) {
 	const {
 		payload, method, url, auth, oldType: type, token_is_active
 	} = action;
 
-	const token = '5af944d14a8dd9d92f9b9868dd82118b'
+	const token = 'e7e1ad12986da9f35d44fd8042a7f78d'
 	//'f9ad75859d9a7acd94e7a3acc639e0be';
 	//'cef506b12fd189faf83b95c2af29d6c6'
 

@@ -21,7 +21,6 @@ class CrudView extends Component {
 	}
 
 	handleTableChange = (pagination, filters, sorter) => {
-		// console.log(pagination, filters, sorter);
 		this.props.fetchCrudModels({
 			modelName: this.props.modelName,
 			url: this.props.url,
