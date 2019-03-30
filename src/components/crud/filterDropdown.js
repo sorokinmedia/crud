@@ -46,10 +46,11 @@ export default (name, type, options) => ({ setSelectedKeys, selectedKeys, confir
 							? moment(selectedKeys, 'DD/MM/YYYY').locale('ru')
 							: null
 						}
-						onChange={value => { console.log(value);setSelectedKeys(value)}}
+						onChange={value => setSelectedKeys(value)}
 						onPressEnter={() => { confirm() }}
 						placeholder="Выберите дату"
 						format={'DD/MM/YYYY'}
+						style={{ marginRight: '8px' }}
 					/>
 				)
 					: (

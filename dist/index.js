@@ -10806,13 +10806,14 @@ var filterDropdown = (function (name, type, options) {
 			) : type === 'date' ? React__default.createElement(antd.DatePicker, {
 				value: selectedKeys && !(selectedKeys instanceof Array) ? hooks(selectedKeys, 'DD/MM/YYYY').locale('ru') : null,
 				onChange: function onChange(value) {
-					console.log(value);setSelectedKeys(value);
+					return setSelectedKeys(value);
 				},
 				onPressEnter: function onPressEnter() {
 					confirm();
 				},
 				placeholder: '\u0412\u044B\u0431\u0435\u0440\u0438\u0442\u0435 \u0434\u0430\u0442\u0443',
-				format: 'DD/MM/YYYY'
+				format: 'DD/MM/YYYY',
+				style: { marginRight: '8px' }
 			}) : React__default.createElement(antd.Input, {
 				type: type,
 				placeholder: '\u041F\u043E\u0438\u0441\u043A',
