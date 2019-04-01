@@ -1,6 +1,6 @@
 {
 	"name": "sm-react-crud",
-	"version": "2.0.1",
+	"version": "2.1.0",
 	"description": "Common frontend CRUD components for SM",
 	"main": "dist/index.js",
 	"repository": {
