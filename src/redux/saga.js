@@ -120,7 +120,7 @@ export function* updateModelsSaga(action) {
 	const params = yield select(selectCrudParams);
 	//console.log(action)
 	const { modelName, crudRead, filters, page, order, order_by } = params[action.modelName || action.payload.modelName];
-	console.log(params[action.modelName]);
+
 	yield put(actions.fetchCrudModels({
 		modelName,
 		url: crudRead,
@@ -133,9 +133,9 @@ export function* updateModelsSaga(action) {
 export function* deleteModelSaga(action) {
 	yield put(request({
 		...action,
-		method: 'POST',
+		method: action.payload.action.method, //'POST',
 		auth: true,
-		url: `${action.payload.url}`,
+		url: `${action.payload.action.url}`,
 		payload: action.payload
 	}))
 }
@@ -156,7 +156,7 @@ export function* changeModelSaga(action) {
 
 	yield put(request({
 		...action,
-		method: 'POST',
+		method: action.payload.action.method, //'POST',
 		auth: true,
 		url: `${action.payload.action.url}`,
 		payload: params[action.payload.modelName].submitShape(action.payload.form),

@@ -11,7 +11,7 @@ function App({ taskType, userTag }) {
 	return (
 		<div className="box box-body crud-table">
 			<CrudFull
-				crudRead="/v1/owner/finance/logs"
+				crudRead="/v1/owner/tenant/list"
 				crudCreate="/v2/admin/task/commission"
 				modelName="crudCommisionList"
 				createDisabled={false}

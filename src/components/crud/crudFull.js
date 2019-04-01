@@ -74,7 +74,7 @@ export class CrudFull extends Component {
 	handleDelete = (action, elem) => {
 		const conf = window.confirm(this.props.onDeleteConfirmMessageFunc(elem));
 
-		if (conf) this.props.deleteModel(elem.id, action.url, this.props.modelName)
+		if (conf) this.props.deleteModel(elem.id, action, this.props.modelName)
 	};
 
 	handleRestore = (action, elem) => {
