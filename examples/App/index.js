@@ -47,6 +47,7 @@ function App({ taskType, userTag }) {
 				})}
 				fixActionColumn={false}
 				pageSize={5}
+				CustomButtons={() => <span>HELLO</span>}
 			/>
 		</div>
 	)

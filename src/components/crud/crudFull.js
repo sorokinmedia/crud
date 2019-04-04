@@ -105,7 +105,8 @@ export class CrudFull extends Component {
 			initialModal,
 			scrollX,
 			pageSize,
-			renderField
+			renderField,
+			CustomButtons
 		} = this.props;
 
 		const { title, titleEdit, fields } = createFormOptions || {};
@@ -123,6 +124,8 @@ export class CrudFull extends Component {
 						{createButtonTitle}
 					</Btn>
 				) : null }
+
+				<CustomButtons />
 
 				<CrudView
 					modelName={modelName}
@@ -179,7 +182,11 @@ CrudFull.propTypes = {
 	modelName: PropTypes.string.isRequired,
 	pageSize: PropTypes.number,
 	onDeleteConfirmMessageFunc: PropTypes.func,
-	renderField: PropTypes.func
+	renderField: PropTypes.func,
+	CustomButtons: PropTypes.oneOfType([
+		PropTypes.func,
+		PropTypes.object
+	])
 };
 
 CrudFull.defaultProps = {
@@ -193,6 +200,7 @@ CrudFull.defaultProps = {
 	iconTheme: 'outline',
 	size: 'default',
 	iconsProvider: () => '',
+	CustomButtons: () => null,
 	pageSize: 20,
 	onDeleteConfirmMessageFunc: elem => `Хотите удалить "${elem.name}" (ID: ${elem.id})?`
 };
