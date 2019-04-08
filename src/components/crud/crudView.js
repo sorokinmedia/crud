@@ -7,7 +7,7 @@ import filterRenderer from './filterRenderer'
 import dataRenderer from './dataRenderer'
 import Loader from './loader'
 
-const { fetchCrudModels, fetchCrudChildren } = crudActions;
+const { fetchCrudModels, fetchCrudChildren, setCrudParams } = crudActions;
 const isBigDesctop = window.document.documentElement.scrollWidth > 1646;
 
 class CrudView extends Component {
@@ -21,7 +21,6 @@ class CrudView extends Component {
 	}
 
 	handleTableChange = (pagination, filters, sorter) => {
-		// console.log(pagination, filters, sorter);
 		this.props.fetchCrudModels({
 			modelName: this.props.modelName,
 			url: this.props.url,
@@ -29,6 +28,14 @@ class CrudView extends Component {
 			order_by: sorter.columnKey,
 			order: sorter.order
 		}, filters);
+
+		this.props.setCrudParams({
+			...this.props.crudParams[this.props.modelName],
+			page: pagination.current,
+			order_by: sorter.columnKey,
+			order: sorter.order,
+			filters
+		})
 	};
 
 	handleExpand = (isExpanded, row) => {
@@ -89,30 +96,34 @@ class CrudView extends Component {
 						theme="outlined"
 					/>)
 				: null,
-			filterDropdown: col.filter.can ? filterRenderer(col.filter.type, col.id, this.getFiterValues(col)) : null,
+			filterDropdown: col.filter.can
+				? filterRenderer(col.filter.type, col.id, this.getFiterValues(col))
+				: null,
 			sorter: col.order.can ? () => {
 			} : null// (a, b) => Number(a.id) - Number(b.id),
-		}))
+		}));
 
 		const TableComponent = TableWrapper || Table;
 
-		return (<TableComponent
-			columns={columns}
-			dataSource={listItems}
-			className="isoSortingTable"
-			onChange={this.handleTableChange}
-			pagination={{
-				defaultCurrent: 1,
-				pageSize: pageSize,
-				total: items.data.count,
-				hideOnSinglePage: true
-			}}
-			loading={items.loading}
-			scroll={!isBigDesctop && fixActionColumn ? { x: scrollX } : {}}
-			onExpand={this.handleExpand}
-			size={size}
-			tableStyle={tableStyle}
-		/>);
+		return (
+			<TableComponent
+				columns={columns}
+				dataSource={listItems}
+				className="isoSortingTable"
+				onChange={this.handleTableChange}
+				pagination={{
+					defaultCurrent: 1,
+					pageSize: pageSize,
+					total: items.data.count,
+					hideOnSinglePage: true
+				}}
+				loading={items.loading}
+				scroll={!isBigDesctop && fixActionColumn ? { x: scrollX } : {}}
+				onExpand={this.handleExpand}
+				size={size}
+				tableStyle={tableStyle}
+			/>
+		);
 	}
 }
 
@@ -136,8 +147,10 @@ CrudView.defaultProps = {
 
 export default connect((state, props) => ({
 	items: state.crudModels[props.modelName],
-	filterValues: state.crudFilterValues[props.modelName]
+	filterValues: state.crudFilterValues[props.modelName],
+	crudParams: state.crudParams
 }), {
 	fetchCrudModels,
-	fetchCrudChildren
+	fetchCrudChildren,
+	setCrudParams
 })(CrudView);

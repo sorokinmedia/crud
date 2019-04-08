@@ -7,6 +7,23 @@ import { renderField } from '../../helpers/renderField'
 
 class CreateModalForm extends Component {
 
+	static propTypes = {
+		modalType: PropTypes.string,
+		onClose: PropTypes.func.isRequired,
+		onCreate: PropTypes.func.isRequired,
+		title: PropTypes.string,
+		titleEdit: PropTypes.string,
+		fields: PropTypes.array.isRequired,
+		renderField: PropTypes.oneOfType([
+			PropTypes.func,
+			PropTypes.object
+		])
+	};
+
+	static defaultProps = {
+		renderField
+	};
+
 	componentDidMount() {
 
 	}
@@ -28,7 +45,7 @@ class CreateModalForm extends Component {
 			{this.mapFields(props.fields)}
 		</div> : <Field
 			{...props}
-			component={props.component || renderField}
+			component={props.component || this.props.renderField}
 			key={props.name}
 			options={this.props.options[props.optionsKey] || props.options || []}
 		/>)
@@ -37,30 +54,23 @@ class CreateModalForm extends Component {
 	render() {
 		const { modalType, title, titleEdit, fields, crudCreateModalLoading } = this.props;
 
-		return <Modal
-			title={modalType === 'edit' ? titleEdit : title}
-			visible={true}
-			onCancel={this.handleCancel}
-			cancelText="Отмена"
-			confirmLoading={crudCreateModalLoading}
-			onOk={this.props.handleSubmit(this.handleSubmit)}
-			okText={modalType === 'edit' ? 'Сохранить' : 'Создать'}
-		>
-			<form onSubmit={this.props.handleSubmit(this.handleSubmit)}>
-				{this.mapFields(fields)}
-			</form>
-		</Modal>
+		return (
+			<Modal
+				title={modalType === 'edit' ? titleEdit : title}
+				visible={true}
+				onCancel={this.handleCancel}
+				cancelText="Отмена"
+				confirmLoading={crudCreateModalLoading}
+				onOk={this.props.handleSubmit(this.handleSubmit)}
+				okText={modalType === 'edit' ? 'Сохранить' : 'Создать'}
+			>
+				<form onSubmit={this.props.handleSubmit(this.handleSubmit)}>
+					{this.mapFields(fields)}
+				</form>
+			</Modal>
+		)
 	}
 }
-
-CreateModalForm.propTypes = {
-	modalType: PropTypes.string,
-	onClose: PropTypes.func.isRequired,
-	onCreate: PropTypes.func.isRequired,
-	title: PropTypes.string,
-	titleEdit: PropTypes.string,
-	fields: PropTypes.array.isRequired
-};
 
 CreateModalForm = reduxForm({
 	form: 'createModel',

@@ -16,32 +16,51 @@ const BooleanCell = value => (
 const ArrTextCell = arr => arr.map(elem => <p>{elem}</p>);
 const HtmlCell = html => <span dangerouslySetInnerHTML={{ __html: html }} />;
 const ActionsCell = (row, modelName, iconTheme) => row.actions.map(action => (
-	<Action data={action} row={row} key={action.id} modelName={modelName} iconTheme={iconTheme} />))
+	<Action data={action} row={row} key={action.id} modelName={modelName} iconTheme={iconTheme} />));
 const ArrObjectCell = (obj) => {
-	if (!Array.isArray(obj) || !obj.length) return null
-	console.log('obj.lenght', obj.length);
+	if (!Array.isArray(obj) || !obj.length) return null;
 	return obj.map(({ created_at = false, updated_at = false, ...rest }) => {
-		console.log('rest', rest)
-		const restValues = rest ? Object.values(rest) : false
+		const restValues = rest ? Object.values(rest) : false;
 		const restAttributes = restValues
-			? restValues.map((el, i) => <span key={i}>{el}</span>) : ''
-		console.log('restValues', restValues)
-		console.log('restAttributes', restAttributes)
+			? restValues.map((el, i) => <span key={i}>{el}</span>) : '';
 		return (
 			<Fragment>
 				<p>
 					{created_at ? moment.unix(created_at)
 						.format('DD.MM.YYYY') : ''} {updated_at ? moment.unix(updated_at)
-					.format('DD.MM.YYYY') : ''} {restAttributes}
+						.format('DD.MM.YYYY') : ''} {restAttributes}
 				</p>
 				<br />
-			</Fragment>)
+			</Fragment>
+		)
 	})
-}
+};
+const renderer = (value, type, dateFormat) => {
+	switch (type) {
+	case 'date':
+		return moment.unix(value).format(dateFormat || 'DD.MM.YYYY');
+	case 'array_ext':
+		return ArrayCell(value);
+	default:
+		return value;
+	}
+};
+const ArrayCell = ({ values, type, delimiter, style, isHtml, dateFormat }) => {
+	if (!Array.isArray(values) || !values.length) return null;
+
+	return values.map((value, index) => (
+		<span style={isHtml && style ? style : null}>
+			{isHtml ? <span dangerouslySetInnerHTML={{ __html: value }} /> : ''}
+			{!isHtml && renderer(value, type, dateFormat)}
+			{index < (values.length - 1) && delimiter}
+		</span>
+	))
+};
 
 export {
 	DateCell,
 	TextCell,
+	ArrayCell,
 	ArrTextCell,
 	ArrObjectCell,
 	ActionsCell,

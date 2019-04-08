@@ -6,24 +6,25 @@ import { buildUrlSearch, buildUrlSearchForArray } from 'sm-string-helper'
 import { ERROR, SORT_ASC, SORT_DESC, SUCCESS, SUCCESS_REQ } from '../constants';
 import notification from '../notification';
 import actions from './actions';
-
+import regeneratorRuntime from 'regenerator-runtime'
+import reduceMessages from "../helpers/reduceMessages";
 export const selectCrudParams = state => state.crudParams;
+
+function isDateColumn(columns, key) {
+	return !!columns.find(e => e.type === 'date' && e.id === key);
+}
 
 function getFiltersValues(filters, columns) {
 
 	const res = Object.keys(filters).reduce((acc, key) => ({
 		...acc,
-		[key]: isDateColumn(columns, key) ? moment(filters[key]).unix()
+		[key]: isDateColumn(columns, key) ? (filters[key] instanceof Array || null) ? null : moment(filters[key]).unix()
 			: filters[key].constructor !== Array ? filters[key]
 				: null
 	}), {});
 	// buildUrlSearchForArray(filters[key], key)
 
 	return res;
-}
-
-function isDateColumn(columns, key) {
-	return !!columns.find(e => e.type === 'date' && e.id === key);
 }
 
 export const selectColumns = modelName => state => state.crudModels[modelName];
@@ -44,7 +45,7 @@ export function* fetchCrudModelsSaga(action) {
 
 	const params = payload ? buildUrlSearch({
 		...filters,
-		order: order === 'ascend' ? SORT_ASC : SORT_DESC,
+		order: !order ? null : order === 'ascend' ? SORT_ASC : SORT_DESC,
 		order_by,
 		page
 
@@ -117,18 +118,24 @@ export function* createModelSaga(action) {
 
 export function* updateModelsSaga(action) {
 	const params = yield select(selectCrudParams);
-	console.log(action)
-	const { modelName, crudRead } = params[action.modelName || action.payload.modelName];
+	//console.log(action)
+	const { modelName, crudRead, filters, page, order, order_by } = params[action.modelName || action.payload.modelName];
 
-	yield put(actions.fetchCrudModels({ modelName, url: crudRead }));
+	yield put(actions.fetchCrudModels({
+		modelName,
+		url: crudRead,
+		page,
+		order_by,
+		order
+	}, filters));
 }
 
 export function* deleteModelSaga(action) {
 	yield put(request({
 		...action,
-		method: 'POST',
+		method: action.payload.action.method, //'POST',
 		auth: true,
-		url: `${action.payload.url}`,
+		url: `${action.payload.action.url}`,
 		payload: action.payload
 	}))
 }
@@ -149,7 +156,7 @@ export function* changeModelSaga(action) {
 
 	yield put(request({
 		...action,
-		method: 'POST',
+		method: action.payload.action.method, //'POST',
 		auth: true,
 		url: `${action.payload.action.url}`,
 		payload: params[action.payload.modelName].submitShape(action.payload.form),
@@ -173,7 +180,7 @@ export function* closeModalSaga() {
 }
 
 export function* submitModelsModalFormFailSaga(action) {
-	const errors = yield { [action.error.targetField || 'name']: action.error.message };
+	const errors = reduceMessages(action.messages);
 	yield put(stopSubmit('createModel', errors));
 	yield notification('error', action.error.message);
 }

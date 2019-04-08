@@ -17,10 +17,10 @@ const actions = {
 	}),
 	toggleCreateModelModal: modelName => ({ type: actions.TOGGLE_CREATE_MODEL_MODAL, payload: { modelName } }),
 
-	deleteModel: (id, url, modelName) => ({
+	deleteModel: (id, action, modelName) => ({
 		type: actions.DELETE_MODEL,
 		payload: {
-			id, url, modelName
+			id, action, modelName
 		}
 	}),
 	restoreModel: (id, url, modelName) => ({

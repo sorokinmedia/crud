@@ -7,11 +7,11 @@ import createCommissionFields from './../createObjectTypeFields'
 // commission_list_container
 
 function App({ taskType, userTag }) {
-	console.log(taskType, userTag)
+	//console.log(taskType, userTag)
 	return (
 		<div className="box box-body crud-table">
 			<CrudFull
-				crudRead="/v2/admin/task/commission/list"
+				crudRead="/v1/owner/tenant/list"
 				crudCreate="/v2/admin/task/commission"
 				modelName="crudCommisionList"
 				createDisabled={false}
@@ -46,6 +46,8 @@ function App({ taskType, userTag }) {
 					commission_check: form.commission_check
 				})}
 				fixActionColumn={false}
+				pageSize={5}
+				CustomButtons={() => <span>HELLO</span>}
 			/>
 		</div>
 	)
@@ -53,7 +55,7 @@ function App({ taskType, userTag }) {
 
 
 export default connect(state => {
-	console.log(state.crudFilterValues)
+	//console.log(state.crudFilterValues)
 	return {
 		taskType: state.crudFilterValues && state.crudFilterValues.crudCommisionList
 			? state.crudFilterValues.crudCommisionList.task_type
