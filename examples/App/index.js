@@ -2,7 +2,7 @@ import 'antd/dist/antd.css';
 import PropTypes from 'prop-types'
 import React from 'react';
 import { connect } from 'react-redux'
-import { CrudFull } from '../../src/index';
+import { CrudFull } from '../../lib/index';
 import FormFields from './FormFields'
 import moment from 'moment'
 // import createCommissionFields from './../createObjectTypeFields'
