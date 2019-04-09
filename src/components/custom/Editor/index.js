@@ -5,7 +5,7 @@ import React, { Component } from 'react';
 import { Editor } from 'react-draft-wysiwyg';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
 import './index.css'
-import { get } from 'lodash'
+
 class DraftEditor extends Component {
 	constructor(props) {
 		super(props);
