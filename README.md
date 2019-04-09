@@ -65,7 +65,7 @@ provides a function to set shape of updating payload
 disables create mode
 
 ##### iconsProvider
-provides a function to chose an icon by id
+provides a function to choose an icon by id
 ```
 (id) => {
     switch (id) {
