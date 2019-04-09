@@ -1,8 +1,8 @@
-import { convertToRaw, EditorState, ContentState, convertFromHTML } from 'draft-js';
+import Draft from 'draft-js';
 import draftToHtml from 'draftjs-to-html';
 import PropTypes from 'prop-types'
 import React, { Component } from 'react';
-import { Editor } from 'react-draft-wysiwyg';
+import ReactDraft from 'react-draft-wysiwyg';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
 import './index.css'
 
@@ -11,8 +11,8 @@ class DraftEditor extends Component {
 		super(props);
 		this.state = {
 			editorState: props.input && props.input.value
-				? EditorState.createWithContent(ContentState.createFromBlockArray(convertFromHTML(props.input.value)))
-				: EditorState.createEmpty(),
+				? Draft.EditorState.createWithContent(Draft.ContentState.createFromBlockArray(Draft.convertFromHTML(props.input.value)))
+				: Draft.EditorState.createEmpty(),
 		}
 	}
 
@@ -20,15 +20,14 @@ class DraftEditor extends Component {
 		this.setState({
 			editorState,
 		});
-		this.props.input.onChange(draftToHtml(convertToRaw(editorState.getCurrentContent())))
+		this.props.input.onChange(draftToHtml(Draft.convertToRaw(editorState.getCurrentContent())))
 	};
 
 	render() {
 		const { editorState } = this.state;
-		console.log(this.props)
-		console.log(this.state)
+
 		return (
-			<Editor
+			<ReactDraft.Editor
 				defaultContentState="defaultContentState"
 				initialEditorState="initialEditorState"
 				defaultEditorState="defaultEditorState"
