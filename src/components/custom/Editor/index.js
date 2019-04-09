@@ -4,7 +4,7 @@ import PropTypes from 'prop-types'
 import React, { Component } from 'react';
 import { Editor } from 'react-draft-wysiwyg';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
-import './index.css'
+// import './index.css'
 
 class DraftEditor extends Component {
 	constructor(props) {
