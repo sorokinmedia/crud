@@ -21,6 +21,8 @@ export default {
 		'react',
 		'react-proptypes',
 		'antd',
+		'draft-js',
+		'react-draft-wysiwyg',
 		'react-is'
 	],
 	plugins: [
@@ -30,56 +32,61 @@ export default {
 		replace({
 			'process.env.NODE_ENV': JSON.stringify(NODE_ENV)
 		}),
+		json(),
 		resolve({
 			jsnext: true,
 			main: true
 		}),
-		image(),
 		babel({
-			exclude: 'node_modules/**',
-			plugins: ['external-helpers']
+			plugins: ['@babel/plugin-external-helpers'],
+			externalHelpers: true
 		}),
-		commonjs(/*{
-			// non-CommonJS modules will be ignored, but you can also
-			// specifically include/exclude files
-			include: 'node_modules/!**',  // Default: undefined
-			/!*exclude: [
-				'node_modules/draft-js/!**',
-			],*!/
+		commonjs({
+			include: 'node_modules/**',
 
-			// search for files other than .js files (must already
-			// be transpiled by a previous plugin!)
-			extensions: [ '.js', '.coffee' ],  // Default: [ '.js' ]
-
-			// if true then uses of `global` won't be dealt with by this plugin
-			ignoreGlobal: true,  // Default: false
-
-			// if false then skip sourceMap generation for CommonJS modules
-			sourceMap: true,  // Default: true
-
-			// explicitly specify unresolvable named exports
-			// (see below for more details)
-			namedExports: {
-				'react-dom': [
-					'findDOMNode', 'createPortal', 'unstable_renderSubtreeIntoContainer'
-				],
-				'draft-js': [
-					'ContentState', 'EditorState','SelectionState',
-					'CompositeDecorator', 'convertToRaw', 'Modifier',
-					'KeyBindingUtil', 'DefaultDraftBlockRenderMap',
-					'getDefaultKeyBinding', 'Editor', 'genKey',
-					'CharacterMetadata', 'ContentBlock', 'convertFromHTML',
-					'BlockMapBuilder', 'DefaultDraftInlineStyle'
-				],
-				'draft-js/lib/DraftOffsetKey': ['decode'],
-				'immutable': ['Map', 'List', 'fromJS', 'OrderedSet', 'Repeat', 'is'],
-				'fbjs/lib/ExecutionEnvironment': ['canUseDOM'],
-				'react-is': [
-					'isElement', 'isValidElementType', 'ForwardRef'
-				]
-			},  // Default: undefined
-		}*/),
-		json(),
+		}),
+		image(),
+		// commonjs(
+		// 	{
+		// 		// non-CommonJS modules will be ignored, but you can also
+		// 		// specifically include/exclude files
+		// 		include: 'node_modules/!**',  // Default: undefined
+		// 		exclude: [
+		// 			'node_modules/draft-js/!**',
+		// 		],
+		//
+		// 		// search for files other than .js files (must already
+		// 		// be transpiled by a previous plugin!)
+		// 		extensions: ['.js', '.coffee'],  // Default: [ '.js' ]
+		//
+		// 		// if true then uses of `global` won't be dealt with by this plugin
+		// 		ignoreGlobal: true,  // Default: false
+		//
+		// 		// if false then skip sourceMap generation for CommonJS modules
+		// 		sourceMap: true,  // Default: true
+		//
+		// 		// explicitly specify unresolvable named exports
+		// 		// (see below for more details)
+		// 		namedExports: {
+		// 			'react-dom': [
+		// 				'findDOMNode', 'createPortal', 'unstable_renderSubtreeIntoContainer'
+		// 			],
+		// 			'draft-js': [
+		// 				'ContentState', 'EditorState', 'SelectionState',
+		// 				'CompositeDecorator', 'convertToRaw', 'Modifier',
+		// 				'KeyBindingUtil', 'DefaultDraftBlockRenderMap',
+		// 				'getDefaultKeyBinding', 'Editor', 'genKey',
+		// 				'CharacterMetadata', 'ContentBlock', 'convertFromHTML',
+		// 				'BlockMapBuilder', 'DefaultDraftInlineStyle'
+		// 			],
+		// 			'draft-js/lib/DraftOffsetKey': ['decode'],
+		// 			'immutable': ['Map', 'List', 'fromJS', 'OrderedSet', 'Repeat', 'is'],
+		// 			'fbjs/lib/ExecutionEnvironment': ['canUseDOM'],
+		// 			'react-is': [
+		// 				'isElement', 'isValidElementType', 'ForwardRef'
+		// 			]
+		// 		},  // Default: undefined
+		// 	}),
 		uglify(),
 	],
 };

@@ -51,7 +51,6 @@ class CreateViewForm extends Component {
 			<Row align="middle" justify="space-between">
 				<Col span={20}>
 					<Button
-						style={{ marginBottom: 20 }}
 						size="small"
 						type="primary"
 						ghost
