@@ -1,71 +1,92 @@
 import 'antd/dist/antd.css';
+import PropTypes from 'prop-types'
 import React from 'react';
 import { connect } from 'react-redux'
 import { CrudFull } from '../../src/index';
-import createCommissionFields from './../createObjectTypeFields'
+import FormFields from './FormFields'
+import moment from 'moment'
+// import createCommissionFields from './../createObjectTypeFields'
 
 // commission_list_container
 
-function App({ taskType, userTag }) {
-	//console.log(taskType, userTag)
+function App({ roles, groups }) {
 	return (
 		<div className="box box-body crud-table">
 			<CrudFull
-				crudRead="/v1/owner/tenant/list"
-				crudCreate="/v2/admin/task/commission"
-				modelName="crudCommisionList"
+				crudRead="/v2/admin/site-alert/list"
+				crudCreate="/v2/admin/site-alert"
+				modelName="siteAlerts"
+				isView
 				createDisabled={false}
-				// createButtonTitleId={"sidebar.contractor.work.new"}
+				createButtonTitle="Добавить"
 				createFormOptions={{
-					fields: createCommissionFields.map((elem) => {
-						if (elem.name === 'task_type_id') {
+					fields: FormFields.map((elem) => {
+						console.log(elem)
+						if (elem.name === 'role') {
 							return {
 								...elem,
-								options: taskType
+								options: roles
 							}
 						}
-						if (elem.name === 'user_tag_id') {
+						if (elem.name === 'group_id') {
 							return {
 								...elem,
-								options: userTag,
+								options: groups,
 							}
 						}
 						return elem
 					}),
-					title: 'Добавить данные',
-					editTitle: 'Редактировать данные',
+					title: 'Добавить алерт',
+					editTitle: 'Редактировать алерт',
 				}}
-
-				submitShape={form => ({
-					TaskCommission: form,
-				})}
-				updateShape={form => ({
-					task_type_id: form.task_type.id,
-					user_tag_id: form.user_tag.id,
-					commission_task: form.commission_task,
-					commission_check: form.commission_check
-				})}
-				fixActionColumn={false}
-				pageSize={5}
-				CustomButtons={() => <span>HELLO</span>}
+				submitShape={form => {
+					console.log(form)
+					return {
+						SiteAlert: {
+							...form,
+							name: form.name,
+							text: form.text,
+							image: form.image,
+							role: form.role,
+							view_count_to_close: form.view_count_to_close,
+							finish_date: Number(moment(form.finish_date, 'DD/MM/YYYY')
+								.format('x') / 1000),
+							group_id: form.group_id,
+							order_id: form.order_id,
+						}
+					}
+				}}
+				updateShape={form => {
+					console.log(form)
+					return {
+						name: form.name,
+						text: form.text,
+						image: form.image,
+						role: form.role.id,
+						view_count_to_close: form.view_count_to_close,
+						finish_date: moment(form.finish_date * 1000)
+							.format('DD/MM/YYYY'),
+						group_id: (form.group) ? form.group.id : undefined,
+						order_id: form.order_id,
+					}
+				}}
+				size="middle"
+				fixActionColumn
 			/>
 		</div>
 	)
 }
 
+App.propTypes = {
+	roles: PropTypes.array,
+	groups: PropTypes.array,
+}
 
-export default connect(state => {
-	//console.log(state.crudFilterValues)
-	return {
-		taskType: state.crudFilterValues && state.crudFilterValues.crudCommisionList
-			? state.crudFilterValues.crudCommisionList.task_type
-			: [],
-		userTag: state.crudFilterValues && state.crudFilterValues.crudCommisionList
-			? state.crudFilterValues.crudCommisionList.user_tag
-			: [],
-	}
-})(App)
-
-
-App.propTypes = {};
-App.defaultProps = {};
+export default connect(state => ({
+	roles: state.crudFilterValues && state.crudFilterValues.siteAlerts
+		? state.crudFilterValues.siteAlerts.role
+		: [],
+	groups: state.crudFilterValues && state.crudFilterValues.siteAlerts
+		? state.crudFilterValues.siteAlerts.group
+		: [],
+}), {})(App)

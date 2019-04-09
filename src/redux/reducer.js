@@ -1,6 +1,6 @@
 import actions from './actions'
 import { ERROR, SORT_DESC, SUCCESS, START } from '../constants';
-import fitureResp from './respFixture'
+// import fitureResp from './respFixture'
 
 export const crudModelsReducer = (state = {}, action) => {
 	const { type, response, error, payload } = action;

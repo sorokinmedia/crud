@@ -89,8 +89,7 @@ export function* requestWHOSaga(action) {
 		payload, method, url, auth, oldType: type, token_is_active
 	} = action;
 
-	const token = '8df22f5b2da4f999538ec42fd8ebffc4'
-
+	const token = '843a2457d49802a3954e35c222e351c9'
 	try {
 		yield put({
 			...action,
@@ -114,6 +113,7 @@ export function* requestWHOSaga(action) {
 			WHO_API + url,
 			params
 		);
+
 		const response = yield data.json();
 		if (data.status !== 200 || (data.status === 200 && response.status === 100)) {
 			const error = getError(data, response);
@@ -146,7 +146,7 @@ export function* requestWHOSaga(action) {
 export default function* rootSaga() {
 	yield all([
 		saga(),
-		 takeEvery('REQUEST', requestSaga),
-		//takeEvery('REQUEST', requestWHOSaga),
+		// takeEvery('REQUEST', requestSaga),
+		takeEvery('REQUEST', requestWHOSaga),
 	]);
 }

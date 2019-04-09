@@ -57,7 +57,7 @@ class CreateModalForm extends Component {
 		return (
 			<Modal
 				title={modalType === 'edit' ? titleEdit : title}
-				visible={true}
+				visible
 				onCancel={this.handleCancel}
 				cancelText="Отмена"
 				confirmLoading={crudCreateModalLoading}
@@ -96,7 +96,7 @@ CreateModalForm =  connect((state, props) => {
 
 	return {
 		crudCreateModalLoading: state.crudCreateModalLoading,
-		options: options
+		options
 	}
 }, {
 

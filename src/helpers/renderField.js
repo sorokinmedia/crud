@@ -2,8 +2,10 @@ import React from 'react';
 import { Input, Form, Checkbox, Select, DatePicker } from 'antd'
 import moment from 'moment'
 import 'moment/locale/ru'
+import { Field } from 'redux-form'
 //import locale from 'antd/lib/date-picker/locale/ru_RU'
 //moment.locale('ru');
+import Editor from '../components/custom/Editor'
 
 const { Option: SelectOption } = Select;
 const Search = Input.Search;
@@ -75,7 +77,6 @@ export const renderField = ({
 				enterButton={enterButton}
 			/>);
 		case 'date':
-			console.log(moment.locale())
 			return (<DatePicker
 				style={{ width: '100%' }}
 				onPressEnter={onPressEnter}
@@ -86,6 +87,8 @@ export const renderField = ({
 				format="DD/MM/YYYY"
 				//locale={locale}
 			/>);
+		case 'editor':
+			return <Field name="text" component={Editor} />
 		default:
 			return (<Input
 				onPressEnter={onPressEnter}
