@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
-import { renderField } from '../../helpers/renderField'
 import actions from '../../redux/actions';
 import CrudView from './crudView'
 import CreateModel from './createModel'
@@ -27,6 +26,7 @@ export class CrudFull extends Component {
 			back: false
 		}
 	}
+
 	componentDidMount() {
 		this.props.setCrudActionsFunc(this.actionsFunc, this.props.modelName);
 		this.props.setCrudParams({
@@ -53,7 +53,7 @@ export class CrudFull extends Component {
 			default:
 				return customActionsFunc ? customActionsFunc(action, elem) : null;
 		}
-	};
+	}
 
 
 	openUpdateFrom = (action, elem) => {
@@ -70,7 +70,25 @@ export class CrudFull extends Component {
 		this.props.setModelModalForm(null, null);
 	};
 
+	handleUpdate = (form) => {
+		this.props.changeModel(form, this.props.objectModal.action, this.props.modelName)
+	};
 
+	handleCreate = (form) => {
+		this.props.createModel(form, this.props.crudCreate, this.props.modelName)
+	};
+
+	handleDelete = (action, elem) => {
+		const conf = window.confirm(`Хотите удалить "${elem.name}" (ID: ${elem.id})?`);
+
+		if (conf) this.props.deleteModel(elem.id, action.url, this.props.modelName)
+	};
+
+	handleRestore = (action, elem) => {
+		const conf = window.confirm(`Хотите восстановить "${elem.name}" (ID: ${elem.id})?`);
+
+		if (conf) this.props.restoreModel(elem.id, action.url, this.props.modelName)
+	};
 
 	render() {
 		const {
@@ -93,13 +111,15 @@ export class CrudFull extends Component {
 			tdClass,
 			initialModal,
 			scrollX,
+			pageSize,
 			isView,
-			pageSize
+			renderField,
+			CustomButtons
 		} = this.props;
 
 		const { title, titleEdit, fields } = createFormOptions || {};
 		const Btn = ButtonComponent || Button;
-		if (isView && isModalOpen === modelName && !createDisabled )
+		if (isView && isModalOpen === modelName && !createDisabled)
 			return (
 				<CreateModelView
 					title={title || 'Создать'}
@@ -115,63 +135,54 @@ export class CrudFull extends Component {
 					renderField={renderField}
 				/>)
 
-		return (<div>
-			{!createDisabled ? <Btn
-				type="primary"
-				name={'createButton'}
-				onClick={() => this.toggleModal(modelName)}
-				style={{
-					...btnStyle,
-					marginBottom: '20px'
-				}}
-			>
-				{createButtonTitle}
-			</Btn> : null}
-
-			<CrudView
-				modelName={modelName}
-				url={crudRead}
-				tableStyle={tableStyle}
-				TableWrapper={tableWrapper}
-				fixActionColumn={fixActionColumn}
-				iconTheme={iconTheme}
-				getChildrenUrl={getChildrenUrl}
-				size={size}
-				tdClass={tdClass}
-				scrollX={scrollX}
-				pageSize={pageSize}
-			/>
-			{isModalOpen === modelName && !createDisabled ? <CreateModel
-				title={title || 'Создать'}
-				titleEdit={titleEdit || 'Редактировать'}
-				modalType={objectModal.modalType}
-				onClose={this.handleClose}
-				onCreate={objectModal.modalType === 'edit' ? this.handleUpdate : this.handleCreate}
-				fields={fields}
-				initialValues={objectModal.initialValues ? updateShape(objectModal.initialValues) : initialModal || {}}
-			/> : ''}
-		</div>)
+		return (
+			<div>
+				{!createDisabled ?
+					(
+						<Btn
+							type="primary"
+							name="createButton"
+							onClick={() => this.toggleModal(modelName)}
+							style={{
+								...btnStyle,
+								marginBottom: '20px'
+							}}
+						>
+							{createButtonTitle}
+						</Btn>)
+					: null}
+				<CustomButtons />
+				<CrudView
+					modelName={modelName}
+					url={crudRead}
+					tableStyle={tableStyle}
+					TableWrapper={tableWrapper}
+					fixActionColumn={fixActionColumn}
+					iconTheme={iconTheme}
+					getChildrenUrl={getChildrenUrl}
+					size={size}
+					tdClass={tdClass}
+					scrollX={scrollX}
+					pageSize={pageSize}
+				/>
+				{isModalOpen === modelName && !createDisabled
+					? (
+						<CreateModel
+							title={title || 'Создать'}
+							titleEdit={titleEdit || 'Редактировать'}
+							modalType={objectModal.modalType}
+							onClose={this.handleClose}
+							onCreate={objectModal.modalType === 'edit'
+								? this.handleUpdate
+								: this.handleCreate}
+							fields={fields}
+							initialValues={objectModal.initialValues
+								? updateShape(objectModal.initialValues)
+								: initialModal || {}}
+						/>) : ''}
+			</div>)
 	}
 
-	handleUpdate = (form) => {
-		this.props.changeModel(form, this.props.objectModal.action, this.props.modelName)
-	};
-
-	handleCreate = (form) => {
-		this.props.createModel(form, this.props.crudCreate, this.props.modelName)
-	};
-
-	handleDelete = (action, elem) => {
-		const conf = window.confirm(`Хотите удалить "${elem.name}" (ID: ${elem.id})?`);
-
-		if (conf) this.props.deleteModel(elem.id, action.url, this.props.modelName)
-	};
-
-	handleRestore = (action, elem) => {
-		const conf = window.confirm(`Хотите восстановить "${elem.name}" (ID: ${elem.id})?`);
-
-		if (conf) this.props.restoreModel(elem.id, action.url, this.props.modelName)
-	};
 }
 
 CrudFull.propTypes = {
@@ -198,6 +209,12 @@ CrudFull.propTypes = {
 	iconsProvider: PropTypes.func,
 	scrollX: PropTypes.number,
 	pageSize: PropTypes.number,
+	onDeleteConfirmMessageFunc: PropTypes.func,
+	renderField: PropTypes.func,
+	CustomButtons: PropTypes.oneOfType([
+		PropTypes.func,
+		PropTypes.object
+	])
 };
 
 CrudFull.defaultProps = {
@@ -211,7 +228,9 @@ CrudFull.defaultProps = {
 	iconTheme: 'outline',
 	size: 'default',
 	iconsProvider: () => '',
-	pageSize: 20
+	CustomButtons: () => null,
+	pageSize: 20,
+	onDeleteConfirmMessageFunc: elem => `Хотите удалить "${elem.name}" (ID: ${elem.id})?`
 };
 
 export default connect(state => ({
