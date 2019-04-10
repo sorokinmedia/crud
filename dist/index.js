@@ -26076,6 +26076,7 @@ var renderField = function renderField(_ref) {
         return React__default.createElement(antd.Select, _extends$31({}, input, {
           value: input.value || [],
           mode: mode,
+          disabled: input.disabled ? true : false,
           style: {
             width: '100%'
           },
@@ -26435,12 +26436,7 @@ CreateViewForm = connect(function (state, props) {
 }, {})(CreateViewForm);
 var CreateModelView = CreateViewForm;
 
-var css$2 = ".anticon:before {\n\tdisplay: initial !important;\n}\n\n.crud-table-column {\n    min-width: 100px!important;\n}\n";
-styleInject(css$2);
-
 function _typeof$12(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof$12 = function _typeof(obj) { return typeof obj; }; } else { _typeof$12 = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof$12(obj); }
-
-function _objectSpread$1(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty$12(target, key, source[key]); }); } return target; }
 
 function _classCallCheck$30(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -26459,6 +26455,155 @@ function _inherits$29(subClass, superClass) { if (typeof superClass !== "functio
 function _setPrototypeOf$5(o, p) { _setPrototypeOf$5 = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf$5(o, p); }
 
 function _defineProperty$12(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+var CreateViewForm$1 =
+/*#__PURE__*/
+function (_Component) {
+  _inherits$29(CreateViewForm, _Component);
+
+  function CreateViewForm() {
+    var _getPrototypeOf2;
+
+    var _this;
+
+    _classCallCheck$30(this, CreateViewForm);
+
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    _this = _possibleConstructorReturn$29(this, (_getPrototypeOf2 = _getPrototypeOf$5(CreateViewForm)).call.apply(_getPrototypeOf2, [this].concat(args)));
+
+    _defineProperty$12(_assertThisInitialized$5(_this), "handleCancel", function () {
+      return _this.props.onClose();
+    });
+
+    _defineProperty$12(_assertThisInitialized$5(_this), "handleSubmit", function (form) {
+      return _this.props.onCreate(form);
+    });
+
+    _defineProperty$12(_assertThisInitialized$5(_this), "mapFields", function (fields) {
+      if (fields.length) {
+        return fields.map(function (elem) {
+          return React__default.createElement(antd.Form, {
+            key: elem.name
+          }, React__default.createElement(antd.Form.Item, {
+            label: elem.placeholder
+          }, React__default.createElement(antd.Input, {
+            type: "text",
+            disabled: true,
+            value: _this.props.initialValues[elem.name]
+          })));
+        });
+      }
+
+      return null;
+    });
+
+    return _this;
+  }
+
+  _createClass$15(CreateViewForm, [{
+    key: "componentDidMount",
+    value: function componentDidMount() {}
+  }, {
+    key: "render",
+    value: function render() {
+      var fields = this.props.fields;
+      var Title = antd.Typography.Title;
+      return React__default.createElement(antd.Row, {
+        align: "middle",
+        justify: "space-between"
+      }, React__default.createElement(antd.Col, {
+        span: 20
+      }, React__default.createElement(Title, {
+        level: 2
+      }, "\u041F\u0440\u043E\u0441\u043C\u043E\u0442\u0440 \u0430\u043B\u0435\u0440\u0442\u0430"), this.mapFields(fields)), React__default.createElement(antd.Col, {
+        span: 20,
+        style: {
+          textAlign: 'right'
+        }
+      }, React__default.createElement(antd.Button, {
+        style: {
+          marginLeft: 8
+        },
+        onClick: this.handleCancel
+      }, "\u041D\u0430\u0437\u0430\u0434")));
+    }
+  }]);
+
+  return CreateViewForm;
+}(React.Component);
+
+_defineProperty$12(CreateViewForm$1, "propTypes", {
+  modalType: propTypes.string,
+  onClose: propTypes.func.isRequired,
+  onCreate: propTypes.func.isRequired,
+  title: propTypes.string,
+  titleEdit: propTypes.string,
+  fields: propTypes.array.isRequired,
+  renderField: propTypes.oneOfType([propTypes.func, propTypes.object])
+});
+
+_defineProperty$12(CreateViewForm$1, "defaultProps", {
+  renderField: renderField
+});
+
+CreateViewForm$1.propTypes = {
+  type: propTypes.string,
+  options: propTypes.object,
+  handleSubmit: propTypes.func
+};
+CreateViewForm$1 = reduxForm({
+  form: 'createModel',
+  validate: function validate(values$$1, props) {
+    var errors = {}; // if(!values.name) errors.name = 'Введите название';
+
+    props.fields.forEach(function (field) {
+      if (field.validateFunc) errors = field.validateFunc(values$$1, errors);
+    });
+    return errors;
+  }
+})(CreateViewForm$1);
+CreateViewForm$1 = connect(function (state, props) {
+  var options = props.fields.reduce(function (acc, field) {
+    if (state[field.optionsKey]) {
+      acc[field.optionsKey] = state[field.optionsKey].data;
+    }
+
+    return acc;
+  }, {});
+  return {
+    crudCreateModalLoading: state.crudCreateModalLoading,
+    options: options
+  };
+}, {})(CreateViewForm$1);
+var ShowModelView = CreateViewForm$1;
+
+var css$2 = ".anticon:before {\n\tdisplay: initial !important;\n}\n\n.crud-table-column {\n    min-width: 100px!important;\n}\n";
+styleInject(css$2);
+
+function _typeof$13(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof$13 = function _typeof(obj) { return typeof obj; }; } else { _typeof$13 = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof$13(obj); }
+
+function _objectSpread$1(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty$13(target, key, source[key]); }); } return target; }
+
+function _classCallCheck$31(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties$6(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass$16(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties$6(Constructor.prototype, protoProps); if (staticProps) _defineProperties$6(Constructor, staticProps); return Constructor; }
+
+function _possibleConstructorReturn$30(self, call) { if (call && (_typeof$13(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized$6(self); }
+
+function _getPrototypeOf$6(o) { _getPrototypeOf$6 = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf$6(o); }
+
+function _assertThisInitialized$6(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _inherits$30(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf$6(subClass, superClass); }
+
+function _setPrototypeOf$6(o, p) { _setPrototypeOf$6 = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf$6(o, p); }
+
+function _defineProperty$13(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 var toggleCreateModelModal = actions.toggleCreateModelModal,
     deleteModel = actions.deleteModel,
     restoreModel = actions.restoreModel,
@@ -26470,21 +26615,32 @@ var toggleCreateModelModal = actions.toggleCreateModelModal,
 var CrudFull =
 /*#__PURE__*/
 function (_Component) {
-  _inherits$29(CrudFull, _Component);
+  _inherits$30(CrudFull, _Component);
 
-  function CrudFull(props) {
+  function CrudFull() {
+    var _getPrototypeOf2;
+
     var _this;
 
-    _classCallCheck$30(this, CrudFull);
+    _classCallCheck$31(this, CrudFull);
 
-    _this = _possibleConstructorReturn$29(this, _getPrototypeOf$5(CrudFull).call(this, props));
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
 
-    _defineProperty$12(_assertThisInitialized$5(_this), "actionsFunc", function (action, elem) {
+    _this = _possibleConstructorReturn$30(this, (_getPrototypeOf2 = _getPrototypeOf$6(CrudFull)).call.apply(_getPrototypeOf2, [this].concat(args)));
+
+    _defineProperty$13(_assertThisInitialized$6(_this), "actionsFunc", function (action, elem) {
       var customActionsFunc = _this.props.customActionsFunc;
 
       switch (action.id) {
         case 'update':
           _this.openUpdateFrom(action, elem);
+
+          break;
+
+        case 'view':
+          _this.openViewFrom(action, elem);
 
           break;
 
@@ -26503,47 +26659,50 @@ function (_Component) {
       }
     });
 
-    _defineProperty$12(_assertThisInitialized$5(_this), "openUpdateFrom", function (action, elem) {
+    _defineProperty$13(_assertThisInitialized$6(_this), "openUpdateFrom", function (action, elem) {
       _this.props.setModelModalForm('edit', elem, action);
 
       _this.toggleModal(_this.props.modelName);
     });
 
-    _defineProperty$12(_assertThisInitialized$5(_this), "toggleModal", function (modelName) {
+    _defineProperty$13(_assertThisInitialized$6(_this), "openViewFrom", function (action, elem) {
+      _this.props.setModelModalForm('view', elem, action);
+
+      _this.toggleModal(_this.props.modelName);
+    });
+
+    _defineProperty$13(_assertThisInitialized$6(_this), "toggleModal", function (modelName) {
       _this.props.toggleCreateModelModal(modelName);
     });
 
-    _defineProperty$12(_assertThisInitialized$5(_this), "handleClose", function (modelName) {
+    _defineProperty$13(_assertThisInitialized$6(_this), "handleClose", function (modelName) {
       _this.toggleModal();
 
       _this.props.setModelModalForm(null, null);
     });
 
-    _defineProperty$12(_assertThisInitialized$5(_this), "handleUpdate", function (form) {
+    _defineProperty$13(_assertThisInitialized$6(_this), "handleUpdate", function (form) {
       _this.props.changeModel(form, _this.props.objectModal.action, _this.props.modelName);
     });
 
-    _defineProperty$12(_assertThisInitialized$5(_this), "handleCreate", function (form) {
+    _defineProperty$13(_assertThisInitialized$6(_this), "handleCreate", function (form) {
       _this.props.createModel(form, _this.props.crudCreate, _this.props.modelName);
     });
 
-    _defineProperty$12(_assertThisInitialized$5(_this), "handleDelete", function (action, elem) {
+    _defineProperty$13(_assertThisInitialized$6(_this), "handleDelete", function (action, elem) {
       var conf = window.confirm("\u0425\u043E\u0442\u0438\u0442\u0435 \u0443\u0434\u0430\u043B\u0438\u0442\u044C \"".concat(elem.name, "\" (ID: ").concat(elem.id, ")?"));
       if (conf) _this.props.deleteModel(elem.id, action.url, _this.props.modelName);
     });
 
-    _defineProperty$12(_assertThisInitialized$5(_this), "handleRestore", function (action, elem) {
+    _defineProperty$13(_assertThisInitialized$6(_this), "handleRestore", function (action, elem) {
       var conf = window.confirm("\u0425\u043E\u0442\u0438\u0442\u0435 \u0432\u043E\u0441\u0441\u0442\u0430\u043D\u043E\u0432\u0438\u0442\u044C \"".concat(elem.name, "\" (ID: ").concat(elem.id, ")?"));
       if (conf) _this.props.restoreModel(elem.id, action.url, _this.props.modelName);
     });
 
-    _this.state = {
-      back: false
-    };
     return _this;
   }
 
-  _createClass$15(CrudFull, [{
+  _createClass$16(CrudFull, [{
     key: "componentDidMount",
     value: function componentDidMount() {
       this.props.setCrudActionsFunc(this.actionsFunc, this.props.modelName);
@@ -26584,6 +26743,7 @@ function (_Component) {
           isView = _this$props.isView,
           renderField = _this$props.renderField,
           CustomButtons = _this$props.CustomButtons;
+      console.log(objectModal, isModalOpen, modelName);
 
       var _ref = createFormOptions || {},
           title = _ref.title,
@@ -26591,6 +26751,15 @@ function (_Component) {
           fields = _ref.fields;
 
       var Btn = ButtonComponent || antd.Button;
+      if (isView && isModalOpen === modelName && objectModal.modalType === 'view') return React__default.createElement(ShowModelView, {
+        title: title || 'Создать',
+        titleEdit: titleEdit || 'Редактировать',
+        type: objectModal.modalType,
+        onClose: this.handleClose,
+        fields: fields,
+        initialValues: objectModal.initialValues ? updateShape(objectModal.initialValues) : initialModal || {},
+        renderField: renderField
+      });
       if (isView && isModalOpen === modelName && !createDisabled) return React__default.createElement(CreateModelView, {
         title: title || 'Создать',
         titleEdit: titleEdit || 'Редактировать',
@@ -26664,6 +26833,7 @@ CrudFull.propTypes = {
   pageSize: propTypes.number,
   onDeleteConfirmMessageFunc: propTypes.func,
   renderField: propTypes.func,
+  setCrudActionsFunc: propTypes.func,
   CustomButtons: propTypes.oneOfType([propTypes.func, propTypes.object])
 };
 CrudFull.defaultProps = {
@@ -26715,9 +26885,9 @@ var SUCCESS$1 = '_SUCCESS';
 var ERROR = '_ERROR';
 var FAIL = 'FAIL';
 
-function _objectSpread$2(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty$13(target, key, source[key]); }); } return target; }
+function _objectSpread$2(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty$14(target, key, source[key]); }); } return target; }
 
-function _defineProperty$13(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _defineProperty$14(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 var crudModelsReducer = function crudModelsReducer() {
   var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
@@ -26729,22 +26899,22 @@ var crudModelsReducer = function crudModelsReducer() {
 
   switch (type) {
     case actions.FETCH_CRUD_MODELS + SUCCESS$1:
-      return _objectSpread$2({}, state, _defineProperty$13({}, payload.params.modelName, response));
+      return _objectSpread$2({}, state, _defineProperty$14({}, payload.params.modelName, response));
 
     case actions.FETCH_CRUD_MODELS + ERROR:
-      return _objectSpread$2({}, state, _defineProperty$13({}, payload.params.modelName, _objectSpread$2({}, state[payload.params.modelName], {
+      return _objectSpread$2({}, state, _defineProperty$14({}, payload.params.modelName, _objectSpread$2({}, state[payload.params.modelName], {
         loading: false,
         error: error
       })));
 
     case actions.FETCH_CRUD_MODELS + START:
-      return _objectSpread$2({}, state, _defineProperty$13({}, payload.params.modelName, _objectSpread$2({}, state[payload.params.modelName], {
+      return _objectSpread$2({}, state, _defineProperty$14({}, payload.params.modelName, _objectSpread$2({}, state[payload.params.modelName], {
         loading: true
       })));
 
     case actions.FETCH_CRUD_CHILDREN + SUCCESS$1:
       var model = state[payload.params.modelName];
-      return _objectSpread$2({}, state, _defineProperty$13({}, payload.params.modelName, _objectSpread$2({}, model, {
+      return _objectSpread$2({}, state, _defineProperty$14({}, payload.params.modelName, _objectSpread$2({}, model, {
         data: _objectSpread$2({}, model.data, {
           items: model.data.items.map(function (elem) {
             return elem.id === payload.id ? _objectSpread$2({}, elem, {
@@ -26768,9 +26938,9 @@ var crudFilterValuesReducer = function crudFilterValuesReducer() {
 
   switch (type) {
     case actions.FETCH_CRUD_FILTER_VALUES + SUCCESS$1:
-      return _objectSpread$2({}, state, _defineProperty$13({
+      return _objectSpread$2({}, state, _defineProperty$14({
         loading: false
-      }, payload.modelName, _objectSpread$2({}, state[payload.modelName], _defineProperty$13({}, payload.filter, response.data))));
+      }, payload.modelName, _objectSpread$2({}, state[payload.modelName], _defineProperty$14({}, payload.filter, response.data))));
 
     case actions.FETCH_CRUD_FILTER_VALUES + ERROR:
       return _objectSpread$2({}, state, {
@@ -26797,7 +26967,7 @@ var crudActionsFuncReducer = function crudActionsFuncReducer() {
 
   switch (type) {
     case actions.SET_CRUD_ACTIONS_FUNC:
-      return _objectSpread$2({}, state, _defineProperty$13({}, payload.modelName, payload.func));
+      return _objectSpread$2({}, state, _defineProperty$14({}, payload.modelName, payload.func));
 
     default:
       return state;
@@ -26845,7 +27015,7 @@ var crudParamsReducer = function crudParamsReducer() {
 
   switch (type) {
     case actions.SET_CRUD_PARAMS:
-      return _objectSpread$2({}, state, _defineProperty$13({}, payload.modelName, payload));
+      return _objectSpread$2({}, state, _defineProperty$14({}, payload.modelName, payload));
 
     default:
       return state;
@@ -26880,7 +27050,7 @@ var crudReducers = {
   crudCreateModalLoading: crudCreateModalLoadingReducer
 };
 
-var _typeof$13 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+var _typeof$14 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 var sym = function sym(id) {
   return '@@redux-saga/' + id;
@@ -26922,7 +27092,7 @@ var is$1 = {
   },
   array: Array.isArray,
   object: function object(obj) {
-    return obj && !is$1.array(obj) && (typeof obj === 'undefined' ? 'undefined' : _typeof$13(obj)) === 'object';
+    return obj && !is$1.array(obj) && (typeof obj === 'undefined' ? 'undefined' : _typeof$14(obj)) === 'object';
   },
   promise: function promise(p) {
     return p && is$1.func(p.then);
@@ -26943,7 +27113,7 @@ var is$1 = {
     return buf && is$1.func(buf.isEmpty) && is$1.func(buf.take) && is$1.func(buf.put);
   },
   pattern: function pattern(pat) {
-    return pat && (is$1.string(pat) || (typeof pat === 'undefined' ? 'undefined' : _typeof$13(pat)) === 'symbol' || is$1.func(pat) || is$1.array(pat));
+    return pat && (is$1.string(pat) || (typeof pat === 'undefined' ? 'undefined' : _typeof$14(pat)) === 'symbol' || is$1.func(pat) || is$1.array(pat));
   },
   channel: function channel(ch) {
     return ch && is$1.func(ch.take) && is$1.func(ch.close);
@@ -28157,9 +28327,9 @@ runtimeModule.mark(notifySaga),
 /*#__PURE__*/
 runtimeModule.mark(rootSaga);
 
-function _objectSpread$3(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty$14(target, key, source[key]); }); } return target; }
+function _objectSpread$3(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty$15(target, key, source[key]); }); } return target; }
 
-function _defineProperty$14(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _defineProperty$15(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 var selectCrudParams = function selectCrudParams(state) {
   return state.crudParams;
 };
@@ -28172,7 +28342,7 @@ function isDateColumn(columns, key) {
 
 function getFiltersValues(filters, columns) {
   var res = Object.keys(filters).reduce(function (acc, key) {
-    return _objectSpread$3({}, acc, _defineProperty$14({}, key, isDateColumn(columns, key) ? filters[key] instanceof Array || null ? null : hooks(filters[key]).unix() : filters[key].constructor !== Array ? filters[key] : null));
+    return _objectSpread$3({}, acc, _defineProperty$15({}, key, isDateColumn(columns, key) ? filters[key] instanceof Array || null ? null : hooks(filters[key]).unix() : filters[key].constructor !== Array ? filters[key] : null));
   }, {}); // buildUrlSearchForArray(filters[key], key)
 
   return res;
@@ -28551,9 +28721,9 @@ runtimeModule.mark(requestSaga),
 /*#__PURE__*/
 runtimeModule.mark(requests);
 
-function _objectSpread$4(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty$15(target, key, source[key]); }); } return target; }
+function _objectSpread$4(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty$16(target, key, source[key]); }); } return target; }
 
-function _defineProperty$15(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _defineProperty$16(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 function getCookie(name) {
   var matches = document.cookie.match(new RegExp('(?:^|; )' + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + '=([^;]*)'));
   return matches ? decodeURIComponent(matches[1]) : undefined;
