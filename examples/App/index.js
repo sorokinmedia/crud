@@ -72,6 +72,7 @@ function App({ roles, groups }) {
 				}}
 				size="middle"
 				fixActionColumn
+				CustomButtons={() => <span>HELLO</span>}
 			/>
 		</div>
 	)
