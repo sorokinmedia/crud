@@ -48,6 +48,7 @@ export const renderField = ({
 				{...input}
 				value={input.value || []}
 				mode={mode}
+				disabled={input.disabled ? true : false}
 				style={{ width: '100%' }}
 				placeholder={placeholder}
 				dropdownRender={dropdownRender}

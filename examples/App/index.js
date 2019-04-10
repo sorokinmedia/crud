@@ -2,46 +2,70 @@ import 'antd/dist/antd.css';
 import PropTypes from 'prop-types'
 import React from 'react';
 import { connect } from 'react-redux'
-import { CrudFull } from '../../lib/index';
+import { CrudFull } from '../../src/index';
+// import { CrudFull } from '../../lib/index';
 import FormFields from './FormFields'
 import moment from 'moment'
 // import createCommissionFields from './../createObjectTypeFields'
 
 // commission_list_container
 
-function App({ roles, groups }) {
-	return (
-		<div className="box box-body crud-table">
-			<CrudFull
-				crudRead="/v2/admin/site-alert/list"
-				crudCreate="/v2/admin/site-alert"
-				modelName="siteAlerts"
-				isView
-				createDisabled={false}
-				createButtonTitle="Добавить"
-				createFormOptions={{
-					fields: FormFields.map((elem) => {
-						console.log(elem)
-						if (elem.name === 'role') {
-							return {
-								...elem,
-								options: roles
+class App extends React.Component {
+
+	actionsFunc = (action, elem) => {
+		switch (action.id) {
+			case 'start':
+				const conf = window.confirm('Начать показ алерта?');
+				if (conf) this.props.startShowSiteAlert(elem.id);
+				break;
+			default:
+				return null;
+		}
+	};
+
+	iconSet = (id) => {
+		switch (id) {
+			case 'start':
+				return 'caret-right'
+			default:
+				return null;
+		}
+	};
+
+	render() {
+		const { roles, groups, start } = this.props
+		return (
+			<div className="box box-body crudTable">
+
+				<CrudFull
+					crudRead="/v2/admin/site-alert/list"
+					crudCreate="/v2/admin/site-alert"
+					modelName="siteAlerts"
+					isView
+					customActionsFunc={this.actionsFunc}
+					iconsProvider={this.iconSet}
+					createDisabled={false}
+					createButtonTitle="Добавить"
+					createFormOptions={{
+						fields: FormFields.map((elem) => {
+							if (elem.name === 'role') {
+								return {
+									...elem,
+									options: roles
+								}
 							}
-						}
-						if (elem.name === 'group_id') {
-							return {
-								...elem,
-								options: groups,
+							if (elem.name === 'group_id') {
+								return {
+									...elem,
+									options: groups,
+								}
 							}
-						}
-						return elem
-					}),
-					title: 'Добавить алерт',
-					editTitle: 'Редактировать алерт',
-				}}
-				submitShape={form => {
-					console.log(form)
-					return {
+							return elem
+						}),
+						title: 'Добавить алерт',
+						editTitle: 'Редактировать алерт',
+					}}
+					submitShape={form => ({
 						SiteAlert: {
 							...form,
 							name: form.name,
@@ -54,11 +78,9 @@ function App({ roles, groups }) {
 							group_id: form.group_id,
 							order_id: form.order_id,
 						}
+					})
 					}
-				}}
-				updateShape={form => {
-					console.log(form)
-					return {
+					updateShape={form => ({
 						name: form.name,
 						text: form.text,
 						image: form.image,
@@ -68,14 +90,14 @@ function App({ roles, groups }) {
 							.format('DD/MM/YYYY'),
 						group_id: (form.group) ? form.group.id : undefined,
 						order_id: form.order_id,
+					})
 					}
-				}}
-				size="middle"
-				fixActionColumn
-				CustomButtons={() => <span>HELLO</span>}
-			/>
-		</div>
-	)
+					size="middle"
+					fixActionColumn
+				/>
+			</div>
+		)
+	}
 }
 
 App.propTypes = {

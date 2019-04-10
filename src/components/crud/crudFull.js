@@ -1,3 +1,4 @@
+/* eslint-disable indent */
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
@@ -5,6 +6,7 @@ import actions from '../../redux/actions';
 import CrudView from './crudView'
 import CreateModel from './createModel'
 import CreateModelView from './createModelView'
+import ShowModelView from './showModelView'
 import { Button } from 'antd';
 import '../../style.css'
 
@@ -20,12 +22,6 @@ const {
 } = actions;
 
 export class CrudFull extends Component {
-	constructor(props) {
-		super(props)
-		this.state = {
-			back: false
-		}
-	}
 
 	componentDidMount() {
 		this.props.setCrudActionsFunc(this.actionsFunc, this.props.modelName);
@@ -44,6 +40,9 @@ export class CrudFull extends Component {
 			case 'update':
 				this.openUpdateFrom(action, elem);
 				break;
+			case 'view':
+				this.openViewFrom(action, elem);
+				break;
 			case 'delete':
 				this.handleDelete(action, elem);
 				break;
@@ -58,6 +57,11 @@ export class CrudFull extends Component {
 
 	openUpdateFrom = (action, elem) => {
 		this.props.setModelModalForm('edit', elem, action);
+		this.toggleModal(this.props.modelName);
+	};
+
+	openViewFrom = (action, elem) => {
+		this.props.setModelModalForm('view', elem, action);
 		this.toggleModal(this.props.modelName);
 	};
 
@@ -116,9 +120,25 @@ export class CrudFull extends Component {
 			renderField,
 			CustomButtons
 		} = this.props;
-
+console.log(objectModal, isModalOpen, modelName)
 		const { title, titleEdit, fields } = createFormOptions || {};
 		const Btn = ButtonComponent || Button;
+		if (isView && isModalOpen === modelName && objectModal.modalType === 'view')
+			return (
+				<ShowModelView
+					title={title || 'Создать'}
+					titleEdit={titleEdit || 'Редактировать'}
+					type={objectModal.modalType}
+					onClose={this.handleClose}
+					fields={fields}
+					initialValues={objectModal.initialValues
+						? updateShape(objectModal.initialValues)
+						: initialModal || {}
+					}
+					renderField={renderField}
+				/>)
+
+
 		if (isView && isModalOpen === modelName && !createDisabled)
 			return (
 				<CreateModelView
@@ -211,6 +231,7 @@ CrudFull.propTypes = {
 	pageSize: PropTypes.number,
 	onDeleteConfirmMessageFunc: PropTypes.func,
 	renderField: PropTypes.func,
+	setCrudActionsFunc: PropTypes.func,
 	CustomButtons: PropTypes.oneOfType([
 		PropTypes.func,
 		PropTypes.object
