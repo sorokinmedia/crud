@@ -1,6 +1,5 @@
 import actions from './actions'
-import { ERROR, SORT_DESC, SUCCESS, START } from '../constants';
-// import fitureResp from './respFixture'
+import { ERROR, SUCCESS, START } from '../constants';
 
 export const crudModelsReducer = (state = {}, action) => {
 	const { type, response, error, payload } = action;
@@ -70,54 +69,46 @@ export const crudFilterValuesReducer = (state = {}, action) => {
 };
 
 export const crudActionsFuncReducer = (state = null, action) => {
-	const { type, response, error, payload } = action;
+	const { type, payload } = action;
 
-	switch (type) {
-	case actions.SET_CRUD_ACTIONS_FUNC:
+	if (type === actions.SET_CRUD_ACTIONS_FUNC) {
 		return {
 			...state,
 			[payload.modelName]: payload.func
 		};
-	default:
-		return state;
 	}
+	return state;
 };
 
 
 export const isOpenModelModalReducer = (state = false, action) => {
-	const { type, response, error, payload } = action;
+	const { type, payload } = action;
 
-	switch (type) {
-	case actions.TOGGLE_CREATE_MODEL_MODAL:
+	if (type === actions.TOGGLE_CREATE_MODEL_MODAL) {
 		return state ? null : payload.modelName;
-	default:
-		return state;
 	}
+	return state;
 };
 
 export const modelModalFormReducer = (state = {}, action) => {
-	const { type, response, error, payload } = action;
+	const { type, payload } = action;
 
-	switch (type) {
-	case actions.SET_MODEL_MODAL_FORM:
+	if (type === actions.SET_MODEL_MODAL_FORM) {
 		return payload;
-	default:
-		return state;
 	}
+	return state;
 };
 
 export const crudParamsReducer = (state = {}, action) => {
-	const { type, response, error, payload } = action;
+	const { type, payload } = action;
 
-	switch (type) {
-	case actions.SET_CRUD_PARAMS:
+	if (type === actions.SET_CRUD_PARAMS) {
 		return {
 			...state,
 			[payload.modelName]: payload
 		};
-	default:
-		return state;
 	}
+	return state;
 };
 
 export const crudCreateModalLoadingReducer = (state = false, action) => {

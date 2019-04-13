@@ -3,9 +3,8 @@ import { FAIL, START, SUCCESS } from '../constants'
 import regeneratorRuntime from 'regenerator-runtime'
 
 export function getCookie(name) {
-	const matches = document.cookie.match(new RegExp(
-		'(?:^|; )' + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + '=([^;]*)'
-	))
+	const matches = document.cookie
+		.match(new RegExp('(?:^|; )' + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + '=([^;]*)'));
 
 	return matches ? decodeURIComponent(matches[1]) : undefined
 }
@@ -24,12 +23,12 @@ export const getError = (data, response) => {
 
 export function* requestSaga(action) {
 	const {
-		payload, method, url, auth, oldType: type, token_is_active
+		payload, method, url, auth, oldType: type
 	} = action;
 
 	const SITE = yield select(state => state.apiAdress);
 
-	const token = getCookie('auth_token')
+	const token = getCookie('auth_token');
 
 	try {
 		yield put({
@@ -38,7 +37,7 @@ export function* requestSaga(action) {
 		});
 
 		const body = payload ? JSON.stringify(payload) : '';
-		const headers = new Headers({'Content-Type': 'application/json'});
+		const headers = new Headers({ 'Content-Type': 'application/json' });
 		if (auth) headers.set('Authorization', 'Bearer ' + token);
 
 		const params = {

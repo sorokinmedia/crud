@@ -15,6 +15,19 @@ const ActionStyled = styled.span`
 
 class Action extends Component {
 
+	static propTypes = {
+		data: PropTypes.object.isRequired,
+		row: PropTypes.object.isRequired,
+		modelName: PropTypes.string,
+		iconTheme: PropTypes.string,
+		iconsProvider: PropTypes.func,
+		actionsFunc: PropTypes.func,
+		push: PropTypes.func.isRequired,
+		params: PropTypes.object
+	};
+
+	static defaultProps = { iconTheme: 'outlined' };
+
     getIcon = (id) => {
     	switch (id) {
 	        case 'update':
@@ -62,14 +75,22 @@ class Action extends Component {
 		default:
 			return null;
 		}
+
+		return null
 	};
 
 	render() {
-		const { data, row } = this.props;
+		const { data } = this.props;
 
 		return (
 			<ActionStyled>
-				<a title={data.name} href={data.url} target="_blank" className="crud-action" onClick={this.handleClick}>
+				<a
+					title={data.name}
+					href={data.url}
+					target="_blank"
+					className="crud-action"
+					onClick={this.handleClick}
+				>
 					<Icon type={this.getIcon(data.id) || data.icon} />
 				</a>
 			</ActionStyled>
@@ -77,19 +98,7 @@ class Action extends Component {
 	}
 }
 
-Action.propTypes = {
-	data: PropTypes.object.isRequired,
-	row: PropTypes.object.isRequired,
-	modelName: PropTypes.string,
-	iconTheme: PropTypes.string,
-	iconsProvider: PropTypes.func
-};
-
-Action.defaultProps = { iconTheme: 'outlined' }
-
 export default connect((state, props) => ({
 	actionsFunc: state.crudActionsFunc[props.modelName],
 	params: state.crudParams[props.modelName]
-}), {
-	push
-})(Action)
+}), { push })(Action)

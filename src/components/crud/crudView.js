@@ -12,6 +12,29 @@ const isBigDesctop = window.document.documentElement.scrollWidth > 1646;
 
 class CrudView extends Component {
 
+	static propTypes = {
+		modelName: PropTypes.string.isRequired,
+		url: PropTypes.string.isRequired,
+		fixActionColumn: PropTypes.bool,
+		iconTheme: PropTypes.string,
+		getChildrenUrl: PropTypes.func,
+		size: PropTypes.string,
+		tdClass: PropTypes.string,
+		scrollX: PropTypes.number,
+		pageSize: PropTypes.number,
+		fetchCrudModels: PropTypes.func.isRequired,
+		fetchCrudChildren: PropTypes.func.isRequired,
+		setCrudParams: PropTypes.func.isRequired,
+		crudParams: PropTypes.object.isRequired,
+		filterValues: PropTypes.array,
+	};
+
+	static defaultProps = {
+		fixActionColumn: true,
+		scrollX: 1300,
+		pageSize: 20
+	};
+
 	componentDidMount() {
 		const { modelName, url } = this.props;
 		this.props.fetchCrudModels({
@@ -19,6 +42,24 @@ class CrudView extends Component {
 			url
 		});
 	}
+
+	getFiterValues = (col) => {
+		const { filterValues } = this.props;
+
+		return filterValues && col.filter.can && filterValues[col.id] && filterValues[col.id] ?
+			filterValues[col.id].map(elem => ({
+				text: elem.name,
+				value: elem.id
+			}))
+			: []
+	};
+
+	handleExpand = (isExpanded, row) => {
+
+		if (isExpanded) {
+			this.props.fetchCrudChildren(row.id, this.props.modelName, this.props.getChildrenUrl(row.id))
+		}
+	};
 
 	handleTableChange = (pagination, filters, sorter) => {
 		this.props.fetchCrudModels({
@@ -36,24 +77,6 @@ class CrudView extends Component {
 			order: sorter.order,
 			filters
 		})
-	};
-
-	handleExpand = (isExpanded, row) => {
-
-		if (isExpanded) {
-			this.props.fetchCrudChildren(row.id, this.props.modelName, this.props.getChildrenUrl(row.id))
-		}
-	};
-
-	getFiterValues = (col) => {
-		const { filterValues } = this.props;
-
-		return filterValues && col.filter.can && filterValues[col.id] && filterValues[col.id] ?
-			filterValues[col.id].map(elem => ({
-				text: elem.name,
-				value: elem.id
-			}))
-			: []
 	};
 
 	render() {
@@ -113,7 +136,7 @@ class CrudView extends Component {
 				onChange={this.handleTableChange}
 				pagination={{
 					defaultCurrent: 1,
-					pageSize: pageSize,
+					pageSize,
 					total: items.data.count,
 					hideOnSinglePage: true
 				}}
@@ -126,24 +149,6 @@ class CrudView extends Component {
 		);
 	}
 }
-
-CrudView.propTypes = {
-	modelName: PropTypes.string.isRequired,
-	url: PropTypes.string.isRequired,
-	fixActionColumn: PropTypes.bool,
-	iconTheme: PropTypes.string,
-	getChildrenUrl: PropTypes.func,
-	size: PropTypes.string,
-	tdClass: PropTypes.string,
-	scrollX: PropTypes.number,
-	pageSize: PropTypes.number
-};
-
-CrudView.defaultProps = {
-	fixActionColumn: true,
-	scrollX: 1300,
-	pageSize: 20
-};
 
 export default connect((state, props) => ({
 	items: state.crudModels[props.modelName],

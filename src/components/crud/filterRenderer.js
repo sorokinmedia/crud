@@ -1,4 +1,3 @@
-import React from 'react'
 import filterDropdown from './filterDropdown'
 
 export default function filterRenderer(filterType, columnName, options) {

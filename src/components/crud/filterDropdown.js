@@ -31,7 +31,7 @@ export default (name, type, options) => ({ setSelectedKeys, selectedKeys, confir
 						<Option
 							value={opt.value}
 					        key={opt.value}
-					        onClick={(e) => {
+					        onClick={() => {
 						        setSelectedKeys(opt.value); setTimeout(() => confirm(), 100);
 					        }}
 						>
@@ -49,7 +49,7 @@ export default (name, type, options) => ({ setSelectedKeys, selectedKeys, confir
 						onChange={value => setSelectedKeys(value)}
 						onPressEnter={() => { confirm() }}
 						placeholder="Выберите дату"
-						format={'DD/MM/YYYY'}
+						format="DD/MM/YYYY"
 						style={{ marginRight: '8px' }}
 					/>
 				)
@@ -63,7 +63,7 @@ export default (name, type, options) => ({ setSelectedKeys, selectedKeys, confir
 						/>
 					)
 		}
-		<Button type="primary" onClick={() => { confirm() }}>Поиск</Button>
-		<Button onClick={() => { clearFilters() }}>Сбросить</Button>
+		<Button type="primary" onClick={() => { confirm() }} htmlType="button">Поиск</Button>
+		<Button onClick={() => { clearFilters() }} htmlType="button">Сбросить</Button>
 	</div>
 );

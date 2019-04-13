@@ -7,6 +7,11 @@ import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
 // import './index.css'
 
 class DraftEditor extends Component {
+
+	static propTypes = { input: PropTypes.object };
+
+	static defaultProps = { input: {} };
+
 	constructor(props) {
 		super(props);
 		this.state = {
@@ -17,9 +22,7 @@ class DraftEditor extends Component {
 	}
 
 	onEditorStateChange = (editorState) => {
-		this.setState({
-			editorState,
-		});
+		this.setState({ editorState });
 		this.props.input.onChange(draftToHtml(convertToRaw(editorState.getCurrentContent())))
 	};
 
@@ -38,24 +41,14 @@ class DraftEditor extends Component {
 				editorClassName="ant-input form-control"
 				toolbar={{
 					options: ['inline', 'list', 'link', 'history'],
-					inline: {
-						options: ['bold', 'italic'],
-					},
-					list: {
-						options: ['unordered', 'ordered'],
-					},
+					inline: { options: ['bold', 'italic'] },
+					list: { options: ['unordered', 'ordered'] },
 
 				}}
-				localization={{
-					locale: 'ru',
-				}}
+				localization={{ locale: 'ru' }}
 			/>
 		)
 	}
 }
 
-DraftEditor.propTypes = {
-	input: PropTypes.object,
-	initialValue: PropTypes.object,
-}
 export default DraftEditor

@@ -1,4 +1,4 @@
-import {configure, mount, shallow} from 'enzyme'
+import { configure, mount, shallow } from 'enzyme'
 import Adapter from 'enzyme-adapter-react-16/build/index'
 import 'babel-polyfill'
 import React from 'react'
@@ -11,22 +11,20 @@ import thunk from 'redux-thunk';
 import { shallowToJson } from 'enzyme-to-json';
 import actions from '../redux/actions'
 
-const {JSDOM} = jsdom;
+const { JSDOM } = jsdom;
 const doc = new JSDOM('<!doctype html><html><body></body></html>');
 global.document = doc;
 global.window = doc.defaultView;
-global.navigator = {
-	userAgent: 'node.js',
-};
+global.navigator = { userAgent: 'node.js' };
 
-//const {SignUpClass} = require('../../../containers/Page/signup');
+// const {SignUpClass} = require('../../../containers/Page/signup');
 
-configure({adapter: new Adapter()});
+configure({ adapter: new Adapter() });
 
 const mockStore = configureStore([thunk]);
 const fields = [
 	{ name: 'name', type: 'text' },
-	//{ name: 'someField', type: 'number' }
+	// { name: 'someField', type: 'number' }
 ];
 
 describe('it should render CreateModel', () => {
@@ -47,16 +45,18 @@ describe('should mount CreateModel', () => {
 
 	beforeAll(() => {
 		const store = mockStore({ form: {} });
-		container = mount(<Provider store={store}>
-			<BrowserRouter>
-				<CreateModel
-					onCreate={onCreate}
-					onClose={jest.fn}
-					fields={fields}
-					initialValues={{ name: 'Name' }}
-				/>
-			</BrowserRouter>
-		</Provider>);
+		container = mount((
+			<Provider store={store}>
+				<BrowserRouter>
+					<CreateModel
+						onCreate={onCreate}
+						onClose={jest.fn}
+						fields={fields}
+						initialValues={{ name: 'Name' }}
+					/>
+				</BrowserRouter>
+			</Provider>
+		));
 	});
 
 	it('should contains name input', () => {

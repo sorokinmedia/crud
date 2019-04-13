@@ -20,33 +20,25 @@ class CreateViewForm extends Component {
 		])
 	};
 
-	static defaultProps = {
-		renderField
-	};
+	static defaultProps = { renderField };
 
-	componentDidMount() {
+	handleCancel = () => this.props.onClose();
 
-	}
-
-	handleCancel = () => this.props.onClose()
-
-	handleSubmit = form => this.props.onCreate(form)
+	handleSubmit = form => this.props.onCreate(form);
 
 
-	mapFields = (fields) => {
-		return fields.map(props => props.fields
-			? <div key={props.name}>{this.mapFields(props.fields)}</div>
-			: <Field
-				{...props}
-				component={props.component || this.props.renderField}
-				key={props.name}
-				options={this.props.options[props.optionsKey] || props.options || []}
-			/>)
-	};
+	mapFields = fields => fields.map(props => props.fields
+		? <div key={props.name}>{this.mapFields(props.fields)}</div>
+		: <Field
+			{...props}
+			component={props.component || this.props.renderField}
+			key={props.name}
+			options={this.props.options[props.optionsKey] || props.options || []}
+		/>);
 
 	render() {
 		const { type, title, titleEdit, fields } = this.props;
-		const { Title } = Typography
+		const { Title } = Typography;
 		return (
 			<Row align="middle" justify="space-between">
 				<Col span={20}>
@@ -55,6 +47,7 @@ class CreateViewForm extends Component {
 						type="primary"
 						ghost
 						onClick={this.handleCancel}
+						htmlType="button"
 					>
 						Назад
 					</Button>
@@ -64,8 +57,10 @@ class CreateViewForm extends Component {
 					</form>
 				</Col>
 				<Col span={20} style={{ textAlign: 'right' }}>
-					<Button type="primary" htmlType="submit" onClick={this.props.handleSubmit(this.handleSubmit)}>Отправить</Button>
-					<Button style={{ marginLeft: 8 }} onClick={this.handleCancel}>Отмена</Button>
+					<Button type="primary" htmlType="submit" onClick={this.props.handleSubmit(this.handleSubmit)}>
+						Отправить
+					</Button>
+					<Button style={{ marginLeft: 8 }} onClick={this.handleCancel} htmlType="button">Отмена</Button>
 				</Col>
 			</Row>
 		)
@@ -76,7 +71,7 @@ CreateViewForm.propTypes = {
 	type: PropTypes.string,
 	options: PropTypes.object,
 	handleSubmit: PropTypes.func,
-}
+};
 
 CreateViewForm = reduxForm({
 	form: 'createModel',

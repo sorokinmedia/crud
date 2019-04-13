@@ -4,25 +4,37 @@ import Action from '../crud/action'
 import moment from 'moment'
 import { Icon } from 'antd'
 
-const DateCell = data => <p>{moment(data).format('DD.MM.YYYY')}</p>;
-const TextCell = text => <span>{text}</span>;
+const DateCell = data => (
+	<p>{moment(data).format('DD.MM.YYYY')}</p>
+);
+const TextCell = text => (
+	<span>{text}</span>
+);
 const BooleanCell = value => (
 	<span>
 		{value
 			? <Icon type="check" style={{ color: 'green' }} />
 			: <Icon type="close" style={{ color: 'red' }} />
 		}
-	</span>);
-const ArrTextCell = arr => arr.map(elem => <p>{elem}</p>);
-const HtmlCell = html => <span dangerouslySetInnerHTML={{ __html: html }} />;
+	</span>
+);
+const ArrTextCell = arr => arr.map(elem => (
+	<p>{elem}</p>
+));
+const HtmlCell = html => (
+	<span dangerouslySetInnerHTML={{ __html: html }} />
+);
 const ActionsCell = (row, modelName, iconTheme) => row.actions.map(action => (
-	<Action data={action} row={row} key={action.id} modelName={modelName} iconTheme={iconTheme} />));
+	<Action data={action} row={row} key={action.id} modelName={modelName} iconTheme={iconTheme} />
+));
 const ArrObjectCell = (obj) => {
 	if (!Array.isArray(obj) || !obj.length) return null;
 	return obj.map(({ created_at = false, updated_at = false, ...rest }) => {
 		const restValues = rest ? Object.values(rest) : false;
 		const restAttributes = restValues
-			? restValues.map((el, i) => <span key={i}>{el}</span>) : '';
+			? restValues.map((el, i) => (
+				<span key={i}>{el}</span>
+			)) : '';
 		return (
 			<Fragment>
 				<p>
@@ -35,16 +47,7 @@ const ArrObjectCell = (obj) => {
 		)
 	})
 };
-const renderer = (value, type, dateFormat) => {
-	switch (type) {
-	case 'date':
-		return moment.unix(value).format(dateFormat || 'DD.MM.YYYY');
-	case 'array_ext':
-		return ArrayCell(value);
-	default:
-		return value;
-	}
-};
+
 const ArrayCell = ({ values, type, delimiter, style, isHtml, dateFormat }) => {
 	if (!Array.isArray(values) || !values.length) return null;
 
@@ -55,6 +58,17 @@ const ArrayCell = ({ values, type, delimiter, style, isHtml, dateFormat }) => {
 			{index < (values.length - 1) && delimiter}
 		</span>
 	))
+};
+
+const renderer = (value, type, dateFormat) => {
+	switch (type) {
+	case 'date':
+		return moment.unix(value).format(dateFormat || 'DD.MM.YYYY');
+	case 'array_ext':
+		return ArrayCell(value);
+	default:
+		return value;
+	}
 };
 
 export {

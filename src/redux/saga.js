@@ -7,7 +7,8 @@ import { ERROR, SORT_ASC, SORT_DESC, SUCCESS, SUCCESS_REQ } from '../constants';
 import notification from '../notification';
 import actions from './actions';
 import regeneratorRuntime from 'regenerator-runtime'
-import reduceMessages from "../helpers/reduceMessages";
+import reduceMessages from '../helpers/reduceMessages';
+
 export const selectCrudParams = state => state.crudParams;
 
 function isDateColumn(columns, key) {
@@ -16,15 +17,15 @@ function isDateColumn(columns, key) {
 
 function getFiltersValues(filters, columns) {
 
-	const res = Object.keys(filters).reduce((acc, key) => ({
+	return Object.keys(filters).reduce((acc, key) => ({
 		...acc,
-		[key]: isDateColumn(columns, key) ? (filters[key] instanceof Array || null) ? null : moment(filters[key]).unix()
-			: filters[key].constructor !== Array ? filters[key]
+		[key]: isDateColumn(columns, key)
+			? (filters[key] instanceof Array || null) ? null : moment(filters[key]).unix()
+			: filters[key].constructor !== Array
+				? filters[key]
 				: null
 	}), {});
 	// buildUrlSearchForArray(filters[key], key)
-
-	return res;
 }
 
 export const selectColumns = modelName => state => state.crudModels[modelName];
@@ -118,8 +119,9 @@ export function* createModelSaga(action) {
 
 export function* updateModelsSaga(action) {
 	const params = yield select(selectCrudParams);
-	//console.log(action)
-	const { modelName, crudRead, filters, page, order, order_by } = params[action.modelName || action.payload.modelName];
+	const {
+		modelName, crudRead, filters, page, order, order_by
+	} = params[action.modelName || action.payload.modelName];
 
 	yield put(actions.fetchCrudModels({
 		modelName,
@@ -133,7 +135,7 @@ export function* updateModelsSaga(action) {
 export function* deleteModelSaga(action) {
 	yield put(request({
 		...action,
-		method: action.payload.action.method, //'POST',
+		method: action.payload.action.method, // 'POST',
 		auth: true,
 		url: `${action.payload.action.url}`,
 		payload: action.payload
@@ -151,12 +153,11 @@ export function* restoreModelSaga(action) {
 }
 
 export function* changeModelSaga(action) {
-	const { name, description, id } = action.payload.form;
 	const params = yield select(selectCrudParams);
 
 	yield put(request({
 		...action,
-		method: action.payload.action.method, //'POST',
+		method: action.payload.action.method, // 'POST',
 		auth: true,
 		url: `${action.payload.action.url}`,
 		payload: params[action.payload.modelName].submitShape(action.payload.form),
@@ -186,7 +187,7 @@ export function* submitModelsModalFormFailSaga(action) {
 }
 
 export function* notifySaga(action) {
-	if (action.error) yield notification('error', action.error.message)
+	if (action.error) yield notification('error', action.error.message);
 	if (action.response.status === SUCCESS_REQ) yield notification('success', action.response.message)
 }
 
