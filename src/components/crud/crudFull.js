@@ -85,7 +85,7 @@ export class CrudFull extends Component {
 	handleDelete = (action, elem) => {
 		const conf = window.confirm(`Хотите удалить "${elem.name}" (ID: ${elem.id})?`);
 
-		if (conf) this.props.deleteModel(elem.id, action.url, this.props.modelName)
+		if (conf) this.props.deleteModel(elem.id, action, this.props.modelName)
 	};
 
 	handleRestore = (action, elem) => {
@@ -120,7 +120,7 @@ export class CrudFull extends Component {
 			renderField,
 			CustomButtons
 		} = this.props;
-console.log(objectModal, isModalOpen, modelName)
+
 		const { title, titleEdit, fields } = createFormOptions || {};
 		const Btn = ButtonComponent || Button;
 		if (isView && isModalOpen === modelName && objectModal.modalType === 'view')
@@ -136,7 +136,7 @@ console.log(objectModal, isModalOpen, modelName)
 						: initialModal || {}
 					}
 					renderField={renderField}
-				/>)
+				/>);
 
 
 		if (isView && isModalOpen === modelName && !createDisabled)
@@ -153,7 +153,7 @@ console.log(objectModal, isModalOpen, modelName)
 						: initialModal || {}
 					}
 					renderField={renderField}
-				/>)
+				/>);
 
 		return (
 			<div>

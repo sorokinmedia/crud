@@ -26248,7 +26248,8 @@ _defineProperty$10(CreateModalForm, "propTypes", {
   title: propTypes.string,
   titleEdit: propTypes.string,
   fields: propTypes.array.isRequired,
-  renderField: propTypes.oneOfType([propTypes.func, propTypes.object])
+  renderField: propTypes.oneOfType([propTypes.func, propTypes.object]),
+  handleSubmit: propTypes.func.isRequired
 });
 
 _defineProperty$10(CreateModalForm, "defaultProps", {
@@ -26691,7 +26692,7 @@ function (_Component) {
 
     _defineProperty$13(_assertThisInitialized$6(_this), "handleDelete", function (action, elem) {
       var conf = window.confirm("\u0425\u043E\u0442\u0438\u0442\u0435 \u0443\u0434\u0430\u043B\u0438\u0442\u044C \"".concat(elem.name, "\" (ID: ").concat(elem.id, ")?"));
-      if (conf) _this.props.deleteModel(elem.id, action.url, _this.props.modelName);
+      if (conf) _this.props.deleteModel(elem.id, action, _this.props.modelName);
     });
 
     _defineProperty$13(_assertThisInitialized$6(_this), "handleRestore", function (action, elem) {
@@ -26743,7 +26744,6 @@ function (_Component) {
           isView = _this$props.isView,
           renderField = _this$props.renderField,
           CustomButtons = _this$props.CustomButtons;
-      console.log(objectModal, isModalOpen, modelName);
 
       var _ref = createFormOptions || {},
           title = _ref.title,
