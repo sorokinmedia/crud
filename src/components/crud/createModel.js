@@ -17,7 +17,8 @@ class CreateModalForm extends Component {
 		renderField: PropTypes.oneOfType([
 			PropTypes.func,
 			PropTypes.object
-		])
+		]),
+		handleSubmit: PropTypes.func.isRequired
 	};
 
 	static defaultProps = {

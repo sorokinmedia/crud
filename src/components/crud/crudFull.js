@@ -120,7 +120,7 @@ export class CrudFull extends Component {
 			renderField,
 			CustomButtons
 		} = this.props;
-console.log(objectModal, isModalOpen, modelName)
+
 		const { title, titleEdit, fields } = createFormOptions || {};
 		const Btn = ButtonComponent || Button;
 		if (isView && isModalOpen === modelName && objectModal.modalType === 'view')
@@ -136,7 +136,7 @@ console.log(objectModal, isModalOpen, modelName)
 						: initialModal || {}
 					}
 					renderField={renderField}
-				/>)
+				/>);
 
 
 		if (isView && isModalOpen === modelName && !createDisabled)
@@ -153,7 +153,7 @@ console.log(objectModal, isModalOpen, modelName)
 						: initialModal || {}
 					}
 					renderField={renderField}
-				/>)
+				/>);
 
 		return (
 			<div>

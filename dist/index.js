@@ -26248,7 +26248,8 @@ _defineProperty$10(CreateModalForm, "propTypes", {
   title: propTypes.string,
   titleEdit: propTypes.string,
   fields: propTypes.array.isRequired,
-  renderField: propTypes.oneOfType([propTypes.func, propTypes.object])
+  renderField: propTypes.oneOfType([propTypes.func, propTypes.object]),
+  handleSubmit: propTypes.func.isRequired
 });
 
 _defineProperty$10(CreateModalForm, "defaultProps", {
@@ -26743,7 +26744,6 @@ function (_Component) {
           isView = _this$props.isView,
           renderField = _this$props.renderField,
           CustomButtons = _this$props.CustomButtons;
-      console.log(objectModal, isModalOpen, modelName);
 
       var _ref = createFormOptions || {},
           title = _ref.title,
