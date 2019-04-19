@@ -52,7 +52,7 @@ export class CrudFull extends Component {
 			default:
 				return customActionsFunc ? customActionsFunc(action, elem) : null;
 		}
-	}
+	};
 
 
 	openUpdateFrom = (action, elem) => {
@@ -199,7 +199,10 @@ export class CrudFull extends Component {
 							initialValues={objectModal.initialValues
 								? updateShape(objectModal.initialValues)
 								: initialModal || {}}
-						/>) : ''}
+							renderField={renderField}
+						/>
+					) : ''
+				}
 			</div>)
 	}
 
