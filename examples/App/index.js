@@ -10,7 +10,8 @@ import moment from 'moment'
 
 // commission_list_container
 
-class App extends React.Component {
+class CrudSiteAlerts extends React.Component {
+
 
 	actionsFunc = (action, elem) => {
 		switch (action.id) {
@@ -100,16 +101,21 @@ class App extends React.Component {
 	}
 }
 
-App.propTypes = {
+CrudSiteAlerts.propTypes = {
+	start: PropTypes.object,
 	roles: PropTypes.array,
 	groups: PropTypes.array,
+	startShowSiteAlert: PropTypes.func,
+	clearStartShowSiteAlert: PropTypes.func,
 }
 
 export default connect(state => ({
+	// start: state[moduleName + START_SHOW_SITE_ALERT_RESPONSE],
 	roles: state.crudFilterValues && state.crudFilterValues.siteAlerts
 		? state.crudFilterValues.siteAlerts.role
 		: [],
 	groups: state.crudFilterValues && state.crudFilterValues.siteAlerts
 		? state.crudFilterValues.siteAlerts.group
 		: [],
-}), {})(App)
+
+}))(CrudSiteAlerts)
