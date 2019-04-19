@@ -26798,7 +26798,8 @@ function (_Component) {
         onClose: this.handleClose,
         onCreate: objectModal.modalType === 'edit' ? this.handleUpdate : this.handleCreate,
         fields: fields,
-        initialValues: objectModal.initialValues ? updateShape(objectModal.initialValues) : initialModal || {}
+        initialValues: objectModal.initialValues ? updateShape(objectModal.initialValues) : initialModal || {},
+        renderField: renderField
       }) : '');
     }
   }]);
