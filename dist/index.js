@@ -28549,7 +28549,8 @@ function deleteModelSaga(action) {
             //'POST',
             auth: true,
             url: "".concat(action.payload.action.url),
-            payload: action.payload
+            payload: action.payload,
+            modelName: action.payload.modelName
           })));
 
         case 2:
