@@ -26691,7 +26691,7 @@ function (_Component) {
     });
 
     _defineProperty$13(_assertThisInitialized$6(_this), "handleDelete", function (action, elem) {
-      var conf = window.confirm("\u0425\u043E\u0442\u0438\u0442\u0435 \u0443\u0434\u0430\u043B\u0438\u0442\u044C \"".concat(elem.name, "\" (ID: ").concat(elem.id, ")?"));
+      var conf = window.confirm(_this.props.onDeleteConfirmMessageFunc(elem));
       if (conf) _this.props.deleteModel(elem.id, action, _this.props.modelName);
     });
 
