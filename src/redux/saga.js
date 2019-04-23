@@ -138,7 +138,8 @@ export function* deleteModelSaga(action) {
 		method: action.payload.action.method, // 'POST',
 		auth: true,
 		url: `${action.payload.action.url}`,
-		payload: action.payload
+		payload: action.payload,
+		modelName: action.payload.modelName
 	}))
 }
 
