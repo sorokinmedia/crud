@@ -15,21 +15,21 @@ class CrudSiteAlerts extends React.Component {
 
 	actionsFunc = (action, elem) => {
 		switch (action.id) {
-			case 'start':
-				const conf = window.confirm('Начать показ алерта?');
-				if (conf) this.props.startShowSiteAlert(elem.id);
-				break;
-			default:
-				return null;
+		case 'start':
+			const conf = window.confirm('Начать показ алерта?');
+			if (conf) this.props.startShowSiteAlert(elem.id);
+			break;
+		default:
+			return null;
 		}
 	};
 
 	iconSet = (id) => {
 		switch (id) {
-			case 'start':
-				return 'caret-right'
-			default:
-				return null;
+		case 'start':
+			return 'caret-right'
+		default:
+			return null;
 		}
 	};
 
@@ -50,6 +50,7 @@ class CrudSiteAlerts extends React.Component {
 					createFormOptions={{
 						fields: FormFields.map((elem) => {
 							if (elem.name === 'role') {
+
 								return {
 									...elem,
 									options: roles

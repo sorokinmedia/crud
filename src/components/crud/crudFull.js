@@ -52,7 +52,7 @@ export class CrudFull extends Component {
 			default:
 				return customActionsFunc ? customActionsFunc(action, elem) : null;
 		}
-	}
+	};
 
 
 	openUpdateFrom = (action, elem) => {
@@ -83,7 +83,7 @@ export class CrudFull extends Component {
 	};
 
 	handleDelete = (action, elem) => {
-		const conf = window.confirm(`Хотите удалить "${elem.name}" (ID: ${elem.id})?`);
+		const conf = window.confirm(this.props.onDeleteConfirmMessageFunc(elem));
 
 		if (conf) this.props.deleteModel(elem.id, action, this.props.modelName)
 	};
@@ -199,7 +199,10 @@ export class CrudFull extends Component {
 							initialValues={objectModal.initialValues
 								? updateShape(objectModal.initialValues)
 								: initialModal || {}}
-						/>) : ''}
+							renderField={renderField}
+						/>
+					) : ''
+				}
 			</div>)
 	}
 

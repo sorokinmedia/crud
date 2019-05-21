@@ -89,7 +89,7 @@ export const renderField = ({
 				//locale={locale}
 			/>);
 		case 'editor':
-			return <Field name="text" component={Editor} />
+			return <Field name="text" component={Editor} />;
 		default:
 			return (<Input
 				onPressEnter={onPressEnter}
