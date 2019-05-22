@@ -3,7 +3,7 @@ import { saga } from '../../src/index'
 import { takeEvery, all, put, call } from 'redux-saga/effects'
 import { START, ERROR, SUCCESS } from './constants';
 
-const API = 'http://api.rentrika.kosmoz.online'
+const API = 'http://api.rentrika.kosmoz.online';
 
 export function* requestSaga(action) {
 	const {
