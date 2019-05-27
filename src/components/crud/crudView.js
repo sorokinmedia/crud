@@ -122,7 +122,7 @@ class CrudView extends Component {
 				onExpand={this.handleExpand}
 				size={size}
 				tableStyle={tableStyle}
-				rowClassName={record => record.row ? record.row.state : 'default'}
+				rowClassName={record => record.row ? record.row.state : 'primary'}
 			/>
 		);
 	}
