@@ -26128,7 +26128,7 @@ var renderField = function renderField(_ref) {
 
       case 'editor':
         return React__default.createElement(Field, {
-          name: "text",
+          name: input.name,
           component: DraftEditor
         });
 
