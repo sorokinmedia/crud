@@ -16892,7 +16892,10 @@ function (_Component) {
         } : {},
         onExpand: this.handleExpand,
         size: size,
-        tableStyle: tableStyle
+        tableStyle: tableStyle,
+        rowClassName: function rowClassName(record) {
+          return record.row ? record.row.state : 'default';
+        }
       });
     }
   }]);
@@ -26581,7 +26584,7 @@ CreateViewForm$1 = connect(function (state, props) {
 }, {})(CreateViewForm$1);
 var ShowModelView = CreateViewForm$1;
 
-var css$2 = ".anticon:before {\n\tdisplay: initial !important;\n}\n\n.crud-table-column {\n    min-width: 100px!important;\n}\n";
+var css$2 = ".anticon:before {\n\tdisplay: initial !important;\n}\n\n.crud-table-column {\n    min-width: 100px!important;\n}\n\n\n.ant-table-row.success {\n    background-color: #c3e6cb;\n}\n\n.ant-table-row.secondary {\n    background-color: #d6d8db;\n}\n\n.ant-table-row.primary {\n    background-color: #b8daff;\n}\n\n.ant-table-row.danger {\n    background-color: #f5c6cb;\n}\n.ant-table-row.warning {\n    background-color: #ffeeba;\n}\n.ant-table-row.info {\n    background-color: #bee5eb;\n}\n.ant-table-row.light {\n    background-color: #fdfdfe;\n}\n.ant-table-row.dark {\n    background-color: #c6c8ca;\n}\n\n.ant-table-row.dark td, .ant-table-row.dark th {\n    border-color: #32383e;\n}\n\n";
 styleInject(css$2);
 
 function _typeof$13(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof$13 = function _typeof(obj) { return typeof obj; }; } else { _typeof$13 = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof$13(obj); }
