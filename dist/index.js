@@ -16756,7 +16756,8 @@ function _defineProperty$1(obj, key, value) { if (key in obj) { Object.definePro
 var fetchCrudModels = actions.fetchCrudModels,
     fetchCrudChildren = actions.fetchCrudChildren,
     setCrudParams = actions.setCrudParams;
-var isBigDesctop = window.document.documentElement.scrollWidth > 1646;
+var viewWidth = Math.min(window.innerWidth, screen.width);
+var isNotMiddleSizeWindow = viewWidth > 1640 || viewWidth < 800;
 
 var CrudView =
 /*#__PURE__*/
@@ -16838,7 +16839,8 @@ function (_Component) {
           size = _this$props2.size,
           tdClass = _this$props2.tdClass,
           scrollX = _this$props2.scrollX,
-          pageSize = _this$props2.pageSize;
+          pageSize = _this$props2.pageSize,
+          rowSelection = _this$props2.rowSelection;
       if (items && !items.data && items.loading) return React__default.createElement(Loader, null);
       if (!items || !items.data) return null;
       var listItems = items.data.items.map(function (elem) {
@@ -16846,7 +16848,7 @@ function (_Component) {
           key: elem.id,
           children: elem.has_child ? elem.children || [] : null
         });
-      }); // console.log(fixActionColumn, isBigDesctop)
+      }); // console.log(fixActionColumn, isNotMiddleSizeWindow)
 
       var columns = items.data.columns.map(function (col) {
         return {
@@ -16854,8 +16856,8 @@ function (_Component) {
           title: col.title,
           // <IntlMessages id="antTable.title.id"/>,
           key: col.id,
-          fixed: col.id === 'actions' && !isBigDesctop && fixActionColumn ? 'right' : null,
-          width: col.id === 'actions' && !isBigDesctop && fixActionColumn ? 150 : 'auto',
+          fixed: col.id === 'actions' && !isNotMiddleSizeWindow && fixActionColumn ? 'right' : null,
+          width: col.id === 'actions' && !isNotMiddleSizeWindow && fixActionColumn ? 150 : 'auto',
           render: function render(object) {
             return dataRenderer(object, col, modelName, iconTheme);
           },
@@ -16887,7 +16889,7 @@ function (_Component) {
           hideOnSinglePage: true
         },
         loading: items.loading,
-        scroll: !isBigDesctop && fixActionColumn ? {
+        scroll: !isNotMiddleSizeWindow && fixActionColumn ? {
           x: scrollX
         } : {},
         onExpand: this.handleExpand,
@@ -16895,7 +16897,8 @@ function (_Component) {
         tableStyle: tableStyle,
         rowClassName: function rowClassName(record) {
           return record.row ? record.row.state : 'default';
-        }
+        },
+        rowSelection: rowSelection
       });
     }
   }]);
@@ -16912,7 +16915,8 @@ CrudView.propTypes = {
   size: propTypes.string,
   tdClass: propTypes.string,
   scrollX: propTypes.number,
-  pageSize: propTypes.number
+  pageSize: propTypes.number,
+  rowSelection: propTypes.func
 };
 CrudView.defaultProps = {
   fixActionColumn: true,
@@ -26746,7 +26750,8 @@ function (_Component) {
           pageSize = _this$props.pageSize,
           isView = _this$props.isView,
           renderField = _this$props.renderField,
-          CustomButtons = _this$props.CustomButtons;
+          CustomButtons = _this$props.CustomButtons,
+          rowSelection = _this$props.rowSelection;
 
       var _ref = createFormOptions || {},
           title = _ref.title,
@@ -26793,7 +26798,8 @@ function (_Component) {
         size: size,
         tdClass: tdClass,
         scrollX: scrollX,
-        pageSize: pageSize
+        pageSize: pageSize,
+        rowSelection: rowSelection
       }), isModalOpen === modelName && !createDisabled ? React__default.createElement(CreateModel, {
         title: title || 'Создать',
         titleEdit: titleEdit || 'Редактировать',
@@ -26838,6 +26844,7 @@ CrudFull.propTypes = {
   onDeleteConfirmMessageFunc: propTypes.func,
   renderField: propTypes.func,
   setCrudActionsFunc: propTypes.func,
+  rowSelection: propTypes.oneOfType([propTypes.func, propTypes.object]),
   CustomButtons: propTypes.oneOfType([propTypes.func, propTypes.object])
 };
 CrudFull.defaultProps = {
@@ -26860,6 +26867,7 @@ CrudFull.defaultProps = {
   CustomButtons: function CustomButtons() {
     return null;
   },
+  rowSelection: null,
   pageSize: 20,
   onDeleteConfirmMessageFunc: function onDeleteConfirmMessageFunc(elem) {
     return "\u0425\u043E\u0442\u0438\u0442\u0435 \u0443\u0434\u0430\u043B\u0438\u0442\u044C \"".concat(elem.name, "\" (ID: ").concat(elem.id, ")?");
