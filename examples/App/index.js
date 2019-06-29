@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import React from 'react';
 import { connect } from 'react-redux'
 import { CrudFull } from '../../src/index';
+import { Button } from 'antd'
 // import { CrudFull } from '../../lib/index';
 import FormFields from './FormFields'
 import moment from 'moment'
@@ -34,68 +35,29 @@ class CrudSiteAlerts extends React.Component {
 	};
 
 	render() {
-		const { roles, groups, start } = this.props
+		const { roles, groups, start } = this.props;
+		const rowSelection = {
+			onChange: (selectedRowKeys, selectedRows) => {
+				 console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
+			},
+			getCheckboxProps: record => ({
+				disabled: record.name === 'Disabled User', // Column configuration not to be checked
+				name: record.name,
+			}),
+		};
+
 		return (
 			<div className="box box-body crudTable">
 
 				<CrudFull
-					crudRead="/v2/admin/site-alert/list"
-					crudCreate="/v2/admin/site-alert"
-					modelName="siteAlerts"
-					isView
+					crudRead={`/v1/owner/tenant/contract/54/bill/active`}
+					modelName="billList"
+					createButtonTitleId="sidebar.contractor.work.new"
+					ButtonComponent={Button}
 					customActionsFunc={this.actionsFunc}
-					iconsProvider={this.iconSet}
-					createDisabled={false}
-					createButtonTitle="Добавить"
-					createFormOptions={{
-						fields: FormFields.map((elem) => {
-							if (elem.name === 'role') {
-
-								return {
-									...elem,
-									options: roles
-								}
-							}
-							if (elem.name === 'group_id') {
-								return {
-									...elem,
-									options: groups,
-								}
-							}
-							return elem
-						}),
-						title: 'Добавить алерт',
-						editTitle: 'Редактировать алерт',
-					}}
-					submitShape={form => ({
-						SiteAlert: {
-							...form,
-							name: form.name,
-							text: form.text,
-							image: form.image,
-							role: form.role,
-							view_count_to_close: form.view_count_to_close,
-							finish_date: Number(moment(form.finish_date, 'DD/MM/YYYY')
-								.format('x') / 1000),
-							group_id: form.group_id,
-							order_id: form.order_id,
-						}
-					})
-					}
-					updateShape={form => ({
-						name: form.name,
-						text: form.text,
-						image: form.image,
-						role: form.role.id,
-						view_count_to_close: form.view_count_to_close,
-						finish_date: moment(form.finish_date * 1000)
-							.format('DD/MM/YYYY'),
-						group_id: (form.group) ? form.group.id : undefined,
-						order_id: form.order_id,
-					})
-					}
-					size="middle"
-					fixActionColumn
+					onDeleteConfirmMessageFunc={() => 'Удалить запись?'}
+					fixActionColumn={false}
+					//rowSelection={rowSelection}
 				/>
 			</div>
 		)

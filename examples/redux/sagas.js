@@ -10,7 +10,7 @@ export function* requestSaga(action) {
 		payload, method, url, auth, oldType: type, token_is_active
 	} = action;
 
-	const token = 'e7e1ad12986da9f35d44fd8042a7f78d'
+	const token = '10ea4e2da2e495b049faeb7bd34f1127'
 	//'f9ad75859d9a7acd94e7a3acc639e0be';
 	//'cef506b12fd189faf83b95c2af29d6c6'
 
@@ -146,7 +146,7 @@ export function* requestWHOSaga(action) {
 export default function* rootSaga() {
 	yield all([
 		saga(),
-		// takeEvery('REQUEST', requestSaga),
-		takeEvery('REQUEST', requestWHOSaga),
+		takeEvery('REQUEST', requestSaga),
+		// takeEvery('REQUEST', requestWHOSaga),
 	]);
 }

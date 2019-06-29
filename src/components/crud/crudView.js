@@ -8,7 +8,8 @@ import dataRenderer from './dataRenderer'
 import Loader from './loader'
 
 const { fetchCrudModels, fetchCrudChildren, setCrudParams } = crudActions;
-const isBigDesctop = window.document.documentElement.scrollWidth > 1646;
+const viewWidth = Math.min(window.innerWidth, screen.width);
+const isNotMiddleSizeWindow = viewWidth > 1640 || viewWidth < 800;
 
 class CrudView extends Component {
 
@@ -67,7 +68,8 @@ class CrudView extends Component {
 			size,
 			tdClass,
 			scrollX,
-			pageSize
+			pageSize,
+			rowSelection
 		} = this.props;
 
 		if (items && !items.data && items.loading) return <Loader />;
@@ -78,14 +80,14 @@ class CrudView extends Component {
 			key: elem.id,
 			children: elem.has_child ? elem.children || [] : null
 		}));
-		// console.log(fixActionColumn, isBigDesctop)
+		// console.log(fixActionColumn, isNotMiddleSizeWindow)
 
 		const columns = items.data.columns.map(col => ({
 			className: 'crud-table-column' + (tdClass ? ' ' + tdClass : ''),
 			title: col.title, // <IntlMessages id="antTable.title.id"/>,
 			key: col.id,
-			fixed: col.id === 'actions' && !isBigDesctop && fixActionColumn ? 'right' : null,
-			width: col.id === 'actions' && !isBigDesctop && fixActionColumn ? 150 : 'auto',
+			fixed: col.id === 'actions' && !isNotMiddleSizeWindow && fixActionColumn ? 'right' : null,
+			width: col.id === 'actions' && !isNotMiddleSizeWindow && fixActionColumn ? 150 : 'auto',
 			render: object => dataRenderer(object, col, modelName, iconTheme),
 			filters: this.getFiterValues(col),
 			filterIcon: col.filter.can
@@ -118,11 +120,12 @@ class CrudView extends Component {
 					hideOnSinglePage: true
 				}}
 				loading={items.loading}
-				scroll={!isBigDesctop && fixActionColumn ? { x: scrollX } : {}}
+				scroll={!isNotMiddleSizeWindow && fixActionColumn ? { x: scrollX } : {}}
 				onExpand={this.handleExpand}
 				size={size}
 				tableStyle={tableStyle}
 				rowClassName={record => record.row ? record.row.state : 'default'}
+				rowSelection={rowSelection}
 			/>
 		);
 	}
@@ -137,7 +140,8 @@ CrudView.propTypes = {
 	size: PropTypes.string,
 	tdClass: PropTypes.string,
 	scrollX: PropTypes.number,
-	pageSize: PropTypes.number
+	pageSize: PropTypes.number,
+	rowSelection: PropTypes.func
 };
 
 CrudView.defaultProps = {

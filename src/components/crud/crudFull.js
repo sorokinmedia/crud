@@ -118,7 +118,8 @@ export class CrudFull extends Component {
 			pageSize,
 			isView,
 			renderField,
-			CustomButtons
+			CustomButtons,
+			rowSelection
 		} = this.props;
 
 		const { title, titleEdit, fields } = createFormOptions || {};
@@ -184,6 +185,7 @@ export class CrudFull extends Component {
 					tdClass={tdClass}
 					scrollX={scrollX}
 					pageSize={pageSize}
+					rowSelection={rowSelection}
 				/>
 				{isModalOpen === modelName && !createDisabled
 					? (
@@ -235,6 +237,10 @@ CrudFull.propTypes = {
 	onDeleteConfirmMessageFunc: PropTypes.func,
 	renderField: PropTypes.func,
 	setCrudActionsFunc: PropTypes.func,
+	rowSelection: PropTypes.oneOfType([
+		PropTypes.func,
+		PropTypes.object
+	]),
 	CustomButtons: PropTypes.oneOfType([
 		PropTypes.func,
 		PropTypes.object
@@ -253,6 +259,7 @@ CrudFull.defaultProps = {
 	size: 'default',
 	iconsProvider: () => '',
 	CustomButtons: () => null,
+	rowSelection: null,
 	pageSize: 20,
 	onDeleteConfirmMessageFunc: elem => `Хотите удалить "${elem.name}" (ID: ${elem.id})?`
 };
