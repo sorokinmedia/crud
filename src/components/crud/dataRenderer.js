@@ -28,6 +28,12 @@ export default (row, column, modelName, iconTheme) => {
 	case 'date':
 		return DateCell(Number(row[column.id]) * 1000);
 	case 'link':
+		const link = row[column.id];
+		if (link.url && link.name) return (
+			<Link to={link.url}>
+				{link.name}
+			</Link>
+		);
 		const actionView = row.actions.find(e => e.id === 'view');
 		return actionView && actionView.url
 			? (
