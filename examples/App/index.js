@@ -13,6 +13,12 @@ import moment from 'moment'
 
 class CrudSiteAlerts extends React.Component {
 
+	constructor(props) {
+		super(props);
+
+		this.state = { selected: [] }
+	}
+
 
 	actionsFunc = (action, elem) => {
 		switch (action.id) {
@@ -36,9 +42,10 @@ class CrudSiteAlerts extends React.Component {
 
 	render() {
 		const { roles, groups, start } = this.props;
+		console.log(this.state.selected)
 		const rowSelection = {
 			onChange: (selectedRowKeys, selectedRows) => {
-				 console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
+				this.setState({ selected: [...this.state.selected, ...selectedRowKeys] });
 			},
 			getCheckboxProps: record => ({
 				disabled: record.name === 'Disabled User', // Column configuration not to be checked
@@ -50,14 +57,14 @@ class CrudSiteAlerts extends React.Component {
 			<div className="box box-body crudTable">
 
 				<CrudFull
-					crudRead={`/v1/owner/tenant/contract/54/bill/active`}
+					crudRead={`/v1/owner/tenant/list`}
 					modelName="billList"
 					createButtonTitleId="sidebar.contractor.work.new"
 					ButtonComponent={Button}
 					customActionsFunc={this.actionsFunc}
 					onDeleteConfirmMessageFunc={() => 'Удалить запись?'}
 					fixActionColumn={false}
-					//rowSelection={rowSelection}
+					rowSelection={rowSelection}
 				/>
 			</div>
 		)
