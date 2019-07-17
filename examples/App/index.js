@@ -42,7 +42,6 @@ class CrudSiteAlerts extends React.Component {
 
 	render() {
 		const { roles, groups, start } = this.props;
-		console.log(this.state.selected)
 		const rowSelection = {
 			onChange: (selectedRowKeys, selectedRows) => {
 				this.setState({ selected: [...this.state.selected, ...selectedRowKeys] });
@@ -57,7 +56,7 @@ class CrudSiteAlerts extends React.Component {
 			<div className="box box-body crudTable">
 
 				<CrudFull
-					crudRead={`/v1/owner/tenant/list`}
+					crudRead={`/v1/owner/contractor`}
 					modelName="billList"
 					createButtonTitleId="sidebar.contractor.work.new"
 					ButtonComponent={Button}

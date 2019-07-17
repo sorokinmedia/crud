@@ -1,5 +1,5 @@
 /* eslint-disable react/no-array-index-key */
-import React, { Fragment } from 'react';
+import React, { Fragment, useState } from 'react';
 import Action from '../crud/action'
 import moment from 'moment'
 import { Icon } from 'antd'
@@ -16,7 +16,8 @@ const BooleanCell = value => (
 const ArrTextCell = arr => arr.map(elem => <p>{elem}</p>);
 const HtmlCell = html => <span dangerouslySetInnerHTML={{ __html: html }} />;
 const ActionsCell = (row, modelName, iconTheme) => row.actions.map(action => (
-	<Action data={action} row={row} key={action.id} modelName={modelName} iconTheme={iconTheme} />));
+	<Action data={action} row={row} key={action.id} modelName={modelName} iconTheme={iconTheme} />
+));
 const ArrObjectCell = (obj) => {
 	if (!Array.isArray(obj) || !obj.length) return null;
 	return obj.map(({ created_at = false, updated_at = false, ...rest }) => {
@@ -45,16 +46,29 @@ const renderer = (value, type, dateFormat) => {
 		return value;
 	}
 };
-const ArrayCell = ({ values, type, delimiter, style, isHtml, dateFormat }) => {
+const ArrayCell = ({ values, type, delimiter, style, isHtml, dateFormat, viewLimit }) => {
 	if (!Array.isArray(values) || !values.length) return null;
 
-	return values.map((value, index) => (
-		<span style={isHtml && style ? style : null}>
+	const handledValues = values.map((value, index) => (
+		<span style={isHtml && style ? style : null} key={index + Date.now()}>
 			{isHtml ? <span dangerouslySetInnerHTML={{ __html: value }} /> : ''}
 			{!isHtml && renderer(value, type, dateFormat)}
 			{index < (values.length - 1) && delimiter}
 		</span>
-	))
+	));
+
+	return <ArrayCellLimit values={handledValues} viewLimit={viewLimit} />;
+};
+
+const ArrayCellLimit = (props) => {
+	const [showAll, setShowAll] = useState(!props.viewLimit);
+
+	return showAll ? props.values : (
+		<div>
+			{props.values.slice(0, props.viewLimit)}
+			{ setShowAll ? <a onClick={() => setShowAll(true)}>...</a> : null }
+		</div>
+	);
 };
 
 export {
