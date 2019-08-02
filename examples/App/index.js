@@ -5,8 +5,10 @@ import { connect } from 'react-redux'
 import { CrudFull } from '../../src/index';
 import { Button } from 'antd'
 // import { CrudFull } from '../../lib/index';
-import FormFields from './FormFields'
+import FormFields from './FormFields/index'
 import moment from 'moment'
+import {API} from "../redux/sagas";
+import {getCookie} from "../../src/redux/requestSaga";
 // import createCommissionFields from './../createObjectTypeFields'
 
 // commission_list_container
@@ -57,6 +59,10 @@ class CrudSiteAlerts extends React.Component {
 
 				<CrudFull
 					crudRead={`/v1/owner/contractor`}
+					crudCreate={'/v1/owner/contractor/create'}
+					//uploadFilesSettings={{ url: API + '/v1/common/file', token: getCookie('auth_token') }}
+					createDisabled={false}
+					createFormOptions={{ fields: FormFields }}
 					modelName="billList"
 					createButtonTitleId="sidebar.contractor.work.new"
 					ButtonComponent={Button}

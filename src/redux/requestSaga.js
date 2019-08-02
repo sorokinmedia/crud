@@ -27,7 +27,7 @@ export function* requestSaga(action) {
 		payload, method, url, auth, oldType: type, token_is_active
 	} = action;
 
-	const SITE = yield select(state => state.apiAdress);
+	const SITE = yield select(state => state.X);
 
 	const token = getCookie('auth_token')
 

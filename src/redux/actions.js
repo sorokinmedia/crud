@@ -11,6 +11,8 @@ const actions = {
 	TOGGLE_CREATE_MODEL_MODAL: 'TOGGLE_CREATE_MODEL_MODAL',
 	SET_MODEL_MODAL_FORM: 'SET_MODEL_MODAL_FORM',
 	FETCH_CRUD_CHILDREN: 'FETCH_CRUD_CHILDREN',
+	SET_UPLOADER_FILES: 'SET_UPLOADER_FILES',
+	setUploaderFiles: (files, modelName) => ({ type: actions.SET_UPLOADER_FILES, payload: { files, modelName } }),
 	fetchCrudChildren: (id, modelName, url) => ({
 		type: actions.FETCH_CRUD_CHILDREN,
 		payload: { id, params: { modelName }, url }

@@ -136,6 +136,21 @@ export const crudCreateModalLoadingReducer = (state = false, action) => {
 	}
 };
 
+export const uploaderFilesReducer = (state = {}, action) => {
+	const { type, payload } = action;
+	console.log(payload)
+
+	switch (type) {
+	case actions.SET_UPLOADER_FILES:
+		return {
+			...state,
+			[payload.modelName]: payload.files
+		};
+	default:
+		return state;
+	}
+};
+
 export default {
 	crudFilterValues: crudFilterValuesReducer,
 	crudModels: crudModelsReducer,
@@ -143,5 +158,6 @@ export default {
 	isOpenModelModal: isOpenModelModalReducer,
 	modelModalForm: modelModalFormReducer,
 	crudParams: crudParamsReducer,
-	crudCreateModalLoading: crudCreateModalLoadingReducer
+	crudCreateModalLoading: crudCreateModalLoadingReducer,
+	uploaderFiles: uploaderFilesReducer
 }

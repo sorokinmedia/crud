@@ -6,6 +6,7 @@ import { Field } from 'redux-form'
 //import locale from 'antd/lib/date-picker/locale/ru_RU'
 //moment.locale('ru');
 import Editor from '../components/custom/Editor'
+import Uploader from '../components/crud/uploader';
 
 const { Option: SelectOption } = Select;
 const Search = Input.Search;
@@ -30,6 +31,7 @@ export const renderField = ({
 	addonAfter,
 	enterButton,
 	dropdownRender,
+	uploaderParams,
 	locale
 }) => (<Form.Item
 	hasFeedback
@@ -90,6 +92,8 @@ export const renderField = ({
 			/>);
 		case 'editor':
 			return <Field name={input.name} component={Editor} />;
+		case 'uploader':
+			return <Uploader {...uploaderParams} />;
 		default:
 			return (<Input
 				onPressEnter={onPressEnter}

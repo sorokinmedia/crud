@@ -20,9 +20,7 @@ const composeEnhancers =
 
 const store = createStore(
 	combineReducers({ ...reducers, }),
-	composeEnhancers(
-		applyMiddleware(...middlewares)
-	)
+	composeEnhancers(applyMiddleware(...middlewares))
 );
 sagaMiddleware.run(rootSaga);
 export { store };

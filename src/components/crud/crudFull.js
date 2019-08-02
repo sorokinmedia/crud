@@ -30,7 +30,8 @@ export class CrudFull extends Component {
 			modelName: this.props.modelName,
 			submitShape: this.props.submitShape,
 			initialValues: this.props.initialValues,
-			iconsProvider: this.props.iconsProvider
+			iconsProvider: this.props.iconsProvider,
+			uploadFilesSettings: this.props.uploadFilesSettings
 		})
 	}
 
@@ -119,11 +120,14 @@ export class CrudFull extends Component {
 			isView,
 			renderField,
 			CustomButtons,
-			rowSelection
+			rowSelection,
+			uploadFilesUrl
 		} = this.props;
 
 		const { title, titleEdit, fields } = createFormOptions || {};
 		const Btn = ButtonComponent || Button;
+
+		// viewMode
 		if (isView && isModalOpen === modelName && objectModal.modalType === 'view')
 			return (
 				<ShowModelView
@@ -155,6 +159,7 @@ export class CrudFull extends Component {
 					}
 					renderField={renderField}
 				/>);
+
 
 		return (
 			<div>
@@ -244,7 +249,8 @@ CrudFull.propTypes = {
 	CustomButtons: PropTypes.oneOfType([
 		PropTypes.func,
 		PropTypes.object
-	])
+	]),
+	uploadFilesSettings: PropTypes.string
 };
 
 CrudFull.defaultProps = {
@@ -261,7 +267,8 @@ CrudFull.defaultProps = {
 	CustomButtons: () => null,
 	rowSelection: null,
 	pageSize: 20,
-	onDeleteConfirmMessageFunc: elem => `Хотите удалить "${elem.name}" (ID: ${elem.id})?`
+	onDeleteConfirmMessageFunc: elem => `Хотите удалить "${elem.name}" (ID: ${elem.id})?`,
+	uploadFilesSettings: null
 };
 
 export default connect(state => ({

@@ -18,7 +18,8 @@ class CreateModalForm extends Component {
 			PropTypes.func,
 			PropTypes.object
 		]),
-		handleSubmit: PropTypes.func.isRequired
+		handleSubmit: PropTypes.func.isRequired,
+		uploadFileUrl: PropTypes.string
 	};
 
 	static defaultProps = {
@@ -42,9 +43,11 @@ class CreateModalForm extends Component {
 	};
 
 	mapFields = fields => {
-		return fields.map(props => props.fields ? <div key={props.name}>
-			{this.mapFields(props.fields)}
-		</div> : <Field
+		return fields.map(props => props.fields ? (
+			<div key={props.name}>
+				{this.mapFields(props.fields)}
+			</div>
+		) : <Field
 			{...props}
 			component={props.component || this.props.renderField}
 			key={props.name}

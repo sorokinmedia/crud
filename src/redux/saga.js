@@ -1,6 +1,6 @@
 import moment from 'moment'
 import { stopSubmit } from 'redux-form';
-import { all, fork, put, select, takeEvery } from 'redux-saga/effects';
+import { all, fork, put, select, takeEvery, call } from 'redux-saga/effects';
 import requestMiddleware, { request } from 'sm-redux-saga-request'
 import { buildUrlSearch, buildUrlSearchForArray } from 'sm-string-helper'
 import { ERROR, SORT_ASC, SORT_DESC, SUCCESS, SUCCESS_REQ } from '../constants';
@@ -8,6 +8,7 @@ import notification from '../notification';
 import actions from './actions';
 import regeneratorRuntime from 'regenerator-runtime'
 import reduceMessages from "../helpers/reduceMessages";
+import {getCookie} from "./requestSaga";
 export const selectCrudParams = state => state.crudParams;
 
 function isDateColumn(columns, key) {
@@ -99,19 +100,53 @@ export function* fetchCrudFilterValuesSaga(action) {
 /*
 	 Actions Handling
  */
+function* filesUpload(modelName) {
+	const params = yield select(selectCrudParams);
+	const { uploadFilesSettings } = params[modelName];
 
+	if (!uploadFilesSettings) return null;
+
+	const files = yield select(state => state.uploaderFiles);
+	const modelFiles = files ? files[modelName] : null;
+	const result = [];
+	let i = 0;
+
+	while (i < modelFiles.length) {
+		const formData = new FormData();
+
+		formData.append('file', modelFiles[i]);
+
+		const filesResp = yield call(fetch, uploadFilesSettings.url, {
+			method: 'POST',
+			headers: { Authorization: 'Bearer ' + uploadFilesSettings.token },
+			mode: 'cors',
+			body: formData
+		});
+
+		const res = yield filesResp.json();
+		result.push(res.response);
+		console.log(res);
+
+		i++;
+	}
+
+	return result;
+}
 
 export function* createModelSaga(action) {
 	const params = yield select(selectCrudParams);
 	const { modelName } = action.payload;
-	const form = params[modelName].submitShape(action.payload.form);
+	const { submitShape, uploadFilesUrl } = params[modelName];
+	const form = submitShape(action.payload.form);
+
+	const files = yield filesUpload(modelName);
 
 	yield put(request({
 		...action,
 		method: 'POST',
 		auth: true,
 		url: `${action.payload.url}`,
-		payload: form,
+		payload: { ...form, files: files || undefined },
 		modelName
 	}))
 }
