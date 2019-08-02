@@ -1,8 +1,8 @@
 import React, { Component } from 'react'
-import { message } from 'antd'
 import PropTypes from 'prop-types'
+import { message } from 'antd'
 
-const UploadDecorator = UploderComponent => class Uploader extends Component {
+const UploadDecorator = UploaderComponent => class Uploader extends Component {
 
 	constructor(props) {
 		super(props);
@@ -11,12 +11,12 @@ const UploadDecorator = UploderComponent => class Uploader extends Component {
 
 	validateType = (type) => {
 		switch (type) {
-			case 'image/jpeg':
-			case 'image/jpg':
-			case 'image/png':
-				return true;
-			default:
-				return false
+		case 'image/jpeg':
+		case 'image/jpg':
+		case 'image/png':
+			return true;
+		default:
+			return false
 		}
 	};
 
@@ -67,13 +67,12 @@ const UploadDecorator = UploderComponent => class Uploader extends Component {
 					size: f.size,
 					type: f.type,
 					webkitRelativePath: f.webkitRelativePath
-				})),
-			// action: 'https://www.mocky.io/v2/5cc8019d300000980a055e76',
+				})).concat(this.props.defaultFileList || []),
 			listType,
 		};
 
 		return (
-			<UploderComponent {...this.props} uploaderProps={uploaderProps} />
+			<UploaderComponent {...uploaderProps} />
 		);
 	}
 };
@@ -82,6 +81,7 @@ UploadDecorator.propTypes = {
 	onChange: PropTypes.func.isRequired,
 	listType: PropTypes.string,
 	multiple: PropTypes.bool,
+	defaultFileList: PropTypes.array
 };
 
 export default UploadDecorator

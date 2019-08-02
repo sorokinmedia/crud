@@ -93,6 +93,7 @@ export const renderField = ({
 		case 'editor':
 			return <Field name={input.name} component={Editor} />;
 		case 'uploader':
+			console.log(input.value)
 			return <Uploader {...uploaderParams} defaultFileList={input.value} />;
 		default:
 			return (<Input

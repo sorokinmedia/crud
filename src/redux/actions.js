@@ -12,6 +12,11 @@ const actions = {
 	SET_MODEL_MODAL_FORM: 'SET_MODEL_MODAL_FORM',
 	FETCH_CRUD_CHILDREN: 'FETCH_CRUD_CHILDREN',
 	SET_UPLOADER_FILES: 'SET_UPLOADER_FILES',
+	SET_UPLOADER_DEFAULT_FILE_LIST: 'SET_UPLOADER_DEFAULT_FILE_LIST',
+	setUploaderDefaultFileList: (defaultFileList, modelName) => ({
+		type: actions.SET_UPLOADER_DEFAULT_FILE_LIST,
+		payload: { defaultFileList, modelName }
+	}),
 	setUploaderFiles: (files, modelName) => ({ type: actions.SET_UPLOADER_FILES, payload: { files, modelName } }),
 	fetchCrudChildren: (id, modelName, url) => ({
 		type: actions.FETCH_CRUD_CHILDREN,

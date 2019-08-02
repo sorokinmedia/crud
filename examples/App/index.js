@@ -58,9 +58,16 @@ class CrudSiteAlerts extends React.Component {
 			<div className="box box-body crudTable">
 
 				<CrudFull
-					crudRead={`/v1/owner/contractor`}
-					crudCreate={'/v1/owner/contractor/create'}
-					//uploadFilesSettings={{ url: API + '/v1/common/file', token: getCookie('auth_token') }}
+					crudRead={`/v1/owner/object/57/keys`}
+					crudCreate={`/v1/owner/object/57/key`}
+					uploadFilesSettings={{ url: API + '/v1/common/file', token: getCookie('auth_token') }}
+					submitShape={(form, files) => ({
+						...form,
+						files
+					})}
+					updateShape={elem => ({
+						files: elem.files.map(file => ({ name: file.name, uid: file.id, status: 'done', url: file.url })),
+					})}
 					createDisabled={false}
 					createFormOptions={{ fields: FormFields }}
 					modelName="billList"

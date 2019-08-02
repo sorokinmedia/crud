@@ -138,13 +138,17 @@ export const crudCreateModalLoadingReducer = (state = false, action) => {
 
 export const uploaderFilesReducer = (state = {}, action) => {
 	const { type, payload } = action;
-	console.log(payload)
 
 	switch (type) {
 	case actions.SET_UPLOADER_FILES:
 		return {
 			...state,
-			[payload.modelName]: payload.files
+			[payload.modelName]: { ...state[payload.modelName], fileList: payload.files }
+		};
+	case actions.SET_UPLOADER_DEFAULT_FILE_LIST:
+		return {
+			...state,
+			[payload.modelName]: { ...state[payload.modelName], defaultFileList: payload.defaultFileList }
 		};
 	default:
 		return state;

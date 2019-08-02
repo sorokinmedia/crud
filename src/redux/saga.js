@@ -100,14 +100,13 @@ export function* fetchCrudFilterValuesSaga(action) {
 /*
 	 Actions Handling
  */
-function* filesUpload(modelName) {
+function* filesUpload(modelName, filesStore) {
 	const params = yield select(selectCrudParams);
 	const { uploadFilesSettings } = params[modelName];
 
 	if (!uploadFilesSettings) return null;
 
-	const files = yield select(state => state.uploaderFiles);
-	const modelFiles = files ? files[modelName] : null;
+	const modelFiles = filesStore && filesStore[modelName] ? filesStore[modelName].fileList : null;
 	const result = [];
 	let i = 0;
 
@@ -125,7 +124,6 @@ function* filesUpload(modelName) {
 
 		const res = yield filesResp.json();
 		result.push(res.response);
-		console.log(res);
 
 		i++;
 	}
@@ -133,12 +131,25 @@ function* filesUpload(modelName) {
 	return result;
 }
 
+export function* getHandledFiles(modelName) {
+	const filesStore = yield select(state => state.uploaderFiles);
+	const filesStoreModel = filesStore[modelName] || {};
+	const files = yield filesUpload(modelName, filesStore);
+	const defaultList = filesStoreModel.defaultFileList;
+
+	console.log(defaultList)
+
+	return files.concat(defaultList || []);
+}
+
 export function* createModelSaga(action) {
 	const params = yield select(selectCrudParams);
 	const { modelName } = action.payload;
-	const { submitShape, uploadFilesUrl } = params[modelName];
-	const files = yield filesUpload(modelName);
-	const form = submitShape(action.payload.form, files);
+	const { submitShape } = params[modelName];
+
+	const uploadedFiles = yield getHandledFiles(modelName);
+
+	const form = submitShape(action.payload.form, uploadedFiles);
 
 	yield put(request({
 		...action,
@@ -188,13 +199,15 @@ export function* restoreModelSaga(action) {
 export function* changeModelSaga(action) {
 	const { name, description, id } = action.payload.form;
 	const params = yield select(selectCrudParams);
+	const uploadedFiles = yield getHandledFiles(action.payload.modelName);
+	console.log(uploadedFiles)
 
 	yield put(request({
 		...action,
 		method: action.payload.action.method, //'POST',
 		auth: true,
 		url: `${action.payload.action.url}`,
-		payload: params[action.payload.modelName].submitShape(action.payload.form),
+		payload: params[action.payload.modelName].submitShape(action.payload.form, uploadedFiles),
 		modelName: action.payload.modelName
 	}));
 }

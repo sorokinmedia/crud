@@ -5,7 +5,7 @@ import UploadDecorator from './uploadDdecorator';
 
 function Uploader(props) {
 	return (
-		<Upload {...props.uploaderProps}>
+		<Upload {...props}>
 			<Button type={'default'}>
 				<Icon type="upload" /> {props.buttonText}
 			</Button>
@@ -14,7 +14,6 @@ function Uploader(props) {
 }
 
 Uploader.propTypes = {
-	uploaderProps: PropTypes.object.isRequired,
 	buttonText: PropTypes.string,
 	listType: PropTypes.string,
 };
