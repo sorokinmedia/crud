@@ -29192,6 +29192,7 @@ var requestSaga$1 = requests;
 var actions$4 = actions;
 var CrudView$2 = CrudView$1;
 var CrudFull$1 = crudFull;
+var CrudUploader$1 = Uploader$2;
 
 exports.reducer = reducer$3;
 exports.saga = saga;
@@ -29200,3 +29201,4 @@ exports.requestSaga = requestSaga$1;
 exports.actions = actions$4;
 exports.CrudView = CrudView$2;
 exports.CrudFull = CrudFull$1;
+exports.CrudUploader = CrudUploader$1;
