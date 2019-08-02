@@ -28941,7 +28941,7 @@ function filesUpload(modelName) {
 }
 
 function createModelSaga(action) {
-  var params, modelName, _params$modelName, submitShape, uploadFilesUrl, form, files;
+  var params, modelName, _params$modelName, submitShape, uploadFilesUrl, files, form;
 
   return runtimeModule.wrap(function createModelSaga$(_context5) {
     while (1) {
@@ -28954,20 +28954,18 @@ function createModelSaga(action) {
           params = _context5.sent;
           modelName = action.payload.modelName;
           _params$modelName = params[modelName], submitShape = _params$modelName.submitShape, uploadFilesUrl = _params$modelName.uploadFilesUrl;
-          form = submitShape(action.payload.form);
-          _context5.next = 8;
+          _context5.next = 7;
           return filesUpload(modelName);
 
-        case 8:
+        case 7:
           files = _context5.sent;
+          form = submitShape(action.payload.form, files);
           _context5.next = 11;
           return put(dist_1(_objectSpread$4({}, action, {
             method: 'POST',
             auth: true,
             url: "".concat(action.payload.url),
-            payload: _objectSpread$4({}, form, {
-              files: files || undefined
-            }),
+            payload: _objectSpread$4({}, form),
             modelName: modelName
           })));
 

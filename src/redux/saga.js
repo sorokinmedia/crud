@@ -137,16 +137,15 @@ export function* createModelSaga(action) {
 	const params = yield select(selectCrudParams);
 	const { modelName } = action.payload;
 	const { submitShape, uploadFilesUrl } = params[modelName];
-	const form = submitShape(action.payload.form);
-
 	const files = yield filesUpload(modelName);
+	const form = submitShape(action.payload.form, files);
 
 	yield put(request({
 		...action,
 		method: 'POST',
 		auth: true,
 		url: `${action.payload.url}`,
-		payload: { ...form, files: files || undefined },
+		payload: { ...form },
 		modelName
 	}))
 }
