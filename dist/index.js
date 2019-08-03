@@ -26097,8 +26097,6 @@ DraftEditor.propTypes = {
 
 function _typeof$10(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof$10 = function _typeof(obj) { return typeof obj; }; } else { _typeof$10 = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof$10(obj); }
 
-function _extends$31() { _extends$31 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends$31.apply(this, arguments); }
-
 function _toConsumableArray$5(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
 
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
@@ -26218,7 +26216,7 @@ var UploadDecorator = function UploadDecorator(UploaderComponent) {
           listType: listType,
           buttonText: buttonText
         };
-        return React__default.createElement(UploaderComponent, _extends$31({}, this.props, uploaderProps));
+        return React__default.createElement(UploaderComponent, uploaderProps);
       }
     }]);
 
@@ -26250,7 +26248,7 @@ Uploader.defaultProps = {
 };
 var Uploader$1 = UploadDecorator(Uploader);
 
-function _extends$32() { _extends$32 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends$32.apply(this, arguments); }
+function _extends$31() { _extends$31 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends$31.apply(this, arguments); }
 var setUploaderFiles = actions.setUploaderFiles,
     setUploaderDefaultFileList = actions.setUploaderDefaultFileList;
 
@@ -26258,7 +26256,7 @@ function CrudUploader(props) {
   React.useEffect(function () {
     props.setUploaderDefaultFileList(props.defaultFileList, props.modelName);
   }, []);
-  return React__default.createElement(Uploader$1, _extends$32({}, props, {
+  return React__default.createElement(Uploader$1, _extends$31({}, props, {
     onChange: function onChange(files) {
       return props.setUploaderFiles(files, props.modelName);
     }
@@ -26280,7 +26278,7 @@ var Uploader$2 = connect(function (state, props) {
   setUploaderDefaultFileList: setUploaderDefaultFileList
 })(CrudUploader);
 
-function _extends$33() { _extends$33 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends$33.apply(this, arguments); }
+function _extends$32() { _extends$32 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends$32.apply(this, arguments); }
 var SelectOption = antd.Select.Option;
 var Search = antd.Input.Search;
 var renderField = function renderField(_ref) {
@@ -26308,7 +26306,7 @@ var renderField = function renderField(_ref) {
       dropdownRender = _ref.dropdownRender,
       uploaderParams = _ref.uploaderParams,
       locale = _ref.locale;
-  return React__default.createElement(antd.Form.Item, _extends$33({
+  return React__default.createElement(antd.Form.Item, _extends$32({
     hasFeedback: true
   }, layout, {
     label: label,
@@ -26317,7 +26315,7 @@ var renderField = function renderField(_ref) {
   }), function () {
     switch (type) {
       case 'select':
-        return React__default.createElement(antd.Select, _extends$33({}, input, {
+        return React__default.createElement(antd.Select, _extends$32({}, input, {
           value: input.value || [],
           mode: mode,
           disabled: input.disabled ? true : false,
@@ -26334,7 +26332,7 @@ var renderField = function renderField(_ref) {
         }));
 
       case 'textarea':
-        return React__default.createElement(antd.Input.TextArea, _extends$33({}, input, {
+        return React__default.createElement(antd.Input.TextArea, _extends$32({}, input, {
           placeholder: placeholder,
           type: type,
           className: "form-control",
@@ -26345,7 +26343,7 @@ var renderField = function renderField(_ref) {
         return React__default.createElement(antd.Checkbox, input, placeholder);
 
       case 'search':
-        return React__default.createElement(Search, _extends$33({
+        return React__default.createElement(Search, _extends$32({
           onPressEnter: onPressEnter
         }, input, {
           value: input.value || defaultValue,
@@ -26354,7 +26352,7 @@ var renderField = function renderField(_ref) {
         }));
 
       case 'date':
-        return React__default.createElement(antd.DatePicker, _extends$33({
+        return React__default.createElement(antd.DatePicker, _extends$32({
           style: {
             width: '100%'
           },
@@ -26375,12 +26373,12 @@ var renderField = function renderField(_ref) {
 
       case 'uploader':
         console.log(input.value);
-        return React__default.createElement(Uploader$2, _extends$33({}, uploaderParams, {
+        return React__default.createElement(Uploader$2, _extends$32({}, uploaderParams, {
           defaultFileList: input.value
         }));
 
       default:
-        return React__default.createElement(antd.Input, _extends$33({
+        return React__default.createElement(antd.Input, _extends$32({
           onPressEnter: onPressEnter
         }, input, {
           value: input.value || defaultValue,
@@ -26399,7 +26397,7 @@ var renderField = function renderField(_ref) {
 
 function _typeof$11(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof$11 = function _typeof(obj) { return typeof obj; }; } else { _typeof$11 = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof$11(obj); }
 
-function _extends$34() { _extends$34 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends$34.apply(this, arguments); }
+function _extends$33() { _extends$33 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends$33.apply(this, arguments); }
 
 function _classCallCheck$29(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -26451,7 +26449,7 @@ function (_Component) {
       return fields.map(function (props) {
         return props.fields ? React__default.createElement("div", {
           key: props.name
-        }, _this.mapFields(props.fields)) : React__default.createElement(Field, _extends$34({}, props, {
+        }, _this.mapFields(props.fields)) : React__default.createElement(Field, _extends$33({}, props, {
           component: props.component || _this.props.renderField,
           key: props.name,
           options: _this.props.options[props.optionsKey] || props.options || []
@@ -26535,7 +26533,7 @@ var CreateModel = CreateModalForm;
 
 function _typeof$12(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof$12 = function _typeof(obj) { return typeof obj; }; } else { _typeof$12 = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof$12(obj); }
 
-function _extends$35() { _extends$35 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends$35.apply(this, arguments); }
+function _extends$34() { _extends$34 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends$34.apply(this, arguments); }
 
 function _classCallCheck$30(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -26585,7 +26583,7 @@ function (_Component) {
       return fields.map(function (props) {
         return props.fields ? React__default.createElement("div", {
           key: props.name
-        }, _this.mapFields(props.fields)) : React__default.createElement(Field, _extends$35({}, props, {
+        }, _this.mapFields(props.fields)) : React__default.createElement(Field, _extends$34({}, props, {
           component: props.component || _this.props.renderField,
           key: props.name,
           options: _this.props.options[props.optionsKey] || props.options || []
