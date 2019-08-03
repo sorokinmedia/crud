@@ -58,7 +58,7 @@ const UploadDecorator = UploaderComponent => class Uploader extends Component {
 				});
 				return false;
 			},
-			fileList: fileList
+			/* fileList: fileList
 				.map(f => ({
 					url: window.URL.createObjectURL(f),
 					name: f.name,
@@ -68,10 +68,12 @@ const UploadDecorator = UploaderComponent => class Uploader extends Component {
 					size: f.size,
 					type: f.type,
 					webkitRelativePath: f.webkitRelativePath
-				})).concat(this.props.defaultFileList || []),
+				})).concat(this.props.defaultFileList || []), */
 			listType,
 			buttonText
 		};
+
+		if (this.props.defaultFileList) uploaderProps.defaultFileList = this.props.defaultFileList;
 
 		return (
 			<UploaderComponent {...uploaderProps} />
