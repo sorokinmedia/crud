@@ -63,10 +63,16 @@ class CrudSiteAlerts extends React.Component {
 					uploadFilesSettings={{ url: API + '/v1/common/file', token: getCookie('auth_token') }}
 					submitShape={(form, files) => ({
 						...form,
-						files
+						files: files.map(file => file.oldFormat || file)
 					})}
 					updateShape={elem => ({
-						files: elem.files.map(file => ({ name: file.name, uid: file.id, status: 'done', url: file.url })),
+						files: elem.files.map(file => ({
+							oldFormat: file,
+							name: file.name,
+							uid: file.id,
+							status: 'done',
+							url: file.url
+						})),
 					})}
 					createDisabled={false}
 					createFormOptions={{ fields: FormFields }}
