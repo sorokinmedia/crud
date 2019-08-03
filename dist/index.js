@@ -26234,7 +26234,6 @@ UploadDecorator.propTypes = {
 };
 
 function Uploader(props) {
-  console.log(props);
   return React__default.createElement(antd.Upload, props, React__default.createElement(antd.Button, {
     type: 'default'
   }, React__default.createElement(antd.Icon, {
@@ -26259,7 +26258,6 @@ function CrudUploader(props) {
   React.useEffect(function () {
     props.setUploaderDefaultFileList(props.defaultFileList, props.modelName);
   }, []);
-  console.log(props);
   return React__default.createElement(Uploader$1, _extends$32({}, props, {
     onChange: function onChange(files) {
       return props.setUploaderFiles(files, props.modelName);
@@ -26273,9 +26271,9 @@ CrudUploader.propTypes = {
   setUploaderDefaultFileList: propTypes.func.isRequired,
   defaultFileList: propTypes.array
 };
-var Uploader$2 = connect(function (state) {
+var Uploader$2 = connect(function (state, props) {
   return {
-    modelName: state.isOpenModelModal
+    modelName: state.isOpenModelModal || props.modelName
   };
 }, {
   setUploaderFiles: setUploaderFiles,

@@ -10,7 +10,6 @@ function CrudUploader(props) {
 	useEffect(() => {
 		props.setUploaderDefaultFileList(props.defaultFileList, props.modelName)
 	}, []);
-	console.log(props)
 	return (
 		<Uploader
 			{...props}
@@ -27,7 +26,7 @@ CrudUploader.propTypes = {
 };
 
 export default connect(
-	state => ({ modelName: state.isOpenModelModal }),
+	(state, props) => ({ modelName: state.isOpenModelModal || props.modelName }),
 	{
 		setUploaderFiles,
 		setUploaderDefaultFileList
