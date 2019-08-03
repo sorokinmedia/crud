@@ -26201,21 +26201,22 @@ var UploadDecorator = function UploadDecorator(UploaderComponent) {
 
             return false;
           },
-          fileList: fileList.map(function (f) {
-            return {
-              url: window.URL.createObjectURL(f),
-              name: f.name,
-              uid: f.uid,
-              lastModified: f.lastModified,
-              lastModifiedDate: f.lastModifiedDate,
-              size: f.size,
-              type: f.type,
-              webkitRelativePath: f.webkitRelativePath
-            };
-          }).concat(this.props.defaultFileList || []),
+
+          /* fileList: fileList
+          	.map(f => ({
+          		url: window.URL.createObjectURL(f),
+          		name: f.name,
+          		uid: f.uid,
+          		lastModified: f.lastModified,
+          		lastModifiedDate: f.lastModifiedDate,
+          		size: f.size,
+          		type: f.type,
+          		webkitRelativePath: f.webkitRelativePath
+          	})).concat(this.props.defaultFileList || []), */
           listType: listType,
           buttonText: buttonText
         };
+        if (this.props.defaultFileList) uploaderProps.defaultFileList = this.props.defaultFileList;
         return React__default.createElement(UploaderComponent, uploaderProps);
       }
     }]);
@@ -28959,7 +28960,7 @@ function filesUpload(modelName, filesStore) {
 }
 
 function getHandledFiles(modelName) {
-  var filesStore, filesStoreModel, files, defaultList;
+  var filesStore, filesStoreModel, files;
   return runtimeModule.wrap(function getHandledFiles$(_context5) {
     while (1) {
       switch (_context5.prev = _context5.next) {
@@ -28977,11 +28978,9 @@ function getHandledFiles(modelName) {
 
         case 6:
           files = _context5.sent;
-          defaultList = filesStoreModel.defaultFileList;
-          console.log(defaultList);
-          return _context5.abrupt("return", files.concat(defaultList || []));
+          return _context5.abrupt("return", files);
 
-        case 10:
+        case 8:
         case "end":
           return _context5.stop();
       }
@@ -29035,7 +29034,6 @@ function updateModelsSaga(action) {
 
         case 2:
           params = _context7.sent;
-          //console.log(action)
           _params = params[action.modelName || action.payload.modelName], modelName = _params.modelName, crudRead = _params.crudRead, filters = _params.filters, page = _params.page, order = _params.order, order_by = _params.order_by;
           _context7.next = 6;
           return put(actions.fetchCrudModels({
