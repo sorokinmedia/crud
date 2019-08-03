@@ -74,7 +74,7 @@ const UploadDecorator = UploaderComponent => class Uploader extends Component {
 		};
 
 		return (
-			<UploaderComponent {...this.props} {...uploaderProps} />
+			<UploaderComponent {...uploaderProps} />
 		);
 	}
 };
