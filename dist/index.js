@@ -1311,6 +1311,16 @@ var actions = {
   SET_MODEL_MODAL_FORM: 'SET_MODEL_MODAL_FORM',
   FETCH_CRUD_CHILDREN: 'FETCH_CRUD_CHILDREN',
   SET_UPLOADER_FILES: 'SET_UPLOADER_FILES',
+  SET_UPLOADER_DEFAULT_FILE_LIST: 'SET_UPLOADER_DEFAULT_FILE_LIST',
+  setUploaderDefaultFileList: function setUploaderDefaultFileList(defaultFileList, modelName) {
+    return {
+      type: actions.SET_UPLOADER_DEFAULT_FILE_LIST,
+      payload: {
+        defaultFileList: defaultFileList,
+        modelName: modelName
+      }
+    };
+  },
   setUploaderFiles: function setUploaderFiles(files, modelName) {
     return {
       type: actions.SET_UPLOADER_FILES,
@@ -26087,8 +26097,6 @@ DraftEditor.propTypes = {
 
 function _typeof$10(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof$10 = function _typeof(obj) { return typeof obj; }; } else { _typeof$10 = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof$10(obj); }
 
-function _extends$31() { _extends$31 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends$31.apply(this, arguments); }
-
 function _toConsumableArray$5(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
 
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
@@ -26115,7 +26123,7 @@ function _setPrototypeOf$3(o, p) { _setPrototypeOf$3 = Object.setPrototypeOf || 
 
 function _defineProperty$10(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-var UploadDecorator = function UploadDecorator(UploderComponent) {
+var UploadDecorator = function UploadDecorator(UploaderComponent) {
   var _temp;
 
   return _temp =
@@ -26203,13 +26211,10 @@ var UploadDecorator = function UploadDecorator(UploderComponent) {
               type: f.type,
               webkitRelativePath: f.webkitRelativePath
             };
-          }),
-          // action: 'https://www.mocky.io/v2/5cc8019d300000980a055e76',
+          }).concat(this.props.defaultFileList || []),
           listType: listType
         };
-        return React__default.createElement(UploderComponent, _extends$31({}, this.props, {
-          uploaderProps: uploaderProps
-        }));
+        return React__default.createElement(UploaderComponent, uploaderProps);
       }
     }]);
 
@@ -26220,11 +26225,12 @@ var UploadDecorator = function UploadDecorator(UploderComponent) {
 UploadDecorator.propTypes = {
   onChange: propTypes.func.isRequired,
   listType: propTypes.string,
-  multiple: propTypes.bool
+  multiple: propTypes.bool,
+  defaultFileList: propTypes.array
 };
 
 function Uploader(props) {
-  return React__default.createElement(antd.Upload, props.uploaderProps, React__default.createElement(antd.Button, {
+  return React__default.createElement(antd.Upload, props, React__default.createElement(antd.Button, {
     type: 'default'
   }, React__default.createElement(antd.Icon, {
     type: "upload"
@@ -26232,7 +26238,6 @@ function Uploader(props) {
 }
 
 Uploader.propTypes = {
-  uploaderProps: propTypes.object.isRequired,
   buttonText: propTypes.string,
   listType: propTypes.string
 };
@@ -26241,11 +26246,15 @@ Uploader.defaultProps = {
 };
 var Uploader$1 = UploadDecorator(Uploader);
 
-function _extends$32() { _extends$32 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends$32.apply(this, arguments); }
-var setUploaderFiles = actions.setUploaderFiles;
+function _extends$31() { _extends$31 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends$31.apply(this, arguments); }
+var setUploaderFiles = actions.setUploaderFiles,
+    setUploaderDefaultFileList = actions.setUploaderDefaultFileList;
 
 function CrudUploader(props) {
-  return React__default.createElement(Uploader$1, _extends$32({}, props, {
+  React.useEffect(function () {
+    props.setUploaderDefaultFileList(props.defaultFileList, props.modelName);
+  }, []);
+  return React__default.createElement(Uploader$1, _extends$31({}, props, {
     onChange: function onChange(files) {
       return props.setUploaderFiles(files, props.modelName);
     }
@@ -26254,17 +26263,20 @@ function CrudUploader(props) {
 
 CrudUploader.propTypes = {
   setUploaderFiles: propTypes.func.isRequired,
-  modelName: propTypes.string.isRequired
+  modelName: propTypes.string.isRequired,
+  setUploaderDefaultFileList: propTypes.func.isRequired,
+  defaultFileList: propTypes.array
 };
 var Uploader$2 = connect(function (state) {
   return {
     modelName: state.isOpenModelModal
   };
 }, {
-  setUploaderFiles: setUploaderFiles
+  setUploaderFiles: setUploaderFiles,
+  setUploaderDefaultFileList: setUploaderDefaultFileList
 })(CrudUploader);
 
-function _extends$33() { _extends$33 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends$33.apply(this, arguments); }
+function _extends$32() { _extends$32 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends$32.apply(this, arguments); }
 var SelectOption = antd.Select.Option;
 var Search = antd.Input.Search;
 var renderField = function renderField(_ref) {
@@ -26292,7 +26304,7 @@ var renderField = function renderField(_ref) {
       dropdownRender = _ref.dropdownRender,
       uploaderParams = _ref.uploaderParams,
       locale = _ref.locale;
-  return React__default.createElement(antd.Form.Item, _extends$33({
+  return React__default.createElement(antd.Form.Item, _extends$32({
     hasFeedback: true
   }, layout, {
     label: label,
@@ -26301,7 +26313,7 @@ var renderField = function renderField(_ref) {
   }), function () {
     switch (type) {
       case 'select':
-        return React__default.createElement(antd.Select, _extends$33({}, input, {
+        return React__default.createElement(antd.Select, _extends$32({}, input, {
           value: input.value || [],
           mode: mode,
           disabled: input.disabled ? true : false,
@@ -26318,7 +26330,7 @@ var renderField = function renderField(_ref) {
         }));
 
       case 'textarea':
-        return React__default.createElement(antd.Input.TextArea, _extends$33({}, input, {
+        return React__default.createElement(antd.Input.TextArea, _extends$32({}, input, {
           placeholder: placeholder,
           type: type,
           className: "form-control",
@@ -26329,7 +26341,7 @@ var renderField = function renderField(_ref) {
         return React__default.createElement(antd.Checkbox, input, placeholder);
 
       case 'search':
-        return React__default.createElement(Search, _extends$33({
+        return React__default.createElement(Search, _extends$32({
           onPressEnter: onPressEnter
         }, input, {
           value: input.value || defaultValue,
@@ -26338,7 +26350,7 @@ var renderField = function renderField(_ref) {
         }));
 
       case 'date':
-        return React__default.createElement(antd.DatePicker, _extends$33({
+        return React__default.createElement(antd.DatePicker, _extends$32({
           style: {
             width: '100%'
           },
@@ -26358,12 +26370,13 @@ var renderField = function renderField(_ref) {
         });
 
       case 'uploader':
-        return React__default.createElement(Uploader$2, _extends$33({}, uploaderParams, {
+        console.log(input.value);
+        return React__default.createElement(Uploader$2, _extends$32({}, uploaderParams, {
           defaultFileList: input.value
         }));
 
       default:
-        return React__default.createElement(antd.Input, _extends$33({
+        return React__default.createElement(antd.Input, _extends$32({
           onPressEnter: onPressEnter
         }, input, {
           value: input.value || defaultValue,
@@ -26382,7 +26395,7 @@ var renderField = function renderField(_ref) {
 
 function _typeof$11(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof$11 = function _typeof(obj) { return typeof obj; }; } else { _typeof$11 = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof$11(obj); }
 
-function _extends$34() { _extends$34 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends$34.apply(this, arguments); }
+function _extends$33() { _extends$33 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends$33.apply(this, arguments); }
 
 function _classCallCheck$29(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -26434,7 +26447,7 @@ function (_Component) {
       return fields.map(function (props) {
         return props.fields ? React__default.createElement("div", {
           key: props.name
-        }, _this.mapFields(props.fields)) : React__default.createElement(Field, _extends$34({}, props, {
+        }, _this.mapFields(props.fields)) : React__default.createElement(Field, _extends$33({}, props, {
           component: props.component || _this.props.renderField,
           key: props.name,
           options: _this.props.options[props.optionsKey] || props.options || []
@@ -26518,7 +26531,7 @@ var CreateModel = CreateModalForm;
 
 function _typeof$12(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof$12 = function _typeof(obj) { return typeof obj; }; } else { _typeof$12 = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof$12(obj); }
 
-function _extends$35() { _extends$35 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends$35.apply(this, arguments); }
+function _extends$34() { _extends$34 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends$34.apply(this, arguments); }
 
 function _classCallCheck$30(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -26568,7 +26581,7 @@ function (_Component) {
       return fields.map(function (props) {
         return props.fields ? React__default.createElement("div", {
           key: props.name
-        }, _this.mapFields(props.fields)) : React__default.createElement(Field, _extends$35({}, props, {
+        }, _this.mapFields(props.fields)) : React__default.createElement(Field, _extends$34({}, props, {
           component: props.component || _this.props.renderField,
           key: props.name,
           options: _this.props.options[props.optionsKey] || props.options || []
@@ -27289,11 +27302,17 @@ var uploaderFilesReducer = function uploaderFilesReducer() {
   var action = arguments.length > 1 ? arguments[1] : undefined;
   var type = action.type,
       payload = action.payload;
-  console.log(payload);
 
   switch (type) {
     case actions.SET_UPLOADER_FILES:
-      return _objectSpread$2({}, state, _defineProperty$15({}, payload.modelName, payload.files));
+      return _objectSpread$2({}, state, _defineProperty$15({}, payload.modelName, _objectSpread$2({}, state[payload.modelName], {
+        fileList: payload.files
+      })));
+
+    case actions.SET_UPLOADER_DEFAULT_FILE_LIST:
+      return _objectSpread$2({}, state, _defineProperty$15({}, payload.modelName, _objectSpread$2({}, state[payload.modelName], {
+        defaultFileList: payload.defaultFileList
+      })));
 
     default:
       return state;
@@ -28687,32 +28706,35 @@ runtimeModule.mark(fetchCrudFilterValuesSaga),
 runtimeModule.mark(filesUpload),
     _marked5 =
 /*#__PURE__*/
-runtimeModule.mark(createModelSaga),
+runtimeModule.mark(getHandledFiles),
     _marked6 =
 /*#__PURE__*/
-runtimeModule.mark(updateModelsSaga),
+runtimeModule.mark(createModelSaga),
     _marked7 =
 /*#__PURE__*/
-runtimeModule.mark(deleteModelSaga),
+runtimeModule.mark(updateModelsSaga),
     _marked8 =
 /*#__PURE__*/
-runtimeModule.mark(restoreModelSaga),
+runtimeModule.mark(deleteModelSaga),
     _marked9 =
 /*#__PURE__*/
-runtimeModule.mark(changeModelSaga),
+runtimeModule.mark(restoreModelSaga),
     _marked10 =
 /*#__PURE__*/
-runtimeModule.mark(fetchCrudChildrenSaga),
+runtimeModule.mark(changeModelSaga),
     _marked11 =
 /*#__PURE__*/
-runtimeModule.mark(closeModalSaga),
+runtimeModule.mark(fetchCrudChildrenSaga),
     _marked12 =
 /*#__PURE__*/
-runtimeModule.mark(submitModelsModalFormFailSaga),
+runtimeModule.mark(closeModalSaga),
     _marked13 =
 /*#__PURE__*/
-runtimeModule.mark(notifySaga),
+runtimeModule.mark(submitModelsModalFormFailSaga),
     _marked14 =
+/*#__PURE__*/
+runtimeModule.mark(notifySaga),
+    _marked15 =
 /*#__PURE__*/
 runtimeModule.mark(rootSaga);
 
@@ -28868,8 +28890,8 @@ function fetchCrudFilterValuesSaga(action) {
 	 Actions Handling
  */
 
-function filesUpload(modelName) {
-  var params, uploadFilesSettings, files, modelFiles, result, i, formData, filesResp, res;
+function filesUpload(modelName, filesStore) {
+  var params, uploadFilesSettings, modelFiles, result, i, formData, filesResp, res;
   return runtimeModule.wrap(function filesUpload$(_context4) {
     while (1) {
       switch (_context4.prev = _context4.next) {
@@ -28889,26 +28911,19 @@ function filesUpload(modelName) {
           return _context4.abrupt("return", null);
 
         case 6:
-          _context4.next = 8;
-          return select(function (state) {
-            return state.uploaderFiles;
-          });
-
-        case 8:
-          files = _context4.sent;
-          modelFiles = files ? files[modelName] : null;
+          modelFiles = filesStore && filesStore[modelName] ? filesStore[modelName].fileList : null;
           result = [];
           i = 0;
 
-        case 12:
+        case 9:
           if (!(i < modelFiles.length)) {
-            _context4.next = 26;
+            _context4.next = 22;
             break;
           }
 
           formData = new FormData();
           formData.append('file', modelFiles[i]);
-          _context4.next = 17;
+          _context4.next = 14;
           return call(fetch, uploadFilesSettings.url, {
             method: 'POST',
             headers: {
@@ -28918,23 +28933,22 @@ function filesUpload(modelName) {
             body: formData
           });
 
-        case 17:
+        case 14:
           filesResp = _context4.sent;
-          _context4.next = 20;
+          _context4.next = 17;
           return filesResp.json();
 
-        case 20:
+        case 17:
           res = _context4.sent;
           result.push(res.response);
-          console.log(res);
           i++;
-          _context4.next = 12;
+          _context4.next = 9;
           break;
 
-        case 26:
+        case 22:
           return _context4.abrupt("return", result);
 
-        case 27:
+        case 23:
         case "end":
           return _context4.stop();
       }
@@ -28942,27 +28956,56 @@ function filesUpload(modelName) {
   }, _marked4);
 }
 
-function createModelSaga(action) {
-  var params, modelName, _params$modelName, submitShape, uploadFilesUrl, files, form;
-
-  return runtimeModule.wrap(function createModelSaga$(_context5) {
+function getHandledFiles(modelName) {
+  var filesStore, filesStoreModel, files, defaultList;
+  return runtimeModule.wrap(function getHandledFiles$(_context5) {
     while (1) {
       switch (_context5.prev = _context5.next) {
         case 0:
           _context5.next = 2;
+          return select(function (state) {
+            return state.uploaderFiles;
+          });
+
+        case 2:
+          filesStore = _context5.sent;
+          filesStoreModel = filesStore[modelName] || {};
+          _context5.next = 6;
+          return filesUpload(modelName, filesStore);
+
+        case 6:
+          files = _context5.sent;
+          defaultList = filesStoreModel.defaultFileList;
+          console.log(defaultList);
+          return _context5.abrupt("return", files.concat(defaultList || []));
+
+        case 10:
+        case "end":
+          return _context5.stop();
+      }
+    }
+  }, _marked5);
+}
+function createModelSaga(action) {
+  var params, modelName, submitShape, uploadedFiles, form;
+  return runtimeModule.wrap(function createModelSaga$(_context6) {
+    while (1) {
+      switch (_context6.prev = _context6.next) {
+        case 0:
+          _context6.next = 2;
           return select(selectCrudParams);
 
         case 2:
-          params = _context5.sent;
+          params = _context6.sent;
           modelName = action.payload.modelName;
-          _params$modelName = params[modelName], submitShape = _params$modelName.submitShape, uploadFilesUrl = _params$modelName.uploadFilesUrl;
-          _context5.next = 7;
-          return filesUpload(modelName);
+          submitShape = params[modelName].submitShape;
+          _context6.next = 7;
+          return getHandledFiles(modelName);
 
         case 7:
-          files = _context5.sent;
-          form = submitShape(action.payload.form, files);
-          _context5.next = 11;
+          uploadedFiles = _context6.sent;
+          form = submitShape(action.payload.form, uploadedFiles);
+          _context6.next = 11;
           return put(dist_1(_objectSpread$4({}, action, {
             method: 'POST',
             auth: true,
@@ -28973,26 +29016,26 @@ function createModelSaga(action) {
 
         case 11:
         case "end":
-          return _context5.stop();
+          return _context6.stop();
       }
     }
-  }, _marked5);
+  }, _marked6);
 }
 function updateModelsSaga(action) {
   var params, _params, modelName, crudRead, filters, page, order, order_by;
 
-  return runtimeModule.wrap(function updateModelsSaga$(_context6) {
+  return runtimeModule.wrap(function updateModelsSaga$(_context7) {
     while (1) {
-      switch (_context6.prev = _context6.next) {
+      switch (_context7.prev = _context7.next) {
         case 0:
-          _context6.next = 2;
+          _context7.next = 2;
           return select(selectCrudParams);
 
         case 2:
-          params = _context6.sent;
+          params = _context7.sent;
           //console.log(action)
           _params = params[action.modelName || action.payload.modelName], modelName = _params.modelName, crudRead = _params.crudRead, filters = _params.filters, page = _params.page, order = _params.order, order_by = _params.order_by;
-          _context6.next = 6;
+          _context7.next = 6;
           return put(actions.fetchCrudModels({
             modelName: modelName,
             url: crudRead,
@@ -29003,17 +29046,17 @@ function updateModelsSaga(action) {
 
         case 6:
         case "end":
-          return _context6.stop();
+          return _context7.stop();
       }
     }
-  }, _marked6);
+  }, _marked7);
 }
 function deleteModelSaga(action) {
-  return runtimeModule.wrap(function deleteModelSaga$(_context7) {
+  return runtimeModule.wrap(function deleteModelSaga$(_context8) {
     while (1) {
-      switch (_context7.prev = _context7.next) {
+      switch (_context8.prev = _context8.next) {
         case 0:
-          _context7.next = 2;
+          _context8.next = 2;
           return put(dist_1(_objectSpread$4({}, action, {
             method: action.payload.action.method,
             //'POST',
@@ -29025,17 +29068,17 @@ function deleteModelSaga(action) {
 
         case 2:
         case "end":
-          return _context7.stop();
+          return _context8.stop();
       }
     }
-  }, _marked7);
+  }, _marked8);
 }
 function restoreModelSaga(action) {
-  return runtimeModule.wrap(function restoreModelSaga$(_context8) {
+  return runtimeModule.wrap(function restoreModelSaga$(_context9) {
     while (1) {
-      switch (_context8.prev = _context8.next) {
+      switch (_context9.prev = _context9.next) {
         case 0:
-          _context8.next = 2;
+          _context9.next = 2;
           return put(dist_1(_objectSpread$4({}, action, {
             method: 'POST',
             auth: true,
@@ -29045,47 +29088,53 @@ function restoreModelSaga(action) {
 
         case 2:
         case "end":
-          return _context8.stop();
-      }
-    }
-  }, _marked8);
-}
-function changeModelSaga(action) {
-  var _action$payload$form, name, description, id, params;
-
-  return runtimeModule.wrap(function changeModelSaga$(_context9) {
-    while (1) {
-      switch (_context9.prev = _context9.next) {
-        case 0:
-          _action$payload$form = action.payload.form, name = _action$payload$form.name, description = _action$payload$form.description, id = _action$payload$form.id;
-          _context9.next = 3;
-          return select(selectCrudParams);
-
-        case 3:
-          params = _context9.sent;
-          _context9.next = 6;
-          return put(dist_1(_objectSpread$4({}, action, {
-            method: action.payload.action.method,
-            //'POST',
-            auth: true,
-            url: "".concat(action.payload.action.url),
-            payload: params[action.payload.modelName].submitShape(action.payload.form),
-            modelName: action.payload.modelName
-          })));
-
-        case 6:
-        case "end":
           return _context9.stop();
       }
     }
   }, _marked9);
 }
-function fetchCrudChildrenSaga(action) {
-  return runtimeModule.wrap(function fetchCrudChildrenSaga$(_context10) {
+function changeModelSaga(action) {
+  var _action$payload$form, name, description, id, params, uploadedFiles;
+
+  return runtimeModule.wrap(function changeModelSaga$(_context10) {
     while (1) {
       switch (_context10.prev = _context10.next) {
         case 0:
-          _context10.next = 2;
+          _action$payload$form = action.payload.form, name = _action$payload$form.name, description = _action$payload$form.description, id = _action$payload$form.id;
+          _context10.next = 3;
+          return select(selectCrudParams);
+
+        case 3:
+          params = _context10.sent;
+          _context10.next = 6;
+          return getHandledFiles(action.payload.modelName);
+
+        case 6:
+          uploadedFiles = _context10.sent;
+          console.log(uploadedFiles);
+          _context10.next = 10;
+          return put(dist_1(_objectSpread$4({}, action, {
+            method: action.payload.action.method,
+            //'POST',
+            auth: true,
+            url: "".concat(action.payload.action.url),
+            payload: params[action.payload.modelName].submitShape(action.payload.form, uploadedFiles),
+            modelName: action.payload.modelName
+          })));
+
+        case 10:
+        case "end":
+          return _context10.stop();
+      }
+    }
+  }, _marked10);
+}
+function fetchCrudChildrenSaga(action) {
+  return runtimeModule.wrap(function fetchCrudChildrenSaga$(_context11) {
+    while (1) {
+      switch (_context11.prev = _context11.next) {
+        case 0:
+          _context11.next = 2;
           return put(dist_1(_objectSpread$4({}, action, {
             method: 'GET',
             auth: true,
@@ -29095,94 +29144,94 @@ function fetchCrudChildrenSaga(action) {
 
         case 2:
         case "end":
-          return _context10.stop();
-      }
-    }
-  }, _marked10);
-}
-function closeModalSaga() {
-  return runtimeModule.wrap(function closeModalSaga$(_context11) {
-    while (1) {
-      switch (_context11.prev = _context11.next) {
-        case 0:
-          _context11.next = 2;
-          return put(actions.toggleCreateModelModal());
-
-        case 2:
-          _context11.next = 4;
-          return put(actions.setModelModalForm(null, null));
-
-        case 4:
-        case "end":
           return _context11.stop();
       }
     }
   }, _marked11);
 }
-function submitModelsModalFormFailSaga(action) {
-  var errors;
-  return runtimeModule.wrap(function submitModelsModalFormFailSaga$(_context12) {
+function closeModalSaga() {
+  return runtimeModule.wrap(function closeModalSaga$(_context12) {
     while (1) {
       switch (_context12.prev = _context12.next) {
         case 0:
-          errors = reduceMessages(action.messages);
-          _context12.next = 3;
-          return put(stopSubmit$1('createModel', errors));
+          _context12.next = 2;
+          return put(actions.toggleCreateModelModal());
 
-        case 3:
-          _context12.next = 5;
-          return createNotification('error', action.error.message);
+        case 2:
+          _context12.next = 4;
+          return put(actions.setModelModalForm(null, null));
 
-        case 5:
+        case 4:
         case "end":
           return _context12.stop();
       }
     }
   }, _marked12);
 }
-function notifySaga(action) {
-  return runtimeModule.wrap(function notifySaga$(_context13) {
+function submitModelsModalFormFailSaga(action) {
+  var errors;
+  return runtimeModule.wrap(function submitModelsModalFormFailSaga$(_context13) {
     while (1) {
       switch (_context13.prev = _context13.next) {
         case 0:
-          if (!action.error) {
-            _context13.next = 3;
-            break;
-          }
-
+          errors = reduceMessages(action.messages);
           _context13.next = 3;
-          return createNotification('error', action.error.message);
+          return put(stopSubmit$1('createModel', errors));
 
         case 3:
-          if (!(action.response.status === SUCCESS_REQ)) {
-            _context13.next = 6;
-            break;
-          }
+          _context13.next = 5;
+          return createNotification('error', action.error.message);
 
-          _context13.next = 6;
-          return createNotification('success', action.response.message);
-
-        case 6:
+        case 5:
         case "end":
           return _context13.stop();
       }
     }
   }, _marked13);
 }
-function rootSaga() {
-  return runtimeModule.wrap(function rootSaga$(_context14) {
+function notifySaga(action) {
+  return runtimeModule.wrap(function notifySaga$(_context14) {
     while (1) {
       switch (_context14.prev = _context14.next) {
         case 0:
-          _context14.next = 2;
-          return all([takeEvery$2(actions.FETCH_CRUD_MODELS, fetchCrudModelsSaga), takeEvery$2(actions.FETCH_CRUD_MODELS + SUCCESS$1, fetchCrudModelsSuccessSaga), takeEvery$2(actions.FETCH_CRUD_FILTER_VALUES, fetchCrudFilterValuesSaga), takeEvery$2(actions.FETCH_CRUD_CHILDREN, fetchCrudChildrenSaga), takeEvery$2(actions.CREATE_MODEL, createModelSaga), takeEvery$2(actions.CREATE_MODEL + SUCCESS$1, closeModalSaga), takeEvery$2(actions.CREATE_MODEL + SUCCESS$1, updateModelsSaga), takeEvery$2(actions.CREATE_MODEL + SUCCESS$1, notifySaga), takeEvery$2(actions.CREATE_MODEL + ERROR, submitModelsModalFormFailSaga), takeEvery$2(actions.DELETE_MODEL, deleteModelSaga), takeEvery$2(actions.DELETE_MODEL + SUCCESS$1, updateModelsSaga), takeEvery$2(actions.DELETE_MODEL + SUCCESS$1, notifySaga), takeEvery$2(actions.DELETE_MODEL + ERROR, notifySaga), takeEvery$2(actions.RESTORE_MODEL, restoreModelSaga), takeEvery$2(actions.RESTORE_MODEL + SUCCESS$1, updateModelsSaga), takeEvery$2(actions.RESTORE_MODEL + SUCCESS$1, notifySaga), takeEvery$2(actions.RESTORE_MODEL + ERROR, notifySaga), takeEvery$2(actions.CHANGE_MODEL, changeModelSaga), takeEvery$2(actions.CHANGE_MODEL + SUCCESS$1, closeModalSaga), takeEvery$2(actions.CHANGE_MODEL + SUCCESS$1, updateModelsSaga), takeEvery$2(actions.CHANGE_MODEL + SUCCESS$1, notifySaga), takeEvery$2(actions.CHANGE_MODEL + ERROR, submitModelsModalFormFailSaga), fork(requestMiddleware)]);
+          if (!action.error) {
+            _context14.next = 3;
+            break;
+          }
 
-        case 2:
+          _context14.next = 3;
+          return createNotification('error', action.error.message);
+
+        case 3:
+          if (!(action.response.status === SUCCESS_REQ)) {
+            _context14.next = 6;
+            break;
+          }
+
+          _context14.next = 6;
+          return createNotification('success', action.response.message);
+
+        case 6:
         case "end":
           return _context14.stop();
       }
     }
   }, _marked14);
+}
+function rootSaga() {
+  return runtimeModule.wrap(function rootSaga$(_context15) {
+    while (1) {
+      switch (_context15.prev = _context15.next) {
+        case 0:
+          _context15.next = 2;
+          return all([takeEvery$2(actions.FETCH_CRUD_MODELS, fetchCrudModelsSaga), takeEvery$2(actions.FETCH_CRUD_MODELS + SUCCESS$1, fetchCrudModelsSuccessSaga), takeEvery$2(actions.FETCH_CRUD_FILTER_VALUES, fetchCrudFilterValuesSaga), takeEvery$2(actions.FETCH_CRUD_CHILDREN, fetchCrudChildrenSaga), takeEvery$2(actions.CREATE_MODEL, createModelSaga), takeEvery$2(actions.CREATE_MODEL + SUCCESS$1, closeModalSaga), takeEvery$2(actions.CREATE_MODEL + SUCCESS$1, updateModelsSaga), takeEvery$2(actions.CREATE_MODEL + SUCCESS$1, notifySaga), takeEvery$2(actions.CREATE_MODEL + ERROR, submitModelsModalFormFailSaga), takeEvery$2(actions.DELETE_MODEL, deleteModelSaga), takeEvery$2(actions.DELETE_MODEL + SUCCESS$1, updateModelsSaga), takeEvery$2(actions.DELETE_MODEL + SUCCESS$1, notifySaga), takeEvery$2(actions.DELETE_MODEL + ERROR, notifySaga), takeEvery$2(actions.RESTORE_MODEL, restoreModelSaga), takeEvery$2(actions.RESTORE_MODEL + SUCCESS$1, updateModelsSaga), takeEvery$2(actions.RESTORE_MODEL + SUCCESS$1, notifySaga), takeEvery$2(actions.RESTORE_MODEL + ERROR, notifySaga), takeEvery$2(actions.CHANGE_MODEL, changeModelSaga), takeEvery$2(actions.CHANGE_MODEL + SUCCESS$1, closeModalSaga), takeEvery$2(actions.CHANGE_MODEL + SUCCESS$1, updateModelsSaga), takeEvery$2(actions.CHANGE_MODEL + SUCCESS$1, notifySaga), takeEvery$2(actions.CHANGE_MODEL + ERROR, submitModelsModalFormFailSaga), fork(requestMiddleware)]);
+
+        case 2:
+        case "end":
+          return _context15.stop();
+      }
+    }
+  }, _marked15);
 }
 
 var reducer$3 = crudReducers;
