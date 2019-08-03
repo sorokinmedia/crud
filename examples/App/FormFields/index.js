@@ -46,7 +46,8 @@ export default [
 		type: 'uploader',
 		uploaderParams: {
 			listType: 'picture',
-			multiple: true
+			multiple: true,
+			buttonText: 'Грузи здесь'
 		}
 	}
 

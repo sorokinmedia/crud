@@ -10,6 +10,7 @@ function CrudUploader(props) {
 	useEffect(() => {
 		props.setUploaderDefaultFileList(props.defaultFileList, props.modelName)
 	}, []);
+	console.log(props)
 	return (
 		<Uploader
 			{...props}

@@ -23,6 +23,7 @@ const UploadDecorator = UploaderComponent => class Uploader extends Component {
 	render() {
 		const listType = this.props.listType || 'text';
 		const multiple = this.props.multiple || false;
+		const buttonText = this.props.buttonText || undefined;
 		const { fileList } = this.state;
 
 		const uploaderProps = {
@@ -69,10 +70,11 @@ const UploadDecorator = UploaderComponent => class Uploader extends Component {
 					webkitRelativePath: f.webkitRelativePath
 				})).concat(this.props.defaultFileList || []),
 			listType,
+			buttonText
 		};
 
 		return (
-			<UploaderComponent {...uploaderProps} />
+			<UploaderComponent {...this.props} {...uploaderProps} />
 		);
 	}
 };
