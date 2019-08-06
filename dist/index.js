@@ -26142,9 +26142,11 @@ var closeIconStyle = {
 
 function UploaderFilePreview(props) {
   var preview = props.preview,
-      setPreview = props.setPreview;
+      setPreview = props.setPreview,
+      files = props.files;
   if (!preview) return null;
-  var file = props.files.find(function (e) {
+  console.log(files, preview);
+  var file = files.find(function (e) {
     return e.uid === preview;
   });
   var url = file.url || window.URL.createObjectURL(file);
@@ -26374,6 +26376,9 @@ var setUploaderFiles = actions.setUploaderFiles,
 function CrudUploader(props) {
   React.useEffect(function () {
     props.setUploaderDefaultFileList(props.defaultFileList, props.modelName);
+    return function () {
+      return props.setUploaderFiles([], props.modelName);
+    };
   }, []);
   return React__default.createElement(Uploader$1, _extends$31({}, props, {
     onChange: function onChange(files) {
