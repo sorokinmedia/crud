@@ -4,6 +4,7 @@ import { message } from 'antd'
 import { connect } from 'react-redux'
 import { compose } from 'redux'
 import actions from '../../../redux/actions'
+import UploaderFilePreview from "../../crud/uploaderFilePreview";
 
 const { setUploaderDefaultFileList } = actions;
 
@@ -12,7 +13,10 @@ const UploadDecorator = UploaderComponent => class Uploader extends Component {
 	constructor(props) {
 		super(props);
 		// unnessasary without using fileList parameter
-		this.state = { fileList: [] };
+		this.state = {
+			fileList: [],
+			preview: null
+		};
 	}
 
 	validateType = (type) => {
@@ -26,11 +30,16 @@ const UploadDecorator = UploaderComponent => class Uploader extends Component {
 		}
 	};
 
+	setPreview = (id) => {
+		this.setState({ preview: id })
+	};
+
 	render() {
 		const listType = this.props.listType || 'text';
 		const multiple = this.props.multiple || false;
 		const buttonText = this.props.buttonText || undefined;
-		const { fileList } = this.state;
+		const { fileList, preview } = this.state;
+		const { fileListStored, defaultFileListStored } = this.props;
 
 		const uploaderProps = {
 			// if removing file was set as default we catch it and remove from default in store
@@ -38,13 +47,15 @@ const UploadDecorator = UploaderComponent => class Uploader extends Component {
 			// to onChange handled array
 			onRemove: (file) => {
 				this.setState((state) => {
+					if (file.old) {
+						const newDefaultFileList = defaultFileListStored.filter(f => f.uid !== file.uid);
+						this.props.setUploaderDefaultFileList(newDefaultFileList, this.props.modelName);
+
+						return state;
+					}
+
 					const index = state.fileList.indexOf(file);
 					const newFileList = state.fileList.slice();
-
-					if (file.old) {
-						const newDefaultFileList = this.props.defaultFileListStored.filter(f => f.uid !== file.uid);
-						this.props.setUploaderDefaultFileList(newDefaultFileList, this.props.modelName);
-					}
 
 					newFileList.splice(index, 1);
 					this.props.onChange(newFileList);
@@ -71,6 +82,7 @@ const UploadDecorator = UploaderComponent => class Uploader extends Component {
 				});
 				return false;
 			},
+			onPreview: file => this.setPreview(file.uid),
 			/* fileList: fileList
 				.map(f => ({
 					url: window.URL.createObjectURL(f),
@@ -89,7 +101,10 @@ const UploadDecorator = UploaderComponent => class Uploader extends Component {
 		if (this.props.defaultFileList) uploaderProps.defaultFileList = this.props.defaultFileList;
 
 		return (
-			<UploaderComponent {...uploaderProps} />
+			<div>
+				<UploaderComponent {...uploaderProps} />
+				<UploaderFilePreview setPreview={this.setPreview} preview={preview} files={defaultFileListStored.concat(fileListStored)} />
+			</div>
 		);
 	}
 };
@@ -107,11 +122,11 @@ UploadDecorator.propTypes = {
 const mapStateToProps = (state, props) => {
 	const { uploaderFiles } = state;
 	const { modelName } = props;
+	const uploaderModelFiles = uploaderFiles && uploaderFiles[modelName] ? uploaderFiles[modelName] : {};
 
 	return {
-		defaultFileListStored: uploaderFiles && uploaderFiles[modelName]
-			? uploaderFiles[modelName].defaultFileList
-			: []
+		defaultFileListStored: uploaderModelFiles.defaultFileList || [],
+		fileListStored: uploaderModelFiles.fileList || [],
 	}
 };
 
