@@ -26,11 +26,11 @@ const closeIconStyle = {
 };
 
 function UploaderFilePreview(props) {
-	const { preview, setPreview } = props;
+	const { preview, setPreview, files } = props;
 
 	if (!preview) return null;
-
-	const file = props.files.find(e => e.uid === preview);
+	console.log(files, preview)
+	const file = files.find(e => e.uid === preview);
 	const url = file.url || window.URL.createObjectURL(file);
 
 	return (
