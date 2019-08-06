@@ -11,6 +11,7 @@ const UploadDecorator = UploaderComponent => class Uploader extends Component {
 
 	constructor(props) {
 		super(props);
+		// unnessasary without using fileList parameter
 		this.state = { fileList: [] };
 	}
 
@@ -32,6 +33,9 @@ const UploadDecorator = UploaderComponent => class Uploader extends Component {
 		const { fileList } = this.state;
 
 		const uploaderProps = {
+			// if removing file was set as default we catch it and remove from default in store
+			// else removing from component state (unnessasary without using fileList parameter) and provide
+			// to onChange handled array
 			onRemove: (file) => {
 				this.setState((state) => {
 					const index = state.fileList.indexOf(file);
