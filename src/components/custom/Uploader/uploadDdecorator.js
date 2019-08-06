@@ -1,6 +1,11 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { message } from 'antd'
+import { connect } from 'react-redux'
+import { compose } from 'redux'
+import actions from '../../../redux/actions'
+
+const { setUploaderDefaultFileList } = actions;
 
 const UploadDecorator = UploaderComponent => class Uploader extends Component {
 
@@ -32,8 +37,12 @@ const UploadDecorator = UploaderComponent => class Uploader extends Component {
 					const index = state.fileList.indexOf(file);
 					const newFileList = state.fileList.slice();
 
-					newFileList.splice(index, 1);
+					if (file.old) {
+						const newDefaultFileList = this.props.defaultFileListStored.filter(f => f.uid !== file.uid);
+						this.props.setUploaderDefaultFileList(newDefaultFileList, this.props.modelName);
+					}
 
+					newFileList.splice(index, 1);
 					this.props.onChange(newFileList);
 
 					return { fileList: newFileList };
@@ -83,9 +92,26 @@ const UploadDecorator = UploaderComponent => class Uploader extends Component {
 
 UploadDecorator.propTypes = {
 	onChange: PropTypes.func.isRequired,
+	setUploaderDefaultFileList: PropTypes.func.isRequired,
+	modelName: PropTypes.string.isRequired,
 	listType: PropTypes.string,
 	multiple: PropTypes.bool,
-	defaultFileList: PropTypes.array
+	defaultFileList: PropTypes.array,
+	defaultFileListStored: PropTypes.array,
 };
 
-export default UploadDecorator
+const mapStateToProps = (state, props) => {
+	const { uploaderFiles } = state;
+	const { modelName } = props;
+
+	return {
+		defaultFileListStored: uploaderFiles && uploaderFiles[modelName]
+			? uploaderFiles[modelName].defaultFileList
+			: []
+	}
+};
+
+export default compose(
+	connect(mapStateToProps, { setUploaderDefaultFileList }),
+	UploadDecorator
+)

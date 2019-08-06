@@ -4,7 +4,7 @@ import { takeEvery, all, put, call } from 'redux-saga/effects'
 import { START, ERROR, SUCCESS } from './constants';
 
 export const API = 'http://api.rentrika.kosmoz.online';
-export const token = '10ea4e2da2e495b049faeb7bd34f1127'
+export const token = '8b9e2568e2fc85a9ae1b5b8ac7e81d00'
 
 export function* requestSaga(action) {
 	const {

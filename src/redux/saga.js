@@ -135,9 +135,9 @@ export function* getHandledFiles(modelName) {
 	const filesStore = yield select(state => state.uploaderFiles);
 	const filesStoreModel = filesStore[modelName] || {};
 	const files = yield filesUpload(modelName, filesStore);
-	// const defaultList = filesStoreModel.defaultFileList;
+	const defaultList = filesStoreModel.defaultFileList;
 
-	return files // .concat(defaultList || []);
+	return files.concat(defaultList || []);
 }
 
 export function* createModelSaga(action) {
@@ -196,10 +196,8 @@ export function* restoreModelSaga(action) {
 }
 
 export function* changeModelSaga(action) {
-	const { name, description, id } = action.payload.form;
 	const params = yield select(selectCrudParams);
 	const uploadedFiles = yield getHandledFiles(action.payload.modelName);
-	console.log(uploadedFiles)
 
 	yield put(request({
 		...action,
