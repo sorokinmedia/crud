@@ -29038,17 +29038,26 @@ function filesUpload(modelName, filesStore) {
         case 6:
           modelFiles = filesStore && filesStore[modelName] ? filesStore[modelName].fileList : null;
           result = [];
+
+          if (modelFiles) {
+            _context4.next = 10;
+            break;
+          }
+
+          return _context4.abrupt("return", result);
+
+        case 10:
           i = 0;
 
-        case 9:
+        case 11:
           if (!(i < modelFiles.length)) {
-            _context4.next = 22;
+            _context4.next = 24;
             break;
           }
 
           formData = new FormData();
           formData.append('file', modelFiles[i]);
-          _context4.next = 14;
+          _context4.next = 16;
           return call(fetch, uploadFilesSettings.url, {
             method: 'POST',
             headers: {
@@ -29058,22 +29067,22 @@ function filesUpload(modelName, filesStore) {
             body: formData
           });
 
-        case 14:
+        case 16:
           filesResp = _context4.sent;
-          _context4.next = 17;
+          _context4.next = 19;
           return filesResp.json();
 
-        case 17:
+        case 19:
           res = _context4.sent;
           result.push(res.response);
           i++;
-          _context4.next = 9;
+          _context4.next = 11;
           break;
 
-        case 22:
+        case 24:
           return _context4.abrupt("return", result);
 
-        case 23:
+        case 25:
         case "end":
           return _context4.stop();
       }

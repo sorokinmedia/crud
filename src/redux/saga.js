@@ -108,6 +108,9 @@ function* filesUpload(modelName, filesStore) {
 
 	const modelFiles = filesStore && filesStore[modelName] ? filesStore[modelName].fileList : null;
 	const result = [];
+
+	if (!modelFiles) return result;
+
 	let i = 0;
 
 	while (i < modelFiles.length) {
