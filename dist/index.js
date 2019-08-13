@@ -26277,11 +26277,13 @@ var UploadDecorator = function UploadDecorator(UploaderComponent) {
           },
           beforeUpload: function beforeUpload(file) {
             if (!_this2.validateType(file.type)) {
-              return antd.message.error('Ошибка загрузки, только JPG, JPEG и PNG');
+              antd.message.error('Ошибка загрузки, только JPG, JPEG и PNG');
+              return false;
             }
 
             if (file.size > 9999999) {
-              return antd.message.error('Ошибка загрузки, изображение превышает 10MB');
+              antd.message.error('Ошибка загрузки, изображение превышает 10MB');
+              return false;
             }
 
             _this2.setState(function (state) {
@@ -28817,58 +28819,295 @@ function requests() {
   }, _marked2);
 }
 
+var START$1 = '_START';
+var SUCCESS$2 = '_SUCCESS';
+var ERROR$1 = '_ERROR';
+
 var _marked$1 =
 /*#__PURE__*/
-runtimeModule.mark(fetchCrudModelsSaga),
+runtimeModule.mark(requestSaga$1),
     _marked2$1 =
 /*#__PURE__*/
-runtimeModule.mark(fetchCrudModelsSuccessSaga),
+runtimeModule.mark(requestWHOSaga),
     _marked3 =
-/*#__PURE__*/
-runtimeModule.mark(fetchCrudFilterValuesSaga),
-    _marked4 =
-/*#__PURE__*/
-runtimeModule.mark(filesUpload),
-    _marked5 =
-/*#__PURE__*/
-runtimeModule.mark(getHandledFiles),
-    _marked6 =
-/*#__PURE__*/
-runtimeModule.mark(createModelSaga),
-    _marked7 =
-/*#__PURE__*/
-runtimeModule.mark(updateModelsSaga),
-    _marked8 =
-/*#__PURE__*/
-runtimeModule.mark(deleteModelSaga),
-    _marked9 =
-/*#__PURE__*/
-runtimeModule.mark(restoreModelSaga),
-    _marked10 =
-/*#__PURE__*/
-runtimeModule.mark(changeModelSaga),
-    _marked11 =
-/*#__PURE__*/
-runtimeModule.mark(fetchCrudChildrenSaga),
-    _marked12 =
-/*#__PURE__*/
-runtimeModule.mark(closeModalSaga),
-    _marked13 =
-/*#__PURE__*/
-runtimeModule.mark(submitModelsModalFormFailSaga),
-    _marked14 =
-/*#__PURE__*/
-runtimeModule.mark(notifySaga),
-    _marked15 =
 /*#__PURE__*/
 runtimeModule.mark(rootSaga);
 
 function _objectSpread$4(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty$17(target, key, source[key]); }); } return target; }
 
 function _defineProperty$17(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+var API$1 = 'http://api.rentrika.kosmoz.online';
+var token$1 = '8b9e2568e2fc85a9ae1b5b8ac7e81d00';
+function requestSaga$1(action) {
+  var payload, method, url, auth, type, token_is_active, body, headers, params, data, response, error;
+  return runtimeModule.wrap(function requestSaga$(_context) {
+    while (1) {
+      switch (_context.prev = _context.next) {
+        case 0:
+          payload = action.payload, method = action.method, url = action.url, auth = action.auth, type = action.oldType, token_is_active = action.token_is_active; //'f9ad75859d9a7acd94e7a3acc639e0be';
+          //'cef506b12fd189faf83b95c2af29d6c6'
+          //if (auth && !token_is_active) return;
+
+          _context.prev = 1;
+          _context.next = 4;
+          return put(_objectSpread$4({}, action, {
+            type: type + START$1
+          }));
+
+        case 4:
+          body = payload ? JSON.stringify(payload) : '';
+          headers = new Headers({
+            'Content-Type': 'application/json'
+          });
+          if (auth) headers.set('Authorization', 'Bearer ' + token$1);
+          params = {
+            method: method,
+            headers: headers,
+            mode: 'cors'
+          };
+          if (body && method !== 'GET') params.body = body;
+          _context.next = 11;
+          return call(fetch, API$1 + url, params);
+
+        case 11:
+          data = _context.sent;
+          _context.next = 14;
+          return data.json();
+
+        case 14:
+          response = _context.sent;
+
+          if (!(data.status !== 200 || data.status === 200 && response.status === 100)) {
+            _context.next = 21;
+            break;
+          }
+
+          error = getError$2(data, response);
+          _context.next = 19;
+          return put(_objectSpread$4({}, action, {
+            type: type + ERROR$1,
+            error: error
+          }));
+
+        case 19:
+          _context.next = 23;
+          break;
+
+        case 21:
+          _context.next = 23;
+          return put(_objectSpread$4({}, action, {
+            type: type + SUCCESS$2,
+            response: {
+              data: response.response,
+              error: response.status === 100 || response.messages[0].type === 2 ? response.messages[0].message : null,
+              status: response.status,
+              message: response.status === 0 || response.messages[0].type === 0 ? response.messages[0].message : null
+            }
+          }));
+
+        case 23:
+          _context.next = 28;
+          break;
+
+        case 25:
+          _context.prev = 25;
+          _context.t0 = _context["catch"](1);
+          console.log(_context.t0);
+
+        case 28:
+        case "end":
+          return _context.stop();
+      }
+    }
+  }, _marked$1, null, [[1, 25]]);
+}
+var getError$2 = function getError(data, response) {
+  if (data.status === 0) return {
+    message: 'Unknow error: check your authorization. ' + 'No \'Access-Control-Allow-Origin\' header is present on the requested resource.'
+  };
+  if (data.status === 500) return response;
+  if (response.messages) return response.messages[0];
+  return '';
+};
+var WHO_API = 'http://api.workhard.kosmoz.online';
+function requestWHOSaga(action) {
+  var payload, method, url, auth, type, token_is_active, token, body, headers, params, data, response, error;
+  return runtimeModule.wrap(function requestWHOSaga$(_context2) {
+    while (1) {
+      switch (_context2.prev = _context2.next) {
+        case 0:
+          payload = action.payload, method = action.method, url = action.url, auth = action.auth, type = action.oldType, token_is_active = action.token_is_active;
+          token = '5ae372b408af2f10270e5ca12bc49623';
+          _context2.prev = 2;
+          _context2.next = 5;
+          return put(_objectSpread$4({}, action, {
+            type: type + START$1
+          }));
+
+        case 5:
+          body = payload ? JSON.stringify(payload) : '';
+          headers = new Headers({
+            'Content-Type': 'application/json'
+          });
+          if (auth) headers.set('Authorization', 'Bearer ' + token);
+          params = {
+            method: method,
+            headers: headers,
+            mode: 'cors'
+          };
+          if (body && method !== 'GET') params.body = body;
+          _context2.next = 12;
+          return call(fetch, WHO_API + url, params);
+
+        case 12:
+          data = _context2.sent;
+          _context2.next = 15;
+          return data.json();
+
+        case 15:
+          response = _context2.sent;
+
+          if (!(data.status !== 200 || data.status === 200 && response.status === 100)) {
+            _context2.next = 22;
+            break;
+          }
+
+          error = getError$2(data, response);
+          _context2.next = 20;
+          return put(_objectSpread$4({}, action, {
+            type: type + ERROR$1,
+            error: error,
+            messages: response.messages
+          }));
+
+        case 20:
+          _context2.next = 24;
+          break;
+
+        case 22:
+          _context2.next = 24;
+          return put(_objectSpread$4({}, action, {
+            type: type + SUCCESS$2,
+            response: {
+              data: response.response,
+              status: response.status,
+              message: response.status === 0 || response.messages[0].type === 0 ? response.messages[0].message : null
+            }
+          }));
+
+        case 24:
+          _context2.next = 29;
+          break;
+
+        case 26:
+          _context2.prev = 26;
+          _context2.t0 = _context2["catch"](2);
+          console.log(_context2.t0);
+
+        case 29:
+        case "end":
+          return _context2.stop();
+      }
+    }
+  }, _marked2$1, null, [[2, 26]]);
+}
+function rootSaga() {
+  return runtimeModule.wrap(function rootSaga$(_context3) {
+    while (1) {
+      switch (_context3.prev = _context3.next) {
+        case 0:
+          _context3.next = 2;
+          return all([saga(), takeEvery$2('REQUEST', requestSaga$1)]);
+
+        case 2:
+        case "end":
+          return _context3.stop();
+      }
+    }
+  }, _marked3);
+}
+
+function _objectSpread$5(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty$18(target, key, source[key]); }); } return target; }
+
+function _defineProperty$18(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+var _marked$2 =
+/*#__PURE__*/
+runtimeModule.mark(notifySaga),
+    _marked2$2 =
+/*#__PURE__*/
+runtimeModule.mark(fetchCrudModelsSaga),
+    _marked3$1 =
+/*#__PURE__*/
+runtimeModule.mark(fetchCrudModelsSuccessSaga),
+    _marked4 =
+/*#__PURE__*/
+runtimeModule.mark(fetchCrudFilterValuesSaga),
+    _marked5 =
+/*#__PURE__*/
+runtimeModule.mark(filesUpload),
+    _marked6 =
+/*#__PURE__*/
+runtimeModule.mark(getHandledFiles),
+    _marked7 =
+/*#__PURE__*/
+runtimeModule.mark(createModelSaga),
+    _marked8 =
+/*#__PURE__*/
+runtimeModule.mark(updateModelsSaga),
+    _marked9 =
+/*#__PURE__*/
+runtimeModule.mark(deleteModelSaga),
+    _marked10 =
+/*#__PURE__*/
+runtimeModule.mark(restoreModelSaga),
+    _marked11 =
+/*#__PURE__*/
+runtimeModule.mark(changeModelSaga),
+    _marked12 =
+/*#__PURE__*/
+runtimeModule.mark(fetchCrudChildrenSaga),
+    _marked13 =
+/*#__PURE__*/
+runtimeModule.mark(closeModalSaga),
+    _marked14 =
+/*#__PURE__*/
+runtimeModule.mark(submitModelsModalFormFailSaga),
+    _marked15 =
+/*#__PURE__*/
+runtimeModule.mark(rootSaga$1);
 var selectCrudParams = function selectCrudParams(state) {
   return state.crudParams;
 };
+function notifySaga(action) {
+  return runtimeModule.wrap(function notifySaga$(_context) {
+    while (1) {
+      switch (_context.prev = _context.next) {
+        case 0:
+          if (!action.error) {
+            _context.next = 3;
+            break;
+          }
+
+          _context.next = 3;
+          return createNotification('error', action.error.message);
+
+        case 3:
+          if (!(action.response.status === SUCCESS_REQ)) {
+            _context.next = 6;
+            break;
+          }
+
+          _context.next = 6;
+          return createNotification('success', action.response.message);
+
+        case 6:
+        case "end":
+          return _context.stop();
+      }
+    }
+  }, _marked$2);
+}
 
 function isDateColumn(columns, key) {
   return !!columns.find(function (e) {
@@ -28878,7 +29117,7 @@ function isDateColumn(columns, key) {
 
 function getFiltersValues(filters, columns) {
   var res = Object.keys(filters).reduce(function (acc, key) {
-    return _objectSpread$4({}, acc, _defineProperty$17({}, key, isDateColumn(columns, key) ? filters[key] instanceof Array || null ? null : hooks(filters[key]).unix() : filters[key].constructor !== Array ? filters[key] : null));
+    return _objectSpread$5({}, acc, _defineProperty$18({}, key, isDateColumn(columns, key) ? filters[key] instanceof Array || null ? null : hooks(filters[key]).unix() : filters[key].constructor !== Array ? filters[key] : null));
   }, {}); // buildUrlSearchForArray(filters[key], key)
 
   return res;
@@ -28892,30 +29131,30 @@ var selectColumns = function selectColumns(modelName) {
 function fetchCrudModelsSaga(action) {
   var payload, _ref, order, order_by, page, modelName, passedUrl, crudParams, url, model, columns, filters, params, paramsArr, paramsStr;
 
-  return runtimeModule.wrap(function fetchCrudModelsSaga$(_context) {
+  return runtimeModule.wrap(function fetchCrudModelsSaga$(_context2) {
     while (1) {
-      switch (_context.prev = _context.next) {
+      switch (_context2.prev = _context2.next) {
         case 0:
           payload = action.payload;
           _ref = payload.params || {}, order = _ref.order, order_by = _ref.order_by, page = _ref.page, modelName = _ref.modelName, passedUrl = _ref.url;
-          _context.next = 4;
+          _context2.next = 4;
           return select(selectCrudParams);
 
         case 4:
-          crudParams = _context.sent;
+          crudParams = _context2.sent;
           url = passedUrl || crudParams[modelName].crudRead;
-          _context.next = 8;
+          _context2.next = 8;
           return select(selectColumns(modelName));
 
         case 8:
-          model = _context.sent;
+          model = _context2.sent;
           columns = model && model.data ? model.data.columns : [];
-          _context.next = 12;
+          _context2.next = 12;
           return getFiltersValues(payload.filters || {}, columns);
 
         case 12:
-          filters = _context.sent;
-          params = payload ? dist_6(_objectSpread$4({}, filters, {
+          filters = _context2.sent;
+          params = payload ? dist_6(_objectSpread$5({}, filters, {
             order: !order ? null : order === 'ascend' ? SORT_ASC : SORT_DESC,
             order_by: order_by,
             page: page
@@ -28931,8 +29170,8 @@ function fetchCrudModelsSaga(action) {
             var delimiter = acc && e ? '&' : '';
             return acc + start + delimiter + e;
           }, '');
-          _context.next = 19;
-          return put(dist_1(_objectSpread$4({}, action, {
+          _context2.next = 19;
+          return put(dist_1(_objectSpread$5({}, action, {
             method: 'GET',
             auth: true,
             url: "".concat(url).concat(paramsStr)
@@ -28940,25 +29179,25 @@ function fetchCrudModelsSaga(action) {
 
         case 19:
         case "end":
-          return _context.stop();
+          return _context2.stop();
       }
     }
-  }, _marked$1);
+  }, _marked2$2);
 }
 function fetchCrudModelsSuccessSaga(action) {
   var response, payload, columns, i, column;
-  return runtimeModule.wrap(function fetchCrudModelsSuccessSaga$(_context2) {
+  return runtimeModule.wrap(function fetchCrudModelsSuccessSaga$(_context3) {
     while (1) {
-      switch (_context2.prev = _context2.next) {
+      switch (_context3.prev = _context3.next) {
         case 0:
           response = action.response, payload = action.payload;
 
           if (response.data) {
-            _context2.next = 3;
+            _context3.next = 3;
             break;
           }
 
-          return _context2.abrupt("return");
+          return _context3.abrupt("return");
 
         case 3:
           columns = response.data.columns;
@@ -28966,39 +29205,39 @@ function fetchCrudModelsSuccessSaga(action) {
 
         case 5:
           if (!(i < columns.length)) {
-            _context2.next = 13;
+            _context3.next = 13;
             break;
           }
 
           column = columns[i];
 
           if (!(column.filter.can && column.filter.query)) {
-            _context2.next = 10;
+            _context3.next = 10;
             break;
           }
 
-          _context2.next = 10;
+          _context3.next = 10;
           return put(actions.fetchCrudFilterValues(payload.params.modelName, column.id, column.filter.query));
 
         case 10:
           i++;
-          _context2.next = 5;
+          _context3.next = 5;
           break;
 
         case 13:
         case "end":
-          return _context2.stop();
+          return _context3.stop();
       }
     }
-  }, _marked2$1);
+  }, _marked3$1);
 }
 function fetchCrudFilterValuesSaga(action) {
-  return runtimeModule.wrap(function fetchCrudFilterValuesSaga$(_context3) {
+  return runtimeModule.wrap(function fetchCrudFilterValuesSaga$(_context4) {
     while (1) {
-      switch (_context3.prev = _context3.next) {
+      switch (_context4.prev = _context4.next) {
         case 0:
-          _context3.next = 2;
-          return put(dist_1(_objectSpread$4({}, action, {
+          _context4.next = 2;
+          return put(dist_1(_objectSpread$5({}, action, {
             method: 'GET',
             auth: true,
             url: "".concat(action.payload.query)
@@ -29006,10 +29245,10 @@ function fetchCrudFilterValuesSaga(action) {
 
         case 2:
         case "end":
-          return _context3.stop();
+          return _context4.stop();
       }
     }
-  }, _marked3);
+  }, _marked4);
 }
 /*
 	 Actions Handling
@@ -29017,47 +29256,47 @@ function fetchCrudFilterValuesSaga(action) {
 
 function filesUpload(modelName, filesStore) {
   var params, uploadFilesSettings, modelFiles, result, i, formData, filesResp, res;
-  return runtimeModule.wrap(function filesUpload$(_context4) {
+  return runtimeModule.wrap(function filesUpload$(_context5) {
     while (1) {
-      switch (_context4.prev = _context4.next) {
+      switch (_context5.prev = _context5.next) {
         case 0:
-          _context4.next = 2;
+          _context5.next = 2;
           return select(selectCrudParams);
 
         case 2:
-          params = _context4.sent;
+          params = _context5.sent;
           uploadFilesSettings = params[modelName].uploadFilesSettings;
 
           if (uploadFilesSettings) {
-            _context4.next = 6;
+            _context5.next = 6;
             break;
           }
 
-          return _context4.abrupt("return", null);
+          return _context5.abrupt("return", null);
 
         case 6:
           modelFiles = filesStore && filesStore[modelName] ? filesStore[modelName].fileList : null;
           result = [];
 
           if (modelFiles) {
-            _context4.next = 10;
+            _context5.next = 10;
             break;
           }
 
-          return _context4.abrupt("return", result);
+          return _context5.abrupt("return", result);
 
         case 10:
           i = 0;
 
         case 11:
           if (!(i < modelFiles.length)) {
-            _context4.next = 24;
+            _context5.next = 28;
             break;
           }
 
           formData = new FormData();
           formData.append('file', modelFiles[i]);
-          _context4.next = 16;
+          _context5.next = 16;
           return call(fetch, uploadFilesSettings.url, {
             method: 'POST',
             headers: {
@@ -29068,96 +29307,77 @@ function filesUpload(modelName, filesStore) {
           });
 
         case 16:
-          filesResp = _context4.sent;
-          _context4.next = 19;
+          filesResp = _context5.sent;
+          _context5.next = 19;
           return filesResp.json();
 
         case 19:
-          res = _context4.sent;
-          result.push(res.response);
-          i++;
-          _context4.next = 11;
-          break;
+          res = _context5.sent;
 
-        case 24:
-          return _context4.abrupt("return", result);
+          if (!(res.status !== 200)) {
+            _context5.next = 24;
+            break;
+          }
 
-        case 25:
-        case "end":
-          return _context4.stop();
-      }
-    }
-  }, _marked4);
-}
-
-function getHandledFiles(modelName) {
-  var filesStore, filesStoreModel, files, defaultList;
-  return runtimeModule.wrap(function getHandledFiles$(_context5) {
-    while (1) {
-      switch (_context5.prev = _context5.next) {
-        case 0:
-          _context5.next = 2;
-          return select(function (state) {
-            return state.uploaderFiles;
+          _context5.next = 23;
+          return notifySaga({
+            error: {
+              message: 'Ошибка при загрузке файла'
+            }
           });
 
-        case 2:
-          filesStore = _context5.sent;
-          filesStoreModel = filesStore[modelName] || {};
-          _context5.next = 6;
-          return filesUpload(modelName, filesStore);
+        case 23:
+          console.log(res);
 
-        case 6:
-          files = _context5.sent;
-          defaultList = filesStoreModel.defaultFileList;
-          return _context5.abrupt("return", files.concat(defaultList || []));
+        case 24:
+          result.push(res.response);
+          i++;
+          _context5.next = 11;
+          break;
 
-        case 9:
+        case 28:
+          return _context5.abrupt("return", result);
+
+        case 29:
         case "end":
           return _context5.stop();
       }
     }
   }, _marked5);
 }
-function createModelSaga(action) {
-  var params, modelName, submitShape, uploadedFiles, form;
-  return runtimeModule.wrap(function createModelSaga$(_context6) {
+
+function getHandledFiles(modelName) {
+  var filesStore, filesStoreModel, files, defaultList;
+  return runtimeModule.wrap(function getHandledFiles$(_context6) {
     while (1) {
       switch (_context6.prev = _context6.next) {
         case 0:
           _context6.next = 2;
-          return select(selectCrudParams);
+          return select(function (state) {
+            return state.uploaderFiles;
+          });
 
         case 2:
-          params = _context6.sent;
-          modelName = action.payload.modelName;
-          submitShape = params[modelName].submitShape;
-          _context6.next = 7;
-          return getHandledFiles(modelName);
+          filesStore = _context6.sent;
+          filesStoreModel = filesStore[modelName] || {};
+          _context6.next = 6;
+          return filesUpload(modelName, filesStore);
 
-        case 7:
-          uploadedFiles = _context6.sent;
-          form = submitShape(action.payload.form, uploadedFiles);
-          _context6.next = 11;
-          return put(dist_1(_objectSpread$4({}, action, {
-            method: 'POST',
-            auth: true,
-            url: "".concat(action.payload.url),
-            payload: _objectSpread$4({}, form),
-            modelName: modelName
-          })));
+        case 6:
+          files = _context6.sent;
+          defaultList = filesStoreModel.defaultFileList;
+          return _context6.abrupt("return", files.concat(defaultList || []));
 
-        case 11:
+        case 9:
         case "end":
           return _context6.stop();
       }
     }
   }, _marked6);
 }
-function updateModelsSaga(action) {
-  var params, _params, modelName, crudRead, filters, page, order, order_by;
-
-  return runtimeModule.wrap(function updateModelsSaga$(_context7) {
+function createModelSaga(action) {
+  var params, modelName, submitShape, uploadedFiles, form;
+  return runtimeModule.wrap(function createModelSaga$(_context7) {
     while (1) {
       switch (_context7.prev = _context7.next) {
         case 0:
@@ -29166,8 +29386,44 @@ function updateModelsSaga(action) {
 
         case 2:
           params = _context7.sent;
+          modelName = action.payload.modelName;
+          submitShape = params[modelName].submitShape;
+          _context7.next = 7;
+          return getHandledFiles(modelName);
+
+        case 7:
+          uploadedFiles = _context7.sent;
+          form = submitShape(action.payload.form, uploadedFiles);
+          _context7.next = 11;
+          return put(dist_1(_objectSpread$5({}, action, {
+            method: 'POST',
+            auth: true,
+            url: "".concat(action.payload.url),
+            payload: _objectSpread$5({}, form),
+            modelName: modelName
+          })));
+
+        case 11:
+        case "end":
+          return _context7.stop();
+      }
+    }
+  }, _marked7);
+}
+function updateModelsSaga(action) {
+  var params, _params, modelName, crudRead, filters, page, order, order_by;
+
+  return runtimeModule.wrap(function updateModelsSaga$(_context8) {
+    while (1) {
+      switch (_context8.prev = _context8.next) {
+        case 0:
+          _context8.next = 2;
+          return select(selectCrudParams);
+
+        case 2:
+          params = _context8.sent;
           _params = params[action.modelName || action.payload.modelName], modelName = _params.modelName, crudRead = _params.crudRead, filters = _params.filters, page = _params.page, order = _params.order, order_by = _params.order_by;
-          _context7.next = 6;
+          _context8.next = 6;
           return put(actions.fetchCrudModels({
             modelName: modelName,
             url: crudRead,
@@ -29178,18 +29434,18 @@ function updateModelsSaga(action) {
 
         case 6:
         case "end":
-          return _context7.stop();
+          return _context8.stop();
       }
     }
-  }, _marked7);
+  }, _marked8);
 }
 function deleteModelSaga(action) {
-  return runtimeModule.wrap(function deleteModelSaga$(_context8) {
+  return runtimeModule.wrap(function deleteModelSaga$(_context9) {
     while (1) {
-      switch (_context8.prev = _context8.next) {
+      switch (_context9.prev = _context9.next) {
         case 0:
-          _context8.next = 2;
-          return put(dist_1(_objectSpread$4({}, action, {
+          _context9.next = 2;
+          return put(dist_1(_objectSpread$5({}, action, {
             method: action.payload.action.method,
             //'POST',
             auth: true,
@@ -29200,18 +29456,18 @@ function deleteModelSaga(action) {
 
         case 2:
         case "end":
-          return _context8.stop();
+          return _context9.stop();
       }
     }
-  }, _marked8);
+  }, _marked9);
 }
 function restoreModelSaga(action) {
-  return runtimeModule.wrap(function restoreModelSaga$(_context9) {
+  return runtimeModule.wrap(function restoreModelSaga$(_context10) {
     while (1) {
-      switch (_context9.prev = _context9.next) {
+      switch (_context10.prev = _context10.next) {
         case 0:
-          _context9.next = 2;
-          return put(dist_1(_objectSpread$4({}, action, {
+          _context10.next = 2;
+          return put(dist_1(_objectSpread$5({}, action, {
             method: 'POST',
             auth: true,
             url: "".concat(action.payload.url),
@@ -29220,29 +29476,29 @@ function restoreModelSaga(action) {
 
         case 2:
         case "end":
-          return _context9.stop();
+          return _context10.stop();
       }
     }
-  }, _marked9);
+  }, _marked10);
 }
 function changeModelSaga(action) {
   var params, uploadedFiles;
-  return runtimeModule.wrap(function changeModelSaga$(_context10) {
+  return runtimeModule.wrap(function changeModelSaga$(_context11) {
     while (1) {
-      switch (_context10.prev = _context10.next) {
+      switch (_context11.prev = _context11.next) {
         case 0:
-          _context10.next = 2;
+          _context11.next = 2;
           return select(selectCrudParams);
 
         case 2:
-          params = _context10.sent;
-          _context10.next = 5;
+          params = _context11.sent;
+          _context11.next = 5;
           return getHandledFiles(action.payload.modelName);
 
         case 5:
-          uploadedFiles = _context10.sent;
-          _context10.next = 8;
-          return put(dist_1(_objectSpread$4({}, action, {
+          uploadedFiles = _context11.sent;
+          _context11.next = 8;
+          return put(dist_1(_objectSpread$5({}, action, {
             method: action.payload.action.method,
             //'POST',
             auth: true,
@@ -29253,18 +29509,18 @@ function changeModelSaga(action) {
 
         case 8:
         case "end":
-          return _context10.stop();
+          return _context11.stop();
       }
     }
-  }, _marked10);
+  }, _marked11);
 }
 function fetchCrudChildrenSaga(action) {
-  return runtimeModule.wrap(function fetchCrudChildrenSaga$(_context11) {
+  return runtimeModule.wrap(function fetchCrudChildrenSaga$(_context12) {
     while (1) {
-      switch (_context11.prev = _context11.next) {
+      switch (_context12.prev = _context12.next) {
         case 0:
-          _context11.next = 2;
-          return put(dist_1(_objectSpread$4({}, action, {
+          _context12.next = 2;
+          return put(dist_1(_objectSpread$5({}, action, {
             method: 'GET',
             auth: true,
             url: "".concat(action.payload.url),
@@ -29273,81 +29529,52 @@ function fetchCrudChildrenSaga(action) {
 
         case 2:
         case "end":
-          return _context11.stop();
-      }
-    }
-  }, _marked11);
-}
-function closeModalSaga() {
-  return runtimeModule.wrap(function closeModalSaga$(_context12) {
-    while (1) {
-      switch (_context12.prev = _context12.next) {
-        case 0:
-          _context12.next = 2;
-          return put(actions.toggleCreateModelModal());
-
-        case 2:
-          _context12.next = 4;
-          return put(actions.setModelModalForm(null, null));
-
-        case 4:
-        case "end":
           return _context12.stop();
       }
     }
   }, _marked12);
 }
-function submitModelsModalFormFailSaga(action) {
-  var errors;
-  return runtimeModule.wrap(function submitModelsModalFormFailSaga$(_context13) {
+function closeModalSaga() {
+  return runtimeModule.wrap(function closeModalSaga$(_context13) {
     while (1) {
       switch (_context13.prev = _context13.next) {
         case 0:
-          errors = reduceMessages(action.messages);
-          _context13.next = 3;
-          return put(stopSubmit$1('createModel', errors));
+          _context13.next = 2;
+          return put(actions.toggleCreateModelModal());
 
-        case 3:
-          _context13.next = 5;
-          return createNotification('error', action.error.message);
+        case 2:
+          _context13.next = 4;
+          return put(actions.setModelModalForm(null, null));
 
-        case 5:
+        case 4:
         case "end":
           return _context13.stop();
       }
     }
   }, _marked13);
 }
-function notifySaga(action) {
-  return runtimeModule.wrap(function notifySaga$(_context14) {
+function submitModelsModalFormFailSaga(action) {
+  var errors;
+  return runtimeModule.wrap(function submitModelsModalFormFailSaga$(_context14) {
     while (1) {
       switch (_context14.prev = _context14.next) {
         case 0:
-          if (!action.error) {
-            _context14.next = 3;
-            break;
-          }
-
+          errors = reduceMessages(action.messages);
           _context14.next = 3;
-          return createNotification('error', action.error.message);
+          return put(stopSubmit$1('createModel', errors));
 
         case 3:
-          if (!(action.response.status === SUCCESS_REQ)) {
-            _context14.next = 6;
-            break;
-          }
+          _context14.next = 5;
+          return createNotification('error', action.error.message);
 
-          _context14.next = 6;
-          return createNotification('success', action.response.message);
-
-        case 6:
+        case 5:
         case "end":
           return _context14.stop();
       }
     }
   }, _marked14);
 }
-function rootSaga() {
+function rootSaga$1() {
   return runtimeModule.wrap(function rootSaga$(_context15) {
     while (1) {
       switch (_context15.prev = _context15.next) {
@@ -29364,9 +29591,9 @@ function rootSaga() {
 }
 
 var reducer$3 = crudReducers;
-var saga = rootSaga;
+var saga = rootSaga$1;
 var updateModel = updateModelsSaga;
-var requestSaga$1 = requests;
+var requestSaga$2 = requests;
 var actions$4 = actions;
 var CrudView$2 = CrudView$1;
 var CrudFull$1 = crudFull;
@@ -29375,7 +29602,7 @@ var CrudUploader$1 = Uploader$2;
 exports.reducer = reducer$3;
 exports.saga = saga;
 exports.updateModel = updateModel;
-exports.requestSaga = requestSaga$1;
+exports.requestSaga = requestSaga$2;
 exports.actions = actions$4;
 exports.CrudView = CrudView$2;
 exports.CrudFull = CrudFull$1;
