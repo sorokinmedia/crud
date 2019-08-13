@@ -9,7 +9,13 @@ import actions from './actions';
 import regeneratorRuntime from 'regenerator-runtime'
 import reduceMessages from "../helpers/reduceMessages";
 import {getCookie} from "./requestSaga";
+import {getError} from "../../examples/redux/sagas";
 export const selectCrudParams = state => state.crudParams;
+
+export function* notifySaga(action) {
+	if (action.error) yield notification('error', action.error.message)
+	if (action.response.status === SUCCESS_REQ) yield notification('success', action.response.message)
+}
 
 function isDateColumn(columns, key) {
 	return !!columns.find(e => e.type === 'date' && e.id === key);
@@ -126,6 +132,12 @@ function* filesUpload(modelName, filesStore) {
 		});
 
 		const res = yield filesResp.json();
+
+		if (res.status !== 200) {
+			yield notifySaga({ error: { message: 'Ошибка при загрузке файла' } });
+			console.log(res)
+		}
+
 		result.push(res.response);
 
 		i++;
@@ -231,11 +243,6 @@ export function* submitModelsModalFormFailSaga(action) {
 	const errors = reduceMessages(action.messages);
 	yield put(stopSubmit('createModel', errors));
 	yield notification('error', action.error.message);
-}
-
-export function* notifySaga(action) {
-	if (action.error) yield notification('error', action.error.message)
-	if (action.response.status === SUCCESS_REQ) yield notification('success', action.response.message)
 }
 
 export default function* rootSaga() {

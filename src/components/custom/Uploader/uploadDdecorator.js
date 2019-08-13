@@ -65,10 +65,14 @@ const UploadDecorator = UploaderComponent => class Uploader extends Component {
 			},
 			beforeUpload: (file) => {
 				if (!this.validateType(file.type)) {
-					return message.error('Ошибка загрузки, только JPG, JPEG и PNG')
+					message.error('Ошибка загрузки, только JPG, JPEG и PNG');
+
+					return false
 				}
 				if (file.size > 9999999) {
-					return message.error('Ошибка загрузки, изображение превышает 10MB')
+					message.error('Ошибка загрузки, изображение превышает 10MB');
+
+					return false
 				}
 				this.setState((state) => {
 					const newFileList = !multiple ? [file] : [...state.fileList, file];
@@ -80,7 +84,8 @@ const UploadDecorator = UploaderComponent => class Uploader extends Component {
 						src: window.URL.createObjectURL(file)
 					}
 				});
-				return false;
+
+				return false
 			},
 			onPreview: file => this.setPreview(file.uid),
 			/* fileList: fileList
