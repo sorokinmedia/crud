@@ -8,7 +8,7 @@ const { setUploaderFiles, setUploaderDefaultFileList } = actions;
 
 function CrudUploader(props) {
 	useEffect(() => {
-		props.setUploaderDefaultFileList(props.defaultFileList, props.modelName);
+		props.setUploaderFiles(props.defaultFileList, props.modelName);
 
 		return () => props.setUploaderFiles([], props.modelName)
 	}, []);
