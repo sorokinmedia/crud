@@ -26228,7 +26228,7 @@ var UploadDecorator = function UploadDecorator(UploaderComponent) {
       });
 
       _this.state = {
-        fileList: [],
+        fileList: props.defaultFileList || [],
         preview: null
       };
       return _this;
@@ -26249,24 +26249,11 @@ var UploadDecorator = function UploadDecorator(UploaderComponent) {
             fileListStored = _this$props.fileListStored,
             defaultFileListStored = _this$props.defaultFileListStored;
         var uploaderProps = {
-          // if removing file was set as default we catch it and remove from default in store
-          // else removing from component state (unnessasary without using fileList parameter) and provide
-          // to onChange handled array
           onRemove: function onRemove(file) {
             _this2.setState(function (state) {
-              if (file.old) {
-                var newDefaultFileList = defaultFileListStored.filter(function (f) {
-                  return f.uid !== file.uid;
-                });
-
-                _this2.props.setUploaderDefaultFileList(newDefaultFileList, _this2.props.modelName);
-
-                return state;
-              }
-
-              var index = state.fileList.indexOf(file);
-              var newFileList = state.fileList.slice();
-              newFileList.splice(index, 1);
+              var newFileList = state.fileList.filter(function (f) {
+                return f.uid !== file.uid;
+              });
 
               _this2.props.onChange(newFileList);
 
@@ -26275,6 +26262,7 @@ var UploadDecorator = function UploadDecorator(UploaderComponent) {
               };
             });
           },
+          accept: '.jpg, .jpeg, .png',
           beforeUpload: function beforeUpload(file) {
             if (!_this2.validateType(file.type)) {
               antd.message.error('Ошибка загрузки, только JPG, JPEG и PNG');
@@ -26302,22 +26290,23 @@ var UploadDecorator = function UploadDecorator(UploaderComponent) {
           onPreview: function onPreview(file) {
             return _this2.setPreview(file.uid);
           },
-
-          /* fileList: fileList
-          	.map(f => ({
-          		url: window.URL.createObjectURL(f),
-          		name: f.name,
-          		uid: f.uid,
-          		lastModified: f.lastModified,
-          		lastModifiedDate: f.lastModifiedDate,
-          		size: f.size,
-          		type: f.type,
-          		webkitRelativePath: f.webkitRelativePath
-          	})).concat(this.props.defaultFileList || []), */
+          fileList: fileList.map(function (f) {
+            return {
+              old: !!f.old,
+              url: f.old ? f.url : window.URL.createObjectURL(f),
+              name: f.name,
+              uid: f.uid,
+              lastModified: f.lastModified,
+              lastModifiedDate: f.lastModifiedDate,
+              size: f.size,
+              type: f.type,
+              webkitRelativePath: f.webkitRelativePath
+            };
+          }),
           listType: listType,
           buttonText: buttonText
-        };
-        if (this.props.defaultFileList) uploaderProps.defaultFileList = this.props.defaultFileList;
+        }; // if (this.props.defaultFileList) uploaderProps.defaultFileList = this.props.defaultFileList;
+
         return React__default.createElement("div", null, React__default.createElement(UploaderComponent, uploaderProps), React__default.createElement(UploaderFilePreview, {
           setPreview: this.setPreview,
           preview: preview,
@@ -29290,13 +29279,18 @@ function filesUpload(modelName, filesStore) {
 
         case 11:
           if (!(i < modelFiles.length)) {
-            _context5.next = 28;
+            _context5.next = 33;
+            break;
+          }
+
+          if (modelFiles[i].old) {
+            _context5.next = 29;
             break;
           }
 
           formData = new FormData();
           formData.append('file', modelFiles[i]);
-          _context5.next = 16;
+          _context5.next = 17;
           return call(fetch, uploadFilesSettings.url, {
             method: 'POST',
             headers: {
@@ -29306,39 +29300,48 @@ function filesUpload(modelName, filesStore) {
             body: formData
           });
 
-        case 16:
+        case 17:
           filesResp = _context5.sent;
-          _context5.next = 19;
+          _context5.next = 20;
           return filesResp.json();
 
-        case 19:
+        case 20:
           res = _context5.sent;
+          console.log(res);
 
-          if (!(res.status !== 200)) {
-            _context5.next = 24;
+          if (!(filesResp.status !== 200)) {
+            _context5.next = 26;
             break;
           }
 
-          _context5.next = 23;
+          _context5.next = 25;
           return notifySaga({
             error: {
               message: 'Ошибка при загрузке файла'
-            }
+            },
+            response: {}
           });
 
-        case 23:
+        case 25:
           console.log(res);
 
-        case 24:
+        case 26:
           result.push(res.response);
+          _context5.next = 30;
+          break;
+
+        case 29:
+          result.push(modelFiles[i]);
+
+        case 30:
           i++;
           _context5.next = 11;
           break;
 
-        case 28:
+        case 33:
           return _context5.abrupt("return", result);
 
-        case 29:
+        case 34:
         case "end":
           return _context5.stop();
       }
@@ -29347,7 +29350,7 @@ function filesUpload(modelName, filesStore) {
 }
 
 function getHandledFiles(modelName) {
-  var filesStore, filesStoreModel, files, defaultList;
+  var filesStore, files;
   return runtimeModule.wrap(function getHandledFiles$(_context6) {
     while (1) {
       switch (_context6.prev = _context6.next) {
@@ -29359,16 +29362,18 @@ function getHandledFiles(modelName) {
 
         case 2:
           filesStore = _context6.sent;
-          filesStoreModel = filesStore[modelName] || {};
-          _context6.next = 6;
+          _context6.next = 5;
           return filesUpload(modelName, filesStore);
 
-        case 6:
+        case 5:
           files = _context6.sent;
-          defaultList = filesStoreModel.defaultFileList;
-          return _context6.abrupt("return", files.concat(defaultList || []));
+          return _context6.abrupt("return", files.map(function (f) {
+            return _objectSpread$5({}, f, {
+              id: f.id || f.uid
+            });
+          }));
 
-        case 9:
+        case 7:
         case "end":
           return _context6.stop();
       }

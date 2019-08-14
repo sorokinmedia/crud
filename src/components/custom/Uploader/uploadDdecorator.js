@@ -14,7 +14,7 @@ const UploadDecorator = UploaderComponent => class Uploader extends Component {
 		super(props);
 		// unnessasary without using fileList parameter
 		this.state = {
-			fileList: [],
+			fileList: props.defaultFileList || [],
 			preview: null
 		};
 	}
@@ -42,37 +42,24 @@ const UploadDecorator = UploaderComponent => class Uploader extends Component {
 		const { fileListStored, defaultFileListStored } = this.props;
 
 		const uploaderProps = {
-			// if removing file was set as default we catch it and remove from default in store
-			// else removing from component state (unnessasary without using fileList parameter) and provide
-			// to onChange handled array
 			onRemove: (file) => {
 				this.setState((state) => {
-					if (file.old) {
-						const newDefaultFileList = defaultFileListStored.filter(f => f.uid !== file.uid);
-						this.props.setUploaderDefaultFileList(newDefaultFileList, this.props.modelName);
+					const newFileList = state.fileList.filter(f => f.uid !== file.uid);
 
-						return state;
-					}
-
-					const index = state.fileList.indexOf(file);
-					const newFileList = state.fileList.slice();
-
-					newFileList.splice(index, 1);
 					this.props.onChange(newFileList);
 
 					return { fileList: newFileList };
 				});
 			},
+			accept: '.jpg, .jpeg, .png',
 			beforeUpload: (file) => {
 				if (!this.validateType(file.type)) {
 					message.error('Ошибка загрузки, только JPG, JPEG и PNG');
-
-					return false
+					return false;
 				}
 				if (file.size > 9999999) {
 					message.error('Ошибка загрузки, изображение превышает 10MB');
-
-					return false
+					return false;
 				}
 				this.setState((state) => {
 					const newFileList = !multiple ? [file] : [...state.fileList, file];
@@ -88,9 +75,10 @@ const UploadDecorator = UploaderComponent => class Uploader extends Component {
 				return false
 			},
 			onPreview: file => this.setPreview(file.uid),
-			/* fileList: fileList
+			 fileList: fileList
 				.map(f => ({
-					url: window.URL.createObjectURL(f),
+					old: !!f.old,
+					url: f.old ? f.url : window.URL.createObjectURL(f),
 					name: f.name,
 					uid: f.uid,
 					lastModified: f.lastModified,
@@ -98,17 +86,21 @@ const UploadDecorator = UploaderComponent => class Uploader extends Component {
 					size: f.size,
 					type: f.type,
 					webkitRelativePath: f.webkitRelativePath
-				})).concat(this.props.defaultFileList || []), */
+				})),
 			listType,
 			buttonText
 		};
 
-		if (this.props.defaultFileList) uploaderProps.defaultFileList = this.props.defaultFileList;
+		// if (this.props.defaultFileList) uploaderProps.defaultFileList = this.props.defaultFileList;
 
 		return (
 			<div>
 				<UploaderComponent {...uploaderProps} />
-				<UploaderFilePreview setPreview={this.setPreview} preview={preview} files={defaultFileListStored.concat(fileListStored)} />
+				<UploaderFilePreview
+					setPreview={this.setPreview}
+					preview={preview}
+					files={defaultFileListStored.concat(fileListStored)}
+				/>
 			</div>
 		);
 	}

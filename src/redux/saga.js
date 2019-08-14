@@ -120,25 +120,30 @@ function* filesUpload(modelName, filesStore) {
 	let i = 0;
 
 	while (i < modelFiles.length) {
-		const formData = new FormData();
+		if (!modelFiles[i].old) {
+			const formData = new FormData();
 
-		formData.append('file', modelFiles[i]);
+			formData.append('file', modelFiles[i]);
 
-		const filesResp = yield call(fetch, uploadFilesSettings.url, {
-			method: 'POST',
-			headers: { Authorization: 'Bearer ' + uploadFilesSettings.token },
-			mode: 'cors',
-			body: formData
-		});
+			const filesResp = yield call(fetch, uploadFilesSettings.url, {
+				method: 'POST',
+				headers: { Authorization: 'Bearer ' + uploadFilesSettings.token },
+				mode: 'cors',
+				body: formData
+			});
 
-		const res = yield filesResp.json();
-
-		if (res.status !== 200) {
-			yield notifySaga({ error: { message: 'Ошибка при загрузке файла' } });
+			const res = yield filesResp.json();
 			console.log(res)
-		}
 
-		result.push(res.response);
+			if (filesResp.status !== 200) {
+				yield notifySaga({ error: { message: 'Ошибка при загрузке файла' }, response: {} });
+				console.log(res)
+			}
+
+			result.push(res.response);
+		} else {
+			result.push(modelFiles[i])
+		}
 
 		i++;
 	}
@@ -148,11 +153,9 @@ function* filesUpload(modelName, filesStore) {
 
 export function* getHandledFiles(modelName) {
 	const filesStore = yield select(state => state.uploaderFiles);
-	const filesStoreModel = filesStore[modelName] || {};
 	const files = yield filesUpload(modelName, filesStore);
-	const defaultList = filesStoreModel.defaultFileList;
 
-	return files.concat(defaultList || []);
+	return files.map(f => ({ ...f, id: f.id || f.uid }))
 }
 
 export function* createModelSaga(action) {
