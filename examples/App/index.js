@@ -4,14 +4,12 @@ import React from 'react';
 import { connect } from 'react-redux'
 import { CrudFull } from '../../src/index';
 import { Button } from 'antd'
-// import { CrudFull } from '../../lib/index';
 import FormFields from './FormFields/index'
-import moment from 'moment'
-import {API} from "../redux/sagas";
-import {getCookie} from "../../src/redux/requestSaga";
-// import createCommissionFields from './../createObjectTypeFields'
+import actions from '../redux/actions'
+import { API } from '../redux/sagas';
+import { getCookie } from '../../src/redux/requestSaga';
 
-// commission_list_container
+const { fetchFileConfig } = actions;
 
 class CrudSiteAlerts extends React.Component {
 
@@ -19,6 +17,10 @@ class CrudSiteAlerts extends React.Component {
 		super(props);
 
 		this.state = { selected: [] }
+	}
+
+	componentDidMount() {
+		this.props.fetchFileConfig()
 	}
 
 
@@ -43,7 +45,7 @@ class CrudSiteAlerts extends React.Component {
 	};
 
 	render() {
-		const { roles, groups, start } = this.props;
+		const { roles, groups, start, fileConfig } = this.props;
 		const rowSelection = {
 			onChange: (selectedRowKeys, selectedRows) => {
 				this.setState({ selected: [...this.state.selected, ...selectedRowKeys] });
@@ -60,19 +62,24 @@ class CrudSiteAlerts extends React.Component {
 				<CrudFull
 					crudRead={`/v1/owner/object/57/keys`}
 					crudCreate={`/v1/owner/object/57/key`}
-					uploadFilesSettings={{ url: API + '/v1/common/file', token: getCookie('auth_token') }}
+					uploadFilesSettings={{
+						url: API + '/v1/common/file',
+						token: getCookie('auth_token'),
+						config: fileConfig
+					}}
 					submitShape={(form, files) => ({
 						...form,
 						files
 					})}
 					updateShape={elem => ({
-						files: elem.files.map(file => ({
+						files: elem.files.models.map(file => ({
 							old: true,
 							name: file.name,
 							uid: file.id,
 							status: 'done',
 							url: file.url
 						})),
+						config: elem.files.config
 					})}
 					createDisabled={false}
 					createFormOptions={{ fields: FormFields }}
@@ -95,7 +102,7 @@ CrudSiteAlerts.propTypes = {
 	groups: PropTypes.array,
 	startShowSiteAlert: PropTypes.func,
 	clearStartShowSiteAlert: PropTypes.func,
-}
+};
 
 export default connect(state => ({
 	// start: state[moduleName + START_SHOW_SITE_ALERT_RESPONSE],
@@ -105,5 +112,6 @@ export default connect(state => ({
 	groups: state.crudFilterValues && state.crudFilterValues.siteAlerts
 		? state.crudFilterValues.siteAlerts.group
 		: [],
+	fileConfig: state.fileConfig
 
-}))(CrudSiteAlerts)
+}), { fetchFileConfig })(CrudSiteAlerts)

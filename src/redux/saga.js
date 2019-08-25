@@ -7,9 +7,8 @@ import { ERROR, SORT_ASC, SORT_DESC, SUCCESS, SUCCESS_REQ } from '../constants';
 import notification from '../notification';
 import actions from './actions';
 import regeneratorRuntime from 'regenerator-runtime'
-import reduceMessages from "../helpers/reduceMessages";
-import {getCookie} from "./requestSaga";
-import {getError} from "../../examples/redux/sagas";
+import reduceMessages from '../helpers/reduceMessages';
+
 export const selectCrudParams = state => state.crudParams;
 
 export function* notifySaga(action) {

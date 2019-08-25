@@ -2,9 +2,11 @@ import regeneratorRuntime from 'regenerator-runtime'
 import { saga } from '../../src/index'
 import { takeEvery, all, put, call } from 'redux-saga/effects'
 import { START, ERROR, SUCCESS } from './constants';
+import { request } from 'sm-redux-saga-request';
+import actions from './actions'
 
 export const API = 'http://api.rentrika.kosmoz.online';
-export const token = '8b9e2568e2fc85a9ae1b5b8ac7e81d00'
+export const token = '8b9e2568e2fc85a9ae1b5b8ac7e81d00';
 
 export function* requestSaga(action) {
 	const {
@@ -82,14 +84,14 @@ export const getError = (data, response) => {
 	return ''
 };
 
-const WHO_API = 'http://api.workhard.kosmoz.online'
+const WHO_API = 'http://api.workhard.kosmoz.online';
 
 export function* requestWHOSaga(action) {
 	const {
 		payload, method, url, auth, oldType: type, token_is_active
 	} = action;
 
-	const token = '5ae372b408af2f10270e5ca12bc49623'
+	const token = '5ae372b408af2f10270e5ca12bc49623';
 	try {
 		yield put({
 			...action,
@@ -142,11 +144,20 @@ export function* requestWHOSaga(action) {
 	}
 }
 
+function* fetchFileConfigSaga(action) {
+	yield put(request({
+		...action,
+		method: 'GET',
+		auth: true,
+		url: '/v1/owner/object/57/key/config'
+	}))
+}
 
 export default function* rootSaga() {
 	yield all([
 		saga(),
 		takeEvery('REQUEST', requestSaga),
+		takeEvery(actions.FETCH_FILE_CONFIG, fetchFileConfigSaga),
 		// takeEvery('REQUEST', requestWHOSaga),
 	]);
 }

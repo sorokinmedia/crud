@@ -80,13 +80,14 @@ CreateModalForm = reduxForm({
 	form: 'createModel',
 	validate: (values, props) => {
 		let errors = {};
-		//if(!values.name) errors.name = 'Введите название';
+		// if(!values.name) errors.name = 'Введите название';
 		props.fields.forEach(field => {
 			if (field.validateFunc) errors = field.validateFunc(values, errors)
 		});
 
 		return errors;
-	}
+	},
+	// initialValues comes from outside
 })(CreateModalForm);
 
 CreateModalForm =  connect((state, props) => {

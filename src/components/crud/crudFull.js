@@ -121,7 +121,6 @@ export class CrudFull extends Component {
 			renderField,
 			CustomButtons,
 			rowSelection,
-			uploadFilesUrl
 		} = this.props;
 
 		const { title, titleEdit, fields } = createFormOptions || {};
@@ -212,7 +211,6 @@ export class CrudFull extends Component {
 				}
 			</div>)
 	}
-
 }
 
 CrudFull.propTypes = {
