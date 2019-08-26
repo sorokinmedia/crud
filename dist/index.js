@@ -1334,6 +1334,16 @@ var actions = {
   FETCH_CRUD_CHILDREN: 'FETCH_CRUD_CHILDREN',
   SET_UPLOADER_FILES: 'SET_UPLOADER_FILES',
   SET_UPLOADER_DEFAULT_FILE_LIST: 'SET_UPLOADER_DEFAULT_FILE_LIST',
+  FETCH_FILE_CONFIG: 'FETCH_FILE_CONFIG',
+  fetchFileConfig: function fetchFileConfig(url, modelName) {
+    return {
+      type: actions.FETCH_FILE_CONFIG,
+      payload: {
+        url: url,
+        modelName: modelName
+      }
+    };
+  },
   setUploaderDefaultFileList: function setUploaderDefaultFileList(defaultFileList, modelName) {
     return {
       type: actions.SET_UPLOADER_DEFAULT_FILE_LIST,
@@ -26207,19 +26217,7 @@ var UploadDecorator = function UploadDecorator(UploaderComponent) {
 
       _classCallCheck$28(this, Uploader);
 
-      _this = _possibleConstructorReturn$27(this, _getPrototypeOf$3(Uploader).call(this, props)); // unnessasary without using fileList parameter
-
-      _defineProperty$10(_assertThisInitialized$3(_this), "validateType", function (type) {
-        switch (type) {
-          case 'image/jpeg':
-          case 'image/jpg':
-          case 'image/png':
-            return true;
-
-          default:
-            return false;
-        }
-      });
+      _this = _possibleConstructorReturn$27(this, _getPrototypeOf$3(Uploader).call(this, props));
 
       _defineProperty$10(_assertThisInitialized$3(_this), "setPreview", function (id) {
         _this.setState({
@@ -26227,8 +26225,15 @@ var UploadDecorator = function UploadDecorator(UploaderComponent) {
         });
       });
 
+      _defineProperty$10(_assertThisInitialized$3(_this), "handleFileRemove", function (file) {
+        var newFileList = _this.props.fileListStored.filter(function (f) {
+          return f.uid !== file.uid;
+        });
+
+        _this.props.onChange(newFileList);
+      });
+
       _this.state = {
-        fileList: props.defaultFileList || [],
         preview: null
       };
       return _this;
@@ -26239,58 +26244,32 @@ var UploadDecorator = function UploadDecorator(UploaderComponent) {
       value: function render() {
         var _this2 = this;
 
+        var config = this.props.config;
+        console.log(config);
         var listType = this.props.listType || 'text';
         var multiple = this.props.multiple || false;
         var buttonText = this.props.buttonText || undefined;
-        var _this$state = this.state,
-            fileList = _this$state.fileList,
-            preview = _this$state.preview;
-        var _this$props = this.props,
-            fileListStored = _this$props.fileListStored,
-            defaultFileListStored = _this$props.defaultFileListStored;
+        var preview = this.state.preview;
+        var fileListStored = this.props.fileListStored;
         var uploaderProps = {
-          onRemove: function onRemove(file) {
-            _this2.setState(function (state) {
-              var newFileList = state.fileList.filter(function (f) {
-                return f.uid !== file.uid;
-              });
-
-              _this2.props.onChange(newFileList);
-
-              return {
-                fileList: newFileList
-              };
-            });
-          },
-          accept: '.jpg, .jpeg, .png',
+          onRemove: this.handleFileRemove,
+          accept: config.mimeTypes,
           beforeUpload: function beforeUpload(file) {
-            if (!_this2.validateType(file.type)) {
-              antd.message.error('Ошибка загрузки, только JPG, JPEG и PNG');
+            if (file.size > (config.maxSize || 10000000)) {
+              antd.message.error('Ошибка загрузки, файл превышает допустимый размер');
               return false;
             }
 
-            if (file.size > 9999999) {
-              antd.message.error('Ошибка загрузки, изображение превышает 10MB');
-              return false;
-            }
+            var newFileList = !multiple ? [file] : fileListStored.length === (config.maxFiles || 100) ? fileListStored : [].concat(_toConsumableArray$5(fileListStored), [file]);
 
-            _this2.setState(function (state) {
-              var newFileList = !multiple ? [file] : [].concat(_toConsumableArray$5(state.fileList), [file]);
-
-              _this2.props.onChange(newFileList);
-
-              return {
-                fileList: newFileList,
-                src: window.URL.createObjectURL(file)
-              };
-            });
+            _this2.props.onChange(newFileList);
 
             return false;
           },
           onPreview: function onPreview(file) {
             return _this2.setPreview(file.uid);
           },
-          fileList: fileList.map(function (f) {
+          fileList: fileListStored.map(function (f) {
             return {
               old: !!f.old,
               url: f.old ? f.url : window.URL.createObjectURL(f),
@@ -26305,12 +26284,11 @@ var UploadDecorator = function UploadDecorator(UploaderComponent) {
           }),
           listType: listType,
           buttonText: buttonText
-        }; // if (this.props.defaultFileList) uploaderProps.defaultFileList = this.props.defaultFileList;
-
+        };
         return React__default.createElement("div", null, React__default.createElement(UploaderComponent, uploaderProps), React__default.createElement(UploaderFilePreview, {
           setPreview: this.setPreview,
           preview: preview,
-          files: defaultFileListStored.concat(fileListStored)
+          files: fileListStored
         }));
       }
     }]);
@@ -26326,7 +26304,7 @@ UploadDecorator.propTypes = {
   listType: propTypes.string,
   multiple: propTypes.bool,
   defaultFileList: propTypes.array,
-  defaultFileListStored: propTypes.array
+  fileListStored: propTypes.array.isRequired
 };
 
 var mapStateToProps = function mapStateToProps(state, props) {
@@ -26362,16 +26340,20 @@ var Uploader$1 = UploadDecorator$1(Uploader);
 
 function _extends$31() { _extends$31 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends$31.apply(this, arguments); }
 var setUploaderFiles = actions.setUploaderFiles,
-    setUploaderDefaultFileList$1 = actions.setUploaderDefaultFileList;
+    setUploaderDefaultFileList$1 = actions.setUploaderDefaultFileList,
+    fetchFileConfig = actions.fetchFileConfig;
 
 function CrudUploader(props) {
   React.useEffect(function () {
     props.setUploaderFiles(props.defaultFileList, props.modelName);
+    props.fetchFileConfig(props.crudParams[props.modelName].crudCreate + '/config', props.modelName);
     return function () {
       return props.setUploaderFiles([], props.modelName);
     };
   }, []);
+  console.log(props.config[props.modelName]);
   return React__default.createElement(Uploader$1, _extends$31({}, props, {
+    config: props.config[props.modelName] && props.config[props.modelName].data ? props.config[props.modelName].data.files.config : {},
     onChange: function onChange(files) {
       return props.setUploaderFiles(files, props.modelName);
     }
@@ -26382,15 +26364,20 @@ CrudUploader.propTypes = {
   setUploaderFiles: propTypes.func.isRequired,
   modelName: propTypes.string.isRequired,
   setUploaderDefaultFileList: propTypes.func.isRequired,
+  crudParams: propTypes.object.isRequired,
+  fetchFileConfig: propTypes.func.isRequired,
   defaultFileList: propTypes.array
 };
 var Uploader$2 = connect(function (state, props) {
   return {
-    modelName: state.isOpenModelModal || props.modelName
+    modelName: state.isOpenModelModal || props.modelName,
+    crudParams: state.crudParams,
+    config: state.fileConfig
   };
 }, {
   setUploaderFiles: setUploaderFiles,
-  setUploaderDefaultFileList: setUploaderDefaultFileList$1
+  setUploaderDefaultFileList: setUploaderDefaultFileList$1,
+  fetchFileConfig: fetchFileConfig
 })(CrudUploader);
 
 function _extends$32() { _extends$32 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends$32.apply(this, arguments); }
@@ -26622,13 +26609,14 @@ _defineProperty$11(CreateModalForm, "defaultProps", {
 CreateModalForm = reduxForm({
   form: 'createModel',
   validate: function validate(values$$1, props) {
-    var errors = {}; //if(!values.name) errors.name = 'Введите название';
+    var errors = {}; // if(!values.name) errors.name = 'Введите название';
 
     props.fields.forEach(function (field) {
       if (field.validateFunc) errors = field.validateFunc(values$$1, errors);
     });
     return errors;
-  }
+  } // initialValues comes from outside
+
 })(CreateModalForm);
 CreateModalForm = connect(function (state, props) {
   var options = props.fields.reduce(function (acc, field) {
@@ -27072,6 +27060,7 @@ function (_Component) {
       this.props.setCrudActionsFunc(this.actionsFunc, this.props.modelName);
       this.props.setCrudParams({
         crudRead: this.props.crudRead,
+        crudCreate: this.props.crudCreate,
         modelName: this.props.modelName,
         submitShape: this.props.submitShape,
         initialValues: this.props.initialValues,
@@ -27108,8 +27097,7 @@ function (_Component) {
           isView = _this$props.isView,
           renderField = _this$props.renderField,
           CustomButtons = _this$props.CustomButtons,
-          rowSelection = _this$props.rowSelection,
-          uploadFilesUrl = _this$props.uploadFilesUrl;
+          rowSelection = _this$props.rowSelection;
 
       var _ref = createFormOptions || {},
           title = _ref.title,
@@ -27434,6 +27422,27 @@ var uploaderFilesReducer = function uploaderFilesReducer() {
       return state;
   }
 };
+function fetchFileConfigReducer() {
+  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  var action = arguments.length > 1 ? arguments[1] : undefined;
+  var type = action.type,
+      response = action.response,
+      error = action.error,
+      payload = action.payload;
+
+  switch (type) {
+    case actions.FETCH_FILE_CONFIG + SUCCESS$1:
+      return _objectSpread$2({}, state, _defineProperty$15({}, payload.modelName, response));
+
+    case actions.FETCH_FILE_CONFIG + ERROR:
+      return {
+        error: error
+      };
+
+    default:
+      return state;
+  }
+}
 var crudReducers = {
   crudFilterValues: crudFilterValuesReducer,
   crudModels: crudModelsReducer,
@@ -27442,7 +27451,8 @@ var crudReducers = {
   modelModalForm: modelModalFormReducer,
   crudParams: crudParamsReducer,
   crudCreateModalLoading: crudCreateModalLoadingReducer,
-  uploaderFiles: uploaderFilesReducer
+  uploaderFiles: uploaderFilesReducer,
+  fileConfig: fetchFileConfigReducer
 };
 
 var _typeof$15 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -28682,351 +28692,17 @@ function reduceMessages(messages) {
   }, {});
 }
 
-var _marked =
-/*#__PURE__*/
-runtimeModule.mark(requestSaga),
-    _marked2 =
-/*#__PURE__*/
-runtimeModule.mark(requests);
-
 function _objectSpread$3(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty$16(target, key, source[key]); }); } return target; }
 
 function _defineProperty$16(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-function getCookie(name) {
-  var matches = document.cookie.match(new RegExp('(?:^|; )' + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + '=([^;]*)'));
-  return matches ? decodeURIComponent(matches[1]) : undefined;
-}
-var getError$1 = function getError(data, response) {
-  if (data.status === 0) return {
-    message: 'Unknow error: check your authorization. ' + 'No \'Access-Control-Allow-Origin\' header is present on the requested resource.'
-  };
-  if (data.status === 500) return response;
-  if (response.messages) return response.messages[0];
-  return '';
-};
-function requestSaga(action) {
-  var payload, method, url, auth, type, token_is_active, SITE, token, body, headers, params, data, response, error;
-  return runtimeModule.wrap(function requestSaga$(_context) {
-    while (1) {
-      switch (_context.prev = _context.next) {
-        case 0:
-          payload = action.payload, method = action.method, url = action.url, auth = action.auth, type = action.oldType, token_is_active = action.token_is_active;
-          _context.next = 3;
-          return select(function (state) {
-            return state.X;
-          });
 
-        case 3:
-          SITE = _context.sent;
-          token = getCookie('auth_token');
-          _context.prev = 5;
-          _context.next = 8;
-          return put(_objectSpread$3({}, action, {
-            type: type + START
-          }));
-
-        case 8:
-          body = payload ? JSON.stringify(payload) : '';
-          headers = new Headers({
-            'Content-Type': 'application/json'
-          });
-          if (auth) headers.set('Authorization', 'Bearer ' + token);
-          params = {
-            method: method,
-            headers: headers,
-            mode: 'cors'
-          };
-          if (body && method !== 'GET') params.body = body;
-          _context.next = 15;
-          return call(fetch, SITE + url, params);
-
-        case 15:
-          data = _context.sent;
-          _context.next = 18;
-          return data.json();
-
-        case 18:
-          response = _context.sent;
-
-          if (!(data.status !== 200)) {
-            _context.next = 25;
-            break;
-          }
-
-          error = getError$1(data, response);
-          _context.next = 23;
-          return put(_objectSpread$3({}, action, {
-            type: type + FAIL,
-            error: error
-          }));
-
-        case 23:
-          _context.next = 27;
-          break;
-
-        case 25:
-          _context.next = 27;
-          return put(_objectSpread$3({}, action, {
-            type: type + SUCCESS$1,
-            response: {
-              data: response.response,
-              error: response.status === 100 || response.messages[0].type === 2 ? response.messages[0].message : null,
-              status: response.status,
-              message: response.status === 0 || response.messages[0].type === 0 ? response.messages[0].message : null
-            }
-          }));
-
-        case 27:
-          _context.next = 32;
-          break;
-
-        case 29:
-          _context.prev = 29;
-          _context.t0 = _context["catch"](5);
-          console.log(_context.t0);
-
-        case 32:
-        case "end":
-          return _context.stop();
-      }
-    }
-  }, _marked, null, [[5, 29]]);
-}
-function requests() {
-  return runtimeModule.wrap(function requests$(_context2) {
-    while (1) {
-      switch (_context2.prev = _context2.next) {
-        case 0:
-          _context2.next = 2;
-          return all([takeEvery$2('REQUEST', requestSaga)]);
-
-        case 2:
-        case "end":
-          return _context2.stop();
-      }
-    }
-  }, _marked2);
-}
-
-var START$1 = '_START';
-var SUCCESS$2 = '_SUCCESS';
-var ERROR$1 = '_ERROR';
-
-var _marked$1 =
-/*#__PURE__*/
-runtimeModule.mark(requestSaga$1),
-    _marked2$1 =
-/*#__PURE__*/
-runtimeModule.mark(requestWHOSaga),
-    _marked3 =
-/*#__PURE__*/
-runtimeModule.mark(rootSaga);
-
-function _objectSpread$4(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty$17(target, key, source[key]); }); } return target; }
-
-function _defineProperty$17(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-var API$1 = 'http://api.rentrika.kosmoz.online';
-var token$1 = '8b9e2568e2fc85a9ae1b5b8ac7e81d00';
-function requestSaga$1(action) {
-  var payload, method, url, auth, type, token_is_active, body, headers, params, data, response, error;
-  return runtimeModule.wrap(function requestSaga$(_context) {
-    while (1) {
-      switch (_context.prev = _context.next) {
-        case 0:
-          payload = action.payload, method = action.method, url = action.url, auth = action.auth, type = action.oldType, token_is_active = action.token_is_active; //'f9ad75859d9a7acd94e7a3acc639e0be';
-          //'cef506b12fd189faf83b95c2af29d6c6'
-          //if (auth && !token_is_active) return;
-
-          _context.prev = 1;
-          _context.next = 4;
-          return put(_objectSpread$4({}, action, {
-            type: type + START$1
-          }));
-
-        case 4:
-          body = payload ? JSON.stringify(payload) : '';
-          headers = new Headers({
-            'Content-Type': 'application/json'
-          });
-          if (auth) headers.set('Authorization', 'Bearer ' + token$1);
-          params = {
-            method: method,
-            headers: headers,
-            mode: 'cors'
-          };
-          if (body && method !== 'GET') params.body = body;
-          _context.next = 11;
-          return call(fetch, API$1 + url, params);
-
-        case 11:
-          data = _context.sent;
-          _context.next = 14;
-          return data.json();
-
-        case 14:
-          response = _context.sent;
-
-          if (!(data.status !== 200 || data.status === 200 && response.status === 100)) {
-            _context.next = 21;
-            break;
-          }
-
-          error = getError$2(data, response);
-          _context.next = 19;
-          return put(_objectSpread$4({}, action, {
-            type: type + ERROR$1,
-            error: error
-          }));
-
-        case 19:
-          _context.next = 23;
-          break;
-
-        case 21:
-          _context.next = 23;
-          return put(_objectSpread$4({}, action, {
-            type: type + SUCCESS$2,
-            response: {
-              data: response.response,
-              error: response.status === 100 || response.messages[0].type === 2 ? response.messages[0].message : null,
-              status: response.status,
-              message: response.status === 0 || response.messages[0].type === 0 ? response.messages[0].message : null
-            }
-          }));
-
-        case 23:
-          _context.next = 28;
-          break;
-
-        case 25:
-          _context.prev = 25;
-          _context.t0 = _context["catch"](1);
-          console.log(_context.t0);
-
-        case 28:
-        case "end":
-          return _context.stop();
-      }
-    }
-  }, _marked$1, null, [[1, 25]]);
-}
-var getError$2 = function getError(data, response) {
-  if (data.status === 0) return {
-    message: 'Unknow error: check your authorization. ' + 'No \'Access-Control-Allow-Origin\' header is present on the requested resource.'
-  };
-  if (data.status === 500) return response;
-  if (response.messages) return response.messages[0];
-  return '';
-};
-var WHO_API = 'http://api.workhard.kosmoz.online';
-function requestWHOSaga(action) {
-  var payload, method, url, auth, type, token_is_active, token, body, headers, params, data, response, error;
-  return runtimeModule.wrap(function requestWHOSaga$(_context2) {
-    while (1) {
-      switch (_context2.prev = _context2.next) {
-        case 0:
-          payload = action.payload, method = action.method, url = action.url, auth = action.auth, type = action.oldType, token_is_active = action.token_is_active;
-          token = '5ae372b408af2f10270e5ca12bc49623';
-          _context2.prev = 2;
-          _context2.next = 5;
-          return put(_objectSpread$4({}, action, {
-            type: type + START$1
-          }));
-
-        case 5:
-          body = payload ? JSON.stringify(payload) : '';
-          headers = new Headers({
-            'Content-Type': 'application/json'
-          });
-          if (auth) headers.set('Authorization', 'Bearer ' + token);
-          params = {
-            method: method,
-            headers: headers,
-            mode: 'cors'
-          };
-          if (body && method !== 'GET') params.body = body;
-          _context2.next = 12;
-          return call(fetch, WHO_API + url, params);
-
-        case 12:
-          data = _context2.sent;
-          _context2.next = 15;
-          return data.json();
-
-        case 15:
-          response = _context2.sent;
-
-          if (!(data.status !== 200 || data.status === 200 && response.status === 100)) {
-            _context2.next = 22;
-            break;
-          }
-
-          error = getError$2(data, response);
-          _context2.next = 20;
-          return put(_objectSpread$4({}, action, {
-            type: type + ERROR$1,
-            error: error,
-            messages: response.messages
-          }));
-
-        case 20:
-          _context2.next = 24;
-          break;
-
-        case 22:
-          _context2.next = 24;
-          return put(_objectSpread$4({}, action, {
-            type: type + SUCCESS$2,
-            response: {
-              data: response.response,
-              status: response.status,
-              message: response.status === 0 || response.messages[0].type === 0 ? response.messages[0].message : null
-            }
-          }));
-
-        case 24:
-          _context2.next = 29;
-          break;
-
-        case 26:
-          _context2.prev = 26;
-          _context2.t0 = _context2["catch"](2);
-          console.log(_context2.t0);
-
-        case 29:
-        case "end":
-          return _context2.stop();
-      }
-    }
-  }, _marked2$1, null, [[2, 26]]);
-}
-function rootSaga() {
-  return runtimeModule.wrap(function rootSaga$(_context3) {
-    while (1) {
-      switch (_context3.prev = _context3.next) {
-        case 0:
-          _context3.next = 2;
-          return all([saga(), takeEvery$2('REQUEST', requestSaga$1)]);
-
-        case 2:
-        case "end":
-          return _context3.stop();
-      }
-    }
-  }, _marked3);
-}
-
-function _objectSpread$5(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty$18(target, key, source[key]); }); } return target; }
-
-function _defineProperty$18(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-var _marked$2 =
+var _marked =
 /*#__PURE__*/
 runtimeModule.mark(notifySaga),
-    _marked2$2 =
+    _marked2 =
 /*#__PURE__*/
 runtimeModule.mark(fetchCrudModelsSaga),
-    _marked3$1 =
+    _marked3 =
 /*#__PURE__*/
 runtimeModule.mark(fetchCrudModelsSuccessSaga),
     _marked4 =
@@ -29064,7 +28740,10 @@ runtimeModule.mark(closeModalSaga),
 runtimeModule.mark(submitModelsModalFormFailSaga),
     _marked15 =
 /*#__PURE__*/
-runtimeModule.mark(rootSaga$1);
+runtimeModule.mark(fetchFileConfigSaga),
+    _marked16 =
+/*#__PURE__*/
+runtimeModule.mark(rootSaga);
 var selectCrudParams = function selectCrudParams(state) {
   return state.crudParams;
 };
@@ -29095,7 +28774,7 @@ function notifySaga(action) {
           return _context.stop();
       }
     }
-  }, _marked$2);
+  }, _marked);
 }
 
 function isDateColumn(columns, key) {
@@ -29106,7 +28785,7 @@ function isDateColumn(columns, key) {
 
 function getFiltersValues(filters, columns) {
   var res = Object.keys(filters).reduce(function (acc, key) {
-    return _objectSpread$5({}, acc, _defineProperty$18({}, key, isDateColumn(columns, key) ? filters[key] instanceof Array || null ? null : hooks(filters[key]).unix() : filters[key].constructor !== Array ? filters[key] : null));
+    return _objectSpread$3({}, acc, _defineProperty$16({}, key, isDateColumn(columns, key) ? filters[key] instanceof Array || null ? null : hooks(filters[key]).unix() : filters[key].constructor !== Array ? filters[key] : null));
   }, {}); // buildUrlSearchForArray(filters[key], key)
 
   return res;
@@ -29143,7 +28822,7 @@ function fetchCrudModelsSaga(action) {
 
         case 12:
           filters = _context2.sent;
-          params = payload ? dist_6(_objectSpread$5({}, filters, {
+          params = payload ? dist_6(_objectSpread$3({}, filters, {
             order: !order ? null : order === 'ascend' ? SORT_ASC : SORT_DESC,
             order_by: order_by,
             page: page
@@ -29160,7 +28839,7 @@ function fetchCrudModelsSaga(action) {
             return acc + start + delimiter + e;
           }, '');
           _context2.next = 19;
-          return put(dist_1(_objectSpread$5({}, action, {
+          return put(dist_1(_objectSpread$3({}, action, {
             method: 'GET',
             auth: true,
             url: "".concat(url).concat(paramsStr)
@@ -29171,7 +28850,7 @@ function fetchCrudModelsSaga(action) {
           return _context2.stop();
       }
     }
-  }, _marked2$2);
+  }, _marked2);
 }
 function fetchCrudModelsSuccessSaga(action) {
   var response, payload, columns, i, column;
@@ -29218,7 +28897,7 @@ function fetchCrudModelsSuccessSaga(action) {
           return _context3.stop();
       }
     }
-  }, _marked3$1);
+  }, _marked3);
 }
 function fetchCrudFilterValuesSaga(action) {
   return runtimeModule.wrap(function fetchCrudFilterValuesSaga$(_context4) {
@@ -29226,7 +28905,7 @@ function fetchCrudFilterValuesSaga(action) {
       switch (_context4.prev = _context4.next) {
         case 0:
           _context4.next = 2;
-          return put(dist_1(_objectSpread$5({}, action, {
+          return put(dist_1(_objectSpread$3({}, action, {
             method: 'GET',
             auth: true,
             url: "".concat(action.payload.query)
@@ -29368,7 +29047,7 @@ function getHandledFiles(modelName) {
         case 5:
           files = _context6.sent;
           return _context6.abrupt("return", files.map(function (f) {
-            return _objectSpread$5({}, f, {
+            return _objectSpread$3({}, f, {
               id: f.id || f.uid
             });
           }));
@@ -29400,11 +29079,11 @@ function createModelSaga(action) {
           uploadedFiles = _context7.sent;
           form = submitShape(action.payload.form, uploadedFiles);
           _context7.next = 11;
-          return put(dist_1(_objectSpread$5({}, action, {
+          return put(dist_1(_objectSpread$3({}, action, {
             method: 'POST',
             auth: true,
             url: "".concat(action.payload.url),
-            payload: _objectSpread$5({}, form),
+            payload: _objectSpread$3({}, form),
             modelName: modelName
           })));
 
@@ -29450,7 +29129,7 @@ function deleteModelSaga(action) {
       switch (_context9.prev = _context9.next) {
         case 0:
           _context9.next = 2;
-          return put(dist_1(_objectSpread$5({}, action, {
+          return put(dist_1(_objectSpread$3({}, action, {
             method: action.payload.action.method,
             //'POST',
             auth: true,
@@ -29472,7 +29151,7 @@ function restoreModelSaga(action) {
       switch (_context10.prev = _context10.next) {
         case 0:
           _context10.next = 2;
-          return put(dist_1(_objectSpread$5({}, action, {
+          return put(dist_1(_objectSpread$3({}, action, {
             method: 'POST',
             auth: true,
             url: "".concat(action.payload.url),
@@ -29503,7 +29182,7 @@ function changeModelSaga(action) {
         case 5:
           uploadedFiles = _context11.sent;
           _context11.next = 8;
-          return put(dist_1(_objectSpread$5({}, action, {
+          return put(dist_1(_objectSpread$3({}, action, {
             method: action.payload.action.method,
             //'POST',
             auth: true,
@@ -29525,7 +29204,7 @@ function fetchCrudChildrenSaga(action) {
       switch (_context12.prev = _context12.next) {
         case 0:
           _context12.next = 2;
-          return put(dist_1(_objectSpread$5({}, action, {
+          return put(dist_1(_objectSpread$3({}, action, {
             method: 'GET',
             auth: true,
             url: "".concat(action.payload.url),
@@ -29579,26 +29258,172 @@ function submitModelsModalFormFailSaga(action) {
     }
   }, _marked14);
 }
-function rootSaga$1() {
-  return runtimeModule.wrap(function rootSaga$(_context15) {
+function fetchFileConfigSaga(action) {
+  return runtimeModule.wrap(function fetchFileConfigSaga$(_context15) {
     while (1) {
       switch (_context15.prev = _context15.next) {
         case 0:
-          _context15.next = 2;
-          return all([takeEvery$2(actions.FETCH_CRUD_MODELS, fetchCrudModelsSaga), takeEvery$2(actions.FETCH_CRUD_MODELS + SUCCESS$1, fetchCrudModelsSuccessSaga), takeEvery$2(actions.FETCH_CRUD_FILTER_VALUES, fetchCrudFilterValuesSaga), takeEvery$2(actions.FETCH_CRUD_CHILDREN, fetchCrudChildrenSaga), takeEvery$2(actions.CREATE_MODEL, createModelSaga), takeEvery$2(actions.CREATE_MODEL + SUCCESS$1, closeModalSaga), takeEvery$2(actions.CREATE_MODEL + SUCCESS$1, updateModelsSaga), takeEvery$2(actions.CREATE_MODEL + SUCCESS$1, notifySaga), takeEvery$2(actions.CREATE_MODEL + ERROR, submitModelsModalFormFailSaga), takeEvery$2(actions.DELETE_MODEL, deleteModelSaga), takeEvery$2(actions.DELETE_MODEL + SUCCESS$1, updateModelsSaga), takeEvery$2(actions.DELETE_MODEL + SUCCESS$1, notifySaga), takeEvery$2(actions.DELETE_MODEL + ERROR, notifySaga), takeEvery$2(actions.RESTORE_MODEL, restoreModelSaga), takeEvery$2(actions.RESTORE_MODEL + SUCCESS$1, updateModelsSaga), takeEvery$2(actions.RESTORE_MODEL + SUCCESS$1, notifySaga), takeEvery$2(actions.RESTORE_MODEL + ERROR, notifySaga), takeEvery$2(actions.CHANGE_MODEL, changeModelSaga), takeEvery$2(actions.CHANGE_MODEL + SUCCESS$1, closeModalSaga), takeEvery$2(actions.CHANGE_MODEL + SUCCESS$1, updateModelsSaga), takeEvery$2(actions.CHANGE_MODEL + SUCCESS$1, notifySaga), takeEvery$2(actions.CHANGE_MODEL + ERROR, submitModelsModalFormFailSaga), fork(requestMiddleware)]);
+          console.log(action);
+          _context15.next = 3;
+          return put(dist_1(_objectSpread$3({}, action, {
+            method: 'GET',
+            auth: true,
+            url: action.payload.url
+          })));
 
-        case 2:
+        case 3:
         case "end":
           return _context15.stop();
       }
     }
   }, _marked15);
 }
+function rootSaga() {
+  return runtimeModule.wrap(function rootSaga$(_context16) {
+    while (1) {
+      switch (_context16.prev = _context16.next) {
+        case 0:
+          _context16.next = 2;
+          return all([takeEvery$2(actions.FETCH_CRUD_MODELS, fetchCrudModelsSaga), takeEvery$2(actions.FETCH_CRUD_MODELS + SUCCESS$1, fetchCrudModelsSuccessSaga), takeEvery$2(actions.FETCH_CRUD_FILTER_VALUES, fetchCrudFilterValuesSaga), takeEvery$2(actions.FETCH_CRUD_CHILDREN, fetchCrudChildrenSaga), takeEvery$2(actions.CREATE_MODEL, createModelSaga), takeEvery$2(actions.CREATE_MODEL + SUCCESS$1, closeModalSaga), takeEvery$2(actions.CREATE_MODEL + SUCCESS$1, updateModelsSaga), takeEvery$2(actions.CREATE_MODEL + SUCCESS$1, notifySaga), takeEvery$2(actions.CREATE_MODEL + ERROR, submitModelsModalFormFailSaga), takeEvery$2(actions.DELETE_MODEL, deleteModelSaga), takeEvery$2(actions.DELETE_MODEL + SUCCESS$1, updateModelsSaga), takeEvery$2(actions.DELETE_MODEL + SUCCESS$1, notifySaga), takeEvery$2(actions.DELETE_MODEL + ERROR, notifySaga), takeEvery$2(actions.RESTORE_MODEL, restoreModelSaga), takeEvery$2(actions.RESTORE_MODEL + SUCCESS$1, updateModelsSaga), takeEvery$2(actions.RESTORE_MODEL + SUCCESS$1, notifySaga), takeEvery$2(actions.RESTORE_MODEL + ERROR, notifySaga), takeEvery$2(actions.CHANGE_MODEL, changeModelSaga), takeEvery$2(actions.CHANGE_MODEL + SUCCESS$1, closeModalSaga), takeEvery$2(actions.CHANGE_MODEL + SUCCESS$1, updateModelsSaga), takeEvery$2(actions.CHANGE_MODEL + SUCCESS$1, notifySaga), takeEvery$2(actions.CHANGE_MODEL + ERROR, submitModelsModalFormFailSaga), takeEvery$2(actions.FETCH_FILE_CONFIG, fetchFileConfigSaga), fork(requestMiddleware)]);
+
+        case 2:
+        case "end":
+          return _context16.stop();
+      }
+    }
+  }, _marked16);
+}
+
+var _marked$1 =
+/*#__PURE__*/
+runtimeModule.mark(requestSaga),
+    _marked2$1 =
+/*#__PURE__*/
+runtimeModule.mark(requests);
+
+function _objectSpread$4(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty$17(target, key, source[key]); }); } return target; }
+
+function _defineProperty$17(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function getCookie(name) {
+  var matches = document.cookie.match(new RegExp('(?:^|; )' + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + '=([^;]*)'));
+  return matches ? decodeURIComponent(matches[1]) : undefined;
+}
+var getError$1 = function getError(data, response) {
+  if (data.status === 0) return {
+    message: 'Unknow error: check your authorization. ' + 'No \'Access-Control-Allow-Origin\' header is present on the requested resource.'
+  };
+  if (data.status === 500) return response;
+  if (response.messages) return response.messages[0];
+  return '';
+};
+function requestSaga(action) {
+  var payload, method, url, auth, type, token_is_active, SITE, token, body, headers, params, data, response, error;
+  return runtimeModule.wrap(function requestSaga$(_context) {
+    while (1) {
+      switch (_context.prev = _context.next) {
+        case 0:
+          payload = action.payload, method = action.method, url = action.url, auth = action.auth, type = action.oldType, token_is_active = action.token_is_active;
+          _context.next = 3;
+          return select(function (state) {
+            return state.X;
+          });
+
+        case 3:
+          SITE = _context.sent;
+          token = getCookie('auth_token');
+          _context.prev = 5;
+          _context.next = 8;
+          return put(_objectSpread$4({}, action, {
+            type: type + START
+          }));
+
+        case 8:
+          body = payload ? JSON.stringify(payload) : '';
+          headers = new Headers({
+            'Content-Type': 'application/json'
+          });
+          if (auth) headers.set('Authorization', 'Bearer ' + token);
+          params = {
+            method: method,
+            headers: headers,
+            mode: 'cors'
+          };
+          if (body && method !== 'GET') params.body = body;
+          _context.next = 15;
+          return call(fetch, SITE + url, params);
+
+        case 15:
+          data = _context.sent;
+          _context.next = 18;
+          return data.json();
+
+        case 18:
+          response = _context.sent;
+
+          if (!(data.status !== 200)) {
+            _context.next = 25;
+            break;
+          }
+
+          error = getError$1(data, response);
+          _context.next = 23;
+          return put(_objectSpread$4({}, action, {
+            type: type + FAIL,
+            error: error
+          }));
+
+        case 23:
+          _context.next = 27;
+          break;
+
+        case 25:
+          _context.next = 27;
+          return put(_objectSpread$4({}, action, {
+            type: type + SUCCESS$1,
+            response: {
+              data: response.response,
+              error: response.status === 100 || response.messages[0].type === 2 ? response.messages[0].message : null,
+              status: response.status,
+              message: response.status === 0 || response.messages[0].type === 0 ? response.messages[0].message : null
+            }
+          }));
+
+        case 27:
+          _context.next = 32;
+          break;
+
+        case 29:
+          _context.prev = 29;
+          _context.t0 = _context["catch"](5);
+          console.log(_context.t0);
+
+        case 32:
+        case "end":
+          return _context.stop();
+      }
+    }
+  }, _marked$1, null, [[5, 29]]);
+}
+function requests() {
+  return runtimeModule.wrap(function requests$(_context2) {
+    while (1) {
+      switch (_context2.prev = _context2.next) {
+        case 0:
+          _context2.next = 2;
+          return all([takeEvery$2('REQUEST', requestSaga)]);
+
+        case 2:
+        case "end":
+          return _context2.stop();
+      }
+    }
+  }, _marked2$1);
+}
 
 var reducer$3 = crudReducers;
-var saga = rootSaga$1;
+var saga = rootSaga;
 var updateModel = updateModelsSaga;
-var requestSaga$2 = requests;
+var requestSaga$1 = requests;
 var actions$4 = actions;
 var CrudView$2 = CrudView$1;
 var CrudFull$1 = crudFull;
@@ -29607,7 +29432,7 @@ var CrudUploader$1 = Uploader$2;
 exports.reducer = reducer$3;
 exports.saga = saga;
 exports.updateModel = updateModel;
-exports.requestSaga = requestSaga$2;
+exports.requestSaga = requestSaga$1;
 exports.actions = actions$4;
 exports.CrudView = CrudView$2;
 exports.CrudFull = CrudFull$1;
