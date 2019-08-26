@@ -247,6 +247,16 @@ export function* submitModelsModalFormFailSaga(action) {
 	yield notification('error', action.error.message);
 }
 
+export function* fetchFileConfigSaga(action) {
+	console.log(action)
+	yield put(request({
+		...action,
+		method: 'GET',
+		auth: true,
+		url: action.payload.url
+	}))
+}
+
 export default function* rootSaga() {
 	yield all([
 		takeEvery(actions.FETCH_CRUD_MODELS, fetchCrudModelsSaga),
@@ -276,6 +286,8 @@ export default function* rootSaga() {
 		takeEvery(actions.CHANGE_MODEL + SUCCESS, updateModelsSaga),
 		takeEvery(actions.CHANGE_MODEL + SUCCESS, notifySaga),
 		takeEvery(actions.CHANGE_MODEL + ERROR, submitModelsModalFormFailSaga),
+
+		takeEvery(actions.FETCH_FILE_CONFIG, fetchFileConfigSaga),
 
 		fork(requestMiddleware)
 

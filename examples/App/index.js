@@ -20,7 +20,6 @@ class CrudSiteAlerts extends React.Component {
 	}
 
 	componentDidMount() {
-		this.props.fetchFileConfig()
 	}
 
 
@@ -45,7 +44,7 @@ class CrudSiteAlerts extends React.Component {
 	};
 
 	render() {
-		const { roles, groups, start, fileConfig } = this.props;
+		const { roles, groups, start } = this.props;
 		const rowSelection = {
 			onChange: (selectedRowKeys, selectedRows) => {
 				this.setState({ selected: [...this.state.selected, ...selectedRowKeys] });
@@ -65,7 +64,6 @@ class CrudSiteAlerts extends React.Component {
 					uploadFilesSettings={{
 						url: API + '/v1/common/file',
 						token: getCookie('auth_token'),
-						config: fileConfig
 					}}
 					submitShape={(form, files) => ({
 						...form,
@@ -112,6 +110,5 @@ export default connect(state => ({
 	groups: state.crudFilterValues && state.crudFilterValues.siteAlerts
 		? state.crudFilterValues.siteAlerts.group
 		: [],
-	fileConfig: state.fileConfig
 
-}), { fetchFileConfig })(CrudSiteAlerts)
+}), {  })(CrudSiteAlerts)

@@ -27,6 +27,7 @@ export class CrudFull extends Component {
 		this.props.setCrudActionsFunc(this.actionsFunc, this.props.modelName);
 		this.props.setCrudParams({
 			crudRead: this.props.crudRead,
+			crudCreate: this.props.crudCreate,
 			modelName: this.props.modelName,
 			submitShape: this.props.submitShape,
 			initialValues: this.props.initialValues,

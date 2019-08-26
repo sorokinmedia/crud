@@ -13,6 +13,8 @@ const actions = {
 	FETCH_CRUD_CHILDREN: 'FETCH_CRUD_CHILDREN',
 	SET_UPLOADER_FILES: 'SET_UPLOADER_FILES',
 	SET_UPLOADER_DEFAULT_FILE_LIST: 'SET_UPLOADER_DEFAULT_FILE_LIST',
+	FETCH_FILE_CONFIG: 'FETCH_FILE_CONFIG',
+	fetchFileConfig: (url, modelName) => ({ type: actions.FETCH_FILE_CONFIG, payload: { url, modelName } }),
 	setUploaderDefaultFileList: (defaultFileList, modelName) => ({
 		type: actions.SET_UPLOADER_DEFAULT_FILE_LIST,
 		payload: { defaultFileList, modelName }

@@ -27,6 +27,7 @@ const UploadDecorator = UploaderComponent => class Uploader extends Component {
 
 	render() {
 		const { config } = this.props;
+		console.log(config)
 		const listType = this.props.listType || 'text';
 		const multiple = this.props.multiple || false;
 		const buttonText = this.props.buttonText || undefined;
@@ -37,13 +38,13 @@ const UploadDecorator = UploaderComponent => class Uploader extends Component {
 			onRemove: this.handleFileRemove,
 			accept: config.mimeTypes,
 			beforeUpload: (file) => {
-				if (file.size > config.maxSize) {
+				if (file.size > (config.maxSize || 10000000)) {
 					message.error('Ошибка загрузки, файл превышает допустимый размер');
 					return false;
 				}
 				const newFileList = !multiple
 					? [file]
-					: fileListStored.length < (config.maxFiles || 100)
+					: fileListStored.length === (config.maxFiles || 100)
 						? fileListStored
 						: [...fileListStored, file];
 
@@ -99,7 +100,6 @@ const mapStateToProps = (state, props) => {
 	return {
 		defaultFileListStored: uploaderModelFiles.defaultFileList || [],
 		fileListStored: uploaderModelFiles.fileList || [],
-		config: state.crudParams[modelName].uploadFilesSettings.config
 	}
 };
 

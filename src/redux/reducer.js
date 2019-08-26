@@ -155,6 +155,19 @@ export const uploaderFilesReducer = (state = {}, action) => {
 	}
 };
 
+export function fetchFileConfigReducer(state = {}, action) {
+	const { type, response, error, payload } = action;
+
+	switch (type) {
+	case actions.FETCH_FILE_CONFIG + SUCCESS:
+		return { ...state, [payload.modelName]: response };
+	case actions.FETCH_FILE_CONFIG + ERROR:
+		return { error };
+	default:
+		return state;
+	}
+}
+
 export default {
 	crudFilterValues: crudFilterValuesReducer,
 	crudModels: crudModelsReducer,
@@ -163,5 +176,6 @@ export default {
 	modelModalForm: modelModalFormReducer,
 	crudParams: crudParamsReducer,
 	crudCreateModalLoading: crudCreateModalLoadingReducer,
-	uploaderFiles: uploaderFilesReducer
+	uploaderFiles: uploaderFilesReducer,
+	fileConfig: fetchFileConfigReducer
 }
