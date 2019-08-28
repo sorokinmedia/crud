@@ -51,6 +51,7 @@ const UploadDecorator = UploaderComponent => class Uploader extends Component {
 
 				return false
 			},
+			disabled: fileListStored.length === (config.maxFiles || 100),
 			onPreview: file => this.setPreview(file.uid),
 			fileList: fileListStored.map(f => ({
 				old: !!f.old,

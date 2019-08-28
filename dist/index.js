@@ -26245,7 +26245,6 @@ var UploadDecorator = function UploadDecorator(UploaderComponent) {
         var _this2 = this;
 
         var config = this.props.config;
-        console.log(config);
         var listType = this.props.listType || 'text';
         var multiple = this.props.multiple || false;
         var buttonText = this.props.buttonText || undefined;
@@ -26266,6 +26265,7 @@ var UploadDecorator = function UploadDecorator(UploaderComponent) {
 
             return false;
           },
+          disabled: fileListStored.length === (config.maxFiles || 100),
           onPreview: function onPreview(file) {
             return _this2.setPreview(file.uid);
           },
