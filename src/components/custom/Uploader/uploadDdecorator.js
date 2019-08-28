@@ -27,7 +27,6 @@ const UploadDecorator = UploaderComponent => class Uploader extends Component {
 
 	render() {
 		const { config } = this.props;
-		console.log(config)
 		const listType = this.props.listType || 'text';
 		const multiple = this.props.multiple || false;
 		const buttonText = this.props.buttonText || undefined;
