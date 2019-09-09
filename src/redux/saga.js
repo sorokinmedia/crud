@@ -3,7 +3,7 @@ import { stopSubmit } from 'redux-form';
 import { all, fork, put, select, takeEvery, call } from 'redux-saga/effects';
 import requestMiddleware, { request } from 'sm-redux-saga-request'
 import { buildUrlSearch, buildUrlSearchForArray } from 'sm-string-helper'
-import { ERROR, SORT_ASC, SORT_DESC, SUCCESS, SUCCESS_REQ } from '../constants';
+import {ERROR, SORT_ASC, SORT_DESC, START, SUCCESS, SUCCESS_REQ} from '../constants';
 import notification from '../notification';
 import actions from './actions';
 import regeneratorRuntime from 'regenerator-runtime'
@@ -108,11 +108,11 @@ export function* fetchCrudFilterValuesSaga(action) {
 function* filesUpload(modelName, filesStore) {
 	const params = yield select(selectCrudParams);
 	const { uploadFilesSettings } = params[modelName];
+	const result = [];
 
-	if (!uploadFilesSettings) return null;
+	if (!uploadFilesSettings) return result;
 
 	const modelFiles = filesStore && filesStore[modelName] ? filesStore[modelName].fileList : null;
-	const result = [];
 
 	if (!modelFiles) return result;
 
@@ -132,7 +132,7 @@ function* filesUpload(modelName, filesStore) {
 			});
 
 			const res = yield filesResp.json();
-			console.log(res)
+			console.log(res);
 
 			if (filesResp.status !== 200) {
 				yield notifySaga({ error: { message: 'Ошибка при загрузке файла' }, response: {} });
@@ -161,6 +161,11 @@ export function* createModelSaga(action) {
 	const params = yield select(selectCrudParams);
 	const { modelName } = action.payload;
 	const { submitShape } = params[modelName];
+
+	yield put({
+		...action,
+		type: action.type + START
+	});
 
 	const uploadedFiles = yield getHandledFiles(modelName);
 
@@ -214,6 +219,12 @@ export function* restoreModelSaga(action) {
 
 export function* changeModelSaga(action) {
 	const params = yield select(selectCrudParams);
+
+	yield put({
+		...action,
+		type: action.type + START
+	});
+
 	const uploadedFiles = yield getHandledFiles(action.payload.modelName);
 
 	yield put(request({
@@ -248,7 +259,6 @@ export function* submitModelsModalFormFailSaga(action) {
 }
 
 export function* fetchFileConfigSaga(action) {
-	console.log(action)
 	yield put(request({
 		...action,
 		method: 'GET',
