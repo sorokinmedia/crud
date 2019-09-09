@@ -28923,7 +28923,7 @@ function fetchCrudFilterValuesSaga(action) {
  */
 
 function filesUpload(modelName, filesStore) {
-  var params, uploadFilesSettings, modelFiles, result, i, formData, filesResp, res;
+  var params, uploadFilesSettings, result, modelFiles, i, formData, filesResp, res;
   return runtimeModule.wrap(function filesUpload$(_context5) {
     while (1) {
       switch (_context5.prev = _context5.next) {
@@ -28934,17 +28934,17 @@ function filesUpload(modelName, filesStore) {
         case 2:
           params = _context5.sent;
           uploadFilesSettings = params[modelName].uploadFilesSettings;
+          result = [];
 
           if (uploadFilesSettings) {
-            _context5.next = 6;
+            _context5.next = 7;
             break;
           }
 
-          return _context5.abrupt("return", null);
+          return _context5.abrupt("return", result);
 
-        case 6:
+        case 7:
           modelFiles = filesStore && filesStore[modelName] ? filesStore[modelName].fileList : null;
-          result = [];
 
           if (modelFiles) {
             _context5.next = 10;
@@ -29073,12 +29073,18 @@ function createModelSaga(action) {
           modelName = action.payload.modelName;
           submitShape = params[modelName].submitShape;
           _context7.next = 7;
-          return getHandledFiles(modelName);
+          return put(_objectSpread$3({}, action, {
+            type: action.type + START
+          }));
 
         case 7:
+          _context7.next = 9;
+          return getHandledFiles(modelName);
+
+        case 9:
           uploadedFiles = _context7.sent;
           form = submitShape(action.payload.form, uploadedFiles);
-          _context7.next = 11;
+          _context7.next = 13;
           return put(dist_1(_objectSpread$3({}, action, {
             method: 'POST',
             auth: true,
@@ -29087,7 +29093,7 @@ function createModelSaga(action) {
             modelName: modelName
           })));
 
-        case 11:
+        case 13:
         case "end":
           return _context7.stop();
       }
@@ -29177,11 +29183,17 @@ function changeModelSaga(action) {
         case 2:
           params = _context11.sent;
           _context11.next = 5;
-          return getHandledFiles(action.payload.modelName);
+          return put(_objectSpread$3({}, action, {
+            type: action.type + START
+          }));
 
         case 5:
+          _context11.next = 7;
+          return getHandledFiles(action.payload.modelName);
+
+        case 7:
           uploadedFiles = _context11.sent;
-          _context11.next = 8;
+          _context11.next = 10;
           return put(dist_1(_objectSpread$3({}, action, {
             method: action.payload.action.method,
             //'POST',
@@ -29191,7 +29203,7 @@ function changeModelSaga(action) {
             modelName: action.payload.modelName
           })));
 
-        case 8:
+        case 10:
         case "end":
           return _context11.stop();
       }
@@ -29263,15 +29275,14 @@ function fetchFileConfigSaga(action) {
     while (1) {
       switch (_context15.prev = _context15.next) {
         case 0:
-          console.log(action);
-          _context15.next = 3;
+          _context15.next = 2;
           return put(dist_1(_objectSpread$3({}, action, {
             method: 'GET',
             auth: true,
             url: action.payload.url
           })));
 
-        case 3:
+        case 2:
         case "end":
           return _context15.stop();
       }
