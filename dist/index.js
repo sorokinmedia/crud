@@ -16967,7 +16967,7 @@ function (_Component) {
         onChange: this.handleTableChange,
         pagination: {
           defaultCurrent: 1,
-          pageSize: pageSize,
+          pageSize: items.data.filter.limit || pageSize,
           total: items.data.count,
           hideOnSinglePage: true
         },
@@ -27093,7 +27093,6 @@ function (_Component) {
           tdClass = _this$props.tdClass,
           initialModal = _this$props.initialModal,
           scrollX = _this$props.scrollX,
-          pageSize = _this$props.pageSize,
           isView = _this$props.isView,
           renderField = _this$props.renderField,
           CustomButtons = _this$props.CustomButtons,
@@ -27145,7 +27144,6 @@ function (_Component) {
         size: size,
         tdClass: tdClass,
         scrollX: scrollX,
-        pageSize: pageSize,
         rowSelection: rowSelection
       }), isModalOpen === modelName && !createDisabled ? React__default.createElement(CreateModel, {
         title: title || 'Создать',
@@ -27187,7 +27185,6 @@ CrudFull.propTypes = {
   initialModal: propTypes.object,
   iconsProvider: propTypes.func,
   scrollX: propTypes.number,
-  pageSize: propTypes.number,
   onDeleteConfirmMessageFunc: propTypes.func,
   renderField: propTypes.func,
   setCrudActionsFunc: propTypes.func,
@@ -27216,7 +27213,6 @@ CrudFull.defaultProps = {
     return null;
   },
   rowSelection: null,
-  pageSize: 20,
   onDeleteConfirmMessageFunc: function onDeleteConfirmMessageFunc(elem) {
     return "\u0425\u043E\u0442\u0438\u0442\u0435 \u0443\u0434\u0430\u043B\u0438\u0442\u044C \"".concat(elem.name, "\" (ID: ").concat(elem.id, ")?");
   },
