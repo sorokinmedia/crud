@@ -115,7 +115,7 @@ class CrudView extends Component {
 				onChange={this.handleTableChange}
 				pagination={{
 					defaultCurrent: 1,
-					pageSize: pageSize,
+					pageSize: items.data.filter.limit || pageSize,
 					total: items.data.count,
 					hideOnSinglePage: true
 				}}
