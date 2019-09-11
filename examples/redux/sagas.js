@@ -91,7 +91,7 @@ export function* requestWHOSaga(action) {
 		payload, method, url, auth, oldType: type, token_is_active
 	} = action;
 
-	const token = '5ae372b408af2f10270e5ca12bc49623';
+	const token = 'f50e09a4b8d59b1c775a6c023fb8d5c3';
 	try {
 		yield put({
 			...action,
