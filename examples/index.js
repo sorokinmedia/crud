@@ -11,7 +11,7 @@ render(
 	<Provider store={store}>
 		<Router>
 			<App />
-			{/*<AppWHO />*/}
+			{/* <AppWHO /> */}
 		</Router>
 	</Provider>,
 	document.getElementById('root')
