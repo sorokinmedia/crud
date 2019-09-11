@@ -10,8 +10,8 @@ import { store } from './redux/store';
 render(
 	<Provider store={store}>
 		<Router>
-			<App />
-			{/* <AppWHO /> */}
+			{/*<App />*/}
+			 <AppWHO />
 		</Router>
 	</Provider>,
 	document.getElementById('root')
