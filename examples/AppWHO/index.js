@@ -7,6 +7,7 @@ import createCommissionFields from './createCategoryFields';
 // commission_list_container
 
 function CrudCommisionList({ taskType, userTag }) {
+
 	return (
 		<div className="box box-body crud-table">
 			<CrudFull
