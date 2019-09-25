@@ -37,13 +37,20 @@ const UploadDecorator = UploaderComponent => class Uploader extends Component {
 			onRemove: this.handleFileRemove,
 			accept: config.mimeTypes,
 			beforeUpload: (file) => {
+				const isMax = fileListStored.length === (config.maxFiles || 100);
 				if (file.size > (config.maxSize || 10000000)) {
 					message.error('Ошибка загрузки, файл превышает допустимый размер');
 					return false;
 				}
+
+				if (multiple && isMax) {
+					message.error('Ошибка загрузки, превышено допустимое количество загружаемых файлов');
+					return false
+				}
+
 				const newFileList = !multiple
 					? [file]
-					: fileListStored.length === (config.maxFiles || 100)
+					: isMax
 						? fileListStored
 						: [...fileListStored, file];
 
@@ -51,7 +58,7 @@ const UploadDecorator = UploaderComponent => class Uploader extends Component {
 
 				return false
 			},
-			disabled: fileListStored.length === (config.maxFiles || 100),
+			// disabled: fileListStored.length === (config.maxFiles || 100),
 			onPreview: file => this.setPreview(file.uid),
 			fileList: fileListStored.map(f => ({
 				old: !!f.old,
