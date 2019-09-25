@@ -91,7 +91,7 @@ export function* requestWHOSaga(action) {
 		payload, method, url, auth, oldType: type, token_is_active
 	} = action;
 
-	const token = '5ae372b408af2f10270e5ca12bc49623';
+	const token = '1a057e41a979648f466d3327de0962b3';
 	try {
 		yield put({
 			...action,
@@ -156,8 +156,8 @@ function* fetchFileConfigSaga(action) {
 export default function* rootSaga() {
 	yield all([
 		saga(),
-		takeEvery('REQUEST', requestSaga),
-		takeEvery(actions.FETCH_FILE_CONFIG, fetchFileConfigSaga),
-		// takeEvery('REQUEST', requestWHOSaga),
+		// takeEvery('REQUEST', requestSaga),
+		// takeEvery(actions.FETCH_FILE_CONFIG, fetchFileConfigSaga),
+		takeEvery('REQUEST', requestWHOSaga),
 	]);
 }

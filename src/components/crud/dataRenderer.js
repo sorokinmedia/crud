@@ -13,7 +13,7 @@ import { Link } from 'react-router-dom'
 
 
 export default (row, column, modelName, iconTheme) => {
-	if (!row[column.id] && row[column.id] !== false) return null;
+	if (row[column.id] !== 0 && !row[column.id] && row[column.id] !== false) return null;
 	switch (column.type) {
 	case 'object':
 		return TextCell(row[column.id].alias || row[column.id].name);

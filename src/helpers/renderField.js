@@ -50,6 +50,8 @@ export const renderField = ({
 				{...input}
 				value={input.value || []}
 				mode={mode}
+				showSearch
+				optionFilterProp="children"
 				disabled={input.disabled ? true : false}
 				style={{ width: '100%' }}
 				placeholder={placeholder}
