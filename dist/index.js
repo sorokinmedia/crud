@@ -16928,7 +16928,8 @@ function (_Component) {
           tdClass = _this$props2.tdClass,
           scrollX = _this$props2.scrollX,
           pageSize = _this$props2.pageSize,
-          rowSelection = _this$props2.rowSelection;
+          rowSelection = _this$props2.rowSelection,
+          bordered = _this$props2.bordered;
       if (items && !items.data && items.loading) return React__default.createElement(Loader, null);
       if (!items || !items.data) return null;
       var listItems = items.data.items.map(function (elem) {
@@ -16986,7 +16987,8 @@ function (_Component) {
         rowClassName: function rowClassName(record) {
           return record.row ? record.row.state : 'default';
         },
-        rowSelection: rowSelection
+        rowSelection: rowSelection,
+        bordered: bordered
       });
     }
   }]);
@@ -27110,7 +27112,8 @@ function (_Component) {
           isView = _this$props.isView,
           renderField = _this$props.renderField,
           CustomButtons = _this$props.CustomButtons,
-          rowSelection = _this$props.rowSelection;
+          rowSelection = _this$props.rowSelection,
+          bordered = _this$props.bordered;
 
       var _ref = createFormOptions || {},
           title = _ref.title,
@@ -27158,7 +27161,8 @@ function (_Component) {
         size: size,
         tdClass: tdClass,
         scrollX: scrollX,
-        rowSelection: rowSelection
+        rowSelection: rowSelection,
+        bordered: bordered
       }), isModalOpen === modelName && !createDisabled ? React__default.createElement(CreateModel, {
         title: title || 'Создать',
         titleEdit: titleEdit || 'Редактировать',
@@ -27204,7 +27208,8 @@ CrudFull.propTypes = {
   setCrudActionsFunc: propTypes.func,
   rowSelection: propTypes.oneOfType([propTypes.func, propTypes.object]),
   CustomButtons: propTypes.oneOfType([propTypes.func, propTypes.object]),
-  uploadFilesSettings: propTypes.string
+  uploadFilesSettings: propTypes.string,
+  bordered: propTypes.bool
 };
 CrudFull.defaultProps = {
   createButtonTitle: 'Добавить',
