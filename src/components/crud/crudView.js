@@ -69,7 +69,8 @@ class CrudView extends Component {
 			tdClass,
 			scrollX,
 			pageSize,
-			rowSelection
+			rowSelection,
+			bordered
 		} = this.props;
 
 		if (items && !items.data && items.loading) return <Loader />;
@@ -126,6 +127,7 @@ class CrudView extends Component {
 				tableStyle={tableStyle}
 				rowClassName={record => record.row ? record.row.state : 'default'}
 				rowSelection={rowSelection}
+				bordered={bordered}
 			/>
 		);
 	}

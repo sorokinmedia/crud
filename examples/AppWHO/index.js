@@ -11,6 +11,7 @@ function CrudCommisionList({ taskType, userTag }) {
 	return (
 		<div className="box box-body crud-table">
 			<CrudFull
+				bordered
 				crudRead="/v2/admin/task/commission/list"
 				crudCreate="/v2/admin/task/commission"
 				modelName="crudCommisionList"
