@@ -26,6 +26,7 @@ export default (name, type, options) => ({ setSelectedKeys, selectedKeys, confir
 					onChange={(e) => { setSelectedKeys(e); confirm(); }}
 					onPressEnter={() => { confirm() }}
 					style={{ width: '130px', marginRight: '8px' }}
+					showSearch
 				>
 					{options.map(opt => (
 						<Option
