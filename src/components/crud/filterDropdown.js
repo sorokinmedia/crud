@@ -27,6 +27,10 @@ export default (name, type, options) => ({ setSelectedKeys, selectedKeys, confir
 					onPressEnter={() => { confirm() }}
 					style={{ width: '130px', marginRight: '8px' }}
 					showSearch
+					filterOption={(search, option) =>
+						option.props.children.toLowerCase().indexOf(search.toLowerCase()) >= 0
+					}
+					onSearch={() => {}}
 				>
 					{options.map(opt => (
 						<Option
