@@ -105,86 +105,161 @@ var propTypes = createCommonjsModule(function (module) {
 }
 });
 
-function _inheritsLoose(subClass, superClass) {
-  subClass.prototype = Object.create(superClass.prototype);
-  subClass.prototype.constructor = subClass;
-  subClass.__proto__ = superClass;
+var ReactReduxContext = React__default.createContext(null);
+
+// Default to a dummy "batch" implementation that just runs the callback
+function defaultNoopBatch(callback) {
+  callback();
 }
 
-var subscriptionShape = propTypes.shape({
-  trySubscribe: propTypes.func.isRequired,
-  tryUnsubscribe: propTypes.func.isRequired,
-  notifyNestedSubs: propTypes.func.isRequired,
-  isSubscribed: propTypes.func.isRequired
-});
-var storeShape = propTypes.shape({
-  subscribe: propTypes.func.isRequired,
-  dispatch: propTypes.func.isRequired,
-  getState: propTypes.func.isRequired
-});
+var batch = defaultNoopBatch; // Allow injecting another batching function later
 
-/**
- * Prints a warning in the console if it exists.
- *
- * @param {String} message The warning message.
- * @returns {void}
- */
+var setBatch = function setBatch(newBatch) {
+  return batch = newBatch;
+}; // Supply a getter just to skip dealing with ESM bindings
 
-var prefixUnsafeLifecycleMethods = typeof React__default.forwardRef !== "undefined";
+var getBatch = function getBatch() {
+  return batch;
+};
 
-function createProvider(storeKey) {
-  var _Provider$childContex;
+// well as nesting subscriptions of descendant components, so that we can ensure the
+// ancestor components re-render before descendants
 
-  if (storeKey === void 0) {
-    storeKey = 'store';
+var CLEARED = null;
+var nullListeners = {
+  notify: function notify() {}
+};
+
+function createListenerCollection() {
+  var batch = getBatch(); // the current/next pattern is copied from redux's createStore code.
+  // TODO: refactor+expose that code to be reusable here?
+
+  var current = [];
+  var next = [];
+  return {
+    clear: function clear() {
+      next = CLEARED;
+      current = CLEARED;
+    },
+    notify: function notify() {
+      var listeners = current = next;
+      batch(function () {
+        for (var i = 0; i < listeners.length; i++) {
+          listeners[i]();
+        }
+      });
+    },
+    get: function get() {
+      return next;
+    },
+    subscribe: function subscribe(listener) {
+      var isSubscribed = true;
+      if (next === current) next = current.slice();
+      next.push(listener);
+      return function unsubscribe() {
+        if (!isSubscribed || current === CLEARED) return;
+        isSubscribed = false;
+        if (next === current) next = current.slice();
+        next.splice(next.indexOf(listener), 1);
+      };
+    }
+  };
+}
+
+var Subscription =
+/*#__PURE__*/
+function () {
+  function Subscription(store, parentSub) {
+    this.store = store;
+    this.parentSub = parentSub;
+    this.unsubscribe = null;
+    this.listeners = nullListeners;
+    this.handleChangeWrapper = this.handleChangeWrapper.bind(this);
   }
 
-  var subscriptionKey = storeKey + "Subscription";
+  var _proto = Subscription.prototype;
 
-  var Provider =
-  /*#__PURE__*/
-  function (_Component) {
-    _inheritsLoose(Provider, _Component);
+  _proto.addNestedSub = function addNestedSub(listener) {
+    this.trySubscribe();
+    return this.listeners.subscribe(listener);
+  };
 
-    var _proto = Provider.prototype;
+  _proto.notifyNestedSubs = function notifyNestedSubs() {
+    this.listeners.notify();
+  };
 
-    _proto.getChildContext = function getChildContext() {
-      var _ref;
+  _proto.handleChangeWrapper = function handleChangeWrapper() {
+    if (this.onStateChange) {
+      this.onStateChange();
+    }
+  };
 
-      return _ref = {}, _ref[storeKey] = this[storeKey], _ref[subscriptionKey] = null, _ref;
+  _proto.isSubscribed = function isSubscribed() {
+    return Boolean(this.unsubscribe);
+  };
+
+  _proto.trySubscribe = function trySubscribe() {
+    if (!this.unsubscribe) {
+      this.unsubscribe = this.parentSub ? this.parentSub.addNestedSub(this.handleChangeWrapper) : this.store.subscribe(this.handleChangeWrapper);
+      this.listeners = createListenerCollection();
+    }
+  };
+
+  _proto.tryUnsubscribe = function tryUnsubscribe() {
+    if (this.unsubscribe) {
+      this.unsubscribe();
+      this.unsubscribe = null;
+      this.listeners.clear();
+      this.listeners = nullListeners;
+    }
+  };
+
+  return Subscription;
+}();
+
+function Provider(_ref) {
+  var store = _ref.store,
+      context = _ref.context,
+      children = _ref.children;
+  var contextValue = React.useMemo(function () {
+    var subscription = new Subscription(store);
+    subscription.onStateChange = subscription.notifyNestedSubs;
+    return {
+      store: store,
+      subscription: subscription
     };
+  }, [store]);
+  var previousState = React.useMemo(function () {
+    return store.getState();
+  }, [store]);
+  React.useEffect(function () {
+    var subscription = contextValue.subscription;
+    subscription.trySubscribe();
 
-    function Provider(props, context) {
-      var _this;
-
-      _this = _Component.call(this, props, context) || this;
-      _this[storeKey] = props.store;
-      return _this;
+    if (previousState !== store.getState()) {
+      subscription.notifyNestedSubs();
     }
 
-    _proto.render = function render() {
-      return React.Children.only(this.props.children);
+    return function () {
+      subscription.tryUnsubscribe();
+      subscription.onStateChange = null;
     };
-
-    return Provider;
-  }(React.Component);
-
-  Provider.propTypes = {
-    store: storeShape.isRequired,
-    children: propTypes.element.isRequired
-  };
-  Provider.childContextTypes = (_Provider$childContex = {}, _Provider$childContex[storeKey] = storeShape.isRequired, _Provider$childContex[subscriptionKey] = subscriptionShape, _Provider$childContex);
-  return Provider;
+  }, [contextValue, previousState]);
+  var Context = context || ReactReduxContext;
+  return React__default.createElement(Context.Provider, {
+    value: contextValue
+  }, children);
 }
-createProvider();
 
-function _assertThisInitialized(self) {
-  if (self === void 0) {
-    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-  }
-
-  return self;
-}
+Provider.propTypes = {
+  store: propTypes.shape({
+    subscribe: propTypes.func.isRequired,
+    dispatch: propTypes.func.isRequired,
+    getState: propTypes.func.isRequired
+  }),
+  context: propTypes.object,
+  children: propTypes.any
+};
 
 function _extends() {
   _extends = Object.assign || function (target) {
@@ -371,120 +446,24 @@ var invariant = function(condition, format, a, b, c, d, e, f) {
 
 var invariant_1 = invariant;
 
-// encapsulates the subscription logic for connecting a component to the redux store, as
-// well as nesting subscriptions of descendant components, so that we can ensure the
-// ancestor components re-render before descendants
-var CLEARED = null;
-var nullListeners = {
-  notify: function notify() {}
-};
+var EMPTY_ARRAY = [];
+var NO_SUBSCRIPTION_ARRAY = [null, null];
 
-function createListenerCollection() {
-  // the current/next pattern is copied from redux's createStore code.
-  // TODO: refactor+expose that code to be reusable here?
-  var current = [];
-  var next = [];
-  return {
-    clear: function clear() {
-      next = CLEARED;
-      current = CLEARED;
-    },
-    notify: function notify() {
-      var listeners = current = next;
-
-      for (var i = 0; i < listeners.length; i++) {
-        listeners[i]();
-      }
-    },
-    get: function get() {
-      return next;
-    },
-    subscribe: function subscribe(listener) {
-      var isSubscribed = true;
-      if (next === current) next = current.slice();
-      next.push(listener);
-      return function unsubscribe() {
-        if (!isSubscribed || current === CLEARED) return;
-        isSubscribed = false;
-        if (next === current) next = current.slice();
-        next.splice(next.indexOf(listener), 1);
-      };
-    }
-  };
+function storeStateUpdatesReducer(state, action) {
+  var updateCount = state[1];
+  return [action.payload, updateCount + 1];
 }
 
-var Subscription =
-/*#__PURE__*/
-function () {
-  function Subscription(store, parentSub, onStateChange) {
-    this.store = store;
-    this.parentSub = parentSub;
-    this.onStateChange = onStateChange;
-    this.unsubscribe = null;
-    this.listeners = nullListeners;
-  }
+var initStateUpdates = function initStateUpdates() {
+  return [null, 0];
+}; // React currently throws a warning when using useLayoutEffect on the server.
+// To get around it, we can conditionally useEffect on the server (no-op) and
+// useLayoutEffect in the browser. We need useLayoutEffect because we want
+// `connect` to perform sync updates to a ref to save the latest props after
+// a render is actually committed to the DOM.
 
-  var _proto = Subscription.prototype;
 
-  _proto.addNestedSub = function addNestedSub(listener) {
-    this.trySubscribe();
-    return this.listeners.subscribe(listener);
-  };
-
-  _proto.notifyNestedSubs = function notifyNestedSubs() {
-    this.listeners.notify();
-  };
-
-  _proto.isSubscribed = function isSubscribed() {
-    return Boolean(this.unsubscribe);
-  };
-
-  _proto.trySubscribe = function trySubscribe() {
-    if (!this.unsubscribe) {
-      this.unsubscribe = this.parentSub ? this.parentSub.addNestedSub(this.onStateChange) : this.store.subscribe(this.onStateChange);
-      this.listeners = createListenerCollection();
-    }
-  };
-
-  _proto.tryUnsubscribe = function tryUnsubscribe() {
-    if (this.unsubscribe) {
-      this.unsubscribe();
-      this.unsubscribe = null;
-      this.listeners.clear();
-      this.listeners = nullListeners;
-    }
-  };
-
-  return Subscription;
-}();
-
-var prefixUnsafeLifecycleMethods$1 = typeof React__default.forwardRef !== "undefined";
-var hotReloadingVersion = 0;
-var dummyState = {};
-
-function noop() {}
-
-function makeSelectorStateful(sourceSelector, store) {
-  // wrap the selector in an object that tracks its results between runs.
-  var selector = {
-    run: function runComponentSelector(props) {
-      try {
-        var nextProps = sourceSelector(store.getState(), props);
-
-        if (nextProps !== selector.props || selector.error) {
-          selector.shouldComponentUpdate = true;
-          selector.props = nextProps;
-          selector.error = null;
-        }
-      } catch (error) {
-        selector.shouldComponentUpdate = true;
-        selector.error = error;
-      }
-    }
-  };
-  return selector;
-}
-
+var useIsomorphicLayoutEffect = typeof window !== 'undefined' && typeof window.document !== 'undefined' && typeof window.document.createElement !== 'undefined' ? React.useLayoutEffect : React.useEffect;
 function connectAdvanced(
 /*
   selectorFactory is a func that is responsible for returning the selector function used to
@@ -502,8 +481,6 @@ function connectAdvanced(
 */
 selectorFactory, // options object:
 _ref) {
-  var _contextTypes, _childContextTypes;
-
   if (_ref === void 0) {
     _ref = {};
   }
@@ -523,14 +500,19 @@ _ref) {
       storeKey = _ref2$storeKey === void 0 ? 'store' : _ref2$storeKey,
       _ref2$withRef = _ref2.withRef,
       withRef = _ref2$withRef === void 0 ? false : _ref2$withRef,
-      connectOptions = _objectWithoutPropertiesLoose(_ref2, ["getDisplayName", "methodName", "renderCountProp", "shouldHandleStateChanges", "storeKey", "withRef"]);
+      _ref2$forwardRef = _ref2.forwardRef,
+      forwardRef = _ref2$forwardRef === void 0 ? false : _ref2$forwardRef,
+      _ref2$context = _ref2.context,
+      context = _ref2$context === void 0 ? ReactReduxContext : _ref2$context,
+      connectOptions = _objectWithoutPropertiesLoose(_ref2, ["getDisplayName", "methodName", "renderCountProp", "shouldHandleStateChanges", "storeKey", "withRef", "forwardRef", "context"]);
 
-  var subscriptionKey = storeKey + 'Subscription';
-  var version = hotReloadingVersion++;
-  var contextTypes = (_contextTypes = {}, _contextTypes[storeKey] = storeShape, _contextTypes[subscriptionKey] = subscriptionShape, _contextTypes);
-  var childContextTypes = (_childContextTypes = {}, _childContextTypes[subscriptionKey] = subscriptionShape, _childContextTypes);
+  invariant_1(renderCountProp === undefined, "renderCountProp is removed. render counting is built into the latest React Dev Tools profiling extension");
+  invariant_1(!withRef, 'withRef is removed. To access the wrapped instance, use a ref on the connected component');
+  var customStoreWarningMessage = 'To use a custom Redux store for specific components, create a custom React context with ' + "React.createContext(), and pass the context object to React Redux's Provider and specific components" + ' like: <Provider context={MyContext}><ConnectedComponent context={MyContext} /></Provider>. ' + 'You may also pass a {context : MyContext} option to connect';
+  invariant_1(storeKey === 'store', 'storeKey has been removed and does not do anything. ' + customStoreWarningMessage);
+  var Context = context;
   return function wrapWithConnect(WrappedComponent) {
-    invariant_1(reactIs.isValidElementType(WrappedComponent), "You must pass a component to the function returned by " + (methodName + ". Instead received " + JSON.stringify(WrappedComponent)));
+
     var wrappedComponentName = WrappedComponent.displayName || WrappedComponent.name || 'Component';
     var displayName = getDisplayName(wrappedComponentName);
 
@@ -540,179 +522,253 @@ _ref) {
       renderCountProp: renderCountProp,
       shouldHandleStateChanges: shouldHandleStateChanges,
       storeKey: storeKey,
-      withRef: withRef,
       displayName: displayName,
       wrappedComponentName: wrappedComponentName,
-      WrappedComponent: WrappedComponent // TODO Actually fix our use of componentWillReceiveProps
-
-      /* eslint-disable react/no-deprecated */
-
+      WrappedComponent: WrappedComponent
     });
 
-    var Connect =
-    /*#__PURE__*/
-    function (_Component) {
-      _inheritsLoose(Connect, _Component);
+    var pure = connectOptions.pure;
 
-      function Connect(props, context) {
-        var _this;
-
-        _this = _Component.call(this, props, context) || this;
-        _this.version = version;
-        _this.state = {};
-        _this.renderCount = 0;
-        _this.store = props[storeKey] || context[storeKey];
-        _this.propsMode = Boolean(props[storeKey]);
-        _this.setWrappedInstance = _this.setWrappedInstance.bind(_assertThisInitialized(_assertThisInitialized(_this)));
-        invariant_1(_this.store, "Could not find \"" + storeKey + "\" in either the context or props of " + ("\"" + displayName + "\". Either wrap the root component in a <Provider>, ") + ("or explicitly pass \"" + storeKey + "\" as a prop to \"" + displayName + "\"."));
-
-        _this.initSelector();
-
-        _this.initSubscription();
-
-        return _this;
-      }
-
-      var _proto = Connect.prototype;
-
-      _proto.getChildContext = function getChildContext() {
-        var _ref3;
-
-        // If this component received store from props, its subscription should be transparent
-        // to any descendants receiving store+subscription from context; it passes along
-        // subscription passed to it. Otherwise, it shadows the parent subscription, which allows
-        // Connect to control ordering of notifications to flow top-down.
-        var subscription = this.propsMode ? null : this.subscription;
-        return _ref3 = {}, _ref3[subscriptionKey] = subscription || this.context[subscriptionKey], _ref3;
-      };
-
-      _proto.componentDidMount = function componentDidMount() {
-        if (!shouldHandleStateChanges) return; // componentWillMount fires during server side rendering, but componentDidMount and
-        // componentWillUnmount do not. Because of this, trySubscribe happens during ...didMount.
-        // Otherwise, unsubscription would never take place during SSR, causing a memory leak.
-        // To handle the case where a child component may have triggered a state change by
-        // dispatching an action in its componentWillMount, we have to re-run the select and maybe
-        // re-render.
-
-        this.subscription.trySubscribe();
-        this.selector.run(this.props);
-        if (this.selector.shouldComponentUpdate) this.forceUpdate();
-      }; // Note: this is renamed below to the UNSAFE_ version in React >=16.3.0
+    function createChildSelector(store) {
+      return selectorFactory(store.dispatch, selectorFactoryOptions);
+    } // If we aren't running in "pure" mode, we don't want to memoize values.
+    // To avoid conditionally calling hooks, we fall back to a tiny wrapper
+    // that just executes the given callback immediately.
 
 
-      _proto.componentWillReceiveProps = function componentWillReceiveProps(nextProps) {
-        this.selector.run(nextProps);
-      };
+    var usePureOnlyMemo = pure ? React.useMemo : function (callback) {
+      return callback();
+    };
 
-      _proto.shouldComponentUpdate = function shouldComponentUpdate() {
-        return this.selector.shouldComponentUpdate;
-      };
+    function ConnectFunction(props) {
+      var _useMemo = React.useMemo(function () {
+        // Distinguish between actual "data" props that were passed to the wrapper component,
+        // and values needed to control behavior (forwarded refs, alternate context instances).
+        // To maintain the wrapperProps object reference, memoize this destructuring.
+        var forwardedRef = props.forwardedRef,
+            wrapperProps = _objectWithoutPropertiesLoose(props, ["forwardedRef"]);
 
-      _proto.componentWillUnmount = function componentWillUnmount() {
-        if (this.subscription) this.subscription.tryUnsubscribe();
-        this.subscription = null;
-        this.notifyNestedSubs = noop;
-        this.store = null;
-        this.selector.run = noop;
-        this.selector.shouldComponentUpdate = false;
-      };
+        return [props.context, forwardedRef, wrapperProps];
+      }, [props]),
+          propsContext = _useMemo[0],
+          forwardedRef = _useMemo[1],
+          wrapperProps = _useMemo[2];
 
-      _proto.getWrappedInstance = function getWrappedInstance() {
-        invariant_1(withRef, "To access the wrapped instance, you need to specify " + ("{ withRef: true } in the options argument of the " + methodName + "() call."));
-        return this.wrappedInstance;
-      };
+      var ContextToUse = React.useMemo(function () {
+        // Users may optionally pass in a custom context instance to use instead of our ReactReduxContext.
+        // Memoize the check that determines which context instance we should use.
+        return propsContext && propsContext.Consumer && reactIs.isContextConsumer(React__default.createElement(propsContext.Consumer, null)) ? propsContext : Context;
+      }, [propsContext, Context]); // Retrieve the store and ancestor subscription via context, if available
 
-      _proto.setWrappedInstance = function setWrappedInstance(ref) {
-        this.wrappedInstance = ref;
-      };
+      var contextValue = React.useContext(ContextToUse); // The store _must_ exist as either a prop or in context
 
-      _proto.initSelector = function initSelector() {
-        var sourceSelector = selectorFactory(this.store.dispatch, selectorFactoryOptions);
-        this.selector = makeSelectorStateful(sourceSelector, this.store);
-        this.selector.run(this.props);
-      };
+      var didStoreComeFromProps = Boolean(props.store);
+      var didStoreComeFromContext = Boolean(contextValue) && Boolean(contextValue.store);
+      invariant_1(didStoreComeFromProps || didStoreComeFromContext, "Could not find \"store\" in the context of " + ("\"" + displayName + "\". Either wrap the root component in a <Provider>, ") + "or pass a custom React context provider to <Provider> and the corresponding " + ("React context consumer to " + displayName + " in connect options."));
+      var store = props.store || contextValue.store;
+      var childPropsSelector = React.useMemo(function () {
+        // The child props selector needs the store reference as an input.
+        // Re-create this selector whenever the store changes.
+        return createChildSelector(store);
+      }, [store]);
 
-      _proto.initSubscription = function initSubscription() {
-        if (!shouldHandleStateChanges) return; // parentSub's source should match where store came from: props vs. context. A component
+      var _useMemo2 = React.useMemo(function () {
+        if (!shouldHandleStateChanges) return NO_SUBSCRIPTION_ARRAY; // This Subscription's source should match where store came from: props vs. context. A component
         // connected to the store via props shouldn't use subscription from context, or vice versa.
 
-        var parentSub = (this.propsMode ? this.props : this.context)[subscriptionKey];
-        this.subscription = new Subscription(this.store, parentSub, this.onStateChange.bind(this)); // `notifyNestedSubs` is duplicated to handle the case where the component is unmounted in
-        // the middle of the notification loop, where `this.subscription` will then be null. An
-        // extra null check every change can be avoided by copying the method onto `this` and then
-        // replacing it with a no-op on unmount. This can probably be avoided if Subscription's
-        // listeners logic is changed to not call listeners that have been unsubscribed in the
-        // middle of the notification loop.
+        var subscription = new Subscription(store, didStoreComeFromProps ? null : contextValue.subscription); // `notifyNestedSubs` is duplicated to handle the case where the component is unmounted in
+        // the middle of the notification loop, where `subscription` will then be null. This can
+        // probably be avoided if Subscription's listeners logic is changed to not call listeners
+        // that have been unsubscribed in the  middle of the notification loop.
 
-        this.notifyNestedSubs = this.subscription.notifyNestedSubs.bind(this.subscription);
-      };
+        var notifyNestedSubs = subscription.notifyNestedSubs.bind(subscription);
+        return [subscription, notifyNestedSubs];
+      }, [store, didStoreComeFromProps, contextValue]),
+          subscription = _useMemo2[0],
+          notifyNestedSubs = _useMemo2[1]; // Determine what {store, subscription} value should be put into nested context, if necessary,
+      // and memoize that value to avoid unnecessary context updates.
 
-      _proto.onStateChange = function onStateChange() {
-        this.selector.run(this.props);
 
-        if (!this.selector.shouldComponentUpdate) {
-          this.notifyNestedSubs();
-        } else {
-          this.componentDidUpdate = this.notifyNestedSubsOnComponentDidUpdate;
-          this.setState(dummyState);
+      var overriddenContextValue = React.useMemo(function () {
+        if (didStoreComeFromProps) {
+          // This component is directly subscribed to a store from props.
+          // We don't want descendants reading from this store - pass down whatever
+          // the existing context value is from the nearest connected ancestor.
+          return contextValue;
+        } // Otherwise, put this component's subscription instance into context, so that
+        // connected descendants won't update until after this component is done
+
+
+        return _extends({}, contextValue, {
+          subscription: subscription
+        });
+      }, [didStoreComeFromProps, contextValue, subscription]); // We need to force this wrapper component to re-render whenever a Redux store update
+      // causes a change to the calculated child component props (or we caught an error in mapState)
+
+      var _useReducer = React.useReducer(storeStateUpdatesReducer, EMPTY_ARRAY, initStateUpdates),
+          _useReducer$ = _useReducer[0],
+          previousStateUpdateResult = _useReducer$[0],
+          forceComponentUpdateDispatch = _useReducer[1]; // Propagate any mapState/mapDispatch errors upwards
+
+
+      if (previousStateUpdateResult && previousStateUpdateResult.error) {
+        throw previousStateUpdateResult.error;
+      } // Set up refs to coordinate values between the subscription effect and the render logic
+
+
+      var lastChildProps = React.useRef();
+      var lastWrapperProps = React.useRef(wrapperProps);
+      var childPropsFromStoreUpdate = React.useRef();
+      var renderIsScheduled = React.useRef(false);
+      var actualChildProps = usePureOnlyMemo(function () {
+        // Tricky logic here:
+        // - This render may have been triggered by a Redux store update that produced new child props
+        // - However, we may have gotten new wrapper props after that
+        // If we have new child props, and the same wrapper props, we know we should use the new child props as-is.
+        // But, if we have new wrapper props, those might change the child props, so we have to recalculate things.
+        // So, we'll use the child props from store update only if the wrapper props are the same as last time.
+        if (childPropsFromStoreUpdate.current && wrapperProps === lastWrapperProps.current) {
+          return childPropsFromStoreUpdate.current;
+        } // TODO We're reading the store directly in render() here. Bad idea?
+        // This will likely cause Bad Things (TM) to happen in Concurrent Mode.
+        // Note that we do this because on renders _not_ caused by store updates, we need the latest store state
+        // to determine what the child props should be.
+
+
+        return childPropsSelector(store.getState(), wrapperProps);
+      }, [store, previousStateUpdateResult, wrapperProps]); // We need this to execute synchronously every time we re-render. However, React warns
+      // about useLayoutEffect in SSR, so we try to detect environment and fall back to
+      // just useEffect instead to avoid the warning, since neither will run anyway.
+
+      useIsomorphicLayoutEffect(function () {
+        // We want to capture the wrapper props and child props we used for later comparisons
+        lastWrapperProps.current = wrapperProps;
+        lastChildProps.current = actualChildProps;
+        renderIsScheduled.current = false; // If the render was from a store update, clear out that reference and cascade the subscriber update
+
+        if (childPropsFromStoreUpdate.current) {
+          childPropsFromStoreUpdate.current = null;
+          notifyNestedSubs();
         }
-      };
+      }); // Our re-subscribe logic only runs when the store/subscription setup changes
 
-      _proto.notifyNestedSubsOnComponentDidUpdate = function notifyNestedSubsOnComponentDidUpdate() {
-        // `componentDidUpdate` is conditionally implemented when `onStateChange` determines it
-        // needs to notify nested subs. Once called, it unimplements itself until further state
-        // changes occur. Doing it this way vs having a permanent `componentDidUpdate` that does
-        // a boolean check every time avoids an extra method call most of the time, resulting
-        // in some perf boost.
-        this.componentDidUpdate = undefined;
-        this.notifyNestedSubs();
-      };
+      useIsomorphicLayoutEffect(function () {
+        // If we're not subscribed to the store, nothing to do here
+        if (!shouldHandleStateChanges) return; // Capture values for checking if and when this component unmounts
 
-      _proto.isSubscribed = function isSubscribed() {
-        return Boolean(this.subscription) && this.subscription.isSubscribed();
-      };
+        var didUnsubscribe = false;
+        var lastThrownError = null; // We'll run this callback every time a store subscription update propagates to this component
 
-      _proto.addExtraProps = function addExtraProps(props) {
-        if (!withRef && !renderCountProp && !(this.propsMode && this.subscription)) return props; // make a shallow copy so that fields added don't leak to the original selector.
-        // this is especially important for 'ref' since that's a reference back to the component
-        // instance. a singleton memoized selector would then be holding a reference to the
-        // instance, preventing the instance from being garbage collected, and that would be bad
+        var checkForUpdates = function checkForUpdates() {
+          if (didUnsubscribe) {
+            // Don't run stale listeners.
+            // Redux doesn't guarantee unsubscriptions happen until next dispatch.
+            return;
+          }
 
-        var withExtras = _extends({}, props);
+          var latestStoreState = store.getState();
+          var newChildProps, error;
 
-        if (withRef) withExtras.ref = this.setWrappedInstance;
-        if (renderCountProp) withExtras[renderCountProp] = this.renderCount++;
-        if (this.propsMode && this.subscription) withExtras[subscriptionKey] = this.subscription;
-        return withExtras;
-      };
+          try {
+            // Actually run the selector with the most recent store state and wrapper props
+            // to determine what the child props should be
+            newChildProps = childPropsSelector(latestStoreState, lastWrapperProps.current);
+          } catch (e) {
+            error = e;
+            lastThrownError = e;
+          }
 
-      _proto.render = function render() {
-        var selector = this.selector;
-        selector.shouldComponentUpdate = false;
+          if (!error) {
+            lastThrownError = null;
+          } // If the child props haven't changed, nothing to do here - cascade the subscription update
 
-        if (selector.error) {
-          throw selector.error;
-        } else {
-          return React.createElement(WrappedComponent, this.addExtraProps(selector.props));
+
+          if (newChildProps === lastChildProps.current) {
+            if (!renderIsScheduled.current) {
+              notifyNestedSubs();
+            }
+          } else {
+            // Save references to the new child props.  Note that we track the "child props from store update"
+            // as a ref instead of a useState/useReducer because we need a way to determine if that value has
+            // been processed.  If this went into useState/useReducer, we couldn't clear out the value without
+            // forcing another re-render, which we don't want.
+            lastChildProps.current = newChildProps;
+            childPropsFromStoreUpdate.current = newChildProps;
+            renderIsScheduled.current = true; // If the child props _did_ change (or we caught an error), this wrapper component needs to re-render
+
+            forceComponentUpdateDispatch({
+              type: 'STORE_UPDATED',
+              payload: {
+                latestStoreState: latestStoreState,
+                error: error
+              }
+            });
+          }
+        }; // Actually subscribe to the nearest connected ancestor (or store)
+
+
+        subscription.onStateChange = checkForUpdates;
+        subscription.trySubscribe(); // Pull data from the store after first render in case the store has
+        // changed since we began.
+
+        checkForUpdates();
+
+        var unsubscribeWrapper = function unsubscribeWrapper() {
+          didUnsubscribe = true;
+          subscription.tryUnsubscribe();
+          subscription.onStateChange = null;
+
+          if (lastThrownError) {
+            // It's possible that we caught an error due to a bad mapState function, but the
+            // parent re-rendered without this component and we're about to unmount.
+            // This shouldn't happen as long as we do top-down subscriptions correctly, but
+            // if we ever do those wrong, this throw will surface the error in our tests.
+            // In that case, throw the error from here so it doesn't get lost.
+            throw lastThrownError;
+          }
+        };
+
+        return unsubscribeWrapper;
+      }, [store, subscription, childPropsSelector]); // Now that all that's done, we can finally try to actually render the child component.
+      // We memoize the elements for the rendered child component as an optimization.
+
+      var renderedWrappedComponent = React.useMemo(function () {
+        return React__default.createElement(WrappedComponent, _extends({}, actualChildProps, {
+          ref: forwardedRef
+        }));
+      }, [forwardedRef, WrappedComponent, actualChildProps]); // If React sees the exact same element reference as last time, it bails out of re-rendering
+      // that child, same as if it was wrapped in React.memo() or returned false from shouldComponentUpdate.
+
+      var renderedChild = React.useMemo(function () {
+        if (shouldHandleStateChanges) {
+          // If this component is subscribed to store updates, we need to pass its own
+          // subscription instance down to our descendants. That means rendering the same
+          // Context instance, and putting a different value into the context.
+          return React__default.createElement(ContextToUse.Provider, {
+            value: overriddenContextValue
+          }, renderedWrappedComponent);
         }
-      };
 
-      return Connect;
-    }(React.Component);
-
-    if (prefixUnsafeLifecycleMethods$1) {
-      // Use UNSAFE_ event name where supported
-      Connect.prototype.UNSAFE_componentWillReceiveProps = Connect.prototype.componentWillReceiveProps;
-      delete Connect.prototype.componentWillReceiveProps;
-    }
-    /* eslint-enable react/no-deprecated */
+        return renderedWrappedComponent;
+      }, [ContextToUse, renderedWrappedComponent, overriddenContextValue]);
+      return renderedChild;
+    } // If we're in "pure" mode, ensure our wrapper component only re-renders when incoming props have changed.
 
 
+    var Connect = pure ? React__default.memo(ConnectFunction) : ConnectFunction;
     Connect.WrappedComponent = WrappedComponent;
     Connect.displayName = displayName;
-    Connect.childContextTypes = childContextTypes;
-    Connect.contextTypes = contextTypes;
-    Connect.propTypes = contextTypes;
+
+    if (forwardRef) {
+      var forwarded = React__default.forwardRef(function forwardConnectRef(props, ref) {
+        return React__default.createElement(Connect, _extends({}, props, {
+          forwardedRef: ref
+        }));
+      });
+      forwarded.displayName = displayName;
+      forwarded.WrappedComponent = WrappedComponent;
+      return hoistNonReactStatics_cjs(forwarded, WrappedComponent);
+    }
 
     return hoistNonReactStatics_cjs(Connect, WrappedComponent);
   };
@@ -748,207 +804,6 @@ function shallowEqual(objA, objB) {
   return true;
 }
 
-/** Detect free variable `global` from Node.js. */
-var freeGlobal = typeof global == 'object' && global && global.Object === Object && global;
-
-/** Detect free variable `self`. */
-var freeSelf = typeof self == 'object' && self && self.Object === Object && self;
-
-/** Used as a reference to the global object. */
-var root = freeGlobal || freeSelf || Function('return this')();
-
-/** Built-in value references. */
-var Symbol$1 = root.Symbol;
-
-/** Used for built-in method references. */
-var objectProto = Object.prototype;
-
-/** Used to check objects for own properties. */
-var hasOwnProperty = objectProto.hasOwnProperty;
-
-/**
- * Used to resolve the
- * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
- * of values.
- */
-var nativeObjectToString = objectProto.toString;
-
-/** Built-in value references. */
-var symToStringTag = Symbol$1 ? Symbol$1.toStringTag : undefined;
-
-/**
- * A specialized version of `baseGetTag` which ignores `Symbol.toStringTag` values.
- *
- * @private
- * @param {*} value The value to query.
- * @returns {string} Returns the raw `toStringTag`.
- */
-function getRawTag(value) {
-  var isOwn = hasOwnProperty.call(value, symToStringTag),
-      tag = value[symToStringTag];
-
-  try {
-    value[symToStringTag] = undefined;
-    var unmasked = true;
-  } catch (e) {}
-
-  var result = nativeObjectToString.call(value);
-  if (unmasked) {
-    if (isOwn) {
-      value[symToStringTag] = tag;
-    } else {
-      delete value[symToStringTag];
-    }
-  }
-  return result;
-}
-
-/** Used for built-in method references. */
-var objectProto$1 = Object.prototype;
-
-/**
- * Used to resolve the
- * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
- * of values.
- */
-var nativeObjectToString$1 = objectProto$1.toString;
-
-/**
- * Converts `value` to a string using `Object.prototype.toString`.
- *
- * @private
- * @param {*} value The value to convert.
- * @returns {string} Returns the converted string.
- */
-function objectToString(value) {
-  return nativeObjectToString$1.call(value);
-}
-
-/** `Object#toString` result references. */
-var nullTag = '[object Null]',
-    undefinedTag = '[object Undefined]';
-
-/** Built-in value references. */
-var symToStringTag$1 = Symbol$1 ? Symbol$1.toStringTag : undefined;
-
-/**
- * The base implementation of `getTag` without fallbacks for buggy environments.
- *
- * @private
- * @param {*} value The value to query.
- * @returns {string} Returns the `toStringTag`.
- */
-function baseGetTag(value) {
-  if (value == null) {
-    return value === undefined ? undefinedTag : nullTag;
-  }
-  return (symToStringTag$1 && symToStringTag$1 in Object(value))
-    ? getRawTag(value)
-    : objectToString(value);
-}
-
-/**
- * Creates a unary function that invokes `func` with its argument transformed.
- *
- * @private
- * @param {Function} func The function to wrap.
- * @param {Function} transform The argument transform.
- * @returns {Function} Returns the new function.
- */
-function overArg(func, transform) {
-  return function(arg) {
-    return func(transform(arg));
-  };
-}
-
-/** Built-in value references. */
-var getPrototype = overArg(Object.getPrototypeOf, Object);
-
-/**
- * Checks if `value` is object-like. A value is object-like if it's not `null`
- * and has a `typeof` result of "object".
- *
- * @static
- * @memberOf _
- * @since 4.0.0
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
- * @example
- *
- * _.isObjectLike({});
- * // => true
- *
- * _.isObjectLike([1, 2, 3]);
- * // => true
- *
- * _.isObjectLike(_.noop);
- * // => false
- *
- * _.isObjectLike(null);
- * // => false
- */
-function isObjectLike(value) {
-  return value != null && typeof value == 'object';
-}
-
-/** `Object#toString` result references. */
-var objectTag = '[object Object]';
-
-/** Used for built-in method references. */
-var funcProto = Function.prototype,
-    objectProto$2 = Object.prototype;
-
-/** Used to resolve the decompiled source of functions. */
-var funcToString = funcProto.toString;
-
-/** Used to check objects for own properties. */
-var hasOwnProperty$1 = objectProto$2.hasOwnProperty;
-
-/** Used to infer the `Object` constructor. */
-var objectCtorString = funcToString.call(Object);
-
-/**
- * Checks if `value` is a plain object, that is, an object created by the
- * `Object` constructor or one with a `[[Prototype]]` of `null`.
- *
- * @static
- * @memberOf _
- * @since 0.8.0
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is a plain object, else `false`.
- * @example
- *
- * function Foo() {
- *   this.a = 1;
- * }
- *
- * _.isPlainObject(new Foo);
- * // => false
- *
- * _.isPlainObject([1, 2, 3]);
- * // => false
- *
- * _.isPlainObject({ 'x': 0, 'y': 0 });
- * // => true
- *
- * _.isPlainObject(Object.create(null));
- * // => true
- */
-function isPlainObject(value) {
-  if (!isObjectLike(value) || baseGetTag(value) != objectTag) {
-    return false;
-  }
-  var proto = getPrototype(value);
-  if (proto === null) {
-    return true;
-  }
-  var Ctor = hasOwnProperty$1.call(proto, 'constructor') && proto.constructor;
-  return typeof Ctor == 'function' && Ctor instanceof Ctor &&
-    funcToString.call(Ctor) == objectCtorString;
-}
-
 function symbolObservablePonyfill(root) {
 	var result;
 	var Symbol = root.Symbol;
@@ -969,43 +824,53 @@ function symbolObservablePonyfill(root) {
 
 /* global window */
 
-var root$1;
+var root;
 
 if (typeof self !== 'undefined') {
-  root$1 = self;
+  root = self;
 } else if (typeof window !== 'undefined') {
-  root$1 = window;
+  root = window;
 } else if (typeof global !== 'undefined') {
-  root$1 = global;
+  root = global;
 } else if (typeof module !== 'undefined') {
-  root$1 = module;
+  root = module;
 } else {
-  root$1 = Function('return this')();
+  root = Function('return this')();
 }
 
-var result = symbolObservablePonyfill(root$1);
+var result = symbolObservablePonyfill(root);
 
 /**
- * Prints a warning in the console if it exists.
- *
- * @param {String} message The warning message.
- * @returns {void}
+ * These are private action types reserved by Redux.
+ * For any unknown actions, you must return the current state.
+ * If the current state is undefined, you must return the initial state.
+ * Do not reference these action types directly in your code.
  */
+var randomString = function randomString() {
+  return Math.random().toString(36).substring(7).split('').join('.');
+};
+
+var ActionTypes = {
+  INIT: "@@redux/INIT" + randomString(),
+  REPLACE: "@@redux/REPLACE" + randomString(),
+  PROBE_UNKNOWN_ACTION: function PROBE_UNKNOWN_ACTION() {
+    return "@@redux/PROBE_UNKNOWN_ACTION" + randomString();
+  }
+};
 
 function bindActionCreator(actionCreator, dispatch) {
   return function () {
-    return dispatch(actionCreator.apply(undefined, arguments));
+    return dispatch(actionCreator.apply(this, arguments));
   };
 }
-
 /**
  * Turns an object whose values are action creators, into an object with the
  * same keys, but with every function wrapped into a `dispatch` call so they
  * may be invoked directly. This is just a convenience method, as you can call
  * `store.dispatch(MyActionCreators.doSomething())` yourself just fine.
  *
- * For convenience, you can also pass a single function as the first argument,
- * and get a function in return.
+ * For convenience, you can also pass an action creator as the first argument,
+ * and get a dispatch wrapped function in return.
  *
  * @param {Function|Object} actionCreators An object whose values are action
  * creator functions. One handy way to obtain it is to use ES6 `import * as`
@@ -1019,24 +884,27 @@ function bindActionCreator(actionCreator, dispatch) {
  * function as `actionCreators`, the return value will also be a single
  * function.
  */
+
+
 function bindActionCreators(actionCreators, dispatch) {
   if (typeof actionCreators === 'function') {
     return bindActionCreator(actionCreators, dispatch);
   }
 
   if (typeof actionCreators !== 'object' || actionCreators === null) {
-    throw new Error('bindActionCreators expected an object or a function, instead received ' + (actionCreators === null ? 'null' : typeof actionCreators) + '. ' + 'Did you write "import ActionCreators from" instead of "import * as ActionCreators from"?');
+    throw new Error("bindActionCreators expected an object or a function, instead received " + (actionCreators === null ? 'null' : typeof actionCreators) + ". " + "Did you write \"import ActionCreators from\" instead of \"import * as ActionCreators from\"?");
   }
 
-  var keys = Object.keys(actionCreators);
   var boundActionCreators = {};
-  for (var i = 0; i < keys.length; i++) {
-    var key = keys[i];
+
+  for (var key in actionCreators) {
     var actionCreator = actionCreators[key];
+
     if (typeof actionCreator === 'function') {
       boundActionCreators[key] = bindActionCreator(actionCreator, dispatch);
     }
   }
+
   return boundActionCreators;
 }
 
@@ -1050,9 +918,8 @@ function bindActionCreators(actionCreators, dispatch) {
  * from right to left. For example, compose(f, g, h) is identical to doing
  * (...args) => f(g(h(...args))).
  */
-
 function compose() {
-  for (var _len = arguments.length, funcs = Array(_len), _key = 0; _key < _len; _key++) {
+  for (var _len = arguments.length, funcs = new Array(_len), _key = 0; _key < _len; _key++) {
     funcs[_key] = arguments[_key];
   }
 
@@ -1068,7 +935,7 @@ function compose() {
 
   return funcs.reduce(function (a, b) {
     return function () {
-      return a(b.apply(undefined, arguments));
+      return a(b.apply(void 0, arguments));
     };
   });
 }
@@ -1076,6 +943,13 @@ function compose() {
 /**
  * @param {any} obj The object to inspect.
  * @returns {boolean} True if the argument appears to be a plain object.
+ */
+
+/**
+ * Prints a warning in the console if it exists.
+ *
+ * @param {String} message The warning message.
+ * @returns {void}
  */
 
 function wrapMapToPropsConstant(getConstant) {
@@ -1092,7 +966,7 @@ function wrapMapToPropsConstant(getConstant) {
 } // dependsOnOwnProps is used by createMapToPropsProxy to determine whether to pass props as args
 // to the mapToProps function being wrapped. It is also used by makePurePropsSelector to determine
 // whether mapToProps needs to be invoked when props have changed.
-// 
+//
 // A length of one signals that mapToProps does not depend on props from the parent component.
 // A length of zero is assumed to mean mapToProps is getting args via arguments or ...args and
 // therefore not reporting its length accurately..
@@ -1101,16 +975,16 @@ function getDependsOnOwnProps(mapToProps) {
   return mapToProps.dependsOnOwnProps !== null && mapToProps.dependsOnOwnProps !== undefined ? Boolean(mapToProps.dependsOnOwnProps) : mapToProps.length !== 1;
 } // Used by whenMapStateToPropsIsFunction and whenMapDispatchToPropsIsFunction,
 // this function wraps mapToProps in a proxy function which does several things:
-// 
+//
 //  * Detects whether the mapToProps function being called depends on props, which
 //    is used by selectorFactory to decide if it should reinvoke on props changes.
-//    
+//
 //  * On first call, handles mapToProps if returns another function, and treats that
 //    new function as the true mapToProps for subsequent calls.
-//    
+//
 //  * On first call, verifies the first result is a plain object, in order to warn
 //    the developer that their mapToProps function is not returning a valid result.
-//    
+//
 
 function wrapMapToPropsFunc(mapToProps, methodName) {
   return function initProxySelector(dispatch, _ref) {
@@ -1168,7 +1042,7 @@ function whenMapStateToPropsIsMissing(mapStateToProps) {
 var defaultMapStateToPropsFactories = [whenMapStateToPropsIsFunction, whenMapStateToPropsIsMissing];
 
 function defaultMergeProps(stateProps, dispatchProps, ownProps) {
-  return _extends({}, ownProps, stateProps, dispatchProps);
+  return _extends({}, ownProps, {}, stateProps, {}, dispatchProps);
 }
 function wrapMergePropsFunc(mergeProps) {
   return function initMergePropsProxy(dispatch, _ref) {
@@ -1373,6 +1247,438 @@ function createConnect(_temp) {
   };
 }
 var connect = createConnect();
+
+/*
+object-assign
+(c) Sindre Sorhus
+@license MIT
+*/
+/* eslint-disable no-unused-vars */
+var getOwnPropertySymbols$1 = Object.getOwnPropertySymbols;
+var hasOwnProperty = Object.prototype.hasOwnProperty;
+var propIsEnumerable = Object.prototype.propertyIsEnumerable;
+
+function toObject(val) {
+	if (val === null || val === undefined) {
+		throw new TypeError('Object.assign cannot be called with null or undefined');
+	}
+
+	return Object(val);
+}
+
+function shouldUseNative() {
+	try {
+		if (!Object.assign) {
+			return false;
+		}
+
+		// Detect buggy property enumeration order in older V8 versions.
+
+		// https://bugs.chromium.org/p/v8/issues/detail?id=4118
+		var test1 = new String('abc');  // eslint-disable-line no-new-wrappers
+		test1[5] = 'de';
+		if (Object.getOwnPropertyNames(test1)[0] === '5') {
+			return false;
+		}
+
+		// https://bugs.chromium.org/p/v8/issues/detail?id=3056
+		var test2 = {};
+		for (var i = 0; i < 10; i++) {
+			test2['_' + String.fromCharCode(i)] = i;
+		}
+		var order2 = Object.getOwnPropertyNames(test2).map(function (n) {
+			return test2[n];
+		});
+		if (order2.join('') !== '0123456789') {
+			return false;
+		}
+
+		// https://bugs.chromium.org/p/v8/issues/detail?id=3056
+		var test3 = {};
+		'abcdefghijklmnopqrst'.split('').forEach(function (letter) {
+			test3[letter] = letter;
+		});
+		if (Object.keys(Object.assign({}, test3)).join('') !==
+				'abcdefghijklmnopqrst') {
+			return false;
+		}
+
+		return true;
+	} catch (err) {
+		// We don't expect any of the above to throw, but better to be safe.
+		return false;
+	}
+}
+
+var objectAssign = shouldUseNative() ? Object.assign : function (target, source) {
+	var from;
+	var to = toObject(target);
+	var symbols;
+
+	for (var s = 1; s < arguments.length; s++) {
+		from = Object(arguments[s]);
+
+		for (var key in from) {
+			if (hasOwnProperty.call(from, key)) {
+				to[key] = from[key];
+			}
+		}
+
+		if (getOwnPropertySymbols$1) {
+			symbols = getOwnPropertySymbols$1(from);
+			for (var i = 0; i < symbols.length; i++) {
+				if (propIsEnumerable.call(from, symbols[i])) {
+					to[symbols[i]] = from[symbols[i]];
+				}
+			}
+		}
+	}
+
+	return to;
+};
+
+var scheduler_production_min = createCommonjsModule(function (module, exports) {
+Object.defineProperty(exports,"__esModule",{value:!0});var d=void 0,e=void 0,g=void 0,m=void 0,n=void 0;exports.unstable_now=void 0;exports.unstable_forceFrameRate=void 0;
+if("undefined"===typeof window||"function"!==typeof MessageChannel){var p=null,q=null,r=function(){if(null!==p)try{var a=exports.unstable_now();p(!0,a);p=null;}catch(b){throw setTimeout(r,0),b;}};exports.unstable_now=function(){return Date.now()};d=function(a){null!==p?setTimeout(d,0,a):(p=a,setTimeout(r,0));};e=function(a,b){q=setTimeout(a,b);};g=function(){clearTimeout(q);};m=function(){return!1};n=exports.unstable_forceFrameRate=function(){};}else{var t=window.performance,u=window.Date,v=window.setTimeout,
+w=window.clearTimeout,x=window.requestAnimationFrame,y=window.cancelAnimationFrame;"undefined"!==typeof console&&("function"!==typeof x&&console.error("This browser doesn't support requestAnimationFrame. Make sure that you load a polyfill in older browsers. https://fb.me/react-polyfills"),"function"!==typeof y&&console.error("This browser doesn't support cancelAnimationFrame. Make sure that you load a polyfill in older browsers. https://fb.me/react-polyfills"));exports.unstable_now="object"===typeof t&&
+"function"===typeof t.now?function(){return t.now()}:function(){return u.now()};var z=!1,A=null,B=-1,C=-1,D=33.33,E=-1,F=-1,G=0,H=!1;m=function(){return exports.unstable_now()>=G};n=function(){};exports.unstable_forceFrameRate=function(a){0>a||125<a?console.error("forceFrameRate takes a positive int between 0 and 125, forcing framerates higher than 125 fps is not unsupported"):0<a?(D=Math.floor(1E3/a),H=!0):(D=33.33,H=!1);};var J=function(){if(null!==A){var a=exports.unstable_now(),b=0<G-a;try{A(b,
+a)||(A=null);}catch(c){throw I.postMessage(null),c;}}},K=new MessageChannel,I=K.port2;K.port1.onmessage=J;var L=function(a){if(null===A)F=E=-1,z=!1;else{z=!0;x(function(a){w(B);L(a);});var b=function(){G=exports.unstable_now()+D/2;J();B=v(b,3*D);};B=v(b,3*D);if(-1!==E&&.1<a-E){var c=a-E;!H&&-1!==F&&c<D&&F<D&&(D=c<F?F:c,8.33>D&&(D=8.33));F=c;}E=a;G=a+D;I.postMessage(null);}};d=function(a){A=a;z||(z=!0,x(function(a){L(a);}));};e=function(a,b){C=v(function(){a(exports.unstable_now());},b);};g=function(){w(C);
+C=-1;};}var M=null,N=null,O=null,P=3,Q=!1,R=!1,S=!1;
+function T(a,b){var c=a.next;if(c===a)M=null;else{a===M&&(M=c);var f=a.previous;f.next=c;c.previous=f;}a.next=a.previous=null;c=a.callback;f=P;var l=O;P=a.priorityLevel;O=a;try{var h=a.expirationTime<=b;switch(P){case 1:var k=c(h);break;case 2:k=c(h);break;case 3:k=c(h);break;case 4:k=c(h);break;case 5:k=c(h);}}catch(Z){throw Z;}finally{P=f,O=l;}if("function"===typeof k)if(b=a.expirationTime,a.callback=k,null===M)M=a.next=a.previous=a;else{k=null;h=M;do{if(b<=h.expirationTime){k=h;break}h=h.next;}while(h!==
+M);null===k?k=M:k===M&&(M=a);b=k.previous;b.next=k.previous=a;a.next=k;a.previous=b;}}function U(a){if(null!==N&&N.startTime<=a){do{var b=N,c=b.next;if(b===c)N=null;else{N=c;var f=b.previous;f.next=c;c.previous=f;}b.next=b.previous=null;V(b,b.expirationTime);}while(null!==N&&N.startTime<=a)}}function W(a){S=!1;U(a);R||(null!==M?(R=!0,d(X)):null!==N&&e(W,N.startTime-a));}
+function X(a,b){R=!1;S&&(S=!1,g());U(b);Q=!0;try{if(!a)for(;null!==M&&M.expirationTime<=b;)T(M,b),b=exports.unstable_now(),U(b);else if(null!==M){do T(M,b),b=exports.unstable_now(),U(b);while(null!==M&&!m())}if(null!==M)return!0;null!==N&&e(W,N.startTime-b);return!1}finally{Q=!1;}}function Y(a){switch(a){case 1:return-1;case 2:return 250;case 5:return 1073741823;case 4:return 1E4;default:return 5E3}}
+function V(a,b){if(null===M)M=a.next=a.previous=a;else{var c=null,f=M;do{if(b<f.expirationTime){c=f;break}f=f.next;}while(f!==M);null===c?c=M:c===M&&(M=a);b=c.previous;b.next=c.previous=a;a.next=c;a.previous=b;}}var aa=n;exports.unstable_ImmediatePriority=1;exports.unstable_UserBlockingPriority=2;exports.unstable_NormalPriority=3;exports.unstable_IdlePriority=5;exports.unstable_LowPriority=4;
+exports.unstable_runWithPriority=function(a,b){switch(a){case 1:case 2:case 3:case 4:case 5:break;default:a=3;}var c=P;P=a;try{return b()}finally{P=c;}};exports.unstable_next=function(a){switch(P){case 1:case 2:case 3:var b=3;break;default:b=P;}var c=P;P=b;try{return a()}finally{P=c;}};
+exports.unstable_scheduleCallback=function(a,b,c){var f=exports.unstable_now();if("object"===typeof c&&null!==c){var l=c.delay;l="number"===typeof l&&0<l?f+l:f;c="number"===typeof c.timeout?c.timeout:Y(a);}else c=Y(a),l=f;c=l+c;a={callback:b,priorityLevel:a,startTime:l,expirationTime:c,next:null,previous:null};if(l>f){c=l;if(null===N)N=a.next=a.previous=a;else{b=null;var h=N;do{if(c<h.startTime){b=h;break}h=h.next;}while(h!==N);null===b?b=N:b===N&&(N=a);c=b.previous;c.next=b.previous=a;a.next=b;a.previous=
+c;}null===M&&N===a&&(S?g():S=!0,e(W,l-f));}else V(a,c),R||Q||(R=!0,d(X));return a};exports.unstable_cancelCallback=function(a){var b=a.next;if(null!==b){if(a===b)a===M?M=null:a===N&&(N=null);else{a===M?M=b:a===N&&(N=b);var c=a.previous;c.next=b;b.previous=c;}a.next=a.previous=null;}};exports.unstable_wrapCallback=function(a){var b=P;return function(){var c=P;P=b;try{return a.apply(this,arguments)}finally{P=c;}}};exports.unstable_getCurrentPriorityLevel=function(){return P};
+exports.unstable_shouldYield=function(){var a=exports.unstable_now();U(a);return null!==O&&null!==M&&M.startTime<=a&&M.expirationTime<O.expirationTime||m()};exports.unstable_requestPaint=aa;exports.unstable_continueExecution=function(){R||Q||(R=!0,d(X));};exports.unstable_pauseExecution=function(){};exports.unstable_getFirstCallbackNode=function(){return M};
+});
+
+unwrapExports(scheduler_production_min);
+var scheduler_production_min_1 = scheduler_production_min.unstable_now;
+var scheduler_production_min_2 = scheduler_production_min.unstable_forceFrameRate;
+var scheduler_production_min_3 = scheduler_production_min.unstable_ImmediatePriority;
+var scheduler_production_min_4 = scheduler_production_min.unstable_UserBlockingPriority;
+var scheduler_production_min_5 = scheduler_production_min.unstable_NormalPriority;
+var scheduler_production_min_6 = scheduler_production_min.unstable_IdlePriority;
+var scheduler_production_min_7 = scheduler_production_min.unstable_LowPriority;
+var scheduler_production_min_8 = scheduler_production_min.unstable_runWithPriority;
+var scheduler_production_min_9 = scheduler_production_min.unstable_next;
+var scheduler_production_min_10 = scheduler_production_min.unstable_scheduleCallback;
+var scheduler_production_min_11 = scheduler_production_min.unstable_cancelCallback;
+var scheduler_production_min_12 = scheduler_production_min.unstable_wrapCallback;
+var scheduler_production_min_13 = scheduler_production_min.unstable_getCurrentPriorityLevel;
+var scheduler_production_min_14 = scheduler_production_min.unstable_shouldYield;
+var scheduler_production_min_15 = scheduler_production_min.unstable_requestPaint;
+var scheduler_production_min_16 = scheduler_production_min.unstable_continueExecution;
+var scheduler_production_min_17 = scheduler_production_min.unstable_pauseExecution;
+var scheduler_production_min_18 = scheduler_production_min.unstable_getFirstCallbackNode;
+
+var scheduler = createCommonjsModule(function (module) {
+
+{
+  module.exports = scheduler_production_min;
+}
+});
+
+function t(a){for(var b=a.message,c="https://reactjs.org/docs/error-decoder.html?invariant="+b,d=1;d<arguments.length;d++)c+="&args[]="+encodeURIComponent(arguments[d]);a.message="Minified React error #"+b+"; visit "+c+" for the full message or use the non-minified dev environment for full errors and additional helpful warnings. ";return a}if(!React__default)throw t(Error(227));var ba=null,ca={};
+function da(){if(ba)for(var a in ca){var b=ca[a],c=ba.indexOf(a);if(!(-1<c))throw t(Error(96),a);if(!ea[c]){if(!b.extractEvents)throw t(Error(97),a);ea[c]=b;c=b.eventTypes;for(var d in c){var e=void 0;var f=c[d],h=b,g=d;if(fa.hasOwnProperty(g))throw t(Error(99),g);fa[g]=f;var k=f.phasedRegistrationNames;if(k){for(e in k)k.hasOwnProperty(e)&&ha(k[e],h,g);e=!0;}else f.registrationName?(ha(f.registrationName,h,g),e=!0):e=!1;if(!e)throw t(Error(98),d,a);}}}}
+function ha(a,b,c){if(ia[a])throw t(Error(100),a);ia[a]=b;ja[a]=b.eventTypes[c].dependencies;}var ea=[],fa={},ia={},ja={};function ka(a,b,c,d,e,f,h,g,k){var l=Array.prototype.slice.call(arguments,3);try{b.apply(c,l);}catch(n){this.onError(n);}}var la=!1,ma=null,na=!1,oa=null,pa={onError:function(a){la=!0;ma=a;}};function qa(a,b,c,d,e,f,h,g,k){la=!1;ma=null;ka.apply(pa,arguments);}
+function ra(a,b,c,d,e,f,h,g,k){qa.apply(this,arguments);if(la){if(la){var l=ma;la=!1;ma=null;}else throw t(Error(198));na||(na=!0,oa=l);}}var sa=null,ta=null,va=null;function wa(a,b,c){var d=a.type||"unknown-event";a.currentTarget=va(c);ra(d,b,void 0,a);a.currentTarget=null;}function xa(a,b){if(null==b)throw t(Error(30));if(null==a)return b;if(Array.isArray(a)){if(Array.isArray(b))return a.push.apply(a,b),a;a.push(b);return a}return Array.isArray(b)?[a].concat(b):[a,b]}
+function ya(a,b,c){Array.isArray(a)?a.forEach(b,c):a&&b.call(c,a);}var za=null;function Aa(a){if(a){var b=a._dispatchListeners,c=a._dispatchInstances;if(Array.isArray(b))for(var d=0;d<b.length&&!a.isPropagationStopped();d++)wa(a,b[d],c[d]);else b&&wa(a,b,c);a._dispatchListeners=null;a._dispatchInstances=null;a.isPersistent()||a.constructor.release(a);}}function Ba(a){null!==a&&(za=xa(za,a));a=za;za=null;if(a){ya(a,Aa);if(za)throw t(Error(95));if(na)throw a=oa,na=!1,oa=null,a;}}
+var Ca={injectEventPluginOrder:function(a){if(ba)throw t(Error(101));ba=Array.prototype.slice.call(a);da();},injectEventPluginsByName:function(a){var b=!1,c;for(c in a)if(a.hasOwnProperty(c)){var d=a[c];if(!ca.hasOwnProperty(c)||ca[c]!==d){if(ca[c])throw t(Error(102),c);ca[c]=d;b=!0;}}b&&da();}};
+function Da(a,b){var c=a.stateNode;if(!c)return null;var d=sa(c);if(!d)return null;c=d[b];a:switch(b){case "onClick":case "onClickCapture":case "onDoubleClick":case "onDoubleClickCapture":case "onMouseDown":case "onMouseDownCapture":case "onMouseMove":case "onMouseMoveCapture":case "onMouseUp":case "onMouseUpCapture":(d=!d.disabled)||(a=a.type,d=!("button"===a||"input"===a||"select"===a||"textarea"===a));a=!d;break a;default:a=!1;}if(a)return null;if(c&&"function"!==typeof c)throw t(Error(231),b,typeof c);
+return c}var Ea=Math.random().toString(36).slice(2),Fa="__reactInternalInstance$"+Ea,Ga="__reactEventHandlers$"+Ea;function Ha(a){if(a[Fa])return a[Fa];for(;!a[Fa];)if(a.parentNode)a=a.parentNode;else return null;a=a[Fa];return 5===a.tag||6===a.tag?a:null}function Ia(a){a=a[Fa];return!a||5!==a.tag&&6!==a.tag?null:a}function Ja(a){if(5===a.tag||6===a.tag)return a.stateNode;throw t(Error(33));}function Ka(a){return a[Ga]||null}function La(a){do a=a.return;while(a&&5!==a.tag);return a?a:null}
+function Ma(a,b,c){if(b=Da(a,c.dispatchConfig.phasedRegistrationNames[b]))c._dispatchListeners=xa(c._dispatchListeners,b),c._dispatchInstances=xa(c._dispatchInstances,a);}function Na(a){if(a&&a.dispatchConfig.phasedRegistrationNames){for(var b=a._targetInst,c=[];b;)c.push(b),b=La(b);for(b=c.length;0<b--;)Ma(c[b],"captured",a);for(b=0;b<c.length;b++)Ma(c[b],"bubbled",a);}}
+function Oa(a,b,c){a&&c&&c.dispatchConfig.registrationName&&(b=Da(a,c.dispatchConfig.registrationName))&&(c._dispatchListeners=xa(c._dispatchListeners,b),c._dispatchInstances=xa(c._dispatchInstances,a));}function Pa(a){a&&a.dispatchConfig.registrationName&&Oa(a._targetInst,null,a);}function Qa(a){ya(a,Na);}var Ra=!("undefined"===typeof window||"undefined"===typeof window.document||"undefined"===typeof window.document.createElement);
+function Sa(a,b){var c={};c[a.toLowerCase()]=b.toLowerCase();c["Webkit"+a]="webkit"+b;c["Moz"+a]="moz"+b;return c}var Ta={animationend:Sa("Animation","AnimationEnd"),animationiteration:Sa("Animation","AnimationIteration"),animationstart:Sa("Animation","AnimationStart"),transitionend:Sa("Transition","TransitionEnd")},Ua={},Va={};
+Ra&&(Va=document.createElement("div").style,"AnimationEvent"in window||(delete Ta.animationend.animation,delete Ta.animationiteration.animation,delete Ta.animationstart.animation),"TransitionEvent"in window||delete Ta.transitionend.transition);function Wa(a){if(Ua[a])return Ua[a];if(!Ta[a])return a;var b=Ta[a],c;for(c in b)if(b.hasOwnProperty(c)&&c in Va)return Ua[a]=b[c];return a}
+var Xa=Wa("animationend"),Ya=Wa("animationiteration"),Za=Wa("animationstart"),ab=Wa("transitionend"),bb="abort canplay canplaythrough durationchange emptied encrypted ended error loadeddata loadedmetadata loadstart pause play playing progress ratechange seeked seeking stalled suspend timeupdate volumechange waiting".split(" "),cb=null,db=null,eb=null;
+function fb(){if(eb)return eb;var a,b=db,c=b.length,d,e="value"in cb?cb.value:cb.textContent,f=e.length;for(a=0;a<c&&b[a]===e[a];a++);var h=c-a;for(d=1;d<=h&&b[c-d]===e[f-d];d++);return eb=e.slice(a,1<d?1-d:void 0)}function gb(){return!0}function hb(){return!1}
+function y(a,b,c,d){this.dispatchConfig=a;this._targetInst=b;this.nativeEvent=c;a=this.constructor.Interface;for(var e in a)a.hasOwnProperty(e)&&((b=a[e])?this[e]=b(c):"target"===e?this.target=d:this[e]=c[e]);this.isDefaultPrevented=(null!=c.defaultPrevented?c.defaultPrevented:!1===c.returnValue)?gb:hb;this.isPropagationStopped=hb;return this}
+objectAssign(y.prototype,{preventDefault:function(){this.defaultPrevented=!0;var a=this.nativeEvent;a&&(a.preventDefault?a.preventDefault():"unknown"!==typeof a.returnValue&&(a.returnValue=!1),this.isDefaultPrevented=gb);},stopPropagation:function(){var a=this.nativeEvent;a&&(a.stopPropagation?a.stopPropagation():"unknown"!==typeof a.cancelBubble&&(a.cancelBubble=!0),this.isPropagationStopped=gb);},persist:function(){this.isPersistent=gb;},isPersistent:hb,destructor:function(){var a=this.constructor.Interface,
+b;for(b in a)this[b]=null;this.nativeEvent=this._targetInst=this.dispatchConfig=null;this.isPropagationStopped=this.isDefaultPrevented=hb;this._dispatchInstances=this._dispatchListeners=null;}});y.Interface={type:null,target:null,currentTarget:function(){return null},eventPhase:null,bubbles:null,cancelable:null,timeStamp:function(a){return a.timeStamp||Date.now()},defaultPrevented:null,isTrusted:null};
+y.extend=function(a){function b(){}function c(){return d.apply(this,arguments)}var d=this;b.prototype=d.prototype;var e=new b;objectAssign(e,c.prototype);c.prototype=e;c.prototype.constructor=c;c.Interface=objectAssign({},d.Interface,a);c.extend=d.extend;ib(c);return c};ib(y);function jb(a,b,c,d){if(this.eventPool.length){var e=this.eventPool.pop();this.call(e,a,b,c,d);return e}return new this(a,b,c,d)}
+function kb(a){if(!(a instanceof this))throw t(Error(279));a.destructor();10>this.eventPool.length&&this.eventPool.push(a);}function ib(a){a.eventPool=[];a.getPooled=jb;a.release=kb;}var lb=y.extend({data:null}),mb=y.extend({data:null}),nb=[9,13,27,32],ob=Ra&&"CompositionEvent"in window,pb=null;Ra&&"documentMode"in document&&(pb=document.documentMode);
+var qb=Ra&&"TextEvent"in window&&!pb,sb=Ra&&(!ob||pb&&8<pb&&11>=pb),tb=String.fromCharCode(32),ub={beforeInput:{phasedRegistrationNames:{bubbled:"onBeforeInput",captured:"onBeforeInputCapture"},dependencies:["compositionend","keypress","textInput","paste"]},compositionEnd:{phasedRegistrationNames:{bubbled:"onCompositionEnd",captured:"onCompositionEndCapture"},dependencies:"blur compositionend keydown keypress keyup mousedown".split(" ")},compositionStart:{phasedRegistrationNames:{bubbled:"onCompositionStart",
+captured:"onCompositionStartCapture"},dependencies:"blur compositionstart keydown keypress keyup mousedown".split(" ")},compositionUpdate:{phasedRegistrationNames:{bubbled:"onCompositionUpdate",captured:"onCompositionUpdateCapture"},dependencies:"blur compositionupdate keydown keypress keyup mousedown".split(" ")}},vb=!1;
+function wb(a,b){switch(a){case "keyup":return-1!==nb.indexOf(b.keyCode);case "keydown":return 229!==b.keyCode;case "keypress":case "mousedown":case "blur":return!0;default:return!1}}function xb(a){a=a.detail;return"object"===typeof a&&"data"in a?a.data:null}var yb=!1;function Ab(a,b){switch(a){case "compositionend":return xb(b);case "keypress":if(32!==b.which)return null;vb=!0;return tb;case "textInput":return a=b.data,a===tb&&vb?null:a;default:return null}}
+function Bb(a,b){if(yb)return"compositionend"===a||!ob&&wb(a,b)?(a=fb(),eb=db=cb=null,yb=!1,a):null;switch(a){case "paste":return null;case "keypress":if(!(b.ctrlKey||b.altKey||b.metaKey)||b.ctrlKey&&b.altKey){if(b.char&&1<b.char.length)return b.char;if(b.which)return String.fromCharCode(b.which)}return null;case "compositionend":return sb&&"ko"!==b.locale?null:b.data;default:return null}}
+var Cb={eventTypes:ub,extractEvents:function(a,b,c,d){var e=void 0;var f=void 0;if(ob)b:{switch(a){case "compositionstart":e=ub.compositionStart;break b;case "compositionend":e=ub.compositionEnd;break b;case "compositionupdate":e=ub.compositionUpdate;break b}e=void 0;}else yb?wb(a,c)&&(e=ub.compositionEnd):"keydown"===a&&229===c.keyCode&&(e=ub.compositionStart);e?(sb&&"ko"!==c.locale&&(yb||e!==ub.compositionStart?e===ub.compositionEnd&&yb&&(f=fb()):(cb=d,db="value"in cb?cb.value:cb.textContent,yb=
+!0)),e=lb.getPooled(e,b,c,d),f?e.data=f:(f=xb(c),null!==f&&(e.data=f)),Qa(e),f=e):f=null;(a=qb?Ab(a,c):Bb(a,c))?(b=mb.getPooled(ub.beforeInput,b,c,d),b.data=a,Qa(b)):b=null;return null===f?b:null===b?f:[f,b]}},Db=null,Eb=null,Fb=null;function Gb(a){if(a=ta(a)){if("function"!==typeof Db)throw t(Error(280));var b=sa(a.stateNode);Db(a.stateNode,a.type,b);}}function Hb(a){Eb?Fb?Fb.push(a):Fb=[a]:Eb=a;}function Ib(){if(Eb){var a=Eb,b=Fb;Fb=Eb=null;Gb(a);if(b)for(a=0;a<b.length;a++)Gb(b[a]);}}
+function Jb(a,b){return a(b)}function Kb(a,b,c,d){return a(b,c,d)}function Lb(){}var Mb=Jb,Nb=!1;function Ob(){if(null!==Eb||null!==Fb)Lb(),Ib();}var Pb={color:!0,date:!0,datetime:!0,"datetime-local":!0,email:!0,month:!0,number:!0,password:!0,range:!0,search:!0,tel:!0,text:!0,time:!0,url:!0,week:!0};function Qb(a){var b=a&&a.nodeName&&a.nodeName.toLowerCase();return"input"===b?!!Pb[a.type]:"textarea"===b?!0:!1}
+function Rb(a){a=a.target||a.srcElement||window;a.correspondingUseElement&&(a=a.correspondingUseElement);return 3===a.nodeType?a.parentNode:a}function Sb(a){if(!Ra)return!1;a="on"+a;var b=a in document;b||(b=document.createElement("div"),b.setAttribute(a,"return;"),b="function"===typeof b[a]);return b}function Tb(a){var b=a.type;return(a=a.nodeName)&&"input"===a.toLowerCase()&&("checkbox"===b||"radio"===b)}
+function Ub(a){var b=Tb(a)?"checked":"value",c=Object.getOwnPropertyDescriptor(a.constructor.prototype,b),d=""+a[b];if(!a.hasOwnProperty(b)&&"undefined"!==typeof c&&"function"===typeof c.get&&"function"===typeof c.set){var e=c.get,f=c.set;Object.defineProperty(a,b,{configurable:!0,get:function(){return e.call(this)},set:function(a){d=""+a;f.call(this,a);}});Object.defineProperty(a,b,{enumerable:c.enumerable});return{getValue:function(){return d},setValue:function(a){d=""+a;},stopTracking:function(){a._valueTracker=
+null;delete a[b];}}}}function Vb(a){a._valueTracker||(a._valueTracker=Ub(a));}function Wb(a){if(!a)return!1;var b=a._valueTracker;if(!b)return!0;var c=b.getValue();var d="";a&&(d=Tb(a)?a.checked?"true":"false":a.value);a=d;return a!==c?(b.setValue(a),!0):!1}var Xb=React__default.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;Xb.hasOwnProperty("ReactCurrentDispatcher")||(Xb.ReactCurrentDispatcher={current:null});Xb.hasOwnProperty("ReactCurrentBatchConfig")||(Xb.ReactCurrentBatchConfig={suspense:null});
+var Yb=/^(.*)[\\\/]/,B="function"===typeof Symbol&&Symbol.for,Zb=B?Symbol.for("react.element"):60103,$b=B?Symbol.for("react.portal"):60106,ac=B?Symbol.for("react.fragment"):60107,bc=B?Symbol.for("react.strict_mode"):60108,cc=B?Symbol.for("react.profiler"):60114,dc=B?Symbol.for("react.provider"):60109,ec=B?Symbol.for("react.context"):60110,fc=B?Symbol.for("react.concurrent_mode"):60111,gc=B?Symbol.for("react.forward_ref"):60112,hc=B?Symbol.for("react.suspense"):60113,ic=B?Symbol.for("react.suspense_list"):
+60120,jc=B?Symbol.for("react.memo"):60115,kc=B?Symbol.for("react.lazy"):60116;var lc="function"===typeof Symbol&&Symbol.iterator;function mc(a){if(null===a||"object"!==typeof a)return null;a=lc&&a[lc]||a["@@iterator"];return"function"===typeof a?a:null}
+function oc(a){if(null==a)return null;if("function"===typeof a)return a.displayName||a.name||null;if("string"===typeof a)return a;switch(a){case ac:return"Fragment";case $b:return"Portal";case cc:return"Profiler";case bc:return"StrictMode";case hc:return"Suspense";case ic:return"SuspenseList"}if("object"===typeof a)switch(a.$$typeof){case ec:return"Context.Consumer";case dc:return"Context.Provider";case gc:var b=a.render;b=b.displayName||b.name||"";return a.displayName||(""!==b?"ForwardRef("+b+")":
+"ForwardRef");case jc:return oc(a.type);case kc:if(a=1===a._status?a._result:null)return oc(a)}return null}function pc(a){var b="";do{a:switch(a.tag){case 3:case 4:case 6:case 7:case 10:case 9:var c="";break a;default:var d=a._debugOwner,e=a._debugSource,f=oc(a.type);c=null;d&&(c=oc(d.type));d=f;f="";e?f=" (at "+e.fileName.replace(Yb,"")+":"+e.lineNumber+")":c&&(f=" (created by "+c+")");c="\n    in "+(d||"Unknown")+f;}b+=c;a=a.return;}while(a);return b}
+var qc=/^[:A-Z_a-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02FF\u0370-\u037D\u037F-\u1FFF\u200C-\u200D\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD][:A-Z_a-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02FF\u0370-\u037D\u037F-\u1FFF\u200C-\u200D\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD\-.0-9\u00B7\u0300-\u036F\u203F-\u2040]*$/,rc=Object.prototype.hasOwnProperty,sc={},tc={};
+function uc(a){if(rc.call(tc,a))return!0;if(rc.call(sc,a))return!1;if(qc.test(a))return tc[a]=!0;sc[a]=!0;return!1}function vc(a,b,c,d){if(null!==c&&0===c.type)return!1;switch(typeof b){case "function":case "symbol":return!0;case "boolean":if(d)return!1;if(null!==c)return!c.acceptsBooleans;a=a.toLowerCase().slice(0,5);return"data-"!==a&&"aria-"!==a;default:return!1}}
+function wc(a,b,c,d){if(null===b||"undefined"===typeof b||vc(a,b,c,d))return!0;if(d)return!1;if(null!==c)switch(c.type){case 3:return!b;case 4:return!1===b;case 5:return isNaN(b);case 6:return isNaN(b)||1>b}return!1}function D(a,b,c,d,e,f){this.acceptsBooleans=2===b||3===b||4===b;this.attributeName=d;this.attributeNamespace=e;this.mustUseProperty=c;this.propertyName=a;this.type=b;this.sanitizeURL=f;}var F={};
+"children dangerouslySetInnerHTML defaultValue defaultChecked innerHTML suppressContentEditableWarning suppressHydrationWarning style".split(" ").forEach(function(a){F[a]=new D(a,0,!1,a,null,!1);});[["acceptCharset","accept-charset"],["className","class"],["htmlFor","for"],["httpEquiv","http-equiv"]].forEach(function(a){var b=a[0];F[b]=new D(b,1,!1,a[1],null,!1);});["contentEditable","draggable","spellCheck","value"].forEach(function(a){F[a]=new D(a,2,!1,a.toLowerCase(),null,!1);});
+["autoReverse","externalResourcesRequired","focusable","preserveAlpha"].forEach(function(a){F[a]=new D(a,2,!1,a,null,!1);});"allowFullScreen async autoFocus autoPlay controls default defer disabled disablePictureInPicture formNoValidate hidden loop noModule noValidate open playsInline readOnly required reversed scoped seamless itemScope".split(" ").forEach(function(a){F[a]=new D(a,3,!1,a.toLowerCase(),null,!1);});
+["checked","multiple","muted","selected"].forEach(function(a){F[a]=new D(a,3,!0,a,null,!1);});["capture","download"].forEach(function(a){F[a]=new D(a,4,!1,a,null,!1);});["cols","rows","size","span"].forEach(function(a){F[a]=new D(a,6,!1,a,null,!1);});["rowSpan","start"].forEach(function(a){F[a]=new D(a,5,!1,a.toLowerCase(),null,!1);});var xc=/[\-:]([a-z])/g;function yc(a){return a[1].toUpperCase()}
+"accent-height alignment-baseline arabic-form baseline-shift cap-height clip-path clip-rule color-interpolation color-interpolation-filters color-profile color-rendering dominant-baseline enable-background fill-opacity fill-rule flood-color flood-opacity font-family font-size font-size-adjust font-stretch font-style font-variant font-weight glyph-name glyph-orientation-horizontal glyph-orientation-vertical horiz-adv-x horiz-origin-x image-rendering letter-spacing lighting-color marker-end marker-mid marker-start overline-position overline-thickness paint-order panose-1 pointer-events rendering-intent shape-rendering stop-color stop-opacity strikethrough-position strikethrough-thickness stroke-dasharray stroke-dashoffset stroke-linecap stroke-linejoin stroke-miterlimit stroke-opacity stroke-width text-anchor text-decoration text-rendering underline-position underline-thickness unicode-bidi unicode-range units-per-em v-alphabetic v-hanging v-ideographic v-mathematical vector-effect vert-adv-y vert-origin-x vert-origin-y word-spacing writing-mode xmlns:xlink x-height".split(" ").forEach(function(a){var b=a.replace(xc,
+yc);F[b]=new D(b,1,!1,a,null,!1);});"xlink:actuate xlink:arcrole xlink:role xlink:show xlink:title xlink:type".split(" ").forEach(function(a){var b=a.replace(xc,yc);F[b]=new D(b,1,!1,a,"http://www.w3.org/1999/xlink",!1);});["xml:base","xml:lang","xml:space"].forEach(function(a){var b=a.replace(xc,yc);F[b]=new D(b,1,!1,a,"http://www.w3.org/XML/1998/namespace",!1);});["tabIndex","crossOrigin"].forEach(function(a){F[a]=new D(a,1,!1,a.toLowerCase(),null,!1);});
+F.xlinkHref=new D("xlinkHref",1,!1,"xlink:href","http://www.w3.org/1999/xlink",!0);["src","href","action","formAction"].forEach(function(a){F[a]=new D(a,1,!1,a.toLowerCase(),null,!0);});
+function zc(a,b,c,d){var e=F.hasOwnProperty(b)?F[b]:null;var f=null!==e?0===e.type:d?!1:!(2<b.length)||"o"!==b[0]&&"O"!==b[0]||"n"!==b[1]&&"N"!==b[1]?!1:!0;f||(wc(b,c,e,d)&&(c=null),d||null===e?uc(b)&&(null===c?a.removeAttribute(b):a.setAttribute(b,""+c)):e.mustUseProperty?a[e.propertyName]=null===c?3===e.type?!1:"":c:(b=e.attributeName,d=e.attributeNamespace,null===c?a.removeAttribute(b):(e=e.type,c=3===e||4===e&&!0===c?"":""+c,d?a.setAttributeNS(d,b,c):a.setAttribute(b,c))));}
+function Ac(a){switch(typeof a){case "boolean":case "number":case "object":case "string":case "undefined":return a;default:return""}}function Bc(a,b){var c=b.checked;return objectAssign({},b,{defaultChecked:void 0,defaultValue:void 0,value:void 0,checked:null!=c?c:a._wrapperState.initialChecked})}
+function Cc(a,b){var c=null==b.defaultValue?"":b.defaultValue,d=null!=b.checked?b.checked:b.defaultChecked;c=Ac(null!=b.value?b.value:c);a._wrapperState={initialChecked:d,initialValue:c,controlled:"checkbox"===b.type||"radio"===b.type?null!=b.checked:null!=b.value};}function Dc(a,b){b=b.checked;null!=b&&zc(a,"checked",b,!1);}
+function Ec(a,b){Dc(a,b);var c=Ac(b.value),d=b.type;if(null!=c)if("number"===d){if(0===c&&""===a.value||a.value!=c)a.value=""+c;}else a.value!==""+c&&(a.value=""+c);else if("submit"===d||"reset"===d){a.removeAttribute("value");return}b.hasOwnProperty("value")?Fc(a,b.type,c):b.hasOwnProperty("defaultValue")&&Fc(a,b.type,Ac(b.defaultValue));null==b.checked&&null!=b.defaultChecked&&(a.defaultChecked=!!b.defaultChecked);}
+function Gc(a,b,c){if(b.hasOwnProperty("value")||b.hasOwnProperty("defaultValue")){var d=b.type;if(!("submit"!==d&&"reset"!==d||void 0!==b.value&&null!==b.value))return;b=""+a._wrapperState.initialValue;c||b===a.value||(a.value=b);a.defaultValue=b;}c=a.name;""!==c&&(a.name="");a.defaultChecked=!a.defaultChecked;a.defaultChecked=!!a._wrapperState.initialChecked;""!==c&&(a.name=c);}
+function Fc(a,b,c){if("number"!==b||a.ownerDocument.activeElement!==a)null==c?a.defaultValue=""+a._wrapperState.initialValue:a.defaultValue!==""+c&&(a.defaultValue=""+c);}var Hc={change:{phasedRegistrationNames:{bubbled:"onChange",captured:"onChangeCapture"},dependencies:"blur change click focus input keydown keyup selectionchange".split(" ")}};function Ic(a,b,c){a=y.getPooled(Hc.change,a,b,c);a.type="change";Hb(c);Qa(a);return a}var Jc=null,Kc=null;function Lc(a){Ba(a);}
+function Mc(a){var b=Ja(a);if(Wb(b))return a}function Nc(a,b){if("change"===a)return b}var Oc=!1;Ra&&(Oc=Sb("input")&&(!document.documentMode||9<document.documentMode));function Pc(){Jc&&(Jc.detachEvent("onpropertychange",Qc),Kc=Jc=null);}function Qc(a){if("value"===a.propertyName&&Mc(Kc))if(a=Ic(Kc,a,Rb(a)),Nb)Ba(a);else{Nb=!0;try{Jb(Lc,a);}finally{Nb=!1,Ob();}}}function Rc(a,b,c){"focus"===a?(Pc(),Jc=b,Kc=c,Jc.attachEvent("onpropertychange",Qc)):"blur"===a&&Pc();}
+function Sc(a){if("selectionchange"===a||"keyup"===a||"keydown"===a)return Mc(Kc)}function Tc(a,b){if("click"===a)return Mc(b)}function Uc(a,b){if("input"===a||"change"===a)return Mc(b)}
+var Vc={eventTypes:Hc,_isInputEventSupported:Oc,extractEvents:function(a,b,c,d){var e=b?Ja(b):window,f=void 0,h=void 0,g=e.nodeName&&e.nodeName.toLowerCase();"select"===g||"input"===g&&"file"===e.type?f=Nc:Qb(e)?Oc?f=Uc:(f=Sc,h=Rc):(g=e.nodeName)&&"input"===g.toLowerCase()&&("checkbox"===e.type||"radio"===e.type)&&(f=Tc);if(f&&(f=f(a,b)))return Ic(f,c,d);h&&h(a,e,b);"blur"===a&&(a=e._wrapperState)&&a.controlled&&"number"===e.type&&Fc(e,"number",e.value);}},Wc=y.extend({view:null,detail:null}),Xc={Alt:"altKey",
+Control:"ctrlKey",Meta:"metaKey",Shift:"shiftKey"};function Yc(a){var b=this.nativeEvent;return b.getModifierState?b.getModifierState(a):(a=Xc[a])?!!b[a]:!1}function Zc(){return Yc}
+var $c=0,ad=0,bd=!1,cd=!1,dd=Wc.extend({screenX:null,screenY:null,clientX:null,clientY:null,pageX:null,pageY:null,ctrlKey:null,shiftKey:null,altKey:null,metaKey:null,getModifierState:Zc,button:null,buttons:null,relatedTarget:function(a){return a.relatedTarget||(a.fromElement===a.srcElement?a.toElement:a.fromElement)},movementX:function(a){if("movementX"in a)return a.movementX;var b=$c;$c=a.screenX;return bd?"mousemove"===a.type?a.screenX-b:0:(bd=!0,0)},movementY:function(a){if("movementY"in a)return a.movementY;
+var b=ad;ad=a.screenY;return cd?"mousemove"===a.type?a.screenY-b:0:(cd=!0,0)}}),ed=dd.extend({pointerId:null,width:null,height:null,pressure:null,tangentialPressure:null,tiltX:null,tiltY:null,twist:null,pointerType:null,isPrimary:null}),fd={mouseEnter:{registrationName:"onMouseEnter",dependencies:["mouseout","mouseover"]},mouseLeave:{registrationName:"onMouseLeave",dependencies:["mouseout","mouseover"]},pointerEnter:{registrationName:"onPointerEnter",dependencies:["pointerout","pointerover"]},pointerLeave:{registrationName:"onPointerLeave",
+dependencies:["pointerout","pointerover"]}},gd={eventTypes:fd,extractEvents:function(a,b,c,d){var e="mouseover"===a||"pointerover"===a,f="mouseout"===a||"pointerout"===a;if(e&&(c.relatedTarget||c.fromElement)||!f&&!e)return null;e=d.window===d?d:(e=d.ownerDocument)?e.defaultView||e.parentWindow:window;f?(f=b,b=(b=c.relatedTarget||c.toElement)?Ha(b):null):f=null;if(f===b)return null;var h=void 0,g=void 0,k=void 0,l=void 0;if("mouseout"===a||"mouseover"===a)h=dd,g=fd.mouseLeave,k=fd.mouseEnter,l="mouse";
+else if("pointerout"===a||"pointerover"===a)h=ed,g=fd.pointerLeave,k=fd.pointerEnter,l="pointer";var n=null==f?e:Ja(f);e=null==b?e:Ja(b);a=h.getPooled(g,f,c,d);a.type=l+"leave";a.target=n;a.relatedTarget=e;c=h.getPooled(k,b,c,d);c.type=l+"enter";c.target=e;c.relatedTarget=n;d=b;if(f&&d)a:{b=f;e=d;l=0;for(h=b;h;h=La(h))l++;h=0;for(k=e;k;k=La(k))h++;for(;0<l-h;)b=La(b),l--;for(;0<h-l;)e=La(e),h--;for(;l--;){if(b===e||b===e.alternate)break a;b=La(b);e=La(e);}b=null;}else b=null;e=b;for(b=[];f&&f!==e;){l=
+f.alternate;if(null!==l&&l===e)break;b.push(f);f=La(f);}for(f=[];d&&d!==e;){l=d.alternate;if(null!==l&&l===e)break;f.push(d);d=La(d);}for(d=0;d<b.length;d++)Oa(b[d],"bubbled",a);for(d=f.length;0<d--;)Oa(f[d],"captured",c);return[a,c]}};function hd(a,b){return a===b&&(0!==a||1/a===1/b)||a!==a&&b!==b}var id=Object.prototype.hasOwnProperty;
+function jd(a,b){if(hd(a,b))return!0;if("object"!==typeof a||null===a||"object"!==typeof b||null===b)return!1;var c=Object.keys(a),d=Object.keys(b);if(c.length!==d.length)return!1;for(d=0;d<c.length;d++)if(!id.call(b,c[d])||!hd(a[c[d]],b[c[d]]))return!1;return!0}function kd(a,b){return{responder:a,props:b}}function ld(a){var b=a;if(a.alternate)for(;b.return;)b=b.return;else{if(0!==(b.effectTag&2))return 1;for(;b.return;)if(b=b.return,0!==(b.effectTag&2))return 1}return 3===b.tag?2:3}function od(a){if(2!==ld(a))throw t(Error(188));}
+function pd(a){var b=a.alternate;if(!b){b=ld(a);if(3===b)throw t(Error(188));return 1===b?null:a}for(var c=a,d=b;;){var e=c.return;if(null===e)break;var f=e.alternate;if(null===f){d=e.return;if(null!==d){c=d;continue}break}if(e.child===f.child){for(f=e.child;f;){if(f===c)return od(e),a;if(f===d)return od(e),b;f=f.sibling;}throw t(Error(188));}if(c.return!==d.return)c=e,d=f;else{for(var h=!1,g=e.child;g;){if(g===c){h=!0;c=e;d=f;break}if(g===d){h=!0;d=e;c=f;break}g=g.sibling;}if(!h){for(g=f.child;g;){if(g===
+c){h=!0;c=f;d=e;break}if(g===d){h=!0;d=f;c=e;break}g=g.sibling;}if(!h)throw t(Error(189));}}if(c.alternate!==d)throw t(Error(190));}if(3!==c.tag)throw t(Error(188));return c.stateNode.current===c?a:b}function qd(a){a=pd(a);if(!a)return null;for(var b=a;;){if(5===b.tag||6===b.tag)return b;if(b.child)b.child.return=b,b=b.child;else{if(b===a)break;for(;!b.sibling;){if(!b.return||b.return===a)return null;b=b.return;}b.sibling.return=b.return;b=b.sibling;}}return null}
+var rd=y.extend({animationName:null,elapsedTime:null,pseudoElement:null}),sd=y.extend({clipboardData:function(a){return"clipboardData"in a?a.clipboardData:window.clipboardData}}),td=Wc.extend({relatedTarget:null});function ud(a){var b=a.keyCode;"charCode"in a?(a=a.charCode,0===a&&13===b&&(a=13)):a=b;10===a&&(a=13);return 32<=a||13===a?a:0}
+var vd={Esc:"Escape",Spacebar:" ",Left:"ArrowLeft",Up:"ArrowUp",Right:"ArrowRight",Down:"ArrowDown",Del:"Delete",Win:"OS",Menu:"ContextMenu",Apps:"ContextMenu",Scroll:"ScrollLock",MozPrintableKey:"Unidentified"},wd={8:"Backspace",9:"Tab",12:"Clear",13:"Enter",16:"Shift",17:"Control",18:"Alt",19:"Pause",20:"CapsLock",27:"Escape",32:" ",33:"PageUp",34:"PageDown",35:"End",36:"Home",37:"ArrowLeft",38:"ArrowUp",39:"ArrowRight",40:"ArrowDown",45:"Insert",46:"Delete",112:"F1",113:"F2",114:"F3",115:"F4",
+116:"F5",117:"F6",118:"F7",119:"F8",120:"F9",121:"F10",122:"F11",123:"F12",144:"NumLock",145:"ScrollLock",224:"Meta"},xd=Wc.extend({key:function(a){if(a.key){var b=vd[a.key]||a.key;if("Unidentified"!==b)return b}return"keypress"===a.type?(a=ud(a),13===a?"Enter":String.fromCharCode(a)):"keydown"===a.type||"keyup"===a.type?wd[a.keyCode]||"Unidentified":""},location:null,ctrlKey:null,shiftKey:null,altKey:null,metaKey:null,repeat:null,locale:null,getModifierState:Zc,charCode:function(a){return"keypress"===
+a.type?ud(a):0},keyCode:function(a){return"keydown"===a.type||"keyup"===a.type?a.keyCode:0},which:function(a){return"keypress"===a.type?ud(a):"keydown"===a.type||"keyup"===a.type?a.keyCode:0}}),yd=dd.extend({dataTransfer:null}),zd=Wc.extend({touches:null,targetTouches:null,changedTouches:null,altKey:null,metaKey:null,ctrlKey:null,shiftKey:null,getModifierState:Zc}),Ad=y.extend({propertyName:null,elapsedTime:null,pseudoElement:null}),Bd=dd.extend({deltaX:function(a){return"deltaX"in a?a.deltaX:"wheelDeltaX"in
+a?-a.wheelDeltaX:0},deltaY:function(a){return"deltaY"in a?a.deltaY:"wheelDeltaY"in a?-a.wheelDeltaY:"wheelDelta"in a?-a.wheelDelta:0},deltaZ:null,deltaMode:null}),Cd=[["blur","blur",0],["cancel","cancel",0],["click","click",0],["close","close",0],["contextmenu","contextMenu",0],["copy","copy",0],["cut","cut",0],["auxclick","auxClick",0],["dblclick","doubleClick",0],["dragend","dragEnd",0],["dragstart","dragStart",0],["drop","drop",0],["focus","focus",0],["input","input",0],["invalid","invalid",0],
+["keydown","keyDown",0],["keypress","keyPress",0],["keyup","keyUp",0],["mousedown","mouseDown",0],["mouseup","mouseUp",0],["paste","paste",0],["pause","pause",0],["play","play",0],["pointercancel","pointerCancel",0],["pointerdown","pointerDown",0],["pointerup","pointerUp",0],["ratechange","rateChange",0],["reset","reset",0],["seeked","seeked",0],["submit","submit",0],["touchcancel","touchCancel",0],["touchend","touchEnd",0],["touchstart","touchStart",0],["volumechange","volumeChange",0],["drag","drag",
+1],["dragenter","dragEnter",1],["dragexit","dragExit",1],["dragleave","dragLeave",1],["dragover","dragOver",1],["mousemove","mouseMove",1],["mouseout","mouseOut",1],["mouseover","mouseOver",1],["pointermove","pointerMove",1],["pointerout","pointerOut",1],["pointerover","pointerOver",1],["scroll","scroll",1],["toggle","toggle",1],["touchmove","touchMove",1],["wheel","wheel",1],["abort","abort",2],[Xa,"animationEnd",2],[Ya,"animationIteration",2],[Za,"animationStart",2],["canplay","canPlay",2],["canplaythrough",
+"canPlayThrough",2],["durationchange","durationChange",2],["emptied","emptied",2],["encrypted","encrypted",2],["ended","ended",2],["error","error",2],["gotpointercapture","gotPointerCapture",2],["load","load",2],["loadeddata","loadedData",2],["loadedmetadata","loadedMetadata",2],["loadstart","loadStart",2],["lostpointercapture","lostPointerCapture",2],["playing","playing",2],["progress","progress",2],["seeking","seeking",2],["stalled","stalled",2],["suspend","suspend",2],["timeupdate","timeUpdate",
+2],[ab,"transitionEnd",2],["waiting","waiting",2]],Dd={},Ed={},Fd=0;for(;Fd<Cd.length;Fd++){var Gd=Cd[Fd],Hd=Gd[0],Id=Gd[1],Jd=Gd[2],Kd="on"+(Id[0].toUpperCase()+Id.slice(1)),Ld={phasedRegistrationNames:{bubbled:Kd,captured:Kd+"Capture"},dependencies:[Hd],eventPriority:Jd};Dd[Id]=Ld;Ed[Hd]=Ld;}
+var Md={eventTypes:Dd,getEventPriority:function(a){a=Ed[a];return void 0!==a?a.eventPriority:2},extractEvents:function(a,b,c,d){var e=Ed[a];if(!e)return null;switch(a){case "keypress":if(0===ud(c))return null;case "keydown":case "keyup":a=xd;break;case "blur":case "focus":a=td;break;case "click":if(2===c.button)return null;case "auxclick":case "dblclick":case "mousedown":case "mousemove":case "mouseup":case "mouseout":case "mouseover":case "contextmenu":a=dd;break;case "drag":case "dragend":case "dragenter":case "dragexit":case "dragleave":case "dragover":case "dragstart":case "drop":a=
+yd;break;case "touchcancel":case "touchend":case "touchmove":case "touchstart":a=zd;break;case Xa:case Ya:case Za:a=rd;break;case ab:a=Ad;break;case "scroll":a=Wc;break;case "wheel":a=Bd;break;case "copy":case "cut":case "paste":a=sd;break;case "gotpointercapture":case "lostpointercapture":case "pointercancel":case "pointerdown":case "pointermove":case "pointerout":case "pointerover":case "pointerup":a=ed;break;default:a=y;}b=a.getPooled(e,b,c,d);Qa(b);return b}},Nd=Md.getEventPriority,Od=[];
+function Pd(a){var b=a.targetInst,c=b;do{if(!c){a.ancestors.push(c);break}var d;for(d=c;d.return;)d=d.return;d=3!==d.tag?null:d.stateNode.containerInfo;if(!d)break;a.ancestors.push(c);c=Ha(d);}while(c);for(c=0;c<a.ancestors.length;c++){b=a.ancestors[c];var e=Rb(a.nativeEvent);d=a.topLevelType;for(var f=a.nativeEvent,h=null,g=0;g<ea.length;g++){var k=ea[g];k&&(k=k.extractEvents(d,b,f,e))&&(h=xa(h,k));}Ba(h);}}var Qd=!0;function G(a,b){Rd(b,a,!1);}
+function Rd(a,b,c){switch(Nd(b)){case 0:var d=Sd.bind(null,b,1);break;case 1:d=Td.bind(null,b,1);break;default:d=Ud.bind(null,b,1);}c?a.addEventListener(b,d,!0):a.addEventListener(b,d,!1);}function Sd(a,b,c){Nb||Lb();var d=Ud,e=Nb;Nb=!0;try{Kb(d,a,b,c);}finally{(Nb=e)||Ob();}}function Td(a,b,c){Ud(a,b,c);}
+function Ud(a,b,c){if(Qd){b=Rb(c);b=Ha(b);null===b||"number"!==typeof b.tag||2===ld(b)||(b=null);if(Od.length){var d=Od.pop();d.topLevelType=a;d.nativeEvent=c;d.targetInst=b;a=d;}else a={topLevelType:a,nativeEvent:c,targetInst:b,ancestors:[]};try{if(c=a,Nb)Pd(c,void 0);else{Nb=!0;try{Mb(Pd,c,void 0);}finally{Nb=!1,Ob();}}}finally{a.topLevelType=null,a.nativeEvent=null,a.targetInst=null,a.ancestors.length=0,10>Od.length&&Od.push(a);}}}var Vd=new ("function"===typeof WeakMap?WeakMap:Map);
+function Wd(a){var b=Vd.get(a);void 0===b&&(b=new Set,Vd.set(a,b));return b}function Xd(a){a=a||("undefined"!==typeof document?document:void 0);if("undefined"===typeof a)return null;try{return a.activeElement||a.body}catch(b){return a.body}}function Yd(a){for(;a&&a.firstChild;)a=a.firstChild;return a}
+function Zd(a,b){var c=Yd(a);a=0;for(var d;c;){if(3===c.nodeType){d=a+c.textContent.length;if(a<=b&&d>=b)return{node:c,offset:b-a};a=d;}a:{for(;c;){if(c.nextSibling){c=c.nextSibling;break a}c=c.parentNode;}c=void 0;}c=Yd(c);}}function $d(a,b){return a&&b?a===b?!0:a&&3===a.nodeType?!1:b&&3===b.nodeType?$d(a,b.parentNode):"contains"in a?a.contains(b):a.compareDocumentPosition?!!(a.compareDocumentPosition(b)&16):!1:!1}
+function ae(){for(var a=window,b=Xd();b instanceof a.HTMLIFrameElement;){try{var c="string"===typeof b.contentWindow.location.href;}catch(d){c=!1;}if(c)a=b.contentWindow;else break;b=Xd(a.document);}return b}function be(a){var b=a&&a.nodeName&&a.nodeName.toLowerCase();return b&&("input"===b&&("text"===a.type||"search"===a.type||"tel"===a.type||"url"===a.type||"password"===a.type)||"textarea"===b||"true"===a.contentEditable)}
+var ce=Ra&&"documentMode"in document&&11>=document.documentMode,de={select:{phasedRegistrationNames:{bubbled:"onSelect",captured:"onSelectCapture"},dependencies:"blur contextmenu dragend focus keydown keyup mousedown mouseup selectionchange".split(" ")}},ee=null,fe=null,ge=null,he=!1;
+function ie(a,b){var c=b.window===b?b.document:9===b.nodeType?b:b.ownerDocument;if(he||null==ee||ee!==Xd(c))return null;c=ee;"selectionStart"in c&&be(c)?c={start:c.selectionStart,end:c.selectionEnd}:(c=(c.ownerDocument&&c.ownerDocument.defaultView||window).getSelection(),c={anchorNode:c.anchorNode,anchorOffset:c.anchorOffset,focusNode:c.focusNode,focusOffset:c.focusOffset});return ge&&jd(ge,c)?null:(ge=c,a=y.getPooled(de.select,fe,a,b),a.type="select",a.target=ee,Qa(a),a)}
+var je={eventTypes:de,extractEvents:function(a,b,c,d){var e=d.window===d?d.document:9===d.nodeType?d:d.ownerDocument,f;if(!(f=!e)){a:{e=Wd(e);f=ja.onSelect;for(var h=0;h<f.length;h++)if(!e.has(f[h])){e=!1;break a}e=!0;}f=!e;}if(f)return null;e=b?Ja(b):window;switch(a){case "focus":if(Qb(e)||"true"===e.contentEditable)ee=e,fe=b,ge=null;break;case "blur":ge=fe=ee=null;break;case "mousedown":he=!0;break;case "contextmenu":case "mouseup":case "dragend":return he=!1,ie(c,d);case "selectionchange":if(ce)break;
+case "keydown":case "keyup":return ie(c,d)}return null}};Ca.injectEventPluginOrder("ResponderEventPlugin SimpleEventPlugin EnterLeaveEventPlugin ChangeEventPlugin SelectEventPlugin BeforeInputEventPlugin".split(" "));sa=Ka;ta=Ia;va=Ja;Ca.injectEventPluginsByName({SimpleEventPlugin:Md,EnterLeaveEventPlugin:gd,ChangeEventPlugin:Vc,SelectEventPlugin:je,BeforeInputEventPlugin:Cb});function ke(a){var b="";React__default.Children.forEach(a,function(a){null!=a&&(b+=a);});return b}
+function le(a,b){a=objectAssign({children:void 0},b);if(b=ke(b.children))a.children=b;return a}function me(a,b,c,d){a=a.options;if(b){b={};for(var e=0;e<c.length;e++)b["$"+c[e]]=!0;for(c=0;c<a.length;c++)e=b.hasOwnProperty("$"+a[c].value),a[c].selected!==e&&(a[c].selected=e),e&&d&&(a[c].defaultSelected=!0);}else{c=""+Ac(c);b=null;for(e=0;e<a.length;e++){if(a[e].value===c){a[e].selected=!0;d&&(a[e].defaultSelected=!0);return}null!==b||a[e].disabled||(b=a[e]);}null!==b&&(b.selected=!0);}}
+function ne(a,b){if(null!=b.dangerouslySetInnerHTML)throw t(Error(91));return objectAssign({},b,{value:void 0,defaultValue:void 0,children:""+a._wrapperState.initialValue})}function oe(a,b){var c=b.value;if(null==c){c=b.defaultValue;b=b.children;if(null!=b){if(null!=c)throw t(Error(92));if(Array.isArray(b)){if(!(1>=b.length))throw t(Error(93));b=b[0];}c=b;}null==c&&(c="");}a._wrapperState={initialValue:Ac(c)};}
+function pe(a,b){var c=Ac(b.value),d=Ac(b.defaultValue);null!=c&&(c=""+c,c!==a.value&&(a.value=c),null==b.defaultValue&&a.defaultValue!==c&&(a.defaultValue=c));null!=d&&(a.defaultValue=""+d);}function qe(a){var b=a.textContent;b===a._wrapperState.initialValue&&(a.value=b);}var re={html:"http://www.w3.org/1999/xhtml",mathml:"http://www.w3.org/1998/Math/MathML",svg:"http://www.w3.org/2000/svg"};
+function se(a){switch(a){case "svg":return"http://www.w3.org/2000/svg";case "math":return"http://www.w3.org/1998/Math/MathML";default:return"http://www.w3.org/1999/xhtml"}}function te(a,b){return null==a||"http://www.w3.org/1999/xhtml"===a?se(b):"http://www.w3.org/2000/svg"===a&&"foreignObject"===b?"http://www.w3.org/1999/xhtml":a}
+var ue=void 0,ve=function(a){return"undefined"!==typeof MSApp&&MSApp.execUnsafeLocalFunction?function(b,c,d,e){MSApp.execUnsafeLocalFunction(function(){return a(b,c,d,e)});}:a}(function(a,b){if(a.namespaceURI!==re.svg||"innerHTML"in a)a.innerHTML=b;else{ue=ue||document.createElement("div");ue.innerHTML="<svg>"+b+"</svg>";for(b=ue.firstChild;a.firstChild;)a.removeChild(a.firstChild);for(;b.firstChild;)a.appendChild(b.firstChild);}});
+function we(a,b){if(b){var c=a.firstChild;if(c&&c===a.lastChild&&3===c.nodeType){c.nodeValue=b;return}}a.textContent=b;}
+var xe={animationIterationCount:!0,borderImageOutset:!0,borderImageSlice:!0,borderImageWidth:!0,boxFlex:!0,boxFlexGroup:!0,boxOrdinalGroup:!0,columnCount:!0,columns:!0,flex:!0,flexGrow:!0,flexPositive:!0,flexShrink:!0,flexNegative:!0,flexOrder:!0,gridArea:!0,gridRow:!0,gridRowEnd:!0,gridRowSpan:!0,gridRowStart:!0,gridColumn:!0,gridColumnEnd:!0,gridColumnSpan:!0,gridColumnStart:!0,fontWeight:!0,lineClamp:!0,lineHeight:!0,opacity:!0,order:!0,orphans:!0,tabSize:!0,widows:!0,zIndex:!0,zoom:!0,fillOpacity:!0,
+floodOpacity:!0,stopOpacity:!0,strokeDasharray:!0,strokeDashoffset:!0,strokeMiterlimit:!0,strokeOpacity:!0,strokeWidth:!0},ye=["Webkit","ms","Moz","O"];Object.keys(xe).forEach(function(a){ye.forEach(function(b){b=b+a.charAt(0).toUpperCase()+a.substring(1);xe[b]=xe[a];});});function ze(a,b,c){return null==b||"boolean"===typeof b||""===b?"":c||"number"!==typeof b||0===b||xe.hasOwnProperty(a)&&xe[a]?(""+b).trim():b+"px"}
+function Ae(a,b){a=a.style;for(var c in b)if(b.hasOwnProperty(c)){var d=0===c.indexOf("--"),e=ze(c,b[c],d);"float"===c&&(c="cssFloat");d?a.setProperty(c,e):a[c]=e;}}var Ce=objectAssign({menuitem:!0},{area:!0,base:!0,br:!0,col:!0,embed:!0,hr:!0,img:!0,input:!0,keygen:!0,link:!0,meta:!0,param:!0,source:!0,track:!0,wbr:!0});
+function De(a,b){if(b){if(Ce[a]&&(null!=b.children||null!=b.dangerouslySetInnerHTML))throw t(Error(137),a,"");if(null!=b.dangerouslySetInnerHTML){if(null!=b.children)throw t(Error(60));if(!("object"===typeof b.dangerouslySetInnerHTML&&"__html"in b.dangerouslySetInnerHTML))throw t(Error(61));}if(null!=b.style&&"object"!==typeof b.style)throw t(Error(62),"");}}
+function Ee(a,b){if(-1===a.indexOf("-"))return"string"===typeof b.is;switch(a){case "annotation-xml":case "color-profile":case "font-face":case "font-face-src":case "font-face-uri":case "font-face-format":case "font-face-name":case "missing-glyph":return!1;default:return!0}}
+function Fe(a,b){a=9===a.nodeType||11===a.nodeType?a:a.ownerDocument;var c=Wd(a);b=ja[b];for(var d=0;d<b.length;d++){var e=b[d];if(!c.has(e)){switch(e){case "scroll":Rd(a,"scroll",!0);break;case "focus":case "blur":Rd(a,"focus",!0);Rd(a,"blur",!0);c.add("blur");c.add("focus");break;case "cancel":case "close":Sb(e)&&Rd(a,e,!0);break;case "invalid":case "submit":case "reset":break;default:-1===bb.indexOf(e)&&G(e,a);}c.add(e);}}}function Ge(){}var He=null,Ie=null;
+function Je(a,b){switch(a){case "button":case "input":case "select":case "textarea":return!!b.autoFocus}return!1}function Ke(a,b){return"textarea"===a||"option"===a||"noscript"===a||"string"===typeof b.children||"number"===typeof b.children||"object"===typeof b.dangerouslySetInnerHTML&&null!==b.dangerouslySetInnerHTML&&null!=b.dangerouslySetInnerHTML.__html}var Le="function"===typeof setTimeout?setTimeout:void 0,Me="function"===typeof clearTimeout?clearTimeout:void 0;
+function Ne(a){for(;null!=a;a=a.nextSibling){var b=a.nodeType;if(1===b||3===b)break}return a}var Oe=[],Pe=-1;function H(a){0>Pe||(a.current=Oe[Pe],Oe[Pe]=null,Pe--);}function J(a,b){Pe++;Oe[Pe]=a.current;a.current=b;}var Qe={},L={current:Qe},M={current:!1},Re=Qe;
+function Se(a,b){var c=a.type.contextTypes;if(!c)return Qe;var d=a.stateNode;if(d&&d.__reactInternalMemoizedUnmaskedChildContext===b)return d.__reactInternalMemoizedMaskedChildContext;var e={},f;for(f in c)e[f]=b[f];d&&(a=a.stateNode,a.__reactInternalMemoizedUnmaskedChildContext=b,a.__reactInternalMemoizedMaskedChildContext=e);return e}function N(a){a=a.childContextTypes;return null!==a&&void 0!==a}function Te(a){H(M,a);H(L,a);}function Ue(a){H(M,a);H(L,a);}
+function Ve(a,b,c){if(L.current!==Qe)throw t(Error(168));J(L,b,a);J(M,c,a);}function We(a,b,c){var d=a.stateNode;a=b.childContextTypes;if("function"!==typeof d.getChildContext)return c;d=d.getChildContext();for(var e in d)if(!(e in a))throw t(Error(108),oc(b)||"Unknown",e);return objectAssign({},c,d)}function Xe(a){var b=a.stateNode;b=b&&b.__reactInternalMemoizedMergedChildContext||Qe;Re=L.current;J(L,b,a);J(M,M.current,a);return!0}
+function Ye(a,b,c){var d=a.stateNode;if(!d)throw t(Error(169));c?(b=We(a,b,Re),d.__reactInternalMemoizedMergedChildContext=b,H(M,a),H(L,a),J(L,b,a)):H(M,a);J(M,c,a);}
+var Ze=scheduler.unstable_runWithPriority,$e=scheduler.unstable_scheduleCallback,af=scheduler.unstable_cancelCallback,bf=scheduler.unstable_shouldYield,cf=scheduler.unstable_requestPaint,df=scheduler.unstable_now,ef=scheduler.unstable_getCurrentPriorityLevel,ff=scheduler.unstable_ImmediatePriority,hf=scheduler.unstable_UserBlockingPriority,jf=scheduler.unstable_NormalPriority,kf=scheduler.unstable_LowPriority,lf=scheduler.unstable_IdlePriority,mf={},nf=void 0!==cf?cf:function(){},of=null,pf=null,qf=!1,rf=df(),sf=1E4>rf?df:function(){return df()-rf};
+function tf(){switch(ef()){case ff:return 99;case hf:return 98;case jf:return 97;case kf:return 96;case lf:return 95;default:throw t(Error(332));}}function uf(a){switch(a){case 99:return ff;case 98:return hf;case 97:return jf;case 96:return kf;case 95:return lf;default:throw t(Error(332));}}function vf(a,b){a=uf(a);return Ze(a,b)}function wf(a,b,c){a=uf(a);return $e(a,b,c)}function xf(a){null===of?(of=[a],pf=$e(ff,yf)):of.push(a);return mf}function O(){null!==pf&&af(pf);yf();}
+function yf(){if(!qf&&null!==of){qf=!0;var a=0;try{var b=of;vf(99,function(){for(;a<b.length;a++){var c=b[a];do c=c(!0);while(null!==c)}});of=null;}catch(c){throw null!==of&&(of=of.slice(a+1)),$e(ff,O),c;}finally{qf=!1;}}}function zf(a,b){if(1073741823===b)return 99;if(1===b)return 95;a=10*(1073741821-b)-10*(1073741821-a);return 0>=a?99:250>=a?98:5250>=a?97:95}function Af(a,b){if(a&&a.defaultProps){b=objectAssign({},b);a=a.defaultProps;for(var c in a)void 0===b[c]&&(b[c]=a[c]);}return b}
+function Bf(a){var b=a._result;switch(a._status){case 1:return b;case 2:throw b;case 0:throw b;default:a._status=0;b=a._ctor;b=b();b.then(function(b){0===a._status&&(b=b.default,a._status=1,a._result=b);},function(b){0===a._status&&(a._status=2,a._result=b);});switch(a._status){case 1:return a._result;case 2:throw a._result;}a._result=b;throw b;}}var Cf={current:null},Df=null,Ef=null,Ff=null;function Gf(){Ff=Ef=Df=null;}
+function Hf(a,b){var c=a.type._context;J(Cf,c._currentValue,a);c._currentValue=b;}function If(a){var b=Cf.current;H(Cf,a);a.type._context._currentValue=b;}function Jf(a,b){for(;null!==a;){var c=a.alternate;if(a.childExpirationTime<b)a.childExpirationTime=b,null!==c&&c.childExpirationTime<b&&(c.childExpirationTime=b);else if(null!==c&&c.childExpirationTime<b)c.childExpirationTime=b;else break;a=a.return;}}
+function Kf(a,b){Df=a;Ff=Ef=null;a=a.dependencies;null!==a&&null!==a.firstContext&&(a.expirationTime>=b&&(Lf=!0),a.firstContext=null);}function Mf(a,b){if(Ff!==a&&!1!==b&&0!==b){if("number"!==typeof b||1073741823===b)Ff=a,b=1073741823;b={context:a,observedBits:b,next:null};if(null===Ef){if(null===Df)throw t(Error(308));Ef=b;Df.dependencies={expirationTime:0,firstContext:b,responders:null};}else Ef=Ef.next=b;}return a._currentValue}var Nf=!1;
+function Of(a){return{baseState:a,firstUpdate:null,lastUpdate:null,firstCapturedUpdate:null,lastCapturedUpdate:null,firstEffect:null,lastEffect:null,firstCapturedEffect:null,lastCapturedEffect:null}}function Pf(a){return{baseState:a.baseState,firstUpdate:a.firstUpdate,lastUpdate:a.lastUpdate,firstCapturedUpdate:null,lastCapturedUpdate:null,firstEffect:null,lastEffect:null,firstCapturedEffect:null,lastCapturedEffect:null}}
+function Qf(a,b){return{expirationTime:a,suspenseConfig:b,tag:0,payload:null,callback:null,next:null,nextEffect:null}}function Rf(a,b){null===a.lastUpdate?a.firstUpdate=a.lastUpdate=b:(a.lastUpdate.next=b,a.lastUpdate=b);}
+function Sf(a,b){var c=a.alternate;if(null===c){var d=a.updateQueue;var e=null;null===d&&(d=a.updateQueue=Of(a.memoizedState));}else d=a.updateQueue,e=c.updateQueue,null===d?null===e?(d=a.updateQueue=Of(a.memoizedState),e=c.updateQueue=Of(c.memoizedState)):d=a.updateQueue=Pf(e):null===e&&(e=c.updateQueue=Pf(d));null===e||d===e?Rf(d,b):null===d.lastUpdate||null===e.lastUpdate?(Rf(d,b),Rf(e,b)):(Rf(d,b),e.lastUpdate=b);}
+function Tf(a,b){var c=a.updateQueue;c=null===c?a.updateQueue=Of(a.memoizedState):Uf(a,c);null===c.lastCapturedUpdate?c.firstCapturedUpdate=c.lastCapturedUpdate=b:(c.lastCapturedUpdate.next=b,c.lastCapturedUpdate=b);}function Uf(a,b){var c=a.alternate;null!==c&&b===c.updateQueue&&(b=a.updateQueue=Pf(b));return b}
+function Vf(a,b,c,d,e,f){switch(c.tag){case 1:return a=c.payload,"function"===typeof a?a.call(f,d,e):a;case 3:a.effectTag=a.effectTag&-2049|64;case 0:a=c.payload;e="function"===typeof a?a.call(f,d,e):a;if(null===e||void 0===e)break;return objectAssign({},d,e);case 2:Nf=!0;}return d}
+function Wf(a,b,c,d,e){Nf=!1;b=Uf(a,b);for(var f=b.baseState,h=null,g=0,k=b.firstUpdate,l=f;null!==k;){var n=k.expirationTime;n<e?(null===h&&(h=k,f=l),g<n&&(g=n)):(Xf(n,k.suspenseConfig),l=Vf(a,b,k,l,c,d),null!==k.callback&&(a.effectTag|=32,k.nextEffect=null,null===b.lastEffect?b.firstEffect=b.lastEffect=k:(b.lastEffect.nextEffect=k,b.lastEffect=k)));k=k.next;}n=null;for(k=b.firstCapturedUpdate;null!==k;){var z=k.expirationTime;z<e?(null===n&&(n=k,null===h&&(f=l)),g<z&&(g=z)):(l=Vf(a,b,k,l,c,d),null!==
+k.callback&&(a.effectTag|=32,k.nextEffect=null,null===b.lastCapturedEffect?b.firstCapturedEffect=b.lastCapturedEffect=k:(b.lastCapturedEffect.nextEffect=k,b.lastCapturedEffect=k)));k=k.next;}null===h&&(b.lastUpdate=null);null===n?b.lastCapturedUpdate=null:a.effectTag|=32;null===h&&null===n&&(f=l);b.baseState=f;b.firstUpdate=h;b.firstCapturedUpdate=n;a.expirationTime=g;a.memoizedState=l;}
+function Yf(a,b,c){null!==b.firstCapturedUpdate&&(null!==b.lastUpdate&&(b.lastUpdate.next=b.firstCapturedUpdate,b.lastUpdate=b.lastCapturedUpdate),b.firstCapturedUpdate=b.lastCapturedUpdate=null);Zf(b.firstEffect,c);b.firstEffect=b.lastEffect=null;Zf(b.firstCapturedEffect,c);b.firstCapturedEffect=b.lastCapturedEffect=null;}function Zf(a,b){for(;null!==a;){var c=a.callback;if(null!==c){a.callback=null;var d=b;if("function"!==typeof c)throw t(Error(191),c);c.call(d);}a=a.nextEffect;}}
+var $f=Xb.ReactCurrentBatchConfig,ag=(new React__default.Component).refs;function bg(a,b,c,d){b=a.memoizedState;c=c(d,b);c=null===c||void 0===c?b:objectAssign({},b,c);a.memoizedState=c;d=a.updateQueue;null!==d&&0===a.expirationTime&&(d.baseState=c);}
+var fg={isMounted:function(a){return(a=a._reactInternalFiber)?2===ld(a):!1},enqueueSetState:function(a,b,c){a=a._reactInternalFiber;var d=cg(),e=$f.suspense;d=dg(d,a,e);e=Qf(d,e);e.payload=b;void 0!==c&&null!==c&&(e.callback=c);Sf(a,e);eg(a,d);},enqueueReplaceState:function(a,b,c){a=a._reactInternalFiber;var d=cg(),e=$f.suspense;d=dg(d,a,e);e=Qf(d,e);e.tag=1;e.payload=b;void 0!==c&&null!==c&&(e.callback=c);Sf(a,e);eg(a,d);},enqueueForceUpdate:function(a,b){a=a._reactInternalFiber;var c=cg(),d=$f.suspense;
+c=dg(c,a,d);d=Qf(c,d);d.tag=2;void 0!==b&&null!==b&&(d.callback=b);Sf(a,d);eg(a,c);}};function gg(a,b,c,d,e,f,h){a=a.stateNode;return"function"===typeof a.shouldComponentUpdate?a.shouldComponentUpdate(d,f,h):b.prototype&&b.prototype.isPureReactComponent?!jd(c,d)||!jd(e,f):!0}
+function hg(a,b,c){var d=!1,e=Qe;var f=b.contextType;"object"===typeof f&&null!==f?f=Mf(f):(e=N(b)?Re:L.current,d=b.contextTypes,f=(d=null!==d&&void 0!==d)?Se(a,e):Qe);b=new b(c,f);a.memoizedState=null!==b.state&&void 0!==b.state?b.state:null;b.updater=fg;a.stateNode=b;b._reactInternalFiber=a;d&&(a=a.stateNode,a.__reactInternalMemoizedUnmaskedChildContext=e,a.__reactInternalMemoizedMaskedChildContext=f);return b}
+function ig(a,b,c,d){a=b.state;"function"===typeof b.componentWillReceiveProps&&b.componentWillReceiveProps(c,d);"function"===typeof b.UNSAFE_componentWillReceiveProps&&b.UNSAFE_componentWillReceiveProps(c,d);b.state!==a&&fg.enqueueReplaceState(b,b.state,null);}
+function jg(a,b,c,d){var e=a.stateNode;e.props=c;e.state=a.memoizedState;e.refs=ag;var f=b.contextType;"object"===typeof f&&null!==f?e.context=Mf(f):(f=N(b)?Re:L.current,e.context=Se(a,f));f=a.updateQueue;null!==f&&(Wf(a,f,c,e,d),e.state=a.memoizedState);f=b.getDerivedStateFromProps;"function"===typeof f&&(bg(a,b,f,c),e.state=a.memoizedState);"function"===typeof b.getDerivedStateFromProps||"function"===typeof e.getSnapshotBeforeUpdate||"function"!==typeof e.UNSAFE_componentWillMount&&"function"!==
+typeof e.componentWillMount||(b=e.state,"function"===typeof e.componentWillMount&&e.componentWillMount(),"function"===typeof e.UNSAFE_componentWillMount&&e.UNSAFE_componentWillMount(),b!==e.state&&fg.enqueueReplaceState(e,e.state,null),f=a.updateQueue,null!==f&&(Wf(a,f,c,e,d),e.state=a.memoizedState));"function"===typeof e.componentDidMount&&(a.effectTag|=4);}var kg=Array.isArray;
+function lg(a,b,c){a=c.ref;if(null!==a&&"function"!==typeof a&&"object"!==typeof a){if(c._owner){c=c._owner;var d=void 0;if(c){if(1!==c.tag)throw t(Error(309));d=c.stateNode;}if(!d)throw t(Error(147),a);var e=""+a;if(null!==b&&null!==b.ref&&"function"===typeof b.ref&&b.ref._stringRef===e)return b.ref;b=function(a){var b=d.refs;b===ag&&(b=d.refs={});null===a?delete b[e]:b[e]=a;};b._stringRef=e;return b}if("string"!==typeof a)throw t(Error(284));if(!c._owner)throw t(Error(290),a);}return a}
+function mg(a,b){if("textarea"!==a.type)throw t(Error(31),"[object Object]"===Object.prototype.toString.call(b)?"object with keys {"+Object.keys(b).join(", ")+"}":b,"");}
+function ng(a){function b(b,c){if(a){var d=b.lastEffect;null!==d?(d.nextEffect=c,b.lastEffect=c):b.firstEffect=b.lastEffect=c;c.nextEffect=null;c.effectTag=8;}}function c(c,d){if(!a)return null;for(;null!==d;)b(c,d),d=d.sibling;return null}function d(a,b){for(a=new Map;null!==b;)null!==b.key?a.set(b.key,b):a.set(b.index,b),b=b.sibling;return a}function e(a,b,c){a=og(a,b,c);a.index=0;a.sibling=null;return a}function f(b,c,d){b.index=d;if(!a)return c;d=b.alternate;if(null!==d)return d=d.index,d<c?(b.effectTag=
+2,c):d;b.effectTag=2;return c}function h(b){a&&null===b.alternate&&(b.effectTag=2);return b}function g(a,b,c,d){if(null===b||6!==b.tag)return b=pg(c,a.mode,d),b.return=a,b;b=e(b,c,d);b.return=a;return b}function k(a,b,c,d){if(null!==b&&b.elementType===c.type)return d=e(b,c.props,d),d.ref=lg(a,b,c),d.return=a,d;d=qg(c.type,c.key,c.props,null,a.mode,d);d.ref=lg(a,b,c);d.return=a;return d}function l(a,b,c,d){if(null===b||4!==b.tag||b.stateNode.containerInfo!==c.containerInfo||b.stateNode.implementation!==
+c.implementation)return b=rg(c,a.mode,d),b.return=a,b;b=e(b,c.children||[],d);b.return=a;return b}function n(a,b,c,d,f){if(null===b||7!==b.tag)return b=sg(c,a.mode,d,f),b.return=a,b;b=e(b,c,d);b.return=a;return b}function z(a,b,c){if("string"===typeof b||"number"===typeof b)return b=pg(""+b,a.mode,c),b.return=a,b;if("object"===typeof b&&null!==b){switch(b.$$typeof){case Zb:return c=qg(b.type,b.key,b.props,null,a.mode,c),c.ref=lg(a,null,b),c.return=a,c;case $b:return b=rg(b,a.mode,c),b.return=a,b}if(kg(b)||
+mc(b))return b=sg(b,a.mode,c,null),b.return=a,b;mg(a,b);}return null}function x(a,b,c,d){var e=null!==b?b.key:null;if("string"===typeof c||"number"===typeof c)return null!==e?null:g(a,b,""+c,d);if("object"===typeof c&&null!==c){switch(c.$$typeof){case Zb:return c.key===e?c.type===ac?n(a,b,c.props.children,d,e):k(a,b,c,d):null;case $b:return c.key===e?l(a,b,c,d):null}if(kg(c)||mc(c))return null!==e?null:n(a,b,c,d,null);mg(a,c);}return null}function v(a,b,c,d,e){if("string"===typeof d||"number"===typeof d)return a=
+a.get(c)||null,g(b,a,""+d,e);if("object"===typeof d&&null!==d){switch(d.$$typeof){case Zb:return a=a.get(null===d.key?c:d.key)||null,d.type===ac?n(b,a,d.props.children,e,d.key):k(b,a,d,e);case $b:return a=a.get(null===d.key?c:d.key)||null,l(b,a,d,e)}if(kg(d)||mc(d))return a=a.get(c)||null,n(b,a,d,e,null);mg(b,d);}return null}function rb(e,h,g,k){for(var l=null,u=null,n=h,w=h=0,C=null;null!==n&&w<g.length;w++){n.index>w?(C=n,n=null):C=n.sibling;var p=x(e,n,g[w],k);if(null===p){null===n&&(n=C);break}a&&
+n&&null===p.alternate&&b(e,n);h=f(p,h,w);null===u?l=p:u.sibling=p;u=p;n=C;}if(w===g.length)return c(e,n),l;if(null===n){for(;w<g.length;w++)n=z(e,g[w],k),null!==n&&(h=f(n,h,w),null===u?l=n:u.sibling=n,u=n);return l}for(n=d(e,n);w<g.length;w++)C=v(n,e,w,g[w],k),null!==C&&(a&&null!==C.alternate&&n.delete(null===C.key?w:C.key),h=f(C,h,w),null===u?l=C:u.sibling=C,u=C);a&&n.forEach(function(a){return b(e,a)});return l}function Be(e,h,g,k){var l=mc(g);if("function"!==typeof l)throw t(Error(150));g=l.call(g);
+if(null==g)throw t(Error(151));for(var n=l=null,u=h,w=h=0,C=null,p=g.next();null!==u&&!p.done;w++,p=g.next()){u.index>w?(C=u,u=null):C=u.sibling;var r=x(e,u,p.value,k);if(null===r){null===u&&(u=C);break}a&&u&&null===r.alternate&&b(e,u);h=f(r,h,w);null===n?l=r:n.sibling=r;n=r;u=C;}if(p.done)return c(e,u),l;if(null===u){for(;!p.done;w++,p=g.next())p=z(e,p.value,k),null!==p&&(h=f(p,h,w),null===n?l=p:n.sibling=p,n=p);return l}for(u=d(e,u);!p.done;w++,p=g.next())p=v(u,e,w,p.value,k),null!==p&&(a&&null!==
+p.alternate&&u.delete(null===p.key?w:p.key),h=f(p,h,w),null===n?l=p:n.sibling=p,n=p);a&&u.forEach(function(a){return b(e,a)});return l}return function(a,d,f,g){var k="object"===typeof f&&null!==f&&f.type===ac&&null===f.key;k&&(f=f.props.children);var l="object"===typeof f&&null!==f;if(l)switch(f.$$typeof){case Zb:a:{l=f.key;for(k=d;null!==k;){if(k.key===l){if(7===k.tag?f.type===ac:k.elementType===f.type){c(a,k.sibling);d=e(k,f.type===ac?f.props.children:f.props,g);d.ref=lg(a,k,f);d.return=a;a=d;break a}c(a,
+k);break}else b(a,k);k=k.sibling;}f.type===ac?(d=sg(f.props.children,a.mode,g,f.key),d.return=a,a=d):(g=qg(f.type,f.key,f.props,null,a.mode,g),g.ref=lg(a,d,f),g.return=a,a=g);}return h(a);case $b:a:{for(k=f.key;null!==d;){if(d.key===k){if(4===d.tag&&d.stateNode.containerInfo===f.containerInfo&&d.stateNode.implementation===f.implementation){c(a,d.sibling);d=e(d,f.children||[],g);d.return=a;a=d;break a}c(a,d);break}else b(a,d);d=d.sibling;}d=rg(f,a.mode,g);d.return=a;a=d;}return h(a)}if("string"===typeof f||
+"number"===typeof f)return f=""+f,null!==d&&6===d.tag?(c(a,d.sibling),d=e(d,f,g),d.return=a,a=d):(c(a,d),d=pg(f,a.mode,g),d.return=a,a=d),h(a);if(kg(f))return rb(a,d,f,g);if(mc(f))return Be(a,d,f,g);l&&mg(a,f);if("undefined"===typeof f&&!k)switch(a.tag){case 1:case 0:throw a=a.type,t(Error(152),a.displayName||a.name||"Component");}return c(a,d)}}var tg=ng(!0),ug=ng(!1),vg={},wg={current:vg},xg={current:vg},yg={current:vg};function zg(a){if(a===vg)throw t(Error(174));return a}
+function Ag(a,b){J(yg,b,a);J(xg,a,a);J(wg,vg,a);var c=b.nodeType;switch(c){case 9:case 11:b=(b=b.documentElement)?b.namespaceURI:te(null,"");break;default:c=8===c?b.parentNode:b,b=c.namespaceURI||null,c=c.tagName,b=te(b,c);}H(wg,a);J(wg,b,a);}function Bg(a){H(wg,a);H(xg,a);H(yg,a);}function Cg(a){zg(yg.current);var b=zg(wg.current);var c=te(b,a.type);b!==c&&(J(xg,a,a),J(wg,c,a));}function Dg(a){xg.current===a&&(H(wg,a),H(xg,a));}var Eg=1,Fg=1,Gg=2,P={current:0};
+function Hg(a){for(var b=a;null!==b;){if(13===b.tag){if(null!==b.memoizedState)return b}else if(19===b.tag&&void 0!==b.memoizedProps.revealOrder){if(0!==(b.effectTag&64))return b}else if(null!==b.child){b.child.return=b;b=b.child;continue}if(b===a)break;for(;null===b.sibling;){if(null===b.return||b.return===a)return null;b=b.return;}b.sibling.return=b.return;b=b.sibling;}return null}
+var Ig=0,Jg=2,Kg=4,Lg=8,Mg=16,Ng=32,Og=64,Pg=128,Qg=Xb.ReactCurrentDispatcher,Rg=0,Sg=null,Q=null,Tg=null,Ug=null,R=null,Vg=null,Wg=0,Xg=null,Yg=0,Zg=!1,$g=null,ah=0;function bh(){throw t(Error(321));}function ch(a,b){if(null===b)return!1;for(var c=0;c<b.length&&c<a.length;c++)if(!hd(a[c],b[c]))return!1;return!0}
+function dh(a,b,c,d,e,f){Rg=f;Sg=b;Tg=null!==a?a.memoizedState:null;Qg.current=null===Tg?eh:fh;b=c(d,e);if(Zg){do Zg=!1,ah+=1,Tg=null!==a?a.memoizedState:null,Vg=Ug,Xg=R=Q=null,Qg.current=fh,b=c(d,e);while(Zg);$g=null;ah=0;}Qg.current=hh;a=Sg;a.memoizedState=Ug;a.expirationTime=Wg;a.updateQueue=Xg;a.effectTag|=Yg;a=null!==Q&&null!==Q.next;Rg=0;Vg=R=Ug=Tg=Q=Sg=null;Wg=0;Xg=null;Yg=0;if(a)throw t(Error(300));return b}
+function ih(){Qg.current=hh;Rg=0;Vg=R=Ug=Tg=Q=Sg=null;Wg=0;Xg=null;Yg=0;Zg=!1;$g=null;ah=0;}function jh(){var a={memoizedState:null,baseState:null,queue:null,baseUpdate:null,next:null};null===R?Ug=R=a:R=R.next=a;return R}function kh(){if(null!==Vg)R=Vg,Vg=R.next,Q=Tg,Tg=null!==Q?Q.next:null;else{if(null===Tg)throw t(Error(310));Q=Tg;var a={memoizedState:Q.memoizedState,baseState:Q.baseState,queue:Q.queue,baseUpdate:Q.baseUpdate,next:null};R=null===R?Ug=a:R.next=a;Tg=Q.next;}return R}
+function lh(a,b){return"function"===typeof b?b(a):b}
+function mh(a){var b=kh(),c=b.queue;if(null===c)throw t(Error(311));c.lastRenderedReducer=a;if(0<ah){var d=c.dispatch;if(null!==$g){var e=$g.get(c);if(void 0!==e){$g.delete(c);var f=b.memoizedState;do f=a(f,e.action),e=e.next;while(null!==e);hd(f,b.memoizedState)||(Lf=!0);b.memoizedState=f;b.baseUpdate===c.last&&(b.baseState=f);c.lastRenderedState=f;return[f,d]}}return[b.memoizedState,d]}d=c.last;var h=b.baseUpdate;f=b.baseState;null!==h?(null!==d&&(d.next=null),d=h.next):d=null!==d?d.next:null;if(null!==
+d){var g=e=null,k=d,l=!1;do{var n=k.expirationTime;n<Rg?(l||(l=!0,g=h,e=f),n>Wg&&(Wg=n)):(Xf(n,k.suspenseConfig),f=k.eagerReducer===a?k.eagerState:a(f,k.action));h=k;k=k.next;}while(null!==k&&k!==d);l||(g=h,e=f);hd(f,b.memoizedState)||(Lf=!0);b.memoizedState=f;b.baseUpdate=g;b.baseState=e;c.lastRenderedState=f;}return[b.memoizedState,c.dispatch]}
+function nh(a,b,c,d){a={tag:a,create:b,destroy:c,deps:d,next:null};null===Xg?(Xg={lastEffect:null},Xg.lastEffect=a.next=a):(b=Xg.lastEffect,null===b?Xg.lastEffect=a.next=a:(c=b.next,b.next=a,a.next=c,Xg.lastEffect=a));return a}function oh(a,b,c,d){var e=jh();Yg|=a;e.memoizedState=nh(b,c,void 0,void 0===d?null:d);}
+function ph(a,b,c,d){var e=kh();d=void 0===d?null:d;var f=void 0;if(null!==Q){var h=Q.memoizedState;f=h.destroy;if(null!==d&&ch(d,h.deps)){nh(Ig,c,f,d);return}}Yg|=a;e.memoizedState=nh(b,c,f,d);}function qh(a,b){if("function"===typeof b)return a=a(),b(a),function(){b(null);};if(null!==b&&void 0!==b)return a=a(),b.current=a,function(){b.current=null;}}function rh(){}
+function sh(a,b,c){if(!(25>ah))throw t(Error(301));var d=a.alternate;if(a===Sg||null!==d&&d===Sg)if(Zg=!0,a={expirationTime:Rg,suspenseConfig:null,action:c,eagerReducer:null,eagerState:null,next:null},null===$g&&($g=new Map),c=$g.get(b),void 0===c)$g.set(b,a);else{for(b=c;null!==b.next;)b=b.next;b.next=a;}else{var e=cg(),f=$f.suspense;e=dg(e,a,f);f={expirationTime:e,suspenseConfig:f,action:c,eagerReducer:null,eagerState:null,next:null};var h=b.last;if(null===h)f.next=f;else{var g=h.next;null!==g&&
+(f.next=g);h.next=f;}b.last=f;if(0===a.expirationTime&&(null===d||0===d.expirationTime)&&(d=b.lastRenderedReducer,null!==d))try{var k=b.lastRenderedState,l=d(k,c);f.eagerReducer=d;f.eagerState=l;if(hd(l,k))return}catch(n){}finally{}eg(a,e);}}
+var hh={readContext:Mf,useCallback:bh,useContext:bh,useEffect:bh,useImperativeHandle:bh,useLayoutEffect:bh,useMemo:bh,useReducer:bh,useRef:bh,useState:bh,useDebugValue:bh,useResponder:bh},eh={readContext:Mf,useCallback:function(a,b){jh().memoizedState=[a,void 0===b?null:b];return a},useContext:Mf,useEffect:function(a,b){return oh(516,Pg|Og,a,b)},useImperativeHandle:function(a,b,c){c=null!==c&&void 0!==c?c.concat([a]):null;return oh(4,Kg|Ng,qh.bind(null,b,a),c)},useLayoutEffect:function(a,b){return oh(4,
+Kg|Ng,a,b)},useMemo:function(a,b){var c=jh();b=void 0===b?null:b;a=a();c.memoizedState=[a,b];return a},useReducer:function(a,b,c){var d=jh();b=void 0!==c?c(b):b;d.memoizedState=d.baseState=b;a=d.queue={last:null,dispatch:null,lastRenderedReducer:a,lastRenderedState:b};a=a.dispatch=sh.bind(null,Sg,a);return[d.memoizedState,a]},useRef:function(a){var b=jh();a={current:a};return b.memoizedState=a},useState:function(a){var b=jh();"function"===typeof a&&(a=a());b.memoizedState=b.baseState=a;a=b.queue=
+{last:null,dispatch:null,lastRenderedReducer:lh,lastRenderedState:a};a=a.dispatch=sh.bind(null,Sg,a);return[b.memoizedState,a]},useDebugValue:rh,useResponder:kd},fh={readContext:Mf,useCallback:function(a,b){var c=kh();b=void 0===b?null:b;var d=c.memoizedState;if(null!==d&&null!==b&&ch(b,d[1]))return d[0];c.memoizedState=[a,b];return a},useContext:Mf,useEffect:function(a,b){return ph(516,Pg|Og,a,b)},useImperativeHandle:function(a,b,c){c=null!==c&&void 0!==c?c.concat([a]):null;return ph(4,Kg|Ng,qh.bind(null,
+b,a),c)},useLayoutEffect:function(a,b){return ph(4,Kg|Ng,a,b)},useMemo:function(a,b){var c=kh();b=void 0===b?null:b;var d=c.memoizedState;if(null!==d&&null!==b&&ch(b,d[1]))return d[0];a=a();c.memoizedState=[a,b];return a},useReducer:mh,useRef:function(){return kh().memoizedState},useState:function(a){return mh(lh,a)},useDebugValue:rh,useResponder:kd},th=null,uh=null,vh=!1;
+function wh(a,b){var c=xh(5,null,null,0);c.elementType="DELETED";c.type="DELETED";c.stateNode=b;c.return=a;c.effectTag=8;null!==a.lastEffect?(a.lastEffect.nextEffect=c,a.lastEffect=c):a.firstEffect=a.lastEffect=c;}function yh(a,b){switch(a.tag){case 5:var c=a.type;b=1!==b.nodeType||c.toLowerCase()!==b.nodeName.toLowerCase()?null:b;return null!==b?(a.stateNode=b,!0):!1;case 6:return b=""===a.pendingProps||3!==b.nodeType?null:b,null!==b?(a.stateNode=b,!0):!1;case 13:return!1;default:return!1}}
+function zh(a){if(vh){var b=uh;if(b){var c=b;if(!yh(a,b)){b=Ne(c.nextSibling);if(!b||!yh(a,b)){a.effectTag|=2;vh=!1;th=a;return}wh(th,c);}th=a;uh=Ne(b.firstChild);}else a.effectTag|=2,vh=!1,th=a;}}function Ah(a){for(a=a.return;null!==a&&5!==a.tag&&3!==a.tag&&18!==a.tag;)a=a.return;th=a;}
+function Bh(a){if(a!==th)return!1;if(!vh)return Ah(a),vh=!0,!1;var b=a.type;if(5!==a.tag||"head"!==b&&"body"!==b&&!Ke(b,a.memoizedProps))for(b=uh;b;)wh(a,b),b=Ne(b.nextSibling);Ah(a);uh=th?Ne(a.stateNode.nextSibling):null;return!0}function Ch(){uh=th=null;vh=!1;}var Dh=Xb.ReactCurrentOwner,Lf=!1;function S(a,b,c,d){b.child=null===a?ug(b,null,c,d):tg(b,a.child,c,d);}
+function Eh(a,b,c,d,e){c=c.render;var f=b.ref;Kf(b,e);d=dh(a,b,c,d,f,e);if(null!==a&&!Lf)return b.updateQueue=a.updateQueue,b.effectTag&=-517,a.expirationTime<=e&&(a.expirationTime=0),Fh(a,b,e);b.effectTag|=1;S(a,b,d,e);return b.child}
+function Gh(a,b,c,d,e,f){if(null===a){var h=c.type;if("function"===typeof h&&!Hh(h)&&void 0===h.defaultProps&&null===c.compare&&void 0===c.defaultProps)return b.tag=15,b.type=h,Ih(a,b,h,d,e,f);a=qg(c.type,null,d,null,b.mode,f);a.ref=b.ref;a.return=b;return b.child=a}h=a.child;if(e<f&&(e=h.memoizedProps,c=c.compare,c=null!==c?c:jd,c(e,d)&&a.ref===b.ref))return Fh(a,b,f);b.effectTag|=1;a=og(h,d,f);a.ref=b.ref;a.return=b;return b.child=a}
+function Ih(a,b,c,d,e,f){return null!==a&&jd(a.memoizedProps,d)&&a.ref===b.ref&&(Lf=!1,e<f)?Fh(a,b,f):Jh(a,b,c,d,f)}function Kh(a,b){var c=b.ref;if(null===a&&null!==c||null!==a&&a.ref!==c)b.effectTag|=128;}function Jh(a,b,c,d,e){var f=N(c)?Re:L.current;f=Se(b,f);Kf(b,e);c=dh(a,b,c,d,f,e);if(null!==a&&!Lf)return b.updateQueue=a.updateQueue,b.effectTag&=-517,a.expirationTime<=e&&(a.expirationTime=0),Fh(a,b,e);b.effectTag|=1;S(a,b,c,e);return b.child}
+function Lh(a,b,c,d,e){if(N(c)){var f=!0;Xe(b);}else f=!1;Kf(b,e);if(null===b.stateNode)null!==a&&(a.alternate=null,b.alternate=null,b.effectTag|=2),hg(b,c,d,e),jg(b,c,d,e),d=!0;else if(null===a){var h=b.stateNode,g=b.memoizedProps;h.props=g;var k=h.context,l=c.contextType;"object"===typeof l&&null!==l?l=Mf(l):(l=N(c)?Re:L.current,l=Se(b,l));var n=c.getDerivedStateFromProps,z="function"===typeof n||"function"===typeof h.getSnapshotBeforeUpdate;z||"function"!==typeof h.UNSAFE_componentWillReceiveProps&&
+"function"!==typeof h.componentWillReceiveProps||(g!==d||k!==l)&&ig(b,h,d,l);Nf=!1;var x=b.memoizedState;k=h.state=x;var v=b.updateQueue;null!==v&&(Wf(b,v,d,h,e),k=b.memoizedState);g!==d||x!==k||M.current||Nf?("function"===typeof n&&(bg(b,c,n,d),k=b.memoizedState),(g=Nf||gg(b,c,g,d,x,k,l))?(z||"function"!==typeof h.UNSAFE_componentWillMount&&"function"!==typeof h.componentWillMount||("function"===typeof h.componentWillMount&&h.componentWillMount(),"function"===typeof h.UNSAFE_componentWillMount&&
+h.UNSAFE_componentWillMount()),"function"===typeof h.componentDidMount&&(b.effectTag|=4)):("function"===typeof h.componentDidMount&&(b.effectTag|=4),b.memoizedProps=d,b.memoizedState=k),h.props=d,h.state=k,h.context=l,d=g):("function"===typeof h.componentDidMount&&(b.effectTag|=4),d=!1);}else h=b.stateNode,g=b.memoizedProps,h.props=b.type===b.elementType?g:Af(b.type,g),k=h.context,l=c.contextType,"object"===typeof l&&null!==l?l=Mf(l):(l=N(c)?Re:L.current,l=Se(b,l)),n=c.getDerivedStateFromProps,(z=
+"function"===typeof n||"function"===typeof h.getSnapshotBeforeUpdate)||"function"!==typeof h.UNSAFE_componentWillReceiveProps&&"function"!==typeof h.componentWillReceiveProps||(g!==d||k!==l)&&ig(b,h,d,l),Nf=!1,k=b.memoizedState,x=h.state=k,v=b.updateQueue,null!==v&&(Wf(b,v,d,h,e),x=b.memoizedState),g!==d||k!==x||M.current||Nf?("function"===typeof n&&(bg(b,c,n,d),x=b.memoizedState),(n=Nf||gg(b,c,g,d,k,x,l))?(z||"function"!==typeof h.UNSAFE_componentWillUpdate&&"function"!==typeof h.componentWillUpdate||
+("function"===typeof h.componentWillUpdate&&h.componentWillUpdate(d,x,l),"function"===typeof h.UNSAFE_componentWillUpdate&&h.UNSAFE_componentWillUpdate(d,x,l)),"function"===typeof h.componentDidUpdate&&(b.effectTag|=4),"function"===typeof h.getSnapshotBeforeUpdate&&(b.effectTag|=256)):("function"!==typeof h.componentDidUpdate||g===a.memoizedProps&&k===a.memoizedState||(b.effectTag|=4),"function"!==typeof h.getSnapshotBeforeUpdate||g===a.memoizedProps&&k===a.memoizedState||(b.effectTag|=256),b.memoizedProps=
+d,b.memoizedState=x),h.props=d,h.state=x,h.context=l,d=n):("function"!==typeof h.componentDidUpdate||g===a.memoizedProps&&k===a.memoizedState||(b.effectTag|=4),"function"!==typeof h.getSnapshotBeforeUpdate||g===a.memoizedProps&&k===a.memoizedState||(b.effectTag|=256),d=!1);return Mh(a,b,c,d,f,e)}
+function Mh(a,b,c,d,e,f){Kh(a,b);var h=0!==(b.effectTag&64);if(!d&&!h)return e&&Ye(b,c,!1),Fh(a,b,f);d=b.stateNode;Dh.current=b;var g=h&&"function"!==typeof c.getDerivedStateFromError?null:d.render();b.effectTag|=1;null!==a&&h?(b.child=tg(b,a.child,null,f),b.child=tg(b,null,g,f)):S(a,b,g,f);b.memoizedState=d.state;e&&Ye(b,c,!0);return b.child}function Nh(a){var b=a.stateNode;b.pendingContext?Ve(a,b.pendingContext,b.pendingContext!==b.context):b.context&&Ve(a,b.context,!1);Ag(a,b.containerInfo);}
+var Oh={};
+function Ph(a,b,c){var d=b.mode,e=b.pendingProps,f=P.current,h=null,g=!1,k;(k=0!==(b.effectTag&64))||(k=0!==(f&Gg)&&(null===a||null!==a.memoizedState));k?(h=Oh,g=!0,b.effectTag&=-65):null!==a&&null===a.memoizedState||void 0===e.fallback||!0===e.unstable_avoidThisFallback||(f|=Fg);f&=Eg;J(P,f,b);if(null===a)if(g){e=e.fallback;a=sg(null,d,0,null);a.return=b;if(0===(b.mode&2))for(g=null!==b.memoizedState?b.child.child:b.child,a.child=g;null!==g;)g.return=a,g=g.sibling;c=sg(e,d,c,null);c.return=b;a.sibling=
+c;d=a;}else d=c=ug(b,null,e.children,c);else{if(null!==a.memoizedState)if(f=a.child,d=f.sibling,g){e=e.fallback;c=og(f,f.pendingProps,0);c.return=b;if(0===(b.mode&2)&&(g=null!==b.memoizedState?b.child.child:b.child,g!==f.child))for(c.child=g;null!==g;)g.return=c,g=g.sibling;e=og(d,e,d.expirationTime);e.return=b;c.sibling=e;d=c;c.childExpirationTime=0;c=e;}else d=c=tg(b,f.child,e.children,c);else if(f=a.child,g){g=e.fallback;e=sg(null,d,0,null);e.return=b;e.child=f;null!==f&&(f.return=e);if(0===(b.mode&
+2))for(f=null!==b.memoizedState?b.child.child:b.child,e.child=f;null!==f;)f.return=e,f=f.sibling;c=sg(g,d,c,null);c.return=b;e.sibling=c;c.effectTag|=2;d=e;e.childExpirationTime=0;}else c=d=tg(b,f,e.children,c);b.stateNode=a.stateNode;}b.memoizedState=h;b.child=d;return c}function Qh(a,b,c,d,e){var f=a.memoizedState;null===f?a.memoizedState={isBackwards:b,rendering:null,last:d,tail:c,tailExpiration:0,tailMode:e}:(f.isBackwards=b,f.rendering=null,f.last=d,f.tail=c,f.tailExpiration=0,f.tailMode=e);}
+function Rh(a,b,c){var d=b.pendingProps,e=d.revealOrder,f=d.tail;S(a,b,d.children,c);d=P.current;if(0!==(d&Gg))d=d&Eg|Gg,b.effectTag|=64;else{if(null!==a&&0!==(a.effectTag&64))a:for(a=b.child;null!==a;){if(13===a.tag){if(null!==a.memoizedState){a.expirationTime<c&&(a.expirationTime=c);var h=a.alternate;null!==h&&h.expirationTime<c&&(h.expirationTime=c);Jf(a.return,c);}}else if(null!==a.child){a.child.return=a;a=a.child;continue}if(a===b)break a;for(;null===a.sibling;){if(null===a.return||a.return===
+b)break a;a=a.return;}a.sibling.return=a.return;a=a.sibling;}d&=Eg;}J(P,d,b);if(0===(b.mode&2))b.memoizedState=null;else switch(e){case "forwards":c=b.child;for(e=null;null!==c;)d=c.alternate,null!==d&&null===Hg(d)&&(e=c),c=c.sibling;c=e;null===c?(e=b.child,b.child=null):(e=c.sibling,c.sibling=null);Qh(b,!1,e,c,f);break;case "backwards":c=null;e=b.child;for(b.child=null;null!==e;){d=e.alternate;if(null!==d&&null===Hg(d)){b.child=e;break}d=e.sibling;e.sibling=c;c=e;e=d;}Qh(b,!0,c,null,f);break;case "together":Qh(b,
+!1,null,null,void 0);break;default:b.memoizedState=null;}return b.child}function Fh(a,b,c){null!==a&&(b.dependencies=a.dependencies);if(b.childExpirationTime<c)return null;if(null!==a&&b.child!==a.child)throw t(Error(153));if(null!==b.child){a=b.child;c=og(a,a.pendingProps,a.expirationTime);b.child=c;for(c.return=b;null!==a.sibling;)a=a.sibling,c=c.sibling=og(a,a.pendingProps,a.expirationTime),c.return=b;c.sibling=null;}return b.child}function Sh(a){a.effectTag|=4;}
+var Th=void 0,Uh=void 0,Vh=void 0,Wh=void 0;Th=function(a,b){for(var c=b.child;null!==c;){if(5===c.tag||6===c.tag)a.appendChild(c.stateNode);else if(20===c.tag)a.appendChild(c.stateNode.instance);else if(4!==c.tag&&null!==c.child){c.child.return=c;c=c.child;continue}if(c===b)break;for(;null===c.sibling;){if(null===c.return||c.return===b)return;c=c.return;}c.sibling.return=c.return;c=c.sibling;}};Uh=function(){};
+Vh=function(a,b,c,d,e){var f=a.memoizedProps;if(f!==d){var h=b.stateNode;zg(wg.current);a=null;switch(c){case "input":f=Bc(h,f);d=Bc(h,d);a=[];break;case "option":f=le(h,f);d=le(h,d);a=[];break;case "select":f=objectAssign({},f,{value:void 0});d=objectAssign({},d,{value:void 0});a=[];break;case "textarea":f=ne(h,f);d=ne(h,d);a=[];break;default:"function"!==typeof f.onClick&&"function"===typeof d.onClick&&(h.onclick=Ge);}De(c,d);h=c=void 0;var g=null;for(c in f)if(!d.hasOwnProperty(c)&&f.hasOwnProperty(c)&&null!=f[c])if("style"===
+c){var k=f[c];for(h in k)k.hasOwnProperty(h)&&(g||(g={}),g[h]="");}else"dangerouslySetInnerHTML"!==c&&"children"!==c&&"suppressContentEditableWarning"!==c&&"suppressHydrationWarning"!==c&&"autoFocus"!==c&&(ia.hasOwnProperty(c)?a||(a=[]):(a=a||[]).push(c,null));for(c in d){var l=d[c];k=null!=f?f[c]:void 0;if(d.hasOwnProperty(c)&&l!==k&&(null!=l||null!=k))if("style"===c)if(k){for(h in k)!k.hasOwnProperty(h)||l&&l.hasOwnProperty(h)||(g||(g={}),g[h]="");for(h in l)l.hasOwnProperty(h)&&k[h]!==l[h]&&(g||
+(g={}),g[h]=l[h]);}else g||(a||(a=[]),a.push(c,g)),g=l;else"dangerouslySetInnerHTML"===c?(l=l?l.__html:void 0,k=k?k.__html:void 0,null!=l&&k!==l&&(a=a||[]).push(c,""+l)):"children"===c?k===l||"string"!==typeof l&&"number"!==typeof l||(a=a||[]).push(c,""+l):"suppressContentEditableWarning"!==c&&"suppressHydrationWarning"!==c&&(ia.hasOwnProperty(c)?(null!=l&&Fe(e,c),a||k===l||(a=[])):(a=a||[]).push(c,l));}g&&(a=a||[]).push("style",g);e=a;(b.updateQueue=e)&&Sh(b);}};Wh=function(a,b,c,d){c!==d&&Sh(b);};
+function $h(a,b){switch(a.tailMode){case "hidden":b=a.tail;for(var c=null;null!==b;)null!==b.alternate&&(c=b),b=b.sibling;null===c?a.tail=null:c.sibling=null;break;case "collapsed":c=a.tail;for(var d=null;null!==c;)null!==c.alternate&&(d=c),c=c.sibling;null===d?b||null===a.tail?a.tail=null:a.tail.sibling=null:d.sibling=null;}}
+function ai(a){switch(a.tag){case 1:N(a.type)&&Te(a);var b=a.effectTag;return b&2048?(a.effectTag=b&-2049|64,a):null;case 3:Bg(a);Ue(a);b=a.effectTag;if(0!==(b&64))throw t(Error(285));a.effectTag=b&-2049|64;return a;case 5:return Dg(a),null;case 13:return H(P,a),b=a.effectTag,b&2048?(a.effectTag=b&-2049|64,a):null;case 18:return null;case 19:return H(P,a),null;case 4:return Bg(a),null;case 10:return If(a),null;default:return null}}function bi(a,b){return{value:a,source:b,stack:pc(b)}}
+var ci="function"===typeof WeakSet?WeakSet:Set;function di(a,b){var c=b.source,d=b.stack;null===d&&null!==c&&(d=pc(c));null!==c&&oc(c.type);b=b.value;null!==a&&1===a.tag&&oc(a.type);try{console.error(b);}catch(e){setTimeout(function(){throw e;});}}function ei(a,b){try{b.props=a.memoizedProps,b.state=a.memoizedState,b.componentWillUnmount();}catch(c){fi(a,c);}}function gi(a){var b=a.ref;if(null!==b)if("function"===typeof b)try{b(null);}catch(c){fi(a,c);}else b.current=null;}
+function hi(a,b,c){c=c.updateQueue;c=null!==c?c.lastEffect:null;if(null!==c){var d=c=c.next;do{if((d.tag&a)!==Ig){var e=d.destroy;d.destroy=void 0;void 0!==e&&e();}(d.tag&b)!==Ig&&(e=d.create,d.destroy=e());d=d.next;}while(d!==c)}}
+function ii(a,b){"function"===typeof ji&&ji(a);switch(a.tag){case 0:case 11:case 14:case 15:var c=a.updateQueue;if(null!==c&&(c=c.lastEffect,null!==c)){var d=c.next;vf(97<b?97:b,function(){var b=d;do{var c=b.destroy;if(void 0!==c){var h=a;try{c();}catch(g){fi(h,g);}}b=b.next;}while(b!==d)});}break;case 1:gi(a);b=a.stateNode;"function"===typeof b.componentWillUnmount&&ei(a,b);break;case 5:gi(a);break;case 4:ki(a,b);}}
+function li(a,b){for(var c=a;;)if(ii(c,b),null!==c.child&&4!==c.tag)c.child.return=c,c=c.child;else{if(c===a)break;for(;null===c.sibling;){if(null===c.return||c.return===a)return;c=c.return;}c.sibling.return=c.return;c=c.sibling;}}function mi(a){return 5===a.tag||3===a.tag||4===a.tag}
+function ni(a){a:{for(var b=a.return;null!==b;){if(mi(b)){var c=b;break a}b=b.return;}throw t(Error(160));}b=c.stateNode;switch(c.tag){case 5:var d=!1;break;case 3:b=b.containerInfo;d=!0;break;case 4:b=b.containerInfo;d=!0;break;default:throw t(Error(161));}c.effectTag&16&&(we(b,""),c.effectTag&=-17);a:b:for(c=a;;){for(;null===c.sibling;){if(null===c.return||mi(c.return)){c=null;break a}c=c.return;}c.sibling.return=c.return;for(c=c.sibling;5!==c.tag&&6!==c.tag&&18!==c.tag;){if(c.effectTag&2)continue b;
+if(null===c.child||4===c.tag)continue b;else c.child.return=c,c=c.child;}if(!(c.effectTag&2)){c=c.stateNode;break a}}for(var e=a;;){var f=5===e.tag||6===e.tag;if(f||20===e.tag){var h=f?e.stateNode:e.stateNode.instance;if(c)if(d){f=b;var g=h;h=c;8===f.nodeType?f.parentNode.insertBefore(g,h):f.insertBefore(g,h);}else b.insertBefore(h,c);else d?(g=b,8===g.nodeType?(f=g.parentNode,f.insertBefore(h,g)):(f=g,f.appendChild(h)),g=g._reactRootContainer,null!==g&&void 0!==g||null!==f.onclick||(f.onclick=Ge)):
+b.appendChild(h);}else if(4!==e.tag&&null!==e.child){e.child.return=e;e=e.child;continue}if(e===a)break;for(;null===e.sibling;){if(null===e.return||e.return===a)return;e=e.return;}e.sibling.return=e.return;e=e.sibling;}}
+function ki(a,b){for(var c=a,d=!1,e=void 0,f=void 0;;){if(!d){d=c.return;a:for(;;){if(null===d)throw t(Error(160));e=d.stateNode;switch(d.tag){case 5:f=!1;break a;case 3:e=e.containerInfo;f=!0;break a;case 4:e=e.containerInfo;f=!0;break a}d=d.return;}d=!0;}if(5===c.tag||6===c.tag)if(li(c,b),f){var h=e,g=c.stateNode;8===h.nodeType?h.parentNode.removeChild(g):h.removeChild(g);}else e.removeChild(c.stateNode);else if(20===c.tag)g=c.stateNode.instance,li(c,b),f?(h=e,8===h.nodeType?h.parentNode.removeChild(g):
+h.removeChild(g)):e.removeChild(g);else if(4===c.tag){if(null!==c.child){e=c.stateNode.containerInfo;f=!0;c.child.return=c;c=c.child;continue}}else if(ii(c,b),null!==c.child){c.child.return=c;c=c.child;continue}if(c===a)break;for(;null===c.sibling;){if(null===c.return||c.return===a)return;c=c.return;4===c.tag&&(d=!1);}c.sibling.return=c.return;c=c.sibling;}}
+function oi(a,b){switch(b.tag){case 0:case 11:case 14:case 15:hi(Kg,Lg,b);break;case 1:break;case 5:var c=b.stateNode;if(null!=c){var d=b.memoizedProps,e=null!==a?a.memoizedProps:d;a=b.type;var f=b.updateQueue;b.updateQueue=null;if(null!==f){c[Ga]=d;"input"===a&&"radio"===d.type&&null!=d.name&&Dc(c,d);Ee(a,e);b=Ee(a,d);for(e=0;e<f.length;e+=2){var h=f[e],g=f[e+1];"style"===h?Ae(c,g):"dangerouslySetInnerHTML"===h?ve(c,g):"children"===h?we(c,g):zc(c,h,g,b);}switch(a){case "input":Ec(c,d);break;case "textarea":pe(c,
+d);break;case "select":b=c._wrapperState.wasMultiple,c._wrapperState.wasMultiple=!!d.multiple,a=d.value,null!=a?me(c,!!d.multiple,a,!1):b!==!!d.multiple&&(null!=d.defaultValue?me(c,!!d.multiple,d.defaultValue,!0):me(c,!!d.multiple,d.multiple?[]:"",!1));}}}break;case 6:if(null===b.stateNode)throw t(Error(162));b.stateNode.nodeValue=b.memoizedProps;break;case 3:break;case 12:break;case 13:c=b;null===b.memoizedState?d=!1:(d=!0,c=b.child,pi=sf());if(null!==c)a:for(a=c;;){if(5===a.tag)f=a.stateNode,d?(f=
+f.style,"function"===typeof f.setProperty?f.setProperty("display","none","important"):f.display="none"):(f=a.stateNode,e=a.memoizedProps.style,e=void 0!==e&&null!==e&&e.hasOwnProperty("display")?e.display:null,f.style.display=ze("display",e));else if(6===a.tag)a.stateNode.nodeValue=d?"":a.memoizedProps;else if(13===a.tag&&null!==a.memoizedState){f=a.child.sibling;f.return=a;a=f;continue}else if(null!==a.child){a.child.return=a;a=a.child;continue}if(a===c)break a;for(;null===a.sibling;){if(null===
+a.return||a.return===c)break a;a=a.return;}a.sibling.return=a.return;a=a.sibling;}qi(b);break;case 19:qi(b);break;case 17:break;case 20:break;default:throw t(Error(163));}}function qi(a){var b=a.updateQueue;if(null!==b){a.updateQueue=null;var c=a.stateNode;null===c&&(c=a.stateNode=new ci);b.forEach(function(b){var d=ri.bind(null,a,b);c.has(b)||(c.add(b),b.then(d,d));});}}var si="function"===typeof WeakMap?WeakMap:Map;
+function ti(a,b,c){c=Qf(c,null);c.tag=3;c.payload={element:null};var d=b.value;c.callback=function(){ui||(ui=!0,vi=d);di(a,b);};return c}
+function wi(a,b,c){c=Qf(c,null);c.tag=3;var d=a.type.getDerivedStateFromError;if("function"===typeof d){var e=b.value;c.payload=function(){di(a,b);return d(e)};}var f=a.stateNode;null!==f&&"function"===typeof f.componentDidCatch&&(c.callback=function(){"function"!==typeof d&&(null===xi?xi=new Set([this]):xi.add(this),di(a,b));var c=b.stack;this.componentDidCatch(b.value,{componentStack:null!==c?c:""});});return c}
+var yi=Math.ceil,zi=Xb.ReactCurrentDispatcher,Ai=Xb.ReactCurrentOwner,T=0,Bi=8,Ci=16,Di=32,Ei=0,Fi=1,Gi=2,Hi=3,Ii=4,U=T,Ji=null,V=null,W=0,X=Ei,Ki=1073741823,Li=1073741823,Mi=null,Ni=!1,pi=0,Oi=500,Y=null,ui=!1,vi=null,xi=null,Pi=!1,Qi=null,Ri=90,Si=0,Ti=null,Ui=0,Vi=null,Wi=0;function cg(){return(U&(Ci|Di))!==T?1073741821-(sf()/10|0):0!==Wi?Wi:Wi=1073741821-(sf()/10|0)}
+function dg(a,b,c){b=b.mode;if(0===(b&2))return 1073741823;var d=tf();if(0===(b&4))return 99===d?1073741823:1073741822;if((U&Ci)!==T)return W;if(null!==c)a=1073741821-25*(((1073741821-a+(c.timeoutMs|0||5E3)/10)/25|0)+1);else switch(d){case 99:a=1073741823;break;case 98:a=1073741821-10*(((1073741821-a+15)/10|0)+1);break;case 97:case 96:a=1073741821-25*(((1073741821-a+500)/25|0)+1);break;case 95:a=1;break;default:throw t(Error(326));}null!==Ji&&a===W&&--a;return a}var Xi=0;
+function eg(a,b){if(50<Ui)throw Ui=0,Vi=null,t(Error(185));a=Yi(a,b);if(null!==a){a.pingTime=0;var c=tf();if(1073741823===b)if((U&Bi)!==T&&(U&(Ci|Di))===T)for(var d=Z(a,1073741823,!0);null!==d;)d=d(!0);else Zi(a,99,1073741823),U===T&&O();else Zi(a,c,b);(U&4)===T||98!==c&&99!==c||(null===Ti?Ti=new Map([[a,b]]):(c=Ti.get(a),(void 0===c||c>b)&&Ti.set(a,b)));}}
+function Yi(a,b){a.expirationTime<b&&(a.expirationTime=b);var c=a.alternate;null!==c&&c.expirationTime<b&&(c.expirationTime=b);var d=a.return,e=null;if(null===d&&3===a.tag)e=a.stateNode;else for(;null!==d;){c=d.alternate;d.childExpirationTime<b&&(d.childExpirationTime=b);null!==c&&c.childExpirationTime<b&&(c.childExpirationTime=b);if(null===d.return&&3===d.tag){e=d.stateNode;break}d=d.return;}null!==e&&(b>e.firstPendingTime&&(e.firstPendingTime=b),a=e.lastPendingTime,0===a||b<a)&&(e.lastPendingTime=
+b);return e}function Zi(a,b,c){if(a.callbackExpirationTime<c){var d=a.callbackNode;null!==d&&d!==mf&&af(d);a.callbackExpirationTime=c;1073741823===c?a.callbackNode=xf($i.bind(null,a,Z.bind(null,a,c))):(d=null,1!==c&&(d={timeout:10*(1073741821-c)-sf()}),a.callbackNode=wf(b,$i.bind(null,a,Z.bind(null,a,c)),d));}}function $i(a,b,c){var d=a.callbackNode,e=null;try{return e=b(c),null!==e?$i.bind(null,a,e):null}finally{null===e&&d===a.callbackNode&&(a.callbackNode=null,a.callbackExpirationTime=0);}}
+function aj(){(U&(1|Ci|Di))===T&&(bj(),cj());}function dj(a,b){var c=a.firstBatch;return null!==c&&c._defer&&c._expirationTime>=b?(wf(97,function(){c._onComplete();return null}),!0):!1}function bj(){if(null!==Ti){var a=Ti;Ti=null;a.forEach(function(a,c){xf(Z.bind(null,c,a));});O();}}function ej(a,b){var c=U;U|=1;try{return a(b)}finally{U=c,U===T&&O();}}function fj(a,b,c,d){var e=U;U|=4;try{return vf(98,a.bind(null,b,c,d))}finally{U=e,U===T&&O();}}
+function gj(a,b){var c=U;U&=-2;U|=Bi;try{return a(b)}finally{U=c,U===T&&O();}}
+function hj(a,b){a.finishedWork=null;a.finishedExpirationTime=0;var c=a.timeoutHandle;-1!==c&&(a.timeoutHandle=-1,Me(c));if(null!==V)for(c=V.return;null!==c;){var d=c;switch(d.tag){case 1:var e=d.type.childContextTypes;null!==e&&void 0!==e&&Te(d);break;case 3:Bg(d);Ue(d);break;case 5:Dg(d);break;case 4:Bg(d);break;case 13:H(P,d);break;case 19:H(P,d);break;case 10:If(d);}c=c.return;}Ji=a;V=og(a.current,null,b);W=b;X=Ei;Li=Ki=1073741823;Mi=null;Ni=!1;}
+function Z(a,b,c){if((U&(Ci|Di))!==T)throw t(Error(327));if(a.firstPendingTime<b)return null;if(c&&a.finishedExpirationTime===b)return ij.bind(null,a);cj();if(a!==Ji||b!==W)hj(a,b);else if(X===Hi)if(Ni)hj(a,b);else{var d=a.lastPendingTime;if(d<b)return Z.bind(null,a,d)}if(null!==V){d=U;U|=Ci;var e=zi.current;null===e&&(e=hh);zi.current=hh;if(c){if(1073741823!==b){var f=cg();if(f<b)return U=d,Gf(),zi.current=e,Z.bind(null,a,f)}}else Wi=0;do try{if(c)for(;null!==V;)V=jj(V);else for(;null!==V&&!bf();)V=
+jj(V);break}catch(rb){Gf();ih();f=V;if(null===f||null===f.return)throw hj(a,b),U=d,rb;a:{var h=a,g=f.return,k=f,l=rb,n=W;k.effectTag|=1024;k.firstEffect=k.lastEffect=null;if(null!==l&&"object"===typeof l&&"function"===typeof l.then){var z=l,x=0!==(P.current&Fg);l=g;do{var v;if(v=13===l.tag)null!==l.memoizedState?v=!1:(v=l.memoizedProps,v=void 0===v.fallback?!1:!0!==v.unstable_avoidThisFallback?!0:x?!1:!0);if(v){g=l.updateQueue;null===g?(g=new Set,g.add(z),l.updateQueue=g):g.add(z);if(0===(l.mode&
+2)){l.effectTag|=64;k.effectTag&=-1957;1===k.tag&&(null===k.alternate?k.tag=17:(n=Qf(1073741823,null),n.tag=2,Sf(k,n)));k.expirationTime=1073741823;break a}k=h;h=n;x=k.pingCache;null===x?(x=k.pingCache=new si,g=new Set,x.set(z,g)):(g=x.get(z),void 0===g&&(g=new Set,x.set(z,g)));g.has(h)||(g.add(h),k=kj.bind(null,k,z,h),z.then(k,k));l.effectTag|=2048;l.expirationTime=n;break a}l=l.return;}while(null!==l);l=Error((oc(k.type)||"A React component")+" suspended while rendering, but no fallback UI was specified.\n\nAdd a <Suspense fallback=...> component higher in the tree to provide a loading indicator or placeholder to display."+
+pc(k));}X!==Ii&&(X=Fi);l=bi(l,k);k=g;do{switch(k.tag){case 3:k.effectTag|=2048;k.expirationTime=n;n=ti(k,l,n);Tf(k,n);break a;case 1:if(z=l,h=k.type,g=k.stateNode,0===(k.effectTag&64)&&("function"===typeof h.getDerivedStateFromError||null!==g&&"function"===typeof g.componentDidCatch&&(null===xi||!xi.has(g)))){k.effectTag|=2048;k.expirationTime=n;n=wi(k,z,n);Tf(k,n);break a}}k=k.return;}while(null!==k)}V=lj(f);}while(1);U=d;Gf();zi.current=e;if(null!==V)return Z.bind(null,a,b)}a.finishedWork=a.current.alternate;
+a.finishedExpirationTime=b;if(dj(a,b))return null;Ji=null;switch(X){case Ei:throw t(Error(328));case Fi:return d=a.lastPendingTime,d<b?Z.bind(null,a,d):c?ij.bind(null,a):(hj(a,b),xf(Z.bind(null,a,b)),null);case Gi:if(1073741823===Ki&&!c&&(c=pi+Oi-sf(),10<c)){if(Ni)return hj(a,b),Z.bind(null,a,b);d=a.lastPendingTime;if(d<b)return Z.bind(null,a,d);a.timeoutHandle=Le(ij.bind(null,a),c);return null}return ij.bind(null,a);case Hi:if(!c){if(Ni)return hj(a,b),Z.bind(null,a,b);c=a.lastPendingTime;if(c<b)return Z.bind(null,
+a,c);1073741823!==Li?c=10*(1073741821-Li)-sf():1073741823===Ki?c=0:(c=10*(1073741821-Ki)-5E3,d=sf(),b=10*(1073741821-b)-d,c=d-c,0>c&&(c=0),c=(120>c?120:480>c?480:1080>c?1080:1920>c?1920:3E3>c?3E3:4320>c?4320:1960*yi(c/1960))-c,b<c&&(c=b));if(10<c)return a.timeoutHandle=Le(ij.bind(null,a),c),null}return ij.bind(null,a);case Ii:return!c&&1073741823!==Ki&&null!==Mi&&(d=Ki,e=Mi,b=e.busyMinDurationMs|0,0>=b?b=0:(c=e.busyDelayMs|0,d=sf()-(10*(1073741821-d)-(e.timeoutMs|0||5E3)),b=d<=c?0:c+b-d),10<b)?(a.timeoutHandle=
+Le(ij.bind(null,a),b),null):ij.bind(null,a);default:throw t(Error(329));}}function Xf(a,b){a<Ki&&1<a&&(Ki=a);null!==b&&a<Li&&1<a&&(Li=a,Mi=b);}function jj(a){var b=mj(a.alternate,a,W);a.memoizedProps=a.pendingProps;null===b&&(b=lj(a));Ai.current=null;return b}
+function lj(a){V=a;do{var b=V.alternate;a=V.return;if(0===(V.effectTag&1024)){a:{var c=b;b=V;var d=W,e=b.pendingProps;switch(b.tag){case 2:break;case 16:break;case 15:case 0:break;case 1:N(b.type)&&Te(b);break;case 3:Bg(b);Ue(b);d=b.stateNode;d.pendingContext&&(d.context=d.pendingContext,d.pendingContext=null);if(null===c||null===c.child)Bh(b),b.effectTag&=-3;Uh(b);break;case 5:Dg(b);d=zg(yg.current);var f=b.type;if(null!==c&&null!=b.stateNode)Vh(c,b,f,e,d),c.ref!==b.ref&&(b.effectTag|=128);else if(e){var h=
+zg(wg.current);if(Bh(b)){c=b;e=void 0;f=c.stateNode;var g=c.type,k=c.memoizedProps;f[Fa]=c;f[Ga]=k;switch(g){case "iframe":case "object":case "embed":G("load",f);break;case "video":case "audio":for(var l=0;l<bb.length;l++)G(bb[l],f);break;case "source":G("error",f);break;case "img":case "image":case "link":G("error",f);G("load",f);break;case "form":G("reset",f);G("submit",f);break;case "details":G("toggle",f);break;case "input":Cc(f,k);G("invalid",f);Fe(d,"onChange");break;case "select":f._wrapperState=
+{wasMultiple:!!k.multiple};G("invalid",f);Fe(d,"onChange");break;case "textarea":oe(f,k),G("invalid",f),Fe(d,"onChange");}De(g,k);l=null;for(e in k)k.hasOwnProperty(e)&&(h=k[e],"children"===e?"string"===typeof h?f.textContent!==h&&(l=["children",h]):"number"===typeof h&&f.textContent!==""+h&&(l=["children",""+h]):ia.hasOwnProperty(e)&&null!=h&&Fe(d,e));switch(g){case "input":Vb(f);Gc(f,k,!0);break;case "textarea":Vb(f);qe(f,k);break;case "select":case "option":break;default:"function"===typeof k.onClick&&
+(f.onclick=Ge);}d=l;c.updateQueue=d;null!==d&&Sh(b);}else{k=f;c=e;g=b;l=9===d.nodeType?d:d.ownerDocument;h===re.html&&(h=se(k));h===re.html?"script"===k?(k=l.createElement("div"),k.innerHTML="<script>\x3c/script>",l=k.removeChild(k.firstChild)):"string"===typeof c.is?l=l.createElement(k,{is:c.is}):(l=l.createElement(k),"select"===k&&(k=l,c.multiple?k.multiple=!0:c.size&&(k.size=c.size))):l=l.createElementNS(h,k);k=l;k[Fa]=g;k[Ga]=c;c=k;Th(c,b,!1,!1);g=c;var n=d,z=Ee(f,e);switch(f){case "iframe":case "object":case "embed":G("load",
+g);d=e;break;case "video":case "audio":for(d=0;d<bb.length;d++)G(bb[d],g);d=e;break;case "source":G("error",g);d=e;break;case "img":case "image":case "link":G("error",g);G("load",g);d=e;break;case "form":G("reset",g);G("submit",g);d=e;break;case "details":G("toggle",g);d=e;break;case "input":Cc(g,e);d=Bc(g,e);G("invalid",g);Fe(n,"onChange");break;case "option":d=le(g,e);break;case "select":g._wrapperState={wasMultiple:!!e.multiple};d=objectAssign({},e,{value:void 0});G("invalid",g);Fe(n,"onChange");break;case "textarea":oe(g,
+e);d=ne(g,e);G("invalid",g);Fe(n,"onChange");break;default:d=e;}De(f,d);k=void 0;l=f;h=g;var x=d;for(k in x)if(x.hasOwnProperty(k)){var v=x[k];"style"===k?Ae(h,v):"dangerouslySetInnerHTML"===k?(v=v?v.__html:void 0,null!=v&&ve(h,v)):"children"===k?"string"===typeof v?("textarea"!==l||""!==v)&&we(h,v):"number"===typeof v&&we(h,""+v):"suppressContentEditableWarning"!==k&&"suppressHydrationWarning"!==k&&"autoFocus"!==k&&(ia.hasOwnProperty(k)?null!=v&&Fe(n,k):null!=v&&zc(h,k,v,z));}switch(f){case "input":Vb(g);
+Gc(g,e,!1);break;case "textarea":Vb(g);qe(g,e);break;case "option":null!=e.value&&g.setAttribute("value",""+Ac(e.value));break;case "select":d=g;g=e;d.multiple=!!g.multiple;k=g.value;null!=k?me(d,!!g.multiple,k,!1):null!=g.defaultValue&&me(d,!!g.multiple,g.defaultValue,!0);break;default:"function"===typeof d.onClick&&(g.onclick=Ge);}Je(f,e)&&Sh(b);b.stateNode=c;}null!==b.ref&&(b.effectTag|=128);}else if(null===b.stateNode)throw t(Error(166));break;case 6:if(c&&null!=b.stateNode)Wh(c,b,c.memoizedProps,
+e);else{if("string"!==typeof e&&null===b.stateNode)throw t(Error(166));c=zg(yg.current);zg(wg.current);Bh(b)?(d=b.stateNode,c=b.memoizedProps,d[Fa]=b,d.nodeValue!==c&&Sh(b)):(d=b,c=(9===c.nodeType?c:c.ownerDocument).createTextNode(e),c[Fa]=b,d.stateNode=c);}break;case 11:break;case 13:H(P,b);e=b.memoizedState;if(0!==(b.effectTag&64)){b.expirationTime=d;break a}d=null!==e;e=!1;null===c?Bh(b):(f=c.memoizedState,e=null!==f,d||null===f||(f=c.child.sibling,null!==f&&(g=b.firstEffect,null!==g?(b.firstEffect=
+f,f.nextEffect=g):(b.firstEffect=b.lastEffect=f,f.nextEffect=null),f.effectTag=8)));if(d&&!e&&0!==(b.mode&2))if(null===c&&!0!==b.memoizedProps.unstable_avoidThisFallback||0!==(P.current&Fg))X===Ei&&(X=Gi);else if(X===Ei||X===Gi)X=Hi;if(d||e)b.effectTag|=4;break;case 7:break;case 8:break;case 12:break;case 4:Bg(b);Uh(b);break;case 10:If(b);break;case 9:break;case 14:break;case 17:N(b.type)&&Te(b);break;case 18:break;case 19:H(P,b);e=b.memoizedState;if(null===e)break;f=0!==(b.effectTag&64);g=e.rendering;
+if(null===g)if(f)$h(e,!1);else{if(X!==Ei||null!==c&&0!==(c.effectTag&64))for(c=b.child;null!==c;){g=Hg(c);if(null!==g){b.effectTag|=64;$h(e,!1);c=g.updateQueue;null!==c&&(b.updateQueue=c,b.effectTag|=4);b.firstEffect=b.lastEffect=null;for(c=b.child;null!==c;)e=c,f=d,e.effectTag&=2,e.nextEffect=null,e.firstEffect=null,e.lastEffect=null,g=e.alternate,null===g?(e.childExpirationTime=0,e.expirationTime=f,e.child=null,e.memoizedProps=null,e.memoizedState=null,e.updateQueue=null,e.dependencies=null):(e.childExpirationTime=
+g.childExpirationTime,e.expirationTime=g.expirationTime,e.child=g.child,e.memoizedProps=g.memoizedProps,e.memoizedState=g.memoizedState,e.updateQueue=g.updateQueue,f=g.dependencies,e.dependencies=null===f?null:{expirationTime:f.expirationTime,firstContext:f.firstContext,responders:f.responders}),c=c.sibling;J(P,P.current&Eg|Gg,b);b=b.child;break a}c=c.sibling;}}else{if(!f)if(c=Hg(g),null!==c){if(b.effectTag|=64,f=!0,$h(e,!0),null===e.tail&&"hidden"===e.tailMode){d=c.updateQueue;null!==d&&(b.updateQueue=
+d,b.effectTag|=4);b=b.lastEffect=e.lastEffect;null!==b&&(b.nextEffect=null);break}}else sf()>e.tailExpiration&&1<d&&(b.effectTag|=64,f=!0,$h(e,!1),b.expirationTime=b.childExpirationTime=d-1);e.isBackwards?(g.sibling=b.child,b.child=g):(d=e.last,null!==d?d.sibling=g:b.child=g,e.last=g);}if(null!==e.tail){0===e.tailExpiration&&(e.tailExpiration=sf()+500);d=e.tail;e.rendering=d;e.tail=d.sibling;e.lastEffect=b.lastEffect;d.sibling=null;c=P.current;c=f?c&Eg|Gg:c&Eg;J(P,c,b);b=d;break a}break;case 20:break;
+default:throw t(Error(156));}b=null;}d=V;if(1===W||1!==d.childExpirationTime){c=0;for(e=d.child;null!==e;)f=e.expirationTime,g=e.childExpirationTime,f>c&&(c=f),g>c&&(c=g),e=e.sibling;d.childExpirationTime=c;}if(null!==b)return b;null!==a&&0===(a.effectTag&1024)&&(null===a.firstEffect&&(a.firstEffect=V.firstEffect),null!==V.lastEffect&&(null!==a.lastEffect&&(a.lastEffect.nextEffect=V.firstEffect),a.lastEffect=V.lastEffect),1<V.effectTag&&(null!==a.lastEffect?a.lastEffect.nextEffect=V:a.firstEffect=V,
+a.lastEffect=V));}else{b=ai(V,W);if(null!==b)return b.effectTag&=1023,b;null!==a&&(a.firstEffect=a.lastEffect=null,a.effectTag|=1024);}b=V.sibling;if(null!==b)return b;V=a;}while(null!==V);X===Ei&&(X=Ii);return null}function ij(a){var b=tf();vf(99,nj.bind(null,a,b));null!==Qi&&wf(97,function(){cj();return null});return null}
+function nj(a,b){cj();if((U&(Ci|Di))!==T)throw t(Error(327));var c=a.finishedWork,d=a.finishedExpirationTime;if(null===c)return null;a.finishedWork=null;a.finishedExpirationTime=0;if(c===a.current)throw t(Error(177));a.callbackNode=null;a.callbackExpirationTime=0;var e=c.expirationTime,f=c.childExpirationTime;e=f>e?f:e;a.firstPendingTime=e;e<a.lastPendingTime&&(a.lastPendingTime=e);a===Ji&&(V=Ji=null,W=0);1<c.effectTag?null!==c.lastEffect?(c.lastEffect.nextEffect=c,e=c.firstEffect):e=c:e=c.firstEffect;
+if(null!==e){f=U;U|=Di;Ai.current=null;He=Qd;var h=ae();if(be(h)){if("selectionStart"in h)var g={start:h.selectionStart,end:h.selectionEnd};else a:{g=(g=h.ownerDocument)&&g.defaultView||window;var k=g.getSelection&&g.getSelection();if(k&&0!==k.rangeCount){g=k.anchorNode;var l=k.anchorOffset,n=k.focusNode;k=k.focusOffset;try{g.nodeType,n.nodeType;}catch(zb){g=null;break a}var z=0,x=-1,v=-1,rb=0,Be=0,u=h,w=null;b:for(;;){for(var C;;){u!==g||0!==l&&3!==u.nodeType||(x=z+l);u!==n||0!==k&&3!==u.nodeType||
+(v=z+k);3===u.nodeType&&(z+=u.nodeValue.length);if(null===(C=u.firstChild))break;w=u;u=C;}for(;;){if(u===h)break b;w===g&&++rb===l&&(x=z);w===n&&++Be===k&&(v=z);if(null!==(C=u.nextSibling))break;u=w;w=u.parentNode;}u=C;}g=-1===x||-1===v?null:{start:x,end:v};}else g=null;}g=g||{start:0,end:0};}else g=null;Ie={focusedElem:h,selectionRange:g};Qd=!1;Y=e;do try{for(;null!==Y;){if(0!==(Y.effectTag&256)){var I=Y.alternate;h=Y;switch(h.tag){case 0:case 11:case 15:hi(Jg,Ig,h);break;case 1:if(h.effectTag&256&&null!==
+I){var E=I.memoizedProps,ua=I.memoizedState,gh=h.stateNode,oj=gh.getSnapshotBeforeUpdate(h.elementType===h.type?E:Af(h.type,E),ua);gh.__reactInternalSnapshotBeforeUpdate=oj;}break;case 3:case 5:case 6:case 4:case 17:break;default:throw t(Error(163));}}Y=Y.nextEffect;}}catch(zb){if(null===Y)throw t(Error(330));fi(Y,zb);Y=Y.nextEffect;}while(null!==Y);Y=e;do try{for(I=b;null!==Y;){var A=Y.effectTag;A&16&&we(Y.stateNode,"");if(A&128){var p=Y.alternate;if(null!==p){var r=p.ref;null!==r&&("function"===typeof r?
+r(null):r.current=null);}}switch(A&14){case 2:ni(Y);Y.effectTag&=-3;break;case 6:ni(Y);Y.effectTag&=-3;oi(Y.alternate,Y);break;case 4:oi(Y.alternate,Y);break;case 8:E=Y;ki(E,I);E.return=null;E.child=null;E.memoizedState=null;E.updateQueue=null;E.dependencies=null;var K=E.alternate;null!==K&&(K.return=null,K.child=null,K.memoizedState=null,K.updateQueue=null,K.dependencies=null);}Y=Y.nextEffect;}}catch(zb){if(null===Y)throw t(Error(330));fi(Y,zb);Y=Y.nextEffect;}while(null!==Y);r=Ie;p=ae();A=r.focusedElem;
+I=r.selectionRange;if(p!==A&&A&&A.ownerDocument&&$d(A.ownerDocument.documentElement,A)){null!==I&&be(A)&&(p=I.start,r=I.end,void 0===r&&(r=p),"selectionStart"in A?(A.selectionStart=p,A.selectionEnd=Math.min(r,A.value.length)):(r=(p=A.ownerDocument||document)&&p.defaultView||window,r.getSelection&&(r=r.getSelection(),E=A.textContent.length,K=Math.min(I.start,E),I=void 0===I.end?K:Math.min(I.end,E),!r.extend&&K>I&&(E=I,I=K,K=E),E=Zd(A,K),ua=Zd(A,I),E&&ua&&(1!==r.rangeCount||r.anchorNode!==E.node||r.anchorOffset!==
+E.offset||r.focusNode!==ua.node||r.focusOffset!==ua.offset)&&(p=p.createRange(),p.setStart(E.node,E.offset),r.removeAllRanges(),K>I?(r.addRange(p),r.extend(ua.node,ua.offset)):(p.setEnd(ua.node,ua.offset),r.addRange(p))))));p=[];for(r=A;r=r.parentNode;)1===r.nodeType&&p.push({element:r,left:r.scrollLeft,top:r.scrollTop});"function"===typeof A.focus&&A.focus();for(A=0;A<p.length;A++)r=p[A],r.element.scrollLeft=r.left,r.element.scrollTop=r.top;}Ie=null;Qd=!!He;He=null;a.current=c;Y=e;do try{for(A=d;null!==
+Y;){var $a=Y.effectTag;if($a&36){var nc=Y.alternate;p=Y;r=A;switch(p.tag){case 0:case 11:case 15:hi(Mg,Ng,p);break;case 1:var md=p.stateNode;if(p.effectTag&4)if(null===nc)md.componentDidMount();else{var Fj=p.elementType===p.type?nc.memoizedProps:Af(p.type,nc.memoizedProps);md.componentDidUpdate(Fj,nc.memoizedState,md.__reactInternalSnapshotBeforeUpdate);}var Xh=p.updateQueue;null!==Xh&&Yf(p,Xh,md,r);break;case 3:var Yh=p.updateQueue;if(null!==Yh){K=null;if(null!==p.child)switch(p.child.tag){case 5:K=
+p.child.stateNode;break;case 1:K=p.child.stateNode;}Yf(p,Yh,K,r);}break;case 5:var Gj=p.stateNode;null===nc&&p.effectTag&4&&(r=Gj,Je(p.type,p.memoizedProps)&&r.focus());break;case 6:break;case 4:break;case 12:break;case 13:case 19:case 17:case 20:break;default:throw t(Error(163));}}if($a&128){var nd=Y.ref;if(null!==nd){var Zh=Y.stateNode;switch(Y.tag){case 5:var gf=Zh;break;default:gf=Zh;}"function"===typeof nd?nd(gf):nd.current=gf;}}$a&512&&(Pi=!0);Y=Y.nextEffect;}}catch(zb){if(null===Y)throw t(Error(330));
+fi(Y,zb);Y=Y.nextEffect;}while(null!==Y);Y=null;nf();U=f;}else a.current=c;if(Pi)Pi=!1,Qi=a,Si=d,Ri=b;else for(Y=e;null!==Y;)b=Y.nextEffect,Y.nextEffect=null,Y=b;b=a.firstPendingTime;0!==b?($a=cg(),$a=zf($a,b),Zi(a,$a,b)):xi=null;"function"===typeof pj&&pj(c.stateNode,d);1073741823===b?a===Vi?Ui++:(Ui=0,Vi=a):Ui=0;if(ui)throw ui=!1,a=vi,vi=null,a;if((U&Bi)!==T)return null;O();return null}
+function cj(){if(null===Qi)return!1;var a=Qi,b=Si,c=Ri;Qi=null;Si=0;Ri=90;return vf(97<c?97:c,qj.bind(null,a,b))}function qj(a){if((U&(Ci|Di))!==T)throw t(Error(331));var b=U;U|=Di;for(a=a.current.firstEffect;null!==a;){try{var c=a;if(0!==(c.effectTag&512))switch(c.tag){case 0:case 11:case 15:hi(Pg,Ig,c),hi(Ig,Og,c);}}catch(d){if(null===a)throw t(Error(330));fi(a,d);}c=a.nextEffect;a.nextEffect=null;a=c;}U=b;O();return!0}
+function rj(a,b,c){b=bi(c,b);b=ti(a,b,1073741823);Sf(a,b);a=Yi(a,1073741823);null!==a&&Zi(a,99,1073741823);}function fi(a,b){if(3===a.tag)rj(a,a,b);else for(var c=a.return;null!==c;){if(3===c.tag){rj(c,a,b);break}else if(1===c.tag){var d=c.stateNode;if("function"===typeof c.type.getDerivedStateFromError||"function"===typeof d.componentDidCatch&&(null===xi||!xi.has(d))){a=bi(b,a);a=wi(c,a,1073741823);Sf(c,a);c=Yi(c,1073741823);null!==c&&Zi(c,99,1073741823);break}}c=c.return;}}
+function kj(a,b,c){var d=a.pingCache;null!==d&&d.delete(b);Ji===a&&W===c?X===Hi||X===Gi&&1073741823===Ki&&sf()-pi<Oi?hj(a,W):Ni=!0:a.lastPendingTime<c||(b=a.pingTime,0!==b&&b<c||(a.pingTime=c,a.finishedExpirationTime===c&&(a.finishedExpirationTime=0,a.finishedWork=null),b=cg(),b=zf(b,c),Zi(a,b,c)));}function ri(a,b){var c=a.stateNode;null!==c&&c.delete(b);c=cg();b=dg(c,a,null);c=zf(c,b);a=Yi(a,b);null!==a&&Zi(a,c,b);}var mj=void 0;
+mj=function(a,b,c){var d=b.expirationTime;if(null!==a){var e=b.pendingProps;if(a.memoizedProps!==e||M.current)Lf=!0;else if(d<c){Lf=!1;switch(b.tag){case 3:Nh(b);Ch();break;case 5:Cg(b);if(b.mode&4&&1!==c&&e.hidden)return b.expirationTime=b.childExpirationTime=1,null;break;case 1:N(b.type)&&Xe(b);break;case 4:Ag(b,b.stateNode.containerInfo);break;case 10:Hf(b,b.memoizedProps.value);break;case 13:if(null!==b.memoizedState){d=b.child.childExpirationTime;if(0!==d&&d>=c)return Ph(a,b,c);J(P,P.current&
+Eg,b);b=Fh(a,b,c);return null!==b?b.sibling:null}J(P,P.current&Eg,b);break;case 19:d=b.childExpirationTime>=c;if(0!==(a.effectTag&64)){if(d)return Rh(a,b,c);b.effectTag|=64;}e=b.memoizedState;null!==e&&(e.rendering=null,e.tail=null);J(P,P.current,b);if(!d)return null}return Fh(a,b,c)}}else Lf=!1;b.expirationTime=0;switch(b.tag){case 2:d=b.type;null!==a&&(a.alternate=null,b.alternate=null,b.effectTag|=2);a=b.pendingProps;e=Se(b,L.current);Kf(b,c);e=dh(null,b,d,a,e,c);b.effectTag|=1;if("object"===typeof e&&
+null!==e&&"function"===typeof e.render&&void 0===e.$$typeof){b.tag=1;ih();if(N(d)){var f=!0;Xe(b);}else f=!1;b.memoizedState=null!==e.state&&void 0!==e.state?e.state:null;var h=d.getDerivedStateFromProps;"function"===typeof h&&bg(b,d,h,a);e.updater=fg;b.stateNode=e;e._reactInternalFiber=b;jg(b,d,a,c);b=Mh(null,b,d,!0,f,c);}else b.tag=0,S(null,b,e,c),b=b.child;return b;case 16:e=b.elementType;null!==a&&(a.alternate=null,b.alternate=null,b.effectTag|=2);a=b.pendingProps;e=Bf(e);b.type=e;f=b.tag=sj(e);
+a=Af(e,a);switch(f){case 0:b=Jh(null,b,e,a,c);break;case 1:b=Lh(null,b,e,a,c);break;case 11:b=Eh(null,b,e,a,c);break;case 14:b=Gh(null,b,e,Af(e.type,a),d,c);break;default:throw t(Error(306),e,"");}return b;case 0:return d=b.type,e=b.pendingProps,e=b.elementType===d?e:Af(d,e),Jh(a,b,d,e,c);case 1:return d=b.type,e=b.pendingProps,e=b.elementType===d?e:Af(d,e),Lh(a,b,d,e,c);case 3:Nh(b);d=b.updateQueue;if(null===d)throw t(Error(282));e=b.memoizedState;e=null!==e?e.element:null;Wf(b,d,b.pendingProps,
+null,c);d=b.memoizedState.element;if(d===e)Ch(),b=Fh(a,b,c);else{e=b.stateNode;if(e=(null===a||null===a.child)&&e.hydrate)uh=Ne(b.stateNode.containerInfo.firstChild),th=b,e=vh=!0;e?(b.effectTag|=2,b.child=ug(b,null,d,c)):(S(a,b,d,c),Ch());b=b.child;}return b;case 5:return Cg(b),null===a&&zh(b),d=b.type,e=b.pendingProps,f=null!==a?a.memoizedProps:null,h=e.children,Ke(d,e)?h=null:null!==f&&Ke(d,f)&&(b.effectTag|=16),Kh(a,b),b.mode&4&&1!==c&&e.hidden?(b.expirationTime=b.childExpirationTime=1,b=null):
+(S(a,b,h,c),b=b.child),b;case 6:return null===a&&zh(b),null;case 13:return Ph(a,b,c);case 4:return Ag(b,b.stateNode.containerInfo),d=b.pendingProps,null===a?b.child=tg(b,null,d,c):S(a,b,d,c),b.child;case 11:return d=b.type,e=b.pendingProps,e=b.elementType===d?e:Af(d,e),Eh(a,b,d,e,c);case 7:return S(a,b,b.pendingProps,c),b.child;case 8:return S(a,b,b.pendingProps.children,c),b.child;case 12:return S(a,b,b.pendingProps.children,c),b.child;case 10:a:{d=b.type._context;e=b.pendingProps;h=b.memoizedProps;
+f=e.value;Hf(b,f);if(null!==h){var g=h.value;f=hd(g,f)?0:("function"===typeof d._calculateChangedBits?d._calculateChangedBits(g,f):1073741823)|0;if(0===f){if(h.children===e.children&&!M.current){b=Fh(a,b,c);break a}}else for(g=b.child,null!==g&&(g.return=b);null!==g;){var k=g.dependencies;if(null!==k){h=g.child;for(var l=k.firstContext;null!==l;){if(l.context===d&&0!==(l.observedBits&f)){1===g.tag&&(l=Qf(c,null),l.tag=2,Sf(g,l));g.expirationTime<c&&(g.expirationTime=c);l=g.alternate;null!==l&&l.expirationTime<
+c&&(l.expirationTime=c);Jf(g.return,c);k.expirationTime<c&&(k.expirationTime=c);break}l=l.next;}}else h=10===g.tag?g.type===b.type?null:g.child:g.child;if(null!==h)h.return=g;else for(h=g;null!==h;){if(h===b){h=null;break}g=h.sibling;if(null!==g){g.return=h.return;h=g;break}h=h.return;}g=h;}}S(a,b,e.children,c);b=b.child;}return b;case 9:return e=b.type,f=b.pendingProps,d=f.children,Kf(b,c),e=Mf(e,f.unstable_observedBits),d=d(e),b.effectTag|=1,S(a,b,d,c),b.child;case 14:return e=b.type,f=Af(e,b.pendingProps),
+f=Af(e.type,f),Gh(a,b,e,f,d,c);case 15:return Ih(a,b,b.type,b.pendingProps,d,c);case 17:return d=b.type,e=b.pendingProps,e=b.elementType===d?e:Af(d,e),null!==a&&(a.alternate=null,b.alternate=null,b.effectTag|=2),b.tag=1,N(d)?(a=!0,Xe(b)):a=!1,Kf(b,c),hg(b,d,e,c),jg(b,d,e,c),Mh(null,b,d,!0,a,c);case 19:return Rh(a,b,c)}throw t(Error(156));};var pj=null,ji=null;
+function tj(a){if("undefined"===typeof __REACT_DEVTOOLS_GLOBAL_HOOK__)return!1;var b=__REACT_DEVTOOLS_GLOBAL_HOOK__;if(b.isDisabled||!b.supportsFiber)return!0;try{var c=b.inject(a);pj=function(a){try{b.onCommitFiberRoot(c,a,void 0,64===(a.current.effectTag&64));}catch(e){}};ji=function(a){try{b.onCommitFiberUnmount(c,a);}catch(e){}};}catch(d){}return!0}
+function uj(a,b,c,d){this.tag=a;this.key=c;this.sibling=this.child=this.return=this.stateNode=this.type=this.elementType=null;this.index=0;this.ref=null;this.pendingProps=b;this.dependencies=this.memoizedState=this.updateQueue=this.memoizedProps=null;this.mode=d;this.effectTag=0;this.lastEffect=this.firstEffect=this.nextEffect=null;this.childExpirationTime=this.expirationTime=0;this.alternate=null;}function xh(a,b,c,d){return new uj(a,b,c,d)}
+function Hh(a){a=a.prototype;return!(!a||!a.isReactComponent)}function sj(a){if("function"===typeof a)return Hh(a)?1:0;if(void 0!==a&&null!==a){a=a.$$typeof;if(a===gc)return 11;if(a===jc)return 14}return 2}
+function og(a,b){var c=a.alternate;null===c?(c=xh(a.tag,b,a.key,a.mode),c.elementType=a.elementType,c.type=a.type,c.stateNode=a.stateNode,c.alternate=a,a.alternate=c):(c.pendingProps=b,c.effectTag=0,c.nextEffect=null,c.firstEffect=null,c.lastEffect=null);c.childExpirationTime=a.childExpirationTime;c.expirationTime=a.expirationTime;c.child=a.child;c.memoizedProps=a.memoizedProps;c.memoizedState=a.memoizedState;c.updateQueue=a.updateQueue;b=a.dependencies;c.dependencies=null===b?null:{expirationTime:b.expirationTime,
+firstContext:b.firstContext,responders:b.responders};c.sibling=a.sibling;c.index=a.index;c.ref=a.ref;return c}
+function qg(a,b,c,d,e,f){var h=2;d=a;if("function"===typeof a)Hh(a)&&(h=1);else if("string"===typeof a)h=5;else a:switch(a){case ac:return sg(c.children,e,f,b);case fc:h=8;e|=7;break;case bc:h=8;e|=1;break;case cc:return a=xh(12,c,b,e|8),a.elementType=cc,a.type=cc,a.expirationTime=f,a;case hc:return a=xh(13,c,b,e),a.type=hc,a.elementType=hc,a.expirationTime=f,a;case ic:return a=xh(19,c,b,e),a.elementType=ic,a.expirationTime=f,a;default:if("object"===typeof a&&null!==a)switch(a.$$typeof){case dc:h=
+10;break a;case ec:h=9;break a;case gc:h=11;break a;case jc:h=14;break a;case kc:h=16;d=null;break a}throw t(Error(130),null==a?a:typeof a,"");}b=xh(h,c,b,e);b.elementType=a;b.type=d;b.expirationTime=f;return b}function sg(a,b,c,d){a=xh(7,a,d,b);a.expirationTime=c;return a}function pg(a,b,c){a=xh(6,a,null,b);a.expirationTime=c;return a}
+function rg(a,b,c){b=xh(4,null!==a.children?a.children:[],a.key,b);b.expirationTime=c;b.stateNode={containerInfo:a.containerInfo,pendingChildren:null,implementation:a.implementation};return b}
+function vj(a,b,c){this.tag=b;this.current=null;this.containerInfo=a;this.pingCache=this.pendingChildren=null;this.finishedExpirationTime=0;this.finishedWork=null;this.timeoutHandle=-1;this.pendingContext=this.context=null;this.hydrate=c;this.callbackNode=this.firstBatch=null;this.pingTime=this.lastPendingTime=this.firstPendingTime=this.callbackExpirationTime=0;}function wj(a,b,c){a=new vj(a,b,c);b=xh(3,null,null,2===b?7:1===b?3:0);a.current=b;return b.stateNode=a}
+function xj(a,b,c,d,e,f){var h=b.current;a:if(c){c=c._reactInternalFiber;b:{if(2!==ld(c)||1!==c.tag)throw t(Error(170));var g=c;do{switch(g.tag){case 3:g=g.stateNode.context;break b;case 1:if(N(g.type)){g=g.stateNode.__reactInternalMemoizedMergedChildContext;break b}}g=g.return;}while(null!==g);throw t(Error(171));}if(1===c.tag){var k=c.type;if(N(k)){c=We(c,k,g);break a}}c=g;}else c=Qe;null===b.context?b.context=c:b.pendingContext=c;b=f;e=Qf(d,e);e.payload={element:a};b=void 0===b?null:b;null!==b&&
+(e.callback=b);Sf(h,e);eg(h,d);return d}function yj(a,b,c,d){var e=b.current,f=cg(),h=$f.suspense;e=dg(f,e,h);return xj(a,b,c,e,h,d)}function zj(a){a=a.current;if(!a.child)return null;switch(a.child.tag){case 5:return a.child.stateNode;default:return a.child.stateNode}}function Aj(a,b,c){var d=3<arguments.length&&void 0!==arguments[3]?arguments[3]:null;return{$$typeof:$b,key:null==d?null:""+d,children:a,containerInfo:b,implementation:c}}
+Db=function(a,b,c){switch(b){case "input":Ec(a,c);b=c.name;if("radio"===c.type&&null!=b){for(c=a;c.parentNode;)c=c.parentNode;c=c.querySelectorAll("input[name="+JSON.stringify(""+b)+'][type="radio"]');for(b=0;b<c.length;b++){var d=c[b];if(d!==a&&d.form===a.form){var e=Ka(d);if(!e)throw t(Error(90));Wb(d);Ec(d,e);}}}break;case "textarea":pe(a,c);break;case "select":b=c.value,null!=b&&me(a,!!c.multiple,b,!1);}};
+function Bj(a){var b=1073741821-25*(((1073741821-cg()+500)/25|0)+1);b<=Xi&&--b;this._expirationTime=Xi=b;this._root=a;this._callbacks=this._next=null;this._hasChildren=this._didComplete=!1;this._children=null;this._defer=!0;}Bj.prototype.render=function(a){if(!this._defer)throw t(Error(250));this._hasChildren=!0;this._children=a;var b=this._root._internalRoot,c=this._expirationTime,d=new Cj;xj(a,b,null,c,null,d._onCommit);return d};
+Bj.prototype.then=function(a){if(this._didComplete)a();else{var b=this._callbacks;null===b&&(b=this._callbacks=[]);b.push(a);}};
+Bj.prototype.commit=function(){var a=this._root._internalRoot,b=a.firstBatch;if(!this._defer||null===b)throw t(Error(251));if(this._hasChildren){var c=this._expirationTime;if(b!==this){this._hasChildren&&(c=this._expirationTime=b._expirationTime,this.render(this._children));for(var d=null,e=b;e!==this;)d=e,e=e._next;if(null===d)throw t(Error(251));d._next=e._next;this._next=b;a.firstBatch=this;}this._defer=!1;b=c;if((U&(Ci|Di))!==T)throw t(Error(253));xf(Z.bind(null,a,b));O();b=this._next;this._next=
+null;b=a.firstBatch=b;null!==b&&b._hasChildren&&b.render(b._children);}else this._next=null,this._defer=!1;};Bj.prototype._onComplete=function(){if(!this._didComplete){this._didComplete=!0;var a=this._callbacks;if(null!==a)for(var b=0;b<a.length;b++)(0, a[b])();}};function Cj(){this._callbacks=null;this._didCommit=!1;this._onCommit=this._onCommit.bind(this);}Cj.prototype.then=function(a){if(this._didCommit)a();else{var b=this._callbacks;null===b&&(b=this._callbacks=[]);b.push(a);}};
+Cj.prototype._onCommit=function(){if(!this._didCommit){this._didCommit=!0;var a=this._callbacks;if(null!==a)for(var b=0;b<a.length;b++){var c=a[b];if("function"!==typeof c)throw t(Error(191),c);c();}}};function Dj(a,b,c){this._internalRoot=wj(a,b,c);}function Ej(a,b){this._internalRoot=wj(a,2,b);}Ej.prototype.render=Dj.prototype.render=function(a,b){var c=this._internalRoot,d=new Cj;b=void 0===b?null:b;null!==b&&d.then(b);yj(a,c,null,d._onCommit);return d};
+Ej.prototype.unmount=Dj.prototype.unmount=function(a){var b=this._internalRoot,c=new Cj;a=void 0===a?null:a;null!==a&&c.then(a);yj(null,b,null,c._onCommit);return c};Ej.prototype.createBatch=function(){var a=new Bj(this),b=a._expirationTime,c=this._internalRoot,d=c.firstBatch;if(null===d)c.firstBatch=a,a._next=null;else{for(c=null;null!==d&&d._expirationTime>=b;)c=d,d=d._next;a._next=d;null!==c&&(c._next=a);}return a};
+function Hj(a){return!(!a||1!==a.nodeType&&9!==a.nodeType&&11!==a.nodeType&&(8!==a.nodeType||" react-mount-point-unstable "!==a.nodeValue))}Jb=ej;Kb=fj;Lb=aj;Mb=function(a,b){var c=U;U|=2;try{return a(b)}finally{U=c,U===T&&O();}};function Ij(a,b){b||(b=a?9===a.nodeType?a.documentElement:a.firstChild:null,b=!(!b||1!==b.nodeType||!b.hasAttribute("data-reactroot")));if(!b)for(var c;c=a.lastChild;)a.removeChild(c);return new Dj(a,0,b)}
+function Jj(a,b,c,d,e){var f=c._reactRootContainer,h=void 0;if(f){h=f._internalRoot;if("function"===typeof e){var g=e;e=function(){var a=zj(h);g.call(a);};}yj(b,h,a,e);}else{f=c._reactRootContainer=Ij(c,d);h=f._internalRoot;if("function"===typeof e){var k=e;e=function(){var a=zj(h);k.call(a);};}gj(function(){yj(b,h,a,e);});}return zj(h)}function Kj(a,b){var c=2<arguments.length&&void 0!==arguments[2]?arguments[2]:null;if(!Hj(b))throw t(Error(200));return Aj(a,b,null,c)}
+var Nj={createPortal:Kj,findDOMNode:function(a){if(null==a)a=null;else if(1!==a.nodeType){var b=a._reactInternalFiber;if(void 0===b){if("function"===typeof a.render)throw t(Error(188));throw t(Error(268),Object.keys(a));}a=qd(b);a=null===a?null:a.stateNode;}return a},hydrate:function(a,b,c){if(!Hj(b))throw t(Error(200));return Jj(null,a,b,!0,c)},render:function(a,b,c){if(!Hj(b))throw t(Error(200));return Jj(null,a,b,!1,c)},unstable_renderSubtreeIntoContainer:function(a,b,c,d){if(!Hj(c))throw t(Error(200));
+if(null==a||void 0===a._reactInternalFiber)throw t(Error(38));return Jj(a,b,c,!1,d)},unmountComponentAtNode:function(a){if(!Hj(a))throw t(Error(40));return a._reactRootContainer?(gj(function(){Jj(null,null,a,!1,function(){a._reactRootContainer=null;});}),!0):!1},unstable_createPortal:function(){return Kj.apply(void 0,arguments)},unstable_batchedUpdates:ej,unstable_interactiveUpdates:function(a,b,c,d){aj();return fj(a,b,c,d)},unstable_discreteUpdates:fj,unstable_flushDiscreteUpdates:aj,flushSync:function(a,
+b){if((U&(Ci|Di))!==T)throw t(Error(187));var c=U;U|=1;try{return vf(99,a.bind(null,b))}finally{U=c,O();}},unstable_createRoot:Lj,unstable_createSyncRoot:Mj,unstable_flushControlled:function(a){var b=U;U|=1;try{vf(99,a);}finally{U=b,U===T&&O();}},__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED:{Events:[Ia,Ja,Ka,Ca.injectEventPluginsByName,fa,Qa,function(a){ya(a,Pa);},Hb,Ib,Ud,Ba,cj,{current:!1}]}};
+function Lj(a,b){if(!Hj(a))throw t(Error(299),"unstable_createRoot");return new Ej(a,null!=b&&!0===b.hydrate)}function Mj(a,b){if(!Hj(a))throw t(Error(299),"unstable_createRoot");return new Dj(a,1,null!=b&&!0===b.hydrate)}
+(function(a){var b=a.findFiberByHostInstance;return tj(objectAssign({},a,{overrideHookState:null,overrideProps:null,setSuspenseHandler:null,scheduleUpdate:null,currentDispatcherRef:Xb.ReactCurrentDispatcher,findHostInstanceByFiber:function(a){a=qd(a);return null===a?null:a.stateNode},findFiberByHostInstance:function(a){return b?b(a):null},findHostInstancesForRefresh:null,scheduleRefresh:null,scheduleRoot:null,setRefreshHandler:null,getCurrentFiber:null}))})({findFiberByHostInstance:Ha,bundleType:0,version:"16.9.0",
+rendererPackageName:"react-dom"});var Oj={default:Nj},Pj=Oj&&Nj||Oj;var reactDom_production_min=Pj.default||Pj;
+
+var reactDom = createCommonjsModule(function (module) {
+
+function checkDCE() {
+  /* global __REACT_DEVTOOLS_GLOBAL_HOOK__ */
+  if (
+    typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ === 'undefined' ||
+    typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.checkDCE !== 'function'
+  ) {
+    return;
+  }
+  try {
+    // Verify that the code above has been dead code eliminated (DCE'd).
+    __REACT_DEVTOOLS_GLOBAL_HOOK__.checkDCE(checkDCE);
+  } catch (err) {
+    // DevTools shouldn't crash React, no matter what.
+    // We should still report in case we break this code.
+    console.error(err);
+  }
+}
+
+{
+  // DCE check should happen before ReactDOM bundle executes so that
+  // DevTools can report bad minification during injection.
+  checkDCE();
+  module.exports = reactDom_production_min;
+}
+});
+var reactDom_1 = reactDom.unstable_batchedUpdates;
+
+/* eslint-disable import/no-unresolved */
+
+setBatch(reactDom_1);
 
 var actions = {
   FETCH_CRUD_FILTER_VALUES: 'FETCH_CRUD_FILTER_VALUES',
@@ -5095,7 +5401,7 @@ function toArray () {
     return [m.year(), m.month(), m.date(), m.hour(), m.minute(), m.second(), m.millisecond()];
 }
 
-function toObject () {
+function toObject$1 () {
     var m = this;
     return {
         years: m.year(),
@@ -5467,7 +5773,7 @@ proto.set               = stringSet;
 proto.startOf           = startOf;
 proto.subtract          = subtract;
 proto.toArray           = toArray;
-proto.toObject          = toObject;
+proto.toObject          = toObject$1;
 proto.toDate            = toDate;
 proto.toISOString       = toISOString;
 proto.inspect           = inspect;
@@ -11708,7 +12014,7 @@ var createClass = function () {
   };
 }();
 
-var _extends$2 = Object.assign || function (target) {
+var _extends$1 = Object.assign || function (target) {
   for (var i = 1; i < arguments.length; i++) {
     var source = arguments[i];
 
@@ -11764,7 +12070,7 @@ var isPlainObject$3 = (function (x) {
 });
 
 // 
-var EMPTY_ARRAY = Object.freeze([]);
+var EMPTY_ARRAY$1 = Object.freeze([]);
 var EMPTY_OBJECT = Object.freeze({});
 
 // 
@@ -11998,7 +12304,7 @@ var cloneNames = function cloneNames(names) {
   var clone = Object.create(null);
   // eslint-disable-next-line guard-for-in
   for (var id in names) {
-    clone[id] = _extends$2({}, names[id]);
+    clone[id] = _extends$1({}, names[id]);
   }
   return clone;
 };
@@ -12123,7 +12429,7 @@ var wrapAsElement = function wrapAsElement(css, names) {
     }
 
     // eslint-disable-next-line react/no-danger
-    return React__default.createElement('style', _extends$2({}, props, { dangerouslySetInnerHTML: { __html: css() } }));
+    return React__default.createElement('style', _extends$1({}, props, { dangerouslySetInnerHTML: { __html: css() } }));
   };
 };
 
@@ -12607,8 +12913,8 @@ var StyleSheet = function () {
     });
 
     /* clone other maps */
-    sheet.rehydratedNames = _extends$2({}, this.rehydratedNames);
-    sheet.deferred = _extends$2({}, this.deferred);
+    sheet.rehydratedNames = _extends$1({}, this.rehydratedNames);
+    sheet.deferred = _extends$1({}, this.deferred);
 
     return sheet;
   };
@@ -12935,7 +13241,7 @@ function css(styles) {
 
   if (isFunction$2(styles) || isPlainObject$3(styles)) {
     // $FlowFixMe
-    return flatten(interleave(EMPTY_ARRAY, [styles].concat(interpolations)));
+    return flatten(interleave(EMPTY_ARRAY$1, [styles].concat(interpolations)));
   }
 
   // $FlowFixMe
@@ -12959,12 +13265,12 @@ function constructWithOptions(componentConstructor, tag) {
 
   /* If config methods are called, wrap up a new template function and merge options */
   templateFunction.withConfig = function (config) {
-    return constructWithOptions(componentConstructor, tag, _extends$2({}, options, config));
+    return constructWithOptions(componentConstructor, tag, _extends$1({}, options, config));
   };
 
   /* Modify/inject new props at runtime */
   templateFunction.attrs = function (attrs) {
-    return constructWithOptions(componentConstructor, tag, _extends$2({}, options, {
+    return constructWithOptions(componentConstructor, tag, _extends$1({}, options, {
       attrs: Array.prototype.concat(options.attrs, attrs).filter(Boolean)
     }));
   };
@@ -13186,7 +13492,7 @@ var TYPE_STATICS$1 = (_TYPE_STATICS = {}, _TYPE_STATICS[reactIs.ForwardRef] = {
 var defineProperty$1 = Object.defineProperty,
     getOwnPropertyNames$1 = Object.getOwnPropertyNames,
     _Object$getOwnPropert = Object.getOwnPropertySymbols,
-    getOwnPropertySymbols$1 = _Object$getOwnPropert === undefined ? function () {
+    getOwnPropertySymbols$2 = _Object$getOwnPropert === undefined ? function () {
   return [];
 } : _Object$getOwnPropert,
     getOwnPropertyDescriptor$1 = Object.getOwnPropertyDescriptor,
@@ -13207,7 +13513,7 @@ function hoistNonReactStatics$1(targetComponent, sourceComponent, blacklist) {
 
     var keys = arrayPrototype.concat(getOwnPropertyNames$1(sourceComponent),
     // $FlowFixMe
-    getOwnPropertySymbols$1(sourceComponent));
+    getOwnPropertySymbols$2(sourceComponent));
 
     var targetStatics = TYPE_STATICS$1[targetComponent.$$typeof] || REACT_STATICS$1;
 
@@ -13310,7 +13616,7 @@ var ThemeProvider = function (_Component) {
       throw new StyledComponentsError(8);
     }
 
-    return _extends$2({}, outerTheme, theme);
+    return _extends$1({}, outerTheme, theme);
   };
 
   ThemeProvider.prototype.getContext = function getContext(theme, outerTheme) {
@@ -13445,7 +13751,7 @@ var StyledComponent = function (_Component) {
     var isTargetTag = isTag(elementToBeCreated);
 
     var propsForElement = {};
-    var computedProps = _extends$2({}, this.attrs, this.props);
+    var computedProps = _extends$1({}, this.attrs, this.props);
 
     var key = void 0;
     // eslint-disable-next-line guard-for-in
@@ -13460,7 +13766,7 @@ var StyledComponent = function (_Component) {
     }
 
     if (this.props.style && this.attrs.style) {
-      propsForElement.style = _extends$2({}, this.attrs.style, this.props.style);
+      propsForElement.style = _extends$1({}, this.attrs.style, this.props.style);
     }
 
     propsForElement.className = Array.prototype.concat(foldedComponentIds, this.props.className, styledComponentId, this.attrs.className, generatedClassName).filter(Boolean).join(' ');
@@ -13471,7 +13777,7 @@ var StyledComponent = function (_Component) {
   StyledComponent.prototype.buildExecutionContext = function buildExecutionContext(theme, props, attrs) {
     var _this2 = this;
 
-    var context = _extends$2({}, props, { theme: theme });
+    var context = _extends$1({}, props, { theme: theme });
 
     if (!attrs.length) return context;
 
@@ -13542,7 +13848,7 @@ function createStyledComponent(target, options, rules) {
       _options$ParentCompon = options.ParentComponent,
       ParentComponent = _options$ParentCompon === undefined ? StyledComponent : _options$ParentCompon,
       _options$attrs = options.attrs,
-      attrs = _options$attrs === undefined ? EMPTY_ARRAY : _options$attrs;
+      attrs = _options$attrs === undefined ? EMPTY_ARRAY$1 : _options$attrs;
 
 
   var styledComponentId = options.displayName && options.componentId ? escape(options.displayName) + '-' + options.componentId : options.componentId || componentId;
@@ -13562,7 +13868,7 @@ function createStyledComponent(target, options, rules) {
    */
   var WrappedStyledComponent = void 0;
   var forwardRef = function forwardRef(props, ref) {
-    return React__default.createElement(ParentComponent, _extends$2({}, props, { forwardedComponent: WrappedStyledComponent, forwardedRef: ref }));
+    return React__default.createElement(ParentComponent, _extends$1({}, props, { forwardedComponent: WrappedStyledComponent, forwardedRef: ref }));
   };
   forwardRef.displayName = displayName;
   WrappedStyledComponent = React__default.forwardRef(forwardRef);
@@ -13575,7 +13881,7 @@ function createStyledComponent(target, options, rules) {
 
   // $FlowFixMe
   WrappedStyledComponent.foldedComponentIds = isTargetStyledComp ? // $FlowFixMe
-  Array.prototype.concat(target.foldedComponentIds, target.styledComponentId) : EMPTY_ARRAY;
+  Array.prototype.concat(target.foldedComponentIds, target.styledComponentId) : EMPTY_ARRAY$1;
 
   // $FlowFixMe
   WrappedStyledComponent.styledComponentId = styledComponentId;
@@ -13592,7 +13898,7 @@ function createStyledComponent(target, options, rules) {
 
     var newComponentId = previousComponentId && previousComponentId + '-' + (isTag(tag) ? tag : escape(getComponentName(tag)));
 
-    var newOptions = _extends$2({}, optionsToCopy, {
+    var newOptions = _extends$1({}, optionsToCopy, {
       attrs: finalAttrs,
       componentId: newComponentId,
       ParentComponent: ParentComponent
@@ -13667,17 +13973,17 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
-function _possibleConstructorReturn(self, call) { if (call && (_typeof$1(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized$1(self); }
+function _possibleConstructorReturn(self, call) { if (call && (_typeof$1(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
-function _assertThisInitialized$1(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _defineProperty$1(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 function _templateObject() {
   var data = _taggedTemplateLiteral(["\n\t.crud-action {\n\t\tfont-size: 20px;\n\t\tpadding: 0 5px;\n\t}\n"]);
@@ -13710,7 +14016,7 @@ function (_Component) {
 
     _this = _possibleConstructorReturn(this, (_getPrototypeOf2 = _getPrototypeOf(Action)).call.apply(_getPrototypeOf2, [this].concat(args)));
 
-    _defineProperty(_assertThisInitialized$1(_this), "getIcon", function (id) {
+    _defineProperty$1(_assertThisInitialized(_this), "getIcon", function (id) {
       switch (id) {
         case 'update':
           return 'edit';
@@ -13751,7 +14057,7 @@ function (_Component) {
       }
     });
 
-    _defineProperty(_assertThisInitialized$1(_this), "handleClick", function (ev) {
+    _defineProperty$1(_assertThisInitialized(_this), "handleClick", function (ev) {
       var _this$props = _this.props,
           data = _this$props.data,
           row = _this$props.row;
@@ -15015,7 +15321,7 @@ function createMemoryHistory(props) {
   return history;
 }
 
-var _extends$3 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$2 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 function _classCallCheck$1(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -15046,7 +15352,7 @@ var Router = function (_React$Component) {
 
   Router.prototype.getChildContext = function getChildContext() {
     return {
-      router: _extends$3({}, this.context.router, {
+      router: _extends$2({}, this.context.router, {
         history: this.props.history,
         route: {
           location: this.props.history.location,
@@ -15202,7 +15508,7 @@ HashRouter.propTypes = {
   children: propTypes.node
 };
 
-var _extends$4 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$3 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 function _objectWithoutProperties$1(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
@@ -15273,7 +15579,7 @@ var Link = function (_React$Component) {
     var location = typeof to === "string" ? createLocation(to, null, null, history.location) : to;
 
     var href = history.createHref(location);
-    return React__default.createElement("a", _extends$4({}, props, { onClick: this.handleClick, href: href, ref: innerRef }));
+    return React__default.createElement("a", _extends$3({}, props, { onClick: this.handleClick, href: href, ref: innerRef }));
   };
 
   return Link;
@@ -15847,7 +16153,7 @@ var matchPath = function matchPath(pathname) {
   };
 };
 
-var _extends$5 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$4 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 function _classCallCheck$6(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -15882,7 +16188,7 @@ var Route = function (_React$Component) {
 
   Route.prototype.getChildContext = function getChildContext() {
     return {
-      router: _extends$5({}, this.context.router, {
+      router: _extends$4({}, this.context.router, {
         route: {
           location: this.props.location || this.context.router.route.location,
           match: this.state.match
@@ -15980,7 +16286,7 @@ Route.childContextTypes = {
 
 // Written in this round about way for babel-transform-imports
 
-var _extends$6 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$5 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 var _typeof$3 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
@@ -16018,12 +16324,12 @@ var NavLink = function NavLink(_ref) {
 
       var isActive = !!(getIsActive ? getIsActive(match, location) : match);
 
-      return React__default.createElement(Link, _extends$6({
+      return React__default.createElement(Link, _extends$5({
         to: to,
         className: isActive ? [className, activeClassName].filter(function (i) {
           return i;
         }).join(" ") : className,
-        style: isActive ? _extends$6({}, style, activeStyle) : style,
+        style: isActive ? _extends$5({}, style, activeStyle) : style,
         "aria-current": isActive && ariaCurrent || null
       }, rest));
     }
@@ -16157,7 +16463,7 @@ var generatePath = function generatePath() {
   return generator(params, { pretty: true });
 };
 
-var _extends$7 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$6 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 function _classCallCheck$8(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -16213,7 +16519,7 @@ var Redirect = function (_React$Component) {
       if (typeof to === "string") {
         return generatePath(to, computedMatch.params);
       } else {
-        return _extends$7({}, to, {
+        return _extends$6({}, to, {
           pathname: generatePath(to.pathname, computedMatch.params)
         });
       }
@@ -16263,7 +16569,7 @@ Redirect.contextTypes = {
 
 // Written in this round about way for babel-transform-imports
 
-var _extends$8 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$7 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 function _objectWithoutProperties$3(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
@@ -16280,7 +16586,7 @@ var addLeadingSlash$1 = function addLeadingSlash(path) {
 var addBasename = function addBasename(basename, location) {
   if (!basename) return location;
 
-  return _extends$8({}, location, {
+  return _extends$7({}, location, {
     pathname: addLeadingSlash$1(basename) + location.pathname
   });
 };
@@ -16292,7 +16598,7 @@ var stripBasename$1 = function stripBasename(basename, location) {
 
   if (location.pathname.indexOf(base) !== 0) return location;
 
-  return _extends$8({}, location, {
+  return _extends$7({}, location, {
     pathname: location.pathname.substr(base.length)
   });
 };
@@ -16307,7 +16613,7 @@ var staticHandler = function staticHandler(methodName) {
   };
 };
 
-var noop$1 = function noop() {};
+var noop = function noop() {};
 
 /**
  * The public top-level API for a "static" <Router>, so-called because it
@@ -16347,9 +16653,9 @@ var StaticRouter = function (_React$Component) {
       context.location = addBasename(basename, createLocation(location));
       context.url = createURL(context.location);
     }, _this.handleListen = function () {
-      return noop$1;
+      return noop;
     }, _this.handleBlock = function () {
-      return noop$1;
+      return noop;
     }, _temp), _possibleConstructorReturn$9(_this, _ret);
   }
 
@@ -16385,7 +16691,7 @@ var StaticRouter = function (_React$Component) {
       block: this.handleBlock
     };
 
-    return React__default.createElement(Router, _extends$8({}, props, { history: history }));
+    return React__default.createElement(Router, _extends$7({}, props, { history: history }));
   };
 
   return StaticRouter;
@@ -16551,9 +16857,9 @@ var Loader = function Loader() {
 
 function _typeof$4(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof$4 = function _typeof(obj) { return typeof obj; }; } else { _typeof$4 = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof$4(obj); }
 
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+function ownKeys$1(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(source, true).forEach(function (key) { _defineProperty$1(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys$1(source, true).forEach(function (key) { _defineProperty$2(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys$1(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
 
 function _classCallCheck$11(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -16561,17 +16867,17 @@ function _defineProperties$1(target, props) { for (var i = 0; i < props.length; 
 
 function _createClass$1(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties$1(Constructor.prototype, protoProps); if (staticProps) _defineProperties$1(Constructor, staticProps); return Constructor; }
 
-function _possibleConstructorReturn$11(self, call) { if (call && (_typeof$4(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized$2(self); }
+function _possibleConstructorReturn$11(self, call) { if (call && (_typeof$4(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized$1(self); }
 
 function _getPrototypeOf$1(o) { _getPrototypeOf$1 = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf$1(o); }
 
-function _assertThisInitialized$2(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+function _assertThisInitialized$1(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
 function _inherits$11(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf$1(subClass, superClass); }
 
 function _setPrototypeOf$1(o, p) { _setPrototypeOf$1 = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf$1(o, p); }
 
-function _defineProperty$1(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _defineProperty$2(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 var fetchCrudModels = actions.fetchCrudModels,
     fetchCrudChildren = actions.fetchCrudChildren,
     setCrudParams = actions.setCrudParams;
@@ -16596,7 +16902,7 @@ function (_Component) {
 
     _this = _possibleConstructorReturn$11(this, (_getPrototypeOf2 = _getPrototypeOf$1(CrudView)).call.apply(_getPrototypeOf2, [this].concat(args)));
 
-    _defineProperty$1(_assertThisInitialized$2(_this), "handleTableChange", function (pagination, filters, sorter) {
+    _defineProperty$2(_assertThisInitialized$1(_this), "handleTableChange", function (pagination, filters, sorter) {
       _this.props.fetchCrudModels({
         modelName: _this.props.modelName,
         url: _this.props.url,
@@ -16613,13 +16919,13 @@ function (_Component) {
       }));
     });
 
-    _defineProperty$1(_assertThisInitialized$2(_this), "handleExpand", function (isExpanded, row) {
+    _defineProperty$2(_assertThisInitialized$1(_this), "handleExpand", function (isExpanded, row) {
       if (isExpanded) {
         _this.props.fetchCrudChildren(row.id, _this.props.modelName, _this.props.getChildrenUrl(row.id));
       }
     });
 
-    _defineProperty$1(_assertThisInitialized$2(_this), "getFilterValues", function (col) {
+    _defineProperty$2(_assertThisInitialized$1(_this), "getFilterValues", function (col) {
       var filterValues = _this.props.filterValues;
       return filterValues && col.filter.can && filterValues[col.id] ? filterValues[col.id].map(function (elem) {
         return {
@@ -16756,51 +17062,73 @@ var CrudView$1 = connect(function (state, props) {
   setCrudParams: setCrudParams
 })(CrudView);
 
+var _extends_1 = createCommonjsModule(function (module) {
+function _extends() {
+  module.exports = _extends = Object.assign || function (target) {
+    for (var i = 1; i < arguments.length; i++) {
+      var source = arguments[i];
+
+      for (var key in source) {
+        if (Object.prototype.hasOwnProperty.call(source, key)) {
+          target[key] = source[key];
+        }
+      }
+    }
+
+    return target;
+  };
+
+  return _extends.apply(this, arguments);
+}
+
+module.exports = _extends;
+});
+
 var prefix$1 = '@@redux-form/';
-
-var ARRAY_INSERT = prefix$1 + 'ARRAY_INSERT';
-var ARRAY_MOVE = prefix$1 + 'ARRAY_MOVE';
-var ARRAY_POP = prefix$1 + 'ARRAY_POP';
-var ARRAY_PUSH = prefix$1 + 'ARRAY_PUSH';
-var ARRAY_REMOVE = prefix$1 + 'ARRAY_REMOVE';
-var ARRAY_REMOVE_ALL = prefix$1 + 'ARRAY_REMOVE_ALL';
-var ARRAY_SHIFT = prefix$1 + 'ARRAY_SHIFT';
-var ARRAY_SPLICE = prefix$1 + 'ARRAY_SPLICE';
-var ARRAY_UNSHIFT = prefix$1 + 'ARRAY_UNSHIFT';
-var ARRAY_SWAP = prefix$1 + 'ARRAY_SWAP';
-var AUTOFILL = prefix$1 + 'AUTOFILL';
-var BLUR = prefix$1 + 'BLUR';
-var CHANGE = prefix$1 + 'CHANGE';
-var CLEAR_FIELDS = prefix$1 + 'CLEAR_FIELDS';
-var CLEAR_SUBMIT = prefix$1 + 'CLEAR_SUBMIT';
-var CLEAR_SUBMIT_ERRORS = prefix$1 + 'CLEAR_SUBMIT_ERRORS';
-var CLEAR_ASYNC_ERROR = prefix$1 + 'CLEAR_ASYNC_ERROR';
-var DESTROY = prefix$1 + 'DESTROY';
-var FOCUS = prefix$1 + 'FOCUS';
-var INITIALIZE = prefix$1 + 'INITIALIZE';
-var REGISTER_FIELD = prefix$1 + 'REGISTER_FIELD';
-var RESET = prefix$1 + 'RESET';
-var RESET_SECTION = prefix$1 + 'RESET_SECTION';
-var SET_SUBMIT_FAILED = prefix$1 + 'SET_SUBMIT_FAILED';
-var SET_SUBMIT_SUCCEEDED = prefix$1 + 'SET_SUBMIT_SUCCEEDED';
-var START_ASYNC_VALIDATION = prefix$1 + 'START_ASYNC_VALIDATION';
-var START_SUBMIT = prefix$1 + 'START_SUBMIT';
-var STOP_ASYNC_VALIDATION = prefix$1 + 'STOP_ASYNC_VALIDATION';
-var STOP_SUBMIT = prefix$1 + 'STOP_SUBMIT';
-var SUBMIT = prefix$1 + 'SUBMIT';
-var TOUCH = prefix$1 + 'TOUCH';
-var UNREGISTER_FIELD = prefix$1 + 'UNREGISTER_FIELD';
-var UNTOUCH = prefix$1 + 'UNTOUCH';
-var UPDATE_SYNC_ERRORS = prefix$1 + 'UPDATE_SYNC_ERRORS';
-var UPDATE_SYNC_WARNINGS = prefix$1 + 'UPDATE_SYNC_WARNINGS';
-
-var _extends$10 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
+var ARRAY_INSERT = prefix$1 + "ARRAY_INSERT";
+var ARRAY_MOVE = prefix$1 + "ARRAY_MOVE";
+var ARRAY_POP = prefix$1 + "ARRAY_POP";
+var ARRAY_PUSH = prefix$1 + "ARRAY_PUSH";
+var ARRAY_REMOVE = prefix$1 + "ARRAY_REMOVE";
+var ARRAY_REMOVE_ALL = prefix$1 + "ARRAY_REMOVE_ALL";
+var ARRAY_SHIFT = prefix$1 + "ARRAY_SHIFT";
+var ARRAY_SPLICE = prefix$1 + "ARRAY_SPLICE";
+var ARRAY_UNSHIFT = prefix$1 + "ARRAY_UNSHIFT";
+var ARRAY_SWAP = prefix$1 + "ARRAY_SWAP";
+var AUTOFILL = prefix$1 + "AUTOFILL";
+var BLUR = prefix$1 + "BLUR";
+var CHANGE = prefix$1 + "CHANGE";
+var CLEAR_FIELDS = prefix$1 + "CLEAR_FIELDS";
+var CLEAR_SUBMIT = prefix$1 + "CLEAR_SUBMIT";
+var CLEAR_SUBMIT_ERRORS = prefix$1 + "CLEAR_SUBMIT_ERRORS";
+var CLEAR_ASYNC_ERROR = prefix$1 + "CLEAR_ASYNC_ERROR";
+var DESTROY = prefix$1 + "DESTROY";
+var FOCUS = prefix$1 + "FOCUS";
+var INITIALIZE = prefix$1 + "INITIALIZE";
+var REGISTER_FIELD = prefix$1 + "REGISTER_FIELD";
+var RESET = prefix$1 + "RESET";
+var RESET_SECTION = prefix$1 + "RESET_SECTION";
+var SET_SUBMIT_FAILED = prefix$1 + "SET_SUBMIT_FAILED";
+var SET_SUBMIT_SUCCEEDED = prefix$1 + "SET_SUBMIT_SUCCEEDED";
+var START_ASYNC_VALIDATION = prefix$1 + "START_ASYNC_VALIDATION";
+var START_SUBMIT = prefix$1 + "START_SUBMIT";
+var STOP_ASYNC_VALIDATION = prefix$1 + "STOP_ASYNC_VALIDATION";
+var STOP_SUBMIT = prefix$1 + "STOP_SUBMIT";
+var SUBMIT = prefix$1 + "SUBMIT";
+var TOUCH = prefix$1 + "TOUCH";
+var UNREGISTER_FIELD = prefix$1 + "UNREGISTER_FIELD";
+var UNTOUCH = prefix$1 + "UNTOUCH";
+var UPDATE_SYNC_ERRORS = prefix$1 + "UPDATE_SYNC_ERRORS";
+var UPDATE_SYNC_WARNINGS = prefix$1 + "UPDATE_SYNC_WARNINGS";
 
 var arrayInsert = function arrayInsert(form, field, index, value) {
   return {
     type: ARRAY_INSERT,
-    meta: { form: form, field: field, index: index },
+    meta: {
+      form: form,
+      field: field,
+      index: index
+    },
     payload: value
   };
 };
@@ -16808,21 +17136,32 @@ var arrayInsert = function arrayInsert(form, field, index, value) {
 var arrayMove = function arrayMove(form, field, from, to) {
   return {
     type: ARRAY_MOVE,
-    meta: { form: form, field: field, from: from, to: to }
+    meta: {
+      form: form,
+      field: field,
+      from: from,
+      to: to
+    }
   };
 };
 
 var arrayPop = function arrayPop(form, field) {
   return {
     type: ARRAY_POP,
-    meta: { form: form, field: field }
+    meta: {
+      form: form,
+      field: field
+    }
   };
 };
 
 var arrayPush = function arrayPush(form, field, value) {
   return {
     type: ARRAY_PUSH,
-    meta: { form: form, field: field },
+    meta: {
+      form: form,
+      field: field
+    },
     payload: value
   };
 };
@@ -16830,32 +17169,49 @@ var arrayPush = function arrayPush(form, field, value) {
 var arrayRemove = function arrayRemove(form, field, index) {
   return {
     type: ARRAY_REMOVE,
-    meta: { form: form, field: field, index: index }
+    meta: {
+      form: form,
+      field: field,
+      index: index
+    }
   };
 };
 
 var arrayRemoveAll = function arrayRemoveAll(form, field) {
   return {
     type: ARRAY_REMOVE_ALL,
-    meta: { form: form, field: field }
+    meta: {
+      form: form,
+      field: field
+    }
   };
 };
 
 var arrayShift = function arrayShift(form, field) {
   return {
     type: ARRAY_SHIFT,
-    meta: { form: form, field: field }
+    meta: {
+      form: form,
+      field: field
+    }
   };
 };
 
 var arraySplice = function arraySplice(form, field, index, removeNum, value) {
   var action = {
     type: ARRAY_SPLICE,
-    meta: { form: form, field: field, index: index, removeNum: removeNum }
+    meta: {
+      form: form,
+      field: field,
+      index: index,
+      removeNum: removeNum
+    }
   };
+
   if (value !== undefined) {
     action.payload = value;
   }
+
   return action;
 };
 
@@ -16863,16 +17219,29 @@ var arraySwap = function arraySwap(form, field, indexA, indexB) {
   if (indexA === indexB) {
     throw new Error('Swap indices cannot be equal');
   }
+
   if (indexA < 0 || indexB < 0) {
     throw new Error('Swap indices cannot be negative');
   }
-  return { type: ARRAY_SWAP, meta: { form: form, field: field, indexA: indexA, indexB: indexB } };
+
+  return {
+    type: ARRAY_SWAP,
+    meta: {
+      form: form,
+      field: field,
+      indexA: indexA,
+      indexB: indexB
+    }
+  };
 };
 
 var arrayUnshift = function arrayUnshift(form, field, value) {
   return {
     type: ARRAY_UNSHIFT,
-    meta: { form: form, field: field },
+    meta: {
+      form: form,
+      field: field
+    },
     payload: value
   };
 };
@@ -16880,7 +17249,10 @@ var arrayUnshift = function arrayUnshift(form, field, value) {
 var autofill = function autofill(form, field, value) {
   return {
     type: AUTOFILL,
-    meta: { form: form, field: field },
+    meta: {
+      form: form,
+      field: field
+    },
     payload: value
   };
 };
@@ -16888,7 +17260,11 @@ var autofill = function autofill(form, field, value) {
 var blur = function blur(form, field, value, touch) {
   return {
     type: BLUR,
-    meta: { form: form, field: field, touch: touch },
+    meta: {
+      form: form,
+      field: field,
+      touch: touch
+    },
     payload: value
   };
 };
@@ -16896,7 +17272,12 @@ var blur = function blur(form, field, value, touch) {
 var change = function change(form, field, value, touch, persistentSubmitErrors) {
   return {
     type: CHANGE,
-    meta: { form: form, field: field, touch: touch, persistentSubmitErrors: persistentSubmitErrors },
+    meta: {
+      form: form,
+      field: field,
+      touch: touch,
+      persistentSubmitErrors: persistentSubmitErrors
+    },
     payload: value
   };
 };
@@ -16904,63 +17285,86 @@ var change = function change(form, field, value, touch, persistentSubmitErrors) 
 var clearSubmit = function clearSubmit(form) {
   return {
     type: CLEAR_SUBMIT,
-    meta: { form: form }
+    meta: {
+      form: form
+    }
   };
 };
 
 var clearSubmitErrors = function clearSubmitErrors(form) {
   return {
     type: CLEAR_SUBMIT_ERRORS,
-    meta: { form: form }
+    meta: {
+      form: form
+    }
   };
 };
 
 var clearAsyncError = function clearAsyncError(form, field) {
   return {
     type: CLEAR_ASYNC_ERROR,
-    meta: { form: form, field: field }
+    meta: {
+      form: form,
+      field: field
+    }
   };
 };
 
 var clearFields = function clearFields(form, keepTouched, persistentSubmitErrors) {
-  for (var _len = arguments.length, fields = Array(_len > 3 ? _len - 3 : 0), _key = 3; _key < _len; _key++) {
+  for (var _len = arguments.length, fields = new Array(_len > 3 ? _len - 3 : 0), _key = 3; _key < _len; _key++) {
     fields[_key - 3] = arguments[_key];
   }
 
   return {
     type: CLEAR_FIELDS,
-    meta: { form: form, keepTouched: keepTouched, persistentSubmitErrors: persistentSubmitErrors, fields: fields }
+    meta: {
+      form: form,
+      keepTouched: keepTouched,
+      persistentSubmitErrors: persistentSubmitErrors,
+      fields: fields
+    }
   };
 };
 
 var destroy = function destroy() {
-  for (var _len2 = arguments.length, form = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+  for (var _len2 = arguments.length, form = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
     form[_key2] = arguments[_key2];
   }
 
   return {
     type: DESTROY,
-    meta: { form: form }
+    meta: {
+      form: form
+    }
   };
 };
 
 var focus = function focus(form, field) {
   return {
     type: FOCUS,
-    meta: { form: form, field: field }
+    meta: {
+      form: form,
+      field: field
+    }
   };
 };
 
-var initialize = function initialize(form, values, keepDirty) {
-  var otherMeta = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
+var initialize = function initialize(form, values, keepDirty, otherMeta) {
+  if (otherMeta === void 0) {
+    otherMeta = {};
+  }
 
   if (keepDirty instanceof Object) {
     otherMeta = keepDirty;
     keepDirty = false;
   }
+
   return {
     type: INITIALIZE,
-    meta: _extends$10({ form: form, keepDirty: keepDirty }, otherMeta),
+    meta: _extends_1({
+      form: form,
+      keepDirty: keepDirty
+    }, otherMeta),
     payload: values
   };
 };
@@ -16968,47 +17372,64 @@ var initialize = function initialize(form, values, keepDirty) {
 var registerField = function registerField(form, name, type) {
   return {
     type: REGISTER_FIELD,
-    meta: { form: form },
-    payload: { name: name, type: type }
+    meta: {
+      form: form
+    },
+    payload: {
+      name: name,
+      type: type
+    }
   };
 };
 
 var reset = function reset(form) {
   return {
     type: RESET,
-    meta: { form: form }
+    meta: {
+      form: form
+    }
   };
 };
 
 var resetSection = function resetSection(form) {
-  for (var _len3 = arguments.length, sections = Array(_len3 > 1 ? _len3 - 1 : 0), _key3 = 1; _key3 < _len3; _key3++) {
+  for (var _len3 = arguments.length, sections = new Array(_len3 > 1 ? _len3 - 1 : 0), _key3 = 1; _key3 < _len3; _key3++) {
     sections[_key3 - 1] = arguments[_key3];
   }
 
   return {
     type: RESET_SECTION,
-    meta: { form: form, sections: sections }
+    meta: {
+      form: form,
+      sections: sections
+    }
   };
 };
 
 var startAsyncValidation = function startAsyncValidation(form, field) {
   return {
     type: START_ASYNC_VALIDATION,
-    meta: { form: form, field: field }
+    meta: {
+      form: form,
+      field: field
+    }
   };
 };
 
 var startSubmit = function startSubmit(form) {
   return {
     type: START_SUBMIT,
-    meta: { form: form }
+    meta: {
+      form: form
+    }
   };
 };
 
 var stopAsyncValidation = function stopAsyncValidation(form, errors) {
   return {
     type: STOP_ASYNC_VALIDATION,
-    meta: { form: form },
+    meta: {
+      form: form
+    },
     payload: errors,
     error: !!(errors && Object.keys(errors).length)
   };
@@ -17017,7 +17438,9 @@ var stopAsyncValidation = function stopAsyncValidation(form, errors) {
 var stopSubmit = function stopSubmit(form, errors) {
   return {
     type: STOP_SUBMIT,
-    meta: { form: form },
+    meta: {
+      form: form
+    },
     payload: errors,
     error: !!(errors && Object.keys(errors).length)
   };
@@ -17026,82 +17449,118 @@ var stopSubmit = function stopSubmit(form, errors) {
 var submit = function submit(form) {
   return {
     type: SUBMIT,
-    meta: { form: form }
+    meta: {
+      form: form
+    }
   };
 };
 
 var setSubmitFailed = function setSubmitFailed(form) {
-  for (var _len4 = arguments.length, fields = Array(_len4 > 1 ? _len4 - 1 : 0), _key4 = 1; _key4 < _len4; _key4++) {
+  for (var _len4 = arguments.length, fields = new Array(_len4 > 1 ? _len4 - 1 : 0), _key4 = 1; _key4 < _len4; _key4++) {
     fields[_key4 - 1] = arguments[_key4];
   }
 
   return {
     type: SET_SUBMIT_FAILED,
-    meta: { form: form, fields: fields },
+    meta: {
+      form: form,
+      fields: fields
+    },
     error: true
   };
 };
 
 var setSubmitSucceeded = function setSubmitSucceeded(form) {
-  for (var _len5 = arguments.length, fields = Array(_len5 > 1 ? _len5 - 1 : 0), _key5 = 1; _key5 < _len5; _key5++) {
+  for (var _len5 = arguments.length, fields = new Array(_len5 > 1 ? _len5 - 1 : 0), _key5 = 1; _key5 < _len5; _key5++) {
     fields[_key5 - 1] = arguments[_key5];
   }
 
   return {
     type: SET_SUBMIT_SUCCEEDED,
-    meta: { form: form, fields: fields },
+    meta: {
+      form: form,
+      fields: fields
+    },
     error: false
   };
 };
 
 var touch = function touch(form) {
-  for (var _len6 = arguments.length, fields = Array(_len6 > 1 ? _len6 - 1 : 0), _key6 = 1; _key6 < _len6; _key6++) {
+  for (var _len6 = arguments.length, fields = new Array(_len6 > 1 ? _len6 - 1 : 0), _key6 = 1; _key6 < _len6; _key6++) {
     fields[_key6 - 1] = arguments[_key6];
   }
 
   return {
     type: TOUCH,
-    meta: { form: form, fields: fields }
+    meta: {
+      form: form,
+      fields: fields
+    }
   };
 };
 
-var unregisterField = function unregisterField(form, name) {
-  var destroyOnUnmount = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
+var unregisterField = function unregisterField(form, name, destroyOnUnmount) {
+  if (destroyOnUnmount === void 0) {
+    destroyOnUnmount = true;
+  }
+
   return {
     type: UNREGISTER_FIELD,
-    meta: { form: form },
-    payload: { name: name, destroyOnUnmount: destroyOnUnmount }
+    meta: {
+      form: form
+    },
+    payload: {
+      name: name,
+      destroyOnUnmount: destroyOnUnmount
+    }
   };
 };
 
 var untouch = function untouch(form) {
-  for (var _len7 = arguments.length, fields = Array(_len7 > 1 ? _len7 - 1 : 0), _key7 = 1; _key7 < _len7; _key7++) {
+  for (var _len7 = arguments.length, fields = new Array(_len7 > 1 ? _len7 - 1 : 0), _key7 = 1; _key7 < _len7; _key7++) {
     fields[_key7 - 1] = arguments[_key7];
   }
 
   return {
     type: UNTOUCH,
-    meta: { form: form, fields: fields }
+    meta: {
+      form: form,
+      fields: fields
+    }
   };
 };
 
-var updateSyncErrors = function updateSyncErrors(form) {
-  var syncErrors = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-  var error = arguments[2];
+var updateSyncErrors = function updateSyncErrors(form, syncErrors, error) {
+  if (syncErrors === void 0) {
+    syncErrors = {};
+  }
+
   return {
     type: UPDATE_SYNC_ERRORS,
-    meta: { form: form },
-    payload: { syncErrors: syncErrors, error: error }
+    meta: {
+      form: form
+    },
+    payload: {
+      syncErrors: syncErrors,
+      error: error
+    }
   };
 };
 
-var updateSyncWarnings = function updateSyncWarnings(form) {
-  var syncWarnings = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-  var warning = arguments[2];
+var updateSyncWarnings = function updateSyncWarnings(form, syncWarnings, warning) {
+  if (syncWarnings === void 0) {
+    syncWarnings = {};
+  }
+
   return {
     type: UPDATE_SYNC_WARNINGS,
-    meta: { form: form },
-    payload: { syncWarnings: syncWarnings, warning: warning }
+    meta: {
+      form: form
+    },
+    payload: {
+      syncWarnings: syncWarnings,
+      warning: warning
+    }
   };
 };
 
@@ -17152,15 +17611,18 @@ var defaultShouldAsyncValidate = function defaultShouldAsyncValidate(_ref) {
   if (!syncValidationPasses) {
     return false;
   }
+
   switch (trigger) {
     case 'blur':
     case 'change':
       // blurring
       return true;
+
     case 'submit':
       // submitting, so only async validate if form is dirty or was never initialized
       // conversely, DON'T async validate if the form is pristine just as it was initialized
       return !pristine || !initialized;
+
     default:
       return false;
   }
@@ -17177,6 +17639,7 @@ var defaultShouldValidate = function defaultShouldValidate(_ref) {
   if (initialRender) {
     return true;
   }
+
   return !structure.deepEqual(values, nextProps && nextProps.values) || !structure.deepEqual(lastFieldValidatorKeys, fieldValidatorKeys);
 };
 
@@ -17191,6 +17654,7 @@ var defaultShouldError = function defaultShouldError(_ref) {
   if (initialRender) {
     return true;
   }
+
   return !structure.deepEqual(values, nextProps && nextProps.values) || !structure.deepEqual(lastFieldValidatorKeys, fieldValidatorKeys);
 };
 
@@ -17205,8 +17669,34 @@ var defaultShouldWarn = function defaultShouldWarn(_ref) {
   if (initialRender) {
     return true;
   }
+
   return !structure.deepEqual(values, nextProps && nextProps.values) || !structure.deepEqual(lastFieldValidatorKeys, fieldValidatorKeys);
 };
+
+function _objectWithoutPropertiesLoose$2(source, excluded) {
+  if (source == null) return {};
+  var target = {};
+  var sourceKeys = Object.keys(source);
+  var key, i;
+
+  for (i = 0; i < sourceKeys.length; i++) {
+    key = sourceKeys[i];
+    if (excluded.indexOf(key) >= 0) continue;
+    target[key] = source[key];
+  }
+
+  return target;
+}
+
+var objectWithoutPropertiesLoose = _objectWithoutPropertiesLoose$2;
+
+function _inheritsLoose(subClass, superClass) {
+  subClass.prototype = Object.create(superClass.prototype);
+  subClass.prototype.constructor = subClass;
+  subClass.__proto__ = superClass;
+}
+
+var inheritsLoose = _inheritsLoose;
 
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
@@ -17365,150 +17855,176 @@ function polyfill(Component) {
   return Component;
 }
 
-var _createClass$2 = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+var ReduxFormContext = React.createContext(null);
+var renderChildren = function renderChildren(Component, _ref) {
+  var forwardedRef = _ref.forwardedRef,
+      rest = objectWithoutPropertiesLoose(_ref, ["forwardedRef"]);
 
-function _classCallCheck$12(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+  return function (_reduxForm) {
+    return React.createElement(Component, _extends_1({}, rest, {
+      _reduxForm: _reduxForm,
+      ref: forwardedRef
+    }));
+  };
+};
+var withReduxForm = function withReduxForm(Component) {
+  var Hoc =
+  /*#__PURE__*/
+  function (_React$Component) {
+    inheritsLoose(Hoc, _React$Component);
 
-function _possibleConstructorReturn$12(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+    function Hoc() {
+      return _React$Component.apply(this, arguments) || this;
+    }
 
-function _inherits$12(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+    var _proto = Hoc.prototype;
 
-var Form = function (_Component) {
-  _inherits$12(Form, _Component);
+    _proto.render = function render() {
+      return React.createElement(ReduxFormContext.Consumer, {
+        children: renderChildren(Component, this.props)
+      });
+    };
 
-  function Form(props, context) {
-    _classCallCheck$12(this, Form);
+    return Hoc;
+  }(React.Component);
 
-    var _this = _possibleConstructorReturn$12(this, (Form.__proto__ || Object.getPrototypeOf(Form)).call(this, props, context));
+  var ref = React.forwardRef(function (props, ref) {
+    return React.createElement(Hoc, _extends_1({}, props, {
+      forwardedRef: ref
+    }));
+  });
+  ref.displayName = Component.displayName || Component.name || 'Component';
+  return ref;
+};
 
-    if (!context._reduxForm) {
+var Form =
+/*#__PURE__*/
+function (_Component) {
+  inheritsLoose(Form, _Component);
+
+  function Form(props) {
+    var _this;
+
+    _this = _Component.call(this, props) || this;
+
+    if (!props._reduxForm) {
       throw new Error('Form must be inside a component decorated with reduxForm()');
     }
+
     return _this;
   }
 
-  _createClass$2(Form, [{
-    key: 'componentWillMount',
-    value: function componentWillMount() {
-      this.context._reduxForm.registerInnerOnSubmit(this.props.onSubmit);
-    }
-  }, {
-    key: 'render',
-    value: function render() {
-      return React__default.createElement('form', this.props);
-    }
-  }]);
+  var _proto = Form.prototype;
+
+  _proto.UNSAFE_componentWillMount = function UNSAFE_componentWillMount() {
+    this.props._reduxForm.registerInnerOnSubmit(this.props.onSubmit);
+  };
+
+  _proto.render = function render() {
+    var _this$props = this.props,
+        _reduxForm = _this$props._reduxForm,
+        rest = objectWithoutPropertiesLoose(_this$props, ["_reduxForm"]);
+
+    return React__default.createElement("form", rest);
+  };
 
   return Form;
 }(React.Component);
 
 Form.propTypes = {
-  onSubmit: propTypes.func.isRequired
-};
-Form.contextTypes = {
+  onSubmit: propTypes.func.isRequired,
   _reduxForm: propTypes.object
 };
-
 polyfill(Form);
+withReduxForm(Form);
 
-var FormName = function FormName(_ref, _ref2) {
-  var children = _ref.children;
-  var _reduxForm = _ref2._reduxForm;
-  return children({ form: _reduxForm && _reduxForm.form });
+var FormName = function FormName(_ref) {
+  var children = _ref.children,
+      _reduxForm = _ref._reduxForm;
+  return children({
+    form: _reduxForm && _reduxForm.form,
+    sectionPrefix: _reduxForm && _reduxForm.sectionPrefix
+  });
 };
-FormName.contextTypes = {
-  _reduxForm: propTypes.shape({
-    form: propTypes.string.isRequired
-  }).isRequired
-};
+
+withReduxForm(FormName);
 
 var formatName = function formatName(_ref, name) {
   var sectionPrefix = _ref._reduxForm.sectionPrefix;
-  return sectionPrefix ? sectionPrefix + '.' + name : name;
+  return sectionPrefix ? sectionPrefix + "." + name : name;
 };
 
-var _extends$11 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var validateComponentProp = function validateComponentProp(props, propName, componentName) {
+  if (!reactIs.isValidElementType(props[propName])) {
+    return new Error('Invalid prop `' + propName + '` supplied to' + ' `' + componentName + '`.');
+  }
 
-var _createClass$3 = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+  return null;
+};
 
-function _objectWithoutProperties$5(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
+var FormSection =
+/*#__PURE__*/
+function (_Component) {
+  inheritsLoose(FormSection, _Component);
 
-function _classCallCheck$13(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+  function FormSection(props) {
+    var _this;
 
-function _possibleConstructorReturn$13(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+    _this = _Component.call(this, props) || this;
 
-function _inherits$13(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var FormSection = function (_Component) {
-  _inherits$13(FormSection, _Component);
-
-  function FormSection(props, context) {
-    _classCallCheck$13(this, FormSection);
-
-    var _this = _possibleConstructorReturn$13(this, (FormSection.__proto__ || Object.getPrototypeOf(FormSection)).call(this, props, context));
-
-    if (!context._reduxForm) {
+    if (!props._reduxForm) {
       throw new Error('FormSection must be inside a component decorated with reduxForm()');
     }
+
     return _this;
   }
 
-  _createClass$3(FormSection, [{
-    key: 'getChildContext',
-    value: function getChildContext() {
-      var context = this.context,
-          name = this.props.name;
+  var _proto = FormSection.prototype;
 
-      return {
-        _reduxForm: _extends$11({}, context._reduxForm, {
-          sectionPrefix: formatName(context, name)
-        })
-      };
-    }
-  }, {
-    key: 'render',
-    value: function render() {
-      var _props = this.props,
-          children = _props.children,
-          name = _props.name,
-          component = _props.component,
-          rest = _objectWithoutProperties$5(_props, ['children', 'name', 'component']);
+  _proto.render = function render() {
+    var _this$props = this.props,
+        _reduxForm = _this$props._reduxForm,
+        children = _this$props.children,
+        name = _this$props.name,
+        component = _this$props.component,
+        rest = objectWithoutPropertiesLoose(_this$props, ["_reduxForm", "children", "name", "component"]);
 
-      if (React__default.isValidElement(children)) {
-        return children;
-      }
-
-      return React.createElement(component, _extends$11({}, rest, {
+    if (React__default.isValidElement(children)) {
+      return React.createElement(ReduxFormContext.Provider, {
+        value: _extends_1({}, this.props._reduxForm, {
+          sectionPrefix: formatName(this.props, name)
+        }),
         children: children
-      }));
+      });
     }
-  }]);
+
+    return React.createElement(ReduxFormContext.Provider, {
+      value: _extends_1({}, this.props._reduxForm, {
+        sectionPrefix: formatName(this.props, name)
+      }),
+      children: React.createElement(component, _extends_1({}, rest, {
+        children: children
+      }))
+    });
+  };
 
   return FormSection;
 }(React.Component);
 
 FormSection.propTypes = {
   name: propTypes.string.isRequired,
-  component: propTypes.oneOfType([propTypes.func, propTypes.string, propTypes.node])
+  component: validateComponentProp
 };
-
 FormSection.defaultProps = {
   component: 'div'
 };
+withReduxForm(FormSection);
 
-FormSection.childContextTypes = {
-  _reduxForm: propTypes.object.isRequired
-};
+function _classCallCheck$12(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-FormSection.contextTypes = {
-  _reduxForm: propTypes.object
-};
+function _possibleConstructorReturn$12(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
-function _classCallCheck$14(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn$14(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits$14(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+function _inherits$12(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 function _extendableBuiltin(cls) {
   function ExtendableBuiltin() {
@@ -17534,15 +18050,15 @@ function _extendableBuiltin(cls) {
 }
 
 var ExtendableError = function (_extendableBuiltin2) {
-  _inherits$14(ExtendableError, _extendableBuiltin2);
+  _inherits$12(ExtendableError, _extendableBuiltin2);
 
   function ExtendableError() {
     var message = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
 
-    _classCallCheck$14(this, ExtendableError);
+    _classCallCheck$12(this, ExtendableError);
 
     // extending Error is weird and does not propagate `message`
-    var _this = _possibleConstructorReturn$14(this, (ExtendableError.__proto__ || Object.getPrototypeOf(ExtendableError)).call(this, message));
+    var _this = _possibleConstructorReturn$12(this, (ExtendableError.__proto__ || Object.getPrototypeOf(ExtendableError)).call(this, message));
 
     Object.defineProperty(_this, 'message', {
       configurable: true,
@@ -17560,7 +18076,7 @@ var ExtendableError = function (_extendableBuiltin2) {
 
     if (Error.hasOwnProperty('captureStackTrace')) {
       Error.captureStackTrace(_this, _this.constructor);
-      return _possibleConstructorReturn$14(_this);
+      return _possibleConstructorReturn$12(_this);
     }
 
     Object.defineProperty(_this, 'stack', {
@@ -17575,20 +18091,15 @@ var ExtendableError = function (_extendableBuiltin2) {
   return ExtendableError;
 }(_extendableBuiltin(Error));
 
-function _classCallCheck$15(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn$15(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits$15(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var SubmissionError = function (_ExtendableError) {
-  _inherits$15(SubmissionError, _ExtendableError);
+var SubmissionError =
+/*#__PURE__*/
+function (_ExtendableError) {
+  inheritsLoose(SubmissionError, _ExtendableError);
 
   function SubmissionError(errors) {
-    _classCallCheck$15(this, SubmissionError);
+    var _this;
 
-    var _this = _possibleConstructorReturn$15(this, (SubmissionError.__proto__ || Object.getPrototypeOf(SubmissionError)).call(this, 'Submit Validation Failed'));
-
+    _this = _ExtendableError.call(this, 'Submit Validation Failed') || this;
     _this.errors = errors;
     return _this;
   }
@@ -17604,60 +18115,101 @@ var any = propTypes.any,
     oneOfType = propTypes.oneOfType,
     object = propTypes.object,
     number = propTypes.number;
-
-
 var formPropTypes = {
   // State:
-  anyTouched: bool.isRequired, // true if any of the fields have been marked as touched
-  asyncValidating: oneOfType([bool, string]).isRequired, // true if async validation is running, a string if a field triggered async validation
-  dirty: bool.isRequired, // true if any values are different from initialValues
-  error: any, // form-wide error from '_error' key in validation result
-  form: string.isRequired, // the name of the form
-  invalid: bool.isRequired, // true if there are any validation errors
-  initialized: bool.isRequired, // true if the form has been initialized
-  initialValues: object, // the initialValues object passed to reduxForm
-  pristine: bool.isRequired, // true if the values are the same as initialValues
-  pure: bool.isRequired, // if true, implements shouldComponentUpdate
-  submitting: bool.isRequired, // true if the form is in the process of being submitted
-  submitFailed: bool.isRequired, // true if the form was submitted and failed for any reason
-  submitSucceeded: bool.isRequired, // true if the form was successfully submitted
-  valid: bool.isRequired, // true if there are no validation errors
-  warning: any, // form-wide warning from '_warning' key in validation result
+  anyTouched: bool.isRequired,
+  // true if any of the fields have been marked as touched
+  asyncValidating: oneOfType([bool, string]).isRequired,
+  // true if async validation is running, a string if a field triggered async validation
+  dirty: bool.isRequired,
+  // true if any values are different from initialValues
+  error: any,
+  // form-wide error from '_error' key in validation result
+  form: string.isRequired,
+  // the name of the form
+  invalid: bool.isRequired,
+  // true if there are any validation errors
+  initialized: bool.isRequired,
+  // true if the form has been initialized
+  initialValues: object,
+  // the initialValues object passed to reduxForm
+  pristine: bool.isRequired,
+  // true if the values are the same as initialValues
+  pure: bool.isRequired,
+  // if true, implements shouldComponentUpdate
+  submitting: bool.isRequired,
+  // true if the form is in the process of being submitted
+  submitAsSideEffect: bool.isRequired,
+  // true if onSubmit result will be dispatched
+  submitFailed: bool.isRequired,
+  // true if the form was submitted and failed for any reason
+  submitSucceeded: bool.isRequired,
+  // true if the form was successfully submitted
+  valid: bool.isRequired,
+  // true if there are no validation errors
+  warning: any,
+  // form-wide warning from '_warning' key in validation result
   // Actions:
   array: shape({
-    insert: func.isRequired, // function to insert a value into an array field
-    move: func.isRequired, // function to move a value within an array field
-    pop: func.isRequired, // function to pop a value off of an array field
-    push: func.isRequired, // function to push a value onto an array field
-    remove: func.isRequired, // function to remove a value from an array field
-    removeAll: func.isRequired, // function to remove all the values from an array field
-    shift: func.isRequired, // function to shift a value out of an array field
-    splice: func.isRequired, // function to splice a value into an array field
-    swap: func.isRequired, // function to swap values in an array field
+    insert: func.isRequired,
+    // function to insert a value into an array field
+    move: func.isRequired,
+    // function to move a value within an array field
+    pop: func.isRequired,
+    // function to pop a value off of an array field
+    push: func.isRequired,
+    // function to push a value onto an array field
+    remove: func.isRequired,
+    // function to remove a value from an array field
+    removeAll: func.isRequired,
+    // function to remove all the values from an array field
+    shift: func.isRequired,
+    // function to shift a value out of an array field
+    splice: func.isRequired,
+    // function to splice a value into an array field
+    swap: func.isRequired,
+    // function to swap values in an array field
     unshift: func.isRequired // function to unshift a value into an array field
+
   }),
-  asyncValidate: func.isRequired, // function to trigger async validation
-  autofill: func.isRequired, // action to set a value of a field and mark it as autofilled
-  blur: func.isRequired, // action to mark a field as blurred
-  change: func.isRequired, // action to change the value of a field
-  clearAsyncError: func.isRequired, // action to clear the async error of a field
-  clearFields: func.isRequired, // action to clean fields values for all fields
-  clearSubmitErrors: func.isRequired, // action to remove submitErrors and error
-  destroy: func.isRequired, // action to destroy the form's data in Redux
-  dispatch: func.isRequired, // the Redux dispatch action
-  handleSubmit: func.isRequired, // function to submit the form
-  initialize: func.isRequired, // action to initialize form data
-  reset: func.isRequired, // action to reset the form data to previously initialized values
-  resetSection: func.isRequired, // action to reset the form sections data to previously initialized values
-  touch: func.isRequired, // action to mark fields as touched
-  submit: func.isRequired, // action to trigger a submission of the specified form
-  untouch: func.isRequired, // action to mark fields as untouched
-
+  asyncValidate: func.isRequired,
+  // function to trigger async validation
+  autofill: func.isRequired,
+  // action to set a value of a field and mark it as autofilled
+  blur: func.isRequired,
+  // action to mark a field as blurred
+  change: func.isRequired,
+  // action to change the value of a field
+  clearAsyncError: func.isRequired,
+  // action to clear the async error of a field
+  clearFields: func.isRequired,
+  // action to clean fields values for all fields
+  clearSubmitErrors: func.isRequired,
+  // action to remove submitErrors and error
+  destroy: func.isRequired,
+  // action to destroy the form's data in Redux
+  dispatch: func.isRequired,
+  // the Redux dispatch action
+  handleSubmit: func.isRequired,
+  // function to submit the form
+  initialize: func.isRequired,
+  // action to initialize form data
+  reset: func.isRequired,
+  // action to reset the form data to previously initialized values
+  resetSection: func.isRequired,
+  // action to reset the form sections data to previously initialized values
+  touch: func.isRequired,
+  // action to mark fields as touched
+  submit: func.isRequired,
+  // action to trigger a submission of the specified form
+  untouch: func.isRequired,
+  // action to mark fields as untouched
   // triggerSubmit
-  triggerSubmit: bool, // if true, submits the form on componentWillReceiveProps
+  triggerSubmit: bool,
+  // if true, submits the form on componentWillReceiveProps
   clearSubmit: func.isRequired // called before a triggered submit, by default clears triggerSubmit
-};
 
+};
 var fieldInputPropTypes = {
   checked: bool,
   name: string.isRequired,
@@ -17668,7 +18220,6 @@ var fieldInputPropTypes = {
   onFocus: func.isRequired,
   value: any
 };
-
 var fieldMetaPropTypes = {
   active: bool.isRequired,
   asyncValidating: bool.isRequired,
@@ -17686,7 +18237,6 @@ var fieldMetaPropTypes = {
   visited: bool.isRequired,
   warning: string
 };
-
 var fieldArrayMetaPropTypes = {
   dirty: bool.isRequired,
   error: any,
@@ -17698,7 +18248,6 @@ var fieldArrayMetaPropTypes = {
   valid: bool.isRequired,
   warning: string
 };
-
 var fieldArrayFieldsPropTypes = {
   name: string.isRequired,
   forEach: func.isRequired,
@@ -17717,79 +18266,95 @@ var fieldArrayFieldsPropTypes = {
   swap: func.isRequired,
   unshift: func.isRequired
 };
-
 var fieldPropTypes = {
   input: shape(fieldInputPropTypes).isRequired,
   meta: shape(fieldMetaPropTypes).isRequired
 };
-
 var fieldArrayPropTypes = {
   fields: shape(fieldArrayFieldsPropTypes).isRequired,
   meta: shape(fieldArrayMetaPropTypes).isRequired
 };
 
-var _extends$12 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+function _defineProperties$2(target, props) {
+  for (var i = 0; i < props.length; i++) {
+    var descriptor = props[i];
+    descriptor.enumerable = descriptor.enumerable || false;
+    descriptor.configurable = true;
+    if ("value" in descriptor) descriptor.writable = true;
+    Object.defineProperty(target, descriptor.key, descriptor);
+  }
+}
 
-function _objectWithoutProperties$6(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
+function _createClass$2(Constructor, protoProps, staticProps) {
+  if (protoProps) _defineProperties$2(Constructor.prototype, protoProps);
+  if (staticProps) _defineProperties$2(Constructor, staticProps);
+  return Constructor;
+}
+
+var createClass$1 = _createClass$2;
 
 var processProps = function processProps(type, props, _value, deepEqual) {
   var value = props.value;
 
   if (type === 'checkbox') {
-    return _extends$12({}, props, {
+    return _extends_1({}, props, {
       checked: !!value
     });
   }
+
   if (type === 'radio') {
-    return _extends$12({}, props, {
+    return _extends_1({}, props, {
       checked: deepEqual(value, _value),
       value: _value
     });
   }
+
   if (type === 'select-multiple') {
-    return _extends$12({}, props, {
+    return _extends_1({}, props, {
       value: value || []
     });
   }
+
   if (type === 'file') {
-    return _extends$12({}, props, {
+    return _extends_1({}, props, {
       value: value || undefined
     });
   }
+
   return props;
 };
 
-var createFieldProps = function createFieldProps(_ref2, name, _ref) {
-  var getIn = _ref2.getIn,
-      toJS = _ref2.toJS,
-      deepEqual = _ref2.deepEqual;
+var createFieldProps = function createFieldProps(_ref, name, _ref2) {
+  var getIn = _ref.getIn,
+      toJS = _ref.toJS,
+      deepEqual = _ref.deepEqual;
 
-  var asyncError = _ref.asyncError,
-      asyncValidating = _ref.asyncValidating,
-      onBlur = _ref.onBlur,
-      onChange = _ref.onChange,
-      onDrop = _ref.onDrop,
-      onDragStart = _ref.onDragStart,
-      dirty = _ref.dirty,
-      dispatch = _ref.dispatch,
-      onFocus = _ref.onFocus,
-      form = _ref.form,
-      format = _ref.format,
-      initial = _ref.initial,
-      parse = _ref.parse,
-      pristine = _ref.pristine,
-      props = _ref.props,
-      state = _ref.state,
-      submitError = _ref.submitError,
-      submitFailed = _ref.submitFailed,
-      submitting = _ref.submitting,
-      syncError = _ref.syncError,
-      syncWarning = _ref.syncWarning,
-      validate = _ref.validate,
-      value = _ref.value,
-      _value = _ref._value,
-      warn = _ref.warn,
-      custom = _objectWithoutProperties$6(_ref, ['asyncError', 'asyncValidating', 'onBlur', 'onChange', 'onDrop', 'onDragStart', 'dirty', 'dispatch', 'onFocus', 'form', 'format', 'initial', 'parse', 'pristine', 'props', 'state', 'submitError', 'submitFailed', 'submitting', 'syncError', 'syncWarning', 'validate', 'value', '_value', 'warn']);
+  var asyncError = _ref2.asyncError,
+      asyncValidating = _ref2.asyncValidating,
+      onBlur = _ref2.onBlur,
+      onChange = _ref2.onChange,
+      onDrop = _ref2.onDrop,
+      onDragStart = _ref2.onDragStart,
+      dirty = _ref2.dirty,
+      dispatch = _ref2.dispatch,
+      onFocus = _ref2.onFocus,
+      form = _ref2.form,
+      format = _ref2.format,
+      initial = _ref2.initial,
+      parse = _ref2.parse,
+      pristine = _ref2.pristine,
+      props = _ref2.props,
+      state = _ref2.state,
+      submitError = _ref2.submitError,
+      submitFailed = _ref2.submitFailed,
+      submitting = _ref2.submitting,
+      syncError = _ref2.syncError,
+      syncWarning = _ref2.syncWarning,
+      validate = _ref2.validate,
+      value = _ref2.value,
+      _value = _ref2._value,
+      warn = _ref2.warn,
+      custom = objectWithoutPropertiesLoose(_ref2, ["asyncError", "asyncValidating", "onBlur", "onChange", "onDrop", "onDragStart", "dirty", "dispatch", "onFocus", "form", "format", "initial", "parse", "pristine", "props", "state", "submitError", "submitFailed", "submitting", "syncError", "syncWarning", "validate", "value", "_value", "warn"]);
 
   var error = syncError || asyncError || submitError;
   var warning = syncWarning;
@@ -17798,12 +18363,12 @@ var createFieldProps = function createFieldProps(_ref2, name, _ref) {
     if (format === null) {
       return value;
     }
+
     var defaultFormattedValue = value == null ? '' : value;
     return format ? format(value, name) : defaultFormattedValue;
   };
 
   var formattedFieldValue = formatFieldValue(value, format);
-
   return {
     input: processProps(custom.type, {
       name: name,
@@ -17814,7 +18379,7 @@ var createFieldProps = function createFieldProps(_ref2, name, _ref) {
       onFocus: onFocus,
       value: formattedFieldValue
     }, _value, deepEqual),
-    meta: _extends$12({}, toJS(state), {
+    meta: _extends_1({}, toJS(state), {
       active: !!(state && getIn(state, 'active')),
       asyncValidating: asyncValidating,
       autofilled: !!(state && getIn(state, 'autofilled')),
@@ -17832,7 +18397,7 @@ var createFieldProps = function createFieldProps(_ref2, name, _ref) {
       valid: !error,
       visited: !!(state && getIn(state, 'visited'))
     }),
-    custom: _extends$12({}, custom, props)
+    custom: _extends_1({}, custom, props)
   };
 };
 
@@ -17842,14 +18407,17 @@ var isEvent = function isEvent(candidate) {
 
 var getSelectedValues = function getSelectedValues(options) {
   var result = [];
+
   if (options) {
     for (var index = 0; index < options.length; index++) {
       var option = options[index];
+
       if (option.selected) {
         result.push(option.value);
       }
     }
   }
+
   return result;
 };
 
@@ -17858,9 +18426,11 @@ var getValue = function getValue(event, isReactNative) {
     if (!isReactNative && event.nativeEvent && event.nativeEvent.text !== undefined) {
       return event.nativeEvent.text;
     }
+
     if (isReactNative && event.nativeEvent !== undefined) {
       return event.nativeEvent.text;
     }
+
     var detypedEvent = event;
     var _detypedEvent$target = detypedEvent.target,
         type = _detypedEvent$target.type,
@@ -17872,14 +18442,18 @@ var getValue = function getValue(event, isReactNative) {
     if (type === 'checkbox') {
       return !!checked;
     }
+
     if (type === 'file') {
       return files || dataTransfer && dataTransfer.files;
     }
+
     if (type === 'select-multiple') {
       return getSelectedValues(event.target.options);
     }
+
     return value;
   }
+
   return event;
 };
 
@@ -17889,16 +18463,14 @@ var onChangeValue = function onChangeValue(event, _ref) {
   var name = _ref.name,
       parse = _ref.parse,
       normalize = _ref.normalize;
-
   // read value from input
-  var value = getValue(event, isReactNative);
+  var value = getValue(event, isReactNative); // parse value if we have a parser
 
-  // parse value if we have a parser
   if (parse) {
     value = parse(value, name);
-  }
+  } // normalize value
 
-  // normalize value
+
   if (normalize) {
     value = normalize(name, value);
   }
@@ -17908,34 +18480,46 @@ var onChangeValue = function onChangeValue(event, _ref) {
 
 var dataKey = 'text';
 
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
-
 var splice = function splice(array, index, removeNum, value) {
   array = array || [];
 
   if (index < array.length) {
     if (value === undefined && !removeNum) {
       // inserting undefined
-      var _copy2 = [].concat(_toConsumableArray(array));
+      var _copy2 = [].concat(array);
+
       _copy2.splice(index, 0, true); // temporary placeholder
+
+
       _copy2[index] = undefined; // set to undefined
+
       return _copy2;
     }
+
     if (value != null) {
-      var _copy3 = [].concat(_toConsumableArray(array));
+      var _copy3 = [].concat(array);
+
       _copy3.splice(index, removeNum, value); // removing and adding
+
+
       return _copy3;
     }
-    var _copy = [].concat(_toConsumableArray(array));
+
+    var _copy = [].concat(array);
+
     _copy.splice(index, removeNum); // removing
+
+
     return _copy;
   }
+
   if (removeNum) {
     // trying to remove non-existant item: return original array
     return array;
-  }
-  // trying to add outside of range: just set value
-  var copy = [].concat(_toConsumableArray(array));
+  } // trying to add outside of range: just set value
+
+
+  var copy = [].concat(array);
   copy[index] = value;
   return copy;
 };
@@ -17960,6 +18544,8 @@ function arrayMap(array, iteratee) {
   return result;
 }
 
+var _arrayMap = arrayMap;
+
 /**
  * Copies the values of `source` to `array`.
  *
@@ -17978,6 +18564,8 @@ function copyArray(source, array) {
   }
   return array;
 }
+
+var _copyArray = copyArray;
 
 /**
  * Checks if `value` is classified as an `Array` object.
@@ -18004,6 +18592,149 @@ function copyArray(source, array) {
  */
 var isArray$2 = Array.isArray;
 
+var isArray_1 = isArray$2;
+
+/** Detect free variable `global` from Node.js. */
+var freeGlobal = typeof commonjsGlobal == 'object' && commonjsGlobal && commonjsGlobal.Object === Object && commonjsGlobal;
+
+var _freeGlobal = freeGlobal;
+
+/** Detect free variable `self`. */
+var freeSelf = typeof self == 'object' && self && self.Object === Object && self;
+
+/** Used as a reference to the global object. */
+var root$1 = _freeGlobal || freeSelf || Function('return this')();
+
+var _root = root$1;
+
+/** Built-in value references. */
+var Symbol$1 = _root.Symbol;
+
+var _Symbol = Symbol$1;
+
+/** Used for built-in method references. */
+var objectProto = Object.prototype;
+
+/** Used to check objects for own properties. */
+var hasOwnProperty$1 = objectProto.hasOwnProperty;
+
+/**
+ * Used to resolve the
+ * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
+ * of values.
+ */
+var nativeObjectToString = objectProto.toString;
+
+/** Built-in value references. */
+var symToStringTag = _Symbol ? _Symbol.toStringTag : undefined;
+
+/**
+ * A specialized version of `baseGetTag` which ignores `Symbol.toStringTag` values.
+ *
+ * @private
+ * @param {*} value The value to query.
+ * @returns {string} Returns the raw `toStringTag`.
+ */
+function getRawTag(value) {
+  var isOwn = hasOwnProperty$1.call(value, symToStringTag),
+      tag = value[symToStringTag];
+
+  try {
+    value[symToStringTag] = undefined;
+    var unmasked = true;
+  } catch (e) {}
+
+  var result = nativeObjectToString.call(value);
+  if (unmasked) {
+    if (isOwn) {
+      value[symToStringTag] = tag;
+    } else {
+      delete value[symToStringTag];
+    }
+  }
+  return result;
+}
+
+var _getRawTag = getRawTag;
+
+/** Used for built-in method references. */
+var objectProto$1 = Object.prototype;
+
+/**
+ * Used to resolve the
+ * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
+ * of values.
+ */
+var nativeObjectToString$1 = objectProto$1.toString;
+
+/**
+ * Converts `value` to a string using `Object.prototype.toString`.
+ *
+ * @private
+ * @param {*} value The value to convert.
+ * @returns {string} Returns the converted string.
+ */
+function objectToString(value) {
+  return nativeObjectToString$1.call(value);
+}
+
+var _objectToString = objectToString;
+
+/** `Object#toString` result references. */
+var nullTag = '[object Null]',
+    undefinedTag = '[object Undefined]';
+
+/** Built-in value references. */
+var symToStringTag$1 = _Symbol ? _Symbol.toStringTag : undefined;
+
+/**
+ * The base implementation of `getTag` without fallbacks for buggy environments.
+ *
+ * @private
+ * @param {*} value The value to query.
+ * @returns {string} Returns the `toStringTag`.
+ */
+function baseGetTag(value) {
+  if (value == null) {
+    return value === undefined ? undefinedTag : nullTag;
+  }
+  return (symToStringTag$1 && symToStringTag$1 in Object(value))
+    ? _getRawTag(value)
+    : _objectToString(value);
+}
+
+var _baseGetTag = baseGetTag;
+
+/**
+ * Checks if `value` is object-like. A value is object-like if it's not `null`
+ * and has a `typeof` result of "object".
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
+ * @example
+ *
+ * _.isObjectLike({});
+ * // => true
+ *
+ * _.isObjectLike([1, 2, 3]);
+ * // => true
+ *
+ * _.isObjectLike(_.noop);
+ * // => false
+ *
+ * _.isObjectLike(null);
+ * // => false
+ */
+function isObjectLike$1(value) {
+  return value != null && typeof value == 'object';
+}
+
+var isObjectLike_1 = isObjectLike$1;
+
 /** `Object#toString` result references. */
 var symbolTag = '[object Symbol]';
 
@@ -18026,8 +18757,10 @@ var symbolTag = '[object Symbol]';
  */
 function isSymbol$1(value) {
   return typeof value == 'symbol' ||
-    (isObjectLike(value) && baseGetTag(value) == symbolTag);
+    (isObjectLike_1(value) && _baseGetTag(value) == symbolTag);
 }
+
+var isSymbol_1 = isSymbol$1;
 
 /**
  * Checks if `value` is the
@@ -18059,6 +18792,8 @@ function isObject$2(value) {
   return value != null && (type == 'object' || type == 'function');
 }
 
+var isObject_1 = isObject$2;
+
 /** `Object#toString` result references. */
 var asyncTag = '[object AsyncFunction]',
     funcTag = '[object Function]',
@@ -18083,21 +18818,25 @@ var asyncTag = '[object AsyncFunction]',
  * // => false
  */
 function isFunction$3(value) {
-  if (!isObject$2(value)) {
+  if (!isObject_1(value)) {
     return false;
   }
   // The use of `Object#toString` avoids issues with the `typeof` operator
   // in Safari 9 which returns 'object' for typed arrays and other constructors.
-  var tag = baseGetTag(value);
+  var tag = _baseGetTag(value);
   return tag == funcTag || tag == genTag || tag == asyncTag || tag == proxyTag;
 }
 
+var isFunction_1 = isFunction$3;
+
 /** Used to detect overreaching core-js shims. */
-var coreJsData = root['__core-js_shared__'];
+var coreJsData = _root['__core-js_shared__'];
+
+var _coreJsData = coreJsData;
 
 /** Used to detect methods masquerading as native. */
 var maskSrcKey = (function() {
-  var uid = /[^.]+$/.exec(coreJsData && coreJsData.keys && coreJsData.keys.IE_PROTO || '');
+  var uid = /[^.]+$/.exec(_coreJsData && _coreJsData.keys && _coreJsData.keys.IE_PROTO || '');
   return uid ? ('Symbol(src)_1.' + uid) : '';
 }());
 
@@ -18112,11 +18851,13 @@ function isMasked(func) {
   return !!maskSrcKey && (maskSrcKey in func);
 }
 
+var _isMasked = isMasked;
+
 /** Used for built-in method references. */
-var funcProto$1 = Function.prototype;
+var funcProto = Function.prototype;
 
 /** Used to resolve the decompiled source of functions. */
-var funcToString$1 = funcProto$1.toString;
+var funcToString = funcProto.toString;
 
 /**
  * Converts `func` to its source code.
@@ -18128,7 +18869,7 @@ var funcToString$1 = funcProto$1.toString;
 function toSource(func) {
   if (func != null) {
     try {
-      return funcToString$1.call(func);
+      return funcToString.call(func);
     } catch (e) {}
     try {
       return (func + '');
@@ -18136,6 +18877,8 @@ function toSource(func) {
   }
   return '';
 }
+
+var _toSource = toSource;
 
 /**
  * Used to match `RegExp`
@@ -18147,18 +18890,18 @@ var reRegExpChar = /[\\^$.*+?()[\]{}|]/g;
 var reIsHostCtor = /^\[object .+?Constructor\]$/;
 
 /** Used for built-in method references. */
-var funcProto$2 = Function.prototype,
-    objectProto$3 = Object.prototype;
+var funcProto$1 = Function.prototype,
+    objectProto$2 = Object.prototype;
 
 /** Used to resolve the decompiled source of functions. */
-var funcToString$2 = funcProto$2.toString;
+var funcToString$1 = funcProto$1.toString;
 
 /** Used to check objects for own properties. */
-var hasOwnProperty$2 = objectProto$3.hasOwnProperty;
+var hasOwnProperty$2 = objectProto$2.hasOwnProperty;
 
 /** Used to detect if a method is native. */
 var reIsNative = RegExp('^' +
-  funcToString$2.call(hasOwnProperty$2).replace(reRegExpChar, '\\$&')
+  funcToString$1.call(hasOwnProperty$2).replace(reRegExpChar, '\\$&')
   .replace(/hasOwnProperty|(function).*?(?=\\\()| for .+?(?=\\\])/g, '$1.*?') + '$'
 );
 
@@ -18171,12 +18914,14 @@ var reIsNative = RegExp('^' +
  *  else `false`.
  */
 function baseIsNative(value) {
-  if (!isObject$2(value) || isMasked(value)) {
+  if (!isObject_1(value) || _isMasked(value)) {
     return false;
   }
-  var pattern = isFunction$3(value) ? reIsNative : reIsHostCtor;
-  return pattern.test(toSource(value));
+  var pattern = isFunction_1(value) ? reIsNative : reIsHostCtor;
+  return pattern.test(_toSource(value));
 }
+
+var _baseIsNative = baseIsNative;
 
 /**
  * Gets the value at `key` of `object`.
@@ -18190,6 +18935,8 @@ function getValue$1(object, key) {
   return object == null ? undefined : object[key];
 }
 
+var _getValue = getValue$1;
+
 /**
  * Gets the native function at `key` of `object`.
  *
@@ -18199,12 +18946,16 @@ function getValue$1(object, key) {
  * @returns {*} Returns the function if it's native, else `undefined`.
  */
 function getNative(object, key) {
-  var value = getValue$1(object, key);
-  return baseIsNative(value) ? value : undefined;
+  var value = _getValue(object, key);
+  return _baseIsNative(value) ? value : undefined;
 }
 
+var _getNative = getNative;
+
 /* Built-in method references that are verified to be native. */
-var nativeCreate = getNative(Object, 'create');
+var nativeCreate = _getNative(Object, 'create');
+
+var _nativeCreate = nativeCreate;
 
 /**
  * Removes all key-value entries from the hash.
@@ -18214,9 +18965,11 @@ var nativeCreate = getNative(Object, 'create');
  * @memberOf Hash
  */
 function hashClear() {
-  this.__data__ = nativeCreate ? nativeCreate(null) : {};
+  this.__data__ = _nativeCreate ? _nativeCreate(null) : {};
   this.size = 0;
 }
+
+var _hashClear = hashClear;
 
 /**
  * Removes `key` and its value from the hash.
@@ -18234,14 +18987,16 @@ function hashDelete(key) {
   return result;
 }
 
+var _hashDelete = hashDelete;
+
 /** Used to stand-in for `undefined` hash values. */
 var HASH_UNDEFINED = '__lodash_hash_undefined__';
 
 /** Used for built-in method references. */
-var objectProto$4 = Object.prototype;
+var objectProto$3 = Object.prototype;
 
 /** Used to check objects for own properties. */
-var hasOwnProperty$3 = objectProto$4.hasOwnProperty;
+var hasOwnProperty$3 = objectProto$3.hasOwnProperty;
 
 /**
  * Gets the hash value for `key`.
@@ -18254,18 +19009,20 @@ var hasOwnProperty$3 = objectProto$4.hasOwnProperty;
  */
 function hashGet(key) {
   var data = this.__data__;
-  if (nativeCreate) {
+  if (_nativeCreate) {
     var result = data[key];
     return result === HASH_UNDEFINED ? undefined : result;
   }
   return hasOwnProperty$3.call(data, key) ? data[key] : undefined;
 }
 
+var _hashGet = hashGet;
+
 /** Used for built-in method references. */
-var objectProto$5 = Object.prototype;
+var objectProto$4 = Object.prototype;
 
 /** Used to check objects for own properties. */
-var hasOwnProperty$4 = objectProto$5.hasOwnProperty;
+var hasOwnProperty$4 = objectProto$4.hasOwnProperty;
 
 /**
  * Checks if a hash value for `key` exists.
@@ -18278,8 +19035,10 @@ var hasOwnProperty$4 = objectProto$5.hasOwnProperty;
  */
 function hashHas(key) {
   var data = this.__data__;
-  return nativeCreate ? (data[key] !== undefined) : hasOwnProperty$4.call(data, key);
+  return _nativeCreate ? (data[key] !== undefined) : hasOwnProperty$4.call(data, key);
 }
+
+var _hashHas = hashHas;
 
 /** Used to stand-in for `undefined` hash values. */
 var HASH_UNDEFINED$1 = '__lodash_hash_undefined__';
@@ -18297,9 +19056,11 @@ var HASH_UNDEFINED$1 = '__lodash_hash_undefined__';
 function hashSet(key, value) {
   var data = this.__data__;
   this.size += this.has(key) ? 0 : 1;
-  data[key] = (nativeCreate && value === undefined) ? HASH_UNDEFINED$1 : value;
+  data[key] = (_nativeCreate && value === undefined) ? HASH_UNDEFINED$1 : value;
   return this;
 }
+
+var _hashSet = hashSet;
 
 /**
  * Creates a hash object.
@@ -18320,11 +19081,13 @@ function Hash(entries) {
 }
 
 // Add methods to `Hash`.
-Hash.prototype.clear = hashClear;
-Hash.prototype['delete'] = hashDelete;
-Hash.prototype.get = hashGet;
-Hash.prototype.has = hashHas;
-Hash.prototype.set = hashSet;
+Hash.prototype.clear = _hashClear;
+Hash.prototype['delete'] = _hashDelete;
+Hash.prototype.get = _hashGet;
+Hash.prototype.has = _hashHas;
+Hash.prototype.set = _hashSet;
+
+var _Hash = Hash;
 
 /**
  * Removes all key-value entries from the list cache.
@@ -18337,6 +19100,8 @@ function listCacheClear() {
   this.__data__ = [];
   this.size = 0;
 }
+
+var _listCacheClear = listCacheClear;
 
 /**
  * Performs a
@@ -18374,6 +19139,8 @@ function eq(value, other) {
   return value === other || (value !== value && other !== other);
 }
 
+var eq_1 = eq;
+
 /**
  * Gets the index at which the `key` is found in `array` of key-value pairs.
  *
@@ -18385,12 +19152,14 @@ function eq(value, other) {
 function assocIndexOf(array, key) {
   var length = array.length;
   while (length--) {
-    if (eq(array[length][0], key)) {
+    if (eq_1(array[length][0], key)) {
       return length;
     }
   }
   return -1;
 }
+
+var _assocIndexOf = assocIndexOf;
 
 /** Used for built-in method references. */
 var arrayProto = Array.prototype;
@@ -18409,7 +19178,7 @@ var splice$1 = arrayProto.splice;
  */
 function listCacheDelete(key) {
   var data = this.__data__,
-      index = assocIndexOf(data, key);
+      index = _assocIndexOf(data, key);
 
   if (index < 0) {
     return false;
@@ -18424,6 +19193,8 @@ function listCacheDelete(key) {
   return true;
 }
 
+var _listCacheDelete = listCacheDelete;
+
 /**
  * Gets the list cache value for `key`.
  *
@@ -18435,10 +19206,12 @@ function listCacheDelete(key) {
  */
 function listCacheGet(key) {
   var data = this.__data__,
-      index = assocIndexOf(data, key);
+      index = _assocIndexOf(data, key);
 
   return index < 0 ? undefined : data[index][1];
 }
+
+var _listCacheGet = listCacheGet;
 
 /**
  * Checks if a list cache value for `key` exists.
@@ -18450,8 +19223,10 @@ function listCacheGet(key) {
  * @returns {boolean} Returns `true` if an entry for `key` exists, else `false`.
  */
 function listCacheHas(key) {
-  return assocIndexOf(this.__data__, key) > -1;
+  return _assocIndexOf(this.__data__, key) > -1;
 }
+
+var _listCacheHas = listCacheHas;
 
 /**
  * Sets the list cache `key` to `value`.
@@ -18465,7 +19240,7 @@ function listCacheHas(key) {
  */
 function listCacheSet(key, value) {
   var data = this.__data__,
-      index = assocIndexOf(data, key);
+      index = _assocIndexOf(data, key);
 
   if (index < 0) {
     ++this.size;
@@ -18475,6 +19250,8 @@ function listCacheSet(key, value) {
   }
   return this;
 }
+
+var _listCacheSet = listCacheSet;
 
 /**
  * Creates an list cache object.
@@ -18495,14 +19272,18 @@ function ListCache(entries) {
 }
 
 // Add methods to `ListCache`.
-ListCache.prototype.clear = listCacheClear;
-ListCache.prototype['delete'] = listCacheDelete;
-ListCache.prototype.get = listCacheGet;
-ListCache.prototype.has = listCacheHas;
-ListCache.prototype.set = listCacheSet;
+ListCache.prototype.clear = _listCacheClear;
+ListCache.prototype['delete'] = _listCacheDelete;
+ListCache.prototype.get = _listCacheGet;
+ListCache.prototype.has = _listCacheHas;
+ListCache.prototype.set = _listCacheSet;
+
+var _ListCache = ListCache;
 
 /* Built-in method references that are verified to be native. */
-var Map = getNative(root, 'Map');
+var Map$1 = _getNative(_root, 'Map');
+
+var _Map = Map$1;
 
 /**
  * Removes all key-value entries from the map.
@@ -18514,11 +19295,13 @@ var Map = getNative(root, 'Map');
 function mapCacheClear() {
   this.size = 0;
   this.__data__ = {
-    'hash': new Hash,
-    'map': new (Map || ListCache),
-    'string': new Hash
+    'hash': new _Hash,
+    'map': new (_Map || _ListCache),
+    'string': new _Hash
   };
 }
+
+var _mapCacheClear = mapCacheClear;
 
 /**
  * Checks if `value` is suitable for use as unique object key.
@@ -18534,6 +19317,8 @@ function isKeyable(value) {
     : (value === null);
 }
 
+var _isKeyable = isKeyable;
+
 /**
  * Gets the data for `map`.
  *
@@ -18544,10 +19329,12 @@ function isKeyable(value) {
  */
 function getMapData(map, key) {
   var data = map.__data__;
-  return isKeyable(key)
+  return _isKeyable(key)
     ? data[typeof key == 'string' ? 'string' : 'hash']
     : data.map;
 }
+
+var _getMapData = getMapData;
 
 /**
  * Removes `key` and its value from the map.
@@ -18559,10 +19346,12 @@ function getMapData(map, key) {
  * @returns {boolean} Returns `true` if the entry was removed, else `false`.
  */
 function mapCacheDelete(key) {
-  var result = getMapData(this, key)['delete'](key);
+  var result = _getMapData(this, key)['delete'](key);
   this.size -= result ? 1 : 0;
   return result;
 }
+
+var _mapCacheDelete = mapCacheDelete;
 
 /**
  * Gets the map value for `key`.
@@ -18574,8 +19363,10 @@ function mapCacheDelete(key) {
  * @returns {*} Returns the entry value.
  */
 function mapCacheGet(key) {
-  return getMapData(this, key).get(key);
+  return _getMapData(this, key).get(key);
 }
+
+var _mapCacheGet = mapCacheGet;
 
 /**
  * Checks if a map value for `key` exists.
@@ -18587,8 +19378,10 @@ function mapCacheGet(key) {
  * @returns {boolean} Returns `true` if an entry for `key` exists, else `false`.
  */
 function mapCacheHas(key) {
-  return getMapData(this, key).has(key);
+  return _getMapData(this, key).has(key);
 }
+
+var _mapCacheHas = mapCacheHas;
 
 /**
  * Sets the map `key` to `value`.
@@ -18601,13 +19394,15 @@ function mapCacheHas(key) {
  * @returns {Object} Returns the map cache instance.
  */
 function mapCacheSet(key, value) {
-  var data = getMapData(this, key),
+  var data = _getMapData(this, key),
       size = data.size;
 
   data.set(key, value);
   this.size += data.size == size ? 0 : 1;
   return this;
 }
+
+var _mapCacheSet = mapCacheSet;
 
 /**
  * Creates a map cache object to store key-value pairs.
@@ -18628,11 +19423,13 @@ function MapCache(entries) {
 }
 
 // Add methods to `MapCache`.
-MapCache.prototype.clear = mapCacheClear;
-MapCache.prototype['delete'] = mapCacheDelete;
-MapCache.prototype.get = mapCacheGet;
-MapCache.prototype.has = mapCacheHas;
-MapCache.prototype.set = mapCacheSet;
+MapCache.prototype.clear = _mapCacheClear;
+MapCache.prototype['delete'] = _mapCacheDelete;
+MapCache.prototype.get = _mapCacheGet;
+MapCache.prototype.has = _mapCacheHas;
+MapCache.prototype.set = _mapCacheSet;
+
+var _MapCache = MapCache;
 
 /** Error message constants. */
 var FUNC_ERROR_TEXT = 'Expected a function';
@@ -18697,12 +19494,14 @@ function memoize$1(func, resolver) {
     memoized.cache = cache.set(key, result) || cache;
     return result;
   };
-  memoized.cache = new (memoize$1.Cache || MapCache);
+  memoized.cache = new (memoize$1.Cache || _MapCache);
   return memoized;
 }
 
 // Expose `MapCache`.
-memoize$1.Cache = MapCache;
+memoize$1.Cache = _MapCache;
+
+var memoize_1 = memoize$1;
 
 /** Used as the maximum memoize cache size. */
 var MAX_MEMOIZE_SIZE = 500;
@@ -18716,7 +19515,7 @@ var MAX_MEMOIZE_SIZE = 500;
  * @returns {Function} Returns the new memoized function.
  */
 function memoizeCapped(func) {
-  var result = memoize$1(func, function(key) {
+  var result = memoize_1(func, function(key) {
     if (cache.size === MAX_MEMOIZE_SIZE) {
       cache.clear();
     }
@@ -18726,6 +19525,8 @@ function memoizeCapped(func) {
   var cache = result.cache;
   return result;
 }
+
+var _memoizeCapped = memoizeCapped;
 
 /** Used to match property names within property paths. */
 var rePropName = /[^.[\]]+|\[(?:(-?\d+(?:\.\d+)?)|(["'])((?:(?!\2)[^\\]|\\.)*?)\2)\]|(?=(?:\.|\[\])(?:\.|\[\]|$))/g;
@@ -18740,7 +19541,7 @@ var reEscapeChar = /\\(\\)?/g;
  * @param {string} string The string to convert.
  * @returns {Array} Returns the property path array.
  */
-var stringToPath = memoizeCapped(function(string) {
+var stringToPath = _memoizeCapped(function(string) {
   var result = [];
   if (string.charCodeAt(0) === 46 /* . */) {
     result.push('');
@@ -18750,6 +19551,8 @@ var stringToPath = memoizeCapped(function(string) {
   });
   return result;
 });
+
+var _stringToPath = stringToPath;
 
 /** Used as references for various `Number` constants. */
 var INFINITY = 1 / 0;
@@ -18762,18 +19565,20 @@ var INFINITY = 1 / 0;
  * @returns {string|symbol} Returns the key.
  */
 function toKey(value) {
-  if (typeof value == 'string' || isSymbol$1(value)) {
+  if (typeof value == 'string' || isSymbol_1(value)) {
     return value;
   }
   var result = (value + '');
   return (result == '0' && (1 / value) == -INFINITY) ? '-0' : result;
 }
 
+var _toKey = toKey;
+
 /** Used as references for various `Number` constants. */
 var INFINITY$1 = 1 / 0;
 
 /** Used to convert symbols to primitives and strings. */
-var symbolProto = Symbol$1 ? Symbol$1.prototype : undefined,
+var symbolProto = _Symbol ? _Symbol.prototype : undefined,
     symbolToString = symbolProto ? symbolProto.toString : undefined;
 
 /**
@@ -18789,16 +19594,18 @@ function baseToString(value) {
   if (typeof value == 'string') {
     return value;
   }
-  if (isArray$2(value)) {
+  if (isArray_1(value)) {
     // Recursively convert values (susceptible to call stack limits).
-    return arrayMap(value, baseToString) + '';
+    return _arrayMap(value, baseToString) + '';
   }
-  if (isSymbol$1(value)) {
+  if (isSymbol_1(value)) {
     return symbolToString ? symbolToString.call(value) : '';
   }
   var result = (value + '');
   return (result == '0' && (1 / value) == -INFINITY$1) ? '-0' : result;
 }
+
+var _baseToString = baseToString;
 
 /**
  * Converts `value` to a string. An empty string is returned for `null`
@@ -18822,8 +19629,10 @@ function baseToString(value) {
  * // => '1,2,3'
  */
 function toString$1(value) {
-  return value == null ? '' : baseToString(value);
+  return value == null ? '' : _baseToString(value);
 }
+
+var toString_1 = toString$1;
 
 /**
  * Converts `value` to a property path array.
@@ -18843,24 +19652,29 @@ function toString$1(value) {
  * // => ['a', '0', 'b', 'c']
  */
 function toPath(value) {
-  if (isArray$2(value)) {
-    return arrayMap(value, toKey);
+  if (isArray_1(value)) {
+    return _arrayMap(value, _toKey);
   }
-  return isSymbol$1(value) ? [value] : copyArray(stringToPath(toString$1(value)));
+  return isSymbol_1(value) ? [value] : _copyArray(_stringToPath(toString_1(value)));
 }
+
+var toPath_1 = toPath;
 
 var getIn = function getIn(state, field) {
   if (!state) {
     return state;
   }
 
-  var path = toPath(field);
+  var path = toPath_1(field);
+
   var length = path.length;
+
   if (!length) {
     return undefined;
   }
 
   var result = state;
+
   for (var i = 0; i < length && result; ++i) {
     result = result[path[i]];
   }
@@ -18868,11 +19682,9 @@ var getIn = function getIn(state, field) {
   return result;
 };
 
-var _extends$13 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-function _defineProperty$2(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
 var setInWithPath = function setInWithPath(state, value, path, pathIndex) {
+  var _extends2;
+
   if (pathIndex >= path.length) {
     return value;
   }
@@ -18883,8 +19695,11 @@ var setInWithPath = function setInWithPath(state, value, path, pathIndex) {
 
   if (!state) {
     if (isNaN(first)) {
-      return _defineProperty$2({}, first, next);
+      var _ref;
+
+      return _ref = {}, _ref[first] = next, _ref;
     }
+
     var initialized = [];
     initialized[parseInt(first, 10)] = next;
     return initialized;
@@ -18896,12 +19711,38 @@ var setInWithPath = function setInWithPath(state, value, path, pathIndex) {
     return copy;
   }
 
-  return _extends$13({}, state, _defineProperty$2({}, first, next));
+  return _extends_1({}, state, (_extends2 = {}, _extends2[first] = next, _extends2));
 };
 
 var setIn = function setIn(state, field, value) {
-  return setInWithPath(state, value, toPath(field), 0);
+  return setInWithPath(state, value, toPath_1(field), 0);
 };
+
+/**
+ * Checks if `value` is `null` or `undefined`.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is nullish, else `false`.
+ * @example
+ *
+ * _.isNil(null);
+ * // => true
+ *
+ * _.isNil(void 0);
+ * // => true
+ *
+ * _.isNil(NaN);
+ * // => false
+ */
+function isNil(value) {
+  return value == null;
+}
+
+var isNil_1 = isNil;
 
 /**
  * Removes all key-value entries from the stack.
@@ -18911,9 +19752,11 @@ var setIn = function setIn(state, field, value) {
  * @memberOf Stack
  */
 function stackClear() {
-  this.__data__ = new ListCache;
+  this.__data__ = new _ListCache;
   this.size = 0;
 }
+
+var _stackClear = stackClear;
 
 /**
  * Removes `key` and its value from the stack.
@@ -18932,6 +19775,8 @@ function stackDelete(key) {
   return result;
 }
 
+var _stackDelete = stackDelete;
+
 /**
  * Gets the stack value for `key`.
  *
@@ -18945,6 +19790,8 @@ function stackGet(key) {
   return this.__data__.get(key);
 }
 
+var _stackGet = stackGet;
+
 /**
  * Checks if a stack value for `key` exists.
  *
@@ -18957,6 +19804,8 @@ function stackGet(key) {
 function stackHas(key) {
   return this.__data__.has(key);
 }
+
+var _stackHas = stackHas;
 
 /** Used as the size to enable large array optimizations. */
 var LARGE_ARRAY_SIZE = 200;
@@ -18973,19 +19822,21 @@ var LARGE_ARRAY_SIZE = 200;
  */
 function stackSet(key, value) {
   var data = this.__data__;
-  if (data instanceof ListCache) {
+  if (data instanceof _ListCache) {
     var pairs = data.__data__;
-    if (!Map || (pairs.length < LARGE_ARRAY_SIZE - 1)) {
+    if (!_Map || (pairs.length < LARGE_ARRAY_SIZE - 1)) {
       pairs.push([key, value]);
       this.size = ++data.size;
       return this;
     }
-    data = this.__data__ = new MapCache(pairs);
+    data = this.__data__ = new _MapCache(pairs);
   }
   data.set(key, value);
   this.size = data.size;
   return this;
 }
+
+var _stackSet = stackSet;
 
 /**
  * Creates a stack cache object to store key-value pairs.
@@ -18995,16 +19846,18 @@ function stackSet(key, value) {
  * @param {Array} [entries] The key-value pairs to cache.
  */
 function Stack(entries) {
-  var data = this.__data__ = new ListCache(entries);
+  var data = this.__data__ = new _ListCache(entries);
   this.size = data.size;
 }
 
 // Add methods to `Stack`.
-Stack.prototype.clear = stackClear;
-Stack.prototype['delete'] = stackDelete;
-Stack.prototype.get = stackGet;
-Stack.prototype.has = stackHas;
-Stack.prototype.set = stackSet;
+Stack.prototype.clear = _stackClear;
+Stack.prototype['delete'] = _stackDelete;
+Stack.prototype.get = _stackGet;
+Stack.prototype.has = _stackHas;
+Stack.prototype.set = _stackSet;
+
+var _Stack = Stack;
 
 /** Used to stand-in for `undefined` hash values. */
 var HASH_UNDEFINED$2 = '__lodash_hash_undefined__';
@@ -19024,6 +19877,8 @@ function setCacheAdd(value) {
   return this;
 }
 
+var _setCacheAdd = setCacheAdd;
+
 /**
  * Checks if `value` is in the array cache.
  *
@@ -19037,6 +19892,8 @@ function setCacheHas(value) {
   return this.__data__.has(value);
 }
 
+var _setCacheHas = setCacheHas;
+
 /**
  *
  * Creates an array cache object to store unique values.
@@ -19049,15 +19906,17 @@ function SetCache(values) {
   var index = -1,
       length = values == null ? 0 : values.length;
 
-  this.__data__ = new MapCache;
+  this.__data__ = new _MapCache;
   while (++index < length) {
     this.add(values[index]);
   }
 }
 
 // Add methods to `SetCache`.
-SetCache.prototype.add = SetCache.prototype.push = setCacheAdd;
-SetCache.prototype.has = setCacheHas;
+SetCache.prototype.add = SetCache.prototype.push = _setCacheAdd;
+SetCache.prototype.has = _setCacheHas;
+
+var _SetCache = SetCache;
 
 /**
  * A specialized version of `_.some` for arrays without support for iteratee
@@ -19081,6 +19940,8 @@ function arraySome(array, predicate) {
   return false;
 }
 
+var _arraySome = arraySome;
+
 /**
  * Checks if a `cache` value for `key` exists.
  *
@@ -19092,6 +19953,8 @@ function arraySome(array, predicate) {
 function cacheHas(cache, key) {
   return cache.has(key);
 }
+
+var _cacheHas = cacheHas;
 
 /** Used to compose bitmasks for value comparisons. */
 var COMPARE_PARTIAL_FLAG = 1,
@@ -19125,7 +19988,7 @@ function equalArrays(array, other, bitmask, customizer, equalFunc, stack) {
   }
   var index = -1,
       result = true,
-      seen = (bitmask & COMPARE_UNORDERED_FLAG) ? new SetCache : undefined;
+      seen = (bitmask & COMPARE_UNORDERED_FLAG) ? new _SetCache : undefined;
 
   stack.set(array, other);
   stack.set(other, array);
@@ -19149,8 +20012,8 @@ function equalArrays(array, other, bitmask, customizer, equalFunc, stack) {
     }
     // Recursively compare arrays (susceptible to call stack limits).
     if (seen) {
-      if (!arraySome(other, function(othValue, othIndex) {
-            if (!cacheHas(seen, othIndex) &&
+      if (!_arraySome(other, function(othValue, othIndex) {
+            if (!_cacheHas(seen, othIndex) &&
                 (arrValue === othValue || equalFunc(arrValue, othValue, bitmask, customizer, stack))) {
               return seen.push(othIndex);
             }
@@ -19171,8 +20034,12 @@ function equalArrays(array, other, bitmask, customizer, equalFunc, stack) {
   return result;
 }
 
+var _equalArrays = equalArrays;
+
 /** Built-in value references. */
-var Uint8Array = root.Uint8Array;
+var Uint8Array = _root.Uint8Array;
+
+var _Uint8Array = Uint8Array;
 
 /**
  * Converts `map` to its key-value pairs.
@@ -19191,6 +20058,8 @@ function mapToArray(map) {
   return result;
 }
 
+var _mapToArray = mapToArray;
+
 /**
  * Converts `set` to an array of its values.
  *
@@ -19207,6 +20076,8 @@ function setToArray(set) {
   });
   return result;
 }
+
+var _setToArray = setToArray;
 
 /** Used to compose bitmasks for value comparisons. */
 var COMPARE_PARTIAL_FLAG$1 = 1,
@@ -19227,7 +20098,7 @@ var arrayBufferTag = '[object ArrayBuffer]',
     dataViewTag = '[object DataView]';
 
 /** Used to convert symbols to primitives and strings. */
-var symbolProto$1 = Symbol$1 ? Symbol$1.prototype : undefined,
+var symbolProto$1 = _Symbol ? _Symbol.prototype : undefined,
     symbolValueOf = symbolProto$1 ? symbolProto$1.valueOf : undefined;
 
 /**
@@ -19259,7 +20130,7 @@ function equalByTag(object, other, tag, bitmask, customizer, equalFunc, stack) {
 
     case arrayBufferTag:
       if ((object.byteLength != other.byteLength) ||
-          !equalFunc(new Uint8Array(object), new Uint8Array(other))) {
+          !equalFunc(new _Uint8Array(object), new _Uint8Array(other))) {
         return false;
       }
       return true;
@@ -19269,7 +20140,7 @@ function equalByTag(object, other, tag, bitmask, customizer, equalFunc, stack) {
     case numberTag:
       // Coerce booleans to `1` or `0` and dates to milliseconds.
       // Invalid dates are coerced to `NaN`.
-      return eq(+object, +other);
+      return eq_1(+object, +other);
 
     case errorTag:
       return object.name == other.name && object.message == other.message;
@@ -19282,11 +20153,11 @@ function equalByTag(object, other, tag, bitmask, customizer, equalFunc, stack) {
       return object == (other + '');
 
     case mapTag:
-      var convert = mapToArray;
+      var convert = _mapToArray;
 
     case setTag:
       var isPartial = bitmask & COMPARE_PARTIAL_FLAG$1;
-      convert || (convert = setToArray);
+      convert || (convert = _setToArray);
 
       if (object.size != other.size && !isPartial) {
         return false;
@@ -19300,7 +20171,7 @@ function equalByTag(object, other, tag, bitmask, customizer, equalFunc, stack) {
 
       // Recursively compare objects (susceptible to call stack limits).
       stack.set(object, other);
-      var result = equalArrays(convert(object), convert(other), bitmask, customizer, equalFunc, stack);
+      var result = _equalArrays(convert(object), convert(other), bitmask, customizer, equalFunc, stack);
       stack['delete'](object);
       return result;
 
@@ -19311,6 +20182,8 @@ function equalByTag(object, other, tag, bitmask, customizer, equalFunc, stack) {
   }
   return false;
 }
+
+var _equalByTag = equalByTag;
 
 /**
  * Appends the elements of `values` to `array`.
@@ -19331,6 +20204,8 @@ function arrayPush$1(array, values) {
   return array;
 }
 
+var _arrayPush = arrayPush$1;
+
 /**
  * The base implementation of `getAllKeys` and `getAllKeysIn` which uses
  * `keysFunc` and `symbolsFunc` to get the enumerable property names and
@@ -19344,8 +20219,10 @@ function arrayPush$1(array, values) {
  */
 function baseGetAllKeys(object, keysFunc, symbolsFunc) {
   var result = keysFunc(object);
-  return isArray$2(object) ? result : arrayPush$1(result, symbolsFunc(object));
+  return isArray_1(object) ? result : _arrayPush(result, symbolsFunc(object));
 }
+
+var _baseGetAllKeys = baseGetAllKeys;
 
 /**
  * A specialized version of `_.filter` for arrays without support for
@@ -19371,6 +20248,8 @@ function arrayFilter(array, predicate) {
   return result;
 }
 
+var _arrayFilter = arrayFilter;
+
 /**
  * This method returns a new empty array.
  *
@@ -19393,11 +20272,13 @@ function stubArray() {
   return [];
 }
 
+var stubArray_1 = stubArray;
+
 /** Used for built-in method references. */
-var objectProto$6 = Object.prototype;
+var objectProto$5 = Object.prototype;
 
 /** Built-in value references. */
-var propertyIsEnumerable = objectProto$6.propertyIsEnumerable;
+var propertyIsEnumerable = objectProto$5.propertyIsEnumerable;
 
 /* Built-in method references for those with the same name as other `lodash` methods. */
 var nativeGetSymbols = Object.getOwnPropertySymbols;
@@ -19409,15 +20290,17 @@ var nativeGetSymbols = Object.getOwnPropertySymbols;
  * @param {Object} object The object to query.
  * @returns {Array} Returns the array of symbols.
  */
-var getSymbols = !nativeGetSymbols ? stubArray : function(object) {
+var getSymbols = !nativeGetSymbols ? stubArray_1 : function(object) {
   if (object == null) {
     return [];
   }
   object = Object(object);
-  return arrayFilter(nativeGetSymbols(object), function(symbol) {
+  return _arrayFilter(nativeGetSymbols(object), function(symbol) {
     return propertyIsEnumerable.call(object, symbol);
   });
 };
+
+var _getSymbols = getSymbols;
 
 /**
  * The base implementation of `_.times` without support for iteratee shorthands
@@ -19438,6 +20321,8 @@ function baseTimes(n, iteratee) {
   return result;
 }
 
+var _baseTimes = baseTimes;
+
 /** `Object#toString` result references. */
 var argsTag = '[object Arguments]';
 
@@ -19449,17 +20334,19 @@ var argsTag = '[object Arguments]';
  * @returns {boolean} Returns `true` if `value` is an `arguments` object,
  */
 function baseIsArguments(value) {
-  return isObjectLike(value) && baseGetTag(value) == argsTag;
+  return isObjectLike_1(value) && _baseGetTag(value) == argsTag;
 }
 
+var _baseIsArguments = baseIsArguments;
+
 /** Used for built-in method references. */
-var objectProto$7 = Object.prototype;
+var objectProto$6 = Object.prototype;
 
 /** Used to check objects for own properties. */
-var hasOwnProperty$5 = objectProto$7.hasOwnProperty;
+var hasOwnProperty$5 = objectProto$6.hasOwnProperty;
 
 /** Built-in value references. */
-var propertyIsEnumerable$1 = objectProto$7.propertyIsEnumerable;
+var propertyIsEnumerable$1 = objectProto$6.propertyIsEnumerable;
 
 /**
  * Checks if `value` is likely an `arguments` object.
@@ -19479,10 +20366,12 @@ var propertyIsEnumerable$1 = objectProto$7.propertyIsEnumerable;
  * _.isArguments([1, 2, 3]);
  * // => false
  */
-var isArguments = baseIsArguments(function() { return arguments; }()) ? baseIsArguments : function(value) {
-  return isObjectLike(value) && hasOwnProperty$5.call(value, 'callee') &&
+var isArguments = _baseIsArguments(function() { return arguments; }()) ? _baseIsArguments : function(value) {
+  return isObjectLike_1(value) && hasOwnProperty$5.call(value, 'callee') &&
     !propertyIsEnumerable$1.call(value, 'callee');
 };
+
+var isArguments_1 = isArguments;
 
 /**
  * This method returns `false`.
@@ -19501,17 +20390,20 @@ function stubFalse() {
   return false;
 }
 
+var stubFalse_1 = stubFalse;
+
+var isBuffer_1 = createCommonjsModule(function (module, exports) {
 /** Detect free variable `exports`. */
-var freeExports = typeof exports == 'object' && exports && !exports.nodeType && exports;
+var freeExports = exports && !exports.nodeType && exports;
 
 /** Detect free variable `module`. */
-var freeModule = freeExports && typeof module == 'object' && module && !module.nodeType && module;
+var freeModule = freeExports && 'object' == 'object' && module && !module.nodeType && module;
 
 /** Detect the popular CommonJS extension `module.exports`. */
 var moduleExports = freeModule && freeModule.exports === freeExports;
 
 /** Built-in value references. */
-var Buffer = moduleExports ? root.Buffer : undefined;
+var Buffer = moduleExports ? _root.Buffer : undefined;
 
 /* Built-in method references for those with the same name as other `lodash` methods. */
 var nativeIsBuffer = Buffer ? Buffer.isBuffer : undefined;
@@ -19533,7 +20425,10 @@ var nativeIsBuffer = Buffer ? Buffer.isBuffer : undefined;
  * _.isBuffer(new Uint8Array(2));
  * // => false
  */
-var isBuffer = nativeIsBuffer || stubFalse;
+var isBuffer = nativeIsBuffer || stubFalse_1;
+
+module.exports = isBuffer;
+});
 
 /** Used as references for various `Number` constants. */
 var MAX_SAFE_INTEGER = 9007199254740991;
@@ -19558,6 +20453,8 @@ function isIndex(value, length) {
       (type != 'symbol' && reIsUint.test(value))) &&
         (value > -1 && value % 1 == 0 && value < length);
 }
+
+var _isIndex = isIndex;
 
 /** Used as references for various `Number` constants. */
 var MAX_SAFE_INTEGER$1 = 9007199254740991;
@@ -19593,6 +20490,8 @@ function isLength(value) {
     value > -1 && value % 1 == 0 && value <= MAX_SAFE_INTEGER$1;
 }
 
+var isLength_1 = isLength;
+
 /** `Object#toString` result references. */
 var argsTag$1 = '[object Arguments]',
     arrayTag = '[object Array]',
@@ -19602,7 +20501,7 @@ var argsTag$1 = '[object Arguments]',
     funcTag$1 = '[object Function]',
     mapTag$1 = '[object Map]',
     numberTag$1 = '[object Number]',
-    objectTag$1 = '[object Object]',
+    objectTag = '[object Object]',
     regexpTag$1 = '[object RegExp]',
     setTag$1 = '[object Set]',
     stringTag$1 = '[object String]',
@@ -19632,7 +20531,7 @@ typedArrayTags[arrayBufferTag$1] = typedArrayTags[boolTag$1] =
 typedArrayTags[dataViewTag$1] = typedArrayTags[dateTag$1] =
 typedArrayTags[errorTag$1] = typedArrayTags[funcTag$1] =
 typedArrayTags[mapTag$1] = typedArrayTags[numberTag$1] =
-typedArrayTags[objectTag$1] = typedArrayTags[regexpTag$1] =
+typedArrayTags[objectTag] = typedArrayTags[regexpTag$1] =
 typedArrayTags[setTag$1] = typedArrayTags[stringTag$1] =
 typedArrayTags[weakMapTag] = false;
 
@@ -19644,9 +20543,11 @@ typedArrayTags[weakMapTag] = false;
  * @returns {boolean} Returns `true` if `value` is a typed array, else `false`.
  */
 function baseIsTypedArray(value) {
-  return isObjectLike(value) &&
-    isLength(value.length) && !!typedArrayTags[baseGetTag(value)];
+  return isObjectLike_1(value) &&
+    isLength_1(value.length) && !!typedArrayTags[_baseGetTag(value)];
 }
+
+var _baseIsTypedArray = baseIsTypedArray;
 
 /**
  * The base implementation of `_.unary` without support for storing metadata.
@@ -19661,23 +20562,26 @@ function baseUnary(func) {
   };
 }
 
+var _baseUnary = baseUnary;
+
+var _nodeUtil = createCommonjsModule(function (module, exports) {
 /** Detect free variable `exports`. */
-var freeExports$1 = typeof exports == 'object' && exports && !exports.nodeType && exports;
+var freeExports = exports && !exports.nodeType && exports;
 
 /** Detect free variable `module`. */
-var freeModule$1 = freeExports$1 && typeof module == 'object' && module && !module.nodeType && module;
+var freeModule = freeExports && 'object' == 'object' && module && !module.nodeType && module;
 
 /** Detect the popular CommonJS extension `module.exports`. */
-var moduleExports$1 = freeModule$1 && freeModule$1.exports === freeExports$1;
+var moduleExports = freeModule && freeModule.exports === freeExports;
 
 /** Detect free variable `process` from Node.js. */
-var freeProcess = moduleExports$1 && freeGlobal.process;
+var freeProcess = moduleExports && _freeGlobal.process;
 
 /** Used to access faster Node.js helpers. */
 var nodeUtil = (function() {
   try {
     // Use `util.types` for Node.js 10+.
-    var types = freeModule$1 && freeModule$1.require && freeModule$1.require('util').types;
+    var types = freeModule && freeModule.require && freeModule.require('util').types;
 
     if (types) {
       return types;
@@ -19688,8 +20592,11 @@ var nodeUtil = (function() {
   } catch (e) {}
 }());
 
+module.exports = nodeUtil;
+});
+
 /* Node.js helper references. */
-var nodeIsTypedArray = nodeUtil && nodeUtil.isTypedArray;
+var nodeIsTypedArray = _nodeUtil && _nodeUtil.isTypedArray;
 
 /**
  * Checks if `value` is classified as a typed array.
@@ -19708,13 +20615,15 @@ var nodeIsTypedArray = nodeUtil && nodeUtil.isTypedArray;
  * _.isTypedArray([]);
  * // => false
  */
-var isTypedArray = nodeIsTypedArray ? baseUnary(nodeIsTypedArray) : baseIsTypedArray;
+var isTypedArray = nodeIsTypedArray ? _baseUnary(nodeIsTypedArray) : _baseIsTypedArray;
+
+var isTypedArray_1 = isTypedArray;
 
 /** Used for built-in method references. */
-var objectProto$8 = Object.prototype;
+var objectProto$7 = Object.prototype;
 
 /** Used to check objects for own properties. */
-var hasOwnProperty$6 = objectProto$8.hasOwnProperty;
+var hasOwnProperty$6 = objectProto$7.hasOwnProperty;
 
 /**
  * Creates an array of the enumerable property names of the array-like `value`.
@@ -19725,12 +20634,12 @@ var hasOwnProperty$6 = objectProto$8.hasOwnProperty;
  * @returns {Array} Returns the array of property names.
  */
 function arrayLikeKeys(value, inherited) {
-  var isArr = isArray$2(value),
-      isArg = !isArr && isArguments(value),
-      isBuff = !isArr && !isArg && isBuffer(value),
-      isType = !isArr && !isArg && !isBuff && isTypedArray(value),
+  var isArr = isArray_1(value),
+      isArg = !isArr && isArguments_1(value),
+      isBuff = !isArr && !isArg && isBuffer_1(value),
+      isType = !isArr && !isArg && !isBuff && isTypedArray_1(value),
       skipIndexes = isArr || isArg || isBuff || isType,
-      result = skipIndexes ? baseTimes(value.length, String) : [],
+      result = skipIndexes ? _baseTimes(value.length, String) : [],
       length = result.length;
 
   for (var key in value) {
@@ -19743,7 +20652,7 @@ function arrayLikeKeys(value, inherited) {
            // PhantomJS 2 has enumerable non-index properties on typed arrays.
            (isType && (key == 'buffer' || key == 'byteLength' || key == 'byteOffset')) ||
            // Skip index properties.
-           isIndex(key, length)
+           _isIndex(key, length)
         ))) {
       result.push(key);
     }
@@ -19751,8 +20660,10 @@ function arrayLikeKeys(value, inherited) {
   return result;
 }
 
+var _arrayLikeKeys = arrayLikeKeys;
+
 /** Used for built-in method references. */
-var objectProto$9 = Object.prototype;
+var objectProto$8 = Object.prototype;
 
 /**
  * Checks if `value` is likely a prototype object.
@@ -19763,19 +20674,39 @@ var objectProto$9 = Object.prototype;
  */
 function isPrototype(value) {
   var Ctor = value && value.constructor,
-      proto = (typeof Ctor == 'function' && Ctor.prototype) || objectProto$9;
+      proto = (typeof Ctor == 'function' && Ctor.prototype) || objectProto$8;
 
   return value === proto;
 }
 
+var _isPrototype = isPrototype;
+
+/**
+ * Creates a unary function that invokes `func` with its argument transformed.
+ *
+ * @private
+ * @param {Function} func The function to wrap.
+ * @param {Function} transform The argument transform.
+ * @returns {Function} Returns the new function.
+ */
+function overArg(func, transform) {
+  return function(arg) {
+    return func(transform(arg));
+  };
+}
+
+var _overArg = overArg;
+
 /* Built-in method references for those with the same name as other `lodash` methods. */
-var nativeKeys = overArg(Object.keys, Object);
+var nativeKeys = _overArg(Object.keys, Object);
+
+var _nativeKeys = nativeKeys;
 
 /** Used for built-in method references. */
-var objectProto$10 = Object.prototype;
+var objectProto$9 = Object.prototype;
 
 /** Used to check objects for own properties. */
-var hasOwnProperty$7 = objectProto$10.hasOwnProperty;
+var hasOwnProperty$7 = objectProto$9.hasOwnProperty;
 
 /**
  * The base implementation of `_.keys` which doesn't treat sparse arrays as dense.
@@ -19785,8 +20716,8 @@ var hasOwnProperty$7 = objectProto$10.hasOwnProperty;
  * @returns {Array} Returns the array of property names.
  */
 function baseKeys(object) {
-  if (!isPrototype(object)) {
-    return nativeKeys(object);
+  if (!_isPrototype(object)) {
+    return _nativeKeys(object);
   }
   var result = [];
   for (var key in Object(object)) {
@@ -19796,6 +20727,8 @@ function baseKeys(object) {
   }
   return result;
 }
+
+var _baseKeys = baseKeys;
 
 /**
  * Checks if `value` is array-like. A value is considered array-like if it's
@@ -19823,8 +20756,10 @@ function baseKeys(object) {
  * // => false
  */
 function isArrayLike(value) {
-  return value != null && isLength(value.length) && !isFunction$3(value);
+  return value != null && isLength_1(value.length) && !isFunction_1(value);
 }
+
+var isArrayLike_1 = isArrayLike;
 
 /**
  * Creates an array of the own enumerable property names of `object`.
@@ -19855,8 +20790,10 @@ function isArrayLike(value) {
  * // => ['0', '1']
  */
 function keys$1(object) {
-  return isArrayLike(object) ? arrayLikeKeys(object) : baseKeys(object);
+  return isArrayLike_1(object) ? _arrayLikeKeys(object) : _baseKeys(object);
 }
+
+var keys_1 = keys$1;
 
 /**
  * Creates an array of own enumerable property names and symbols of `object`.
@@ -19866,17 +20803,19 @@ function keys$1(object) {
  * @returns {Array} Returns the array of property names and symbols.
  */
 function getAllKeys(object) {
-  return baseGetAllKeys(object, keys$1, getSymbols);
+  return _baseGetAllKeys(object, keys_1, _getSymbols);
 }
+
+var _getAllKeys = getAllKeys;
 
 /** Used to compose bitmasks for value comparisons. */
 var COMPARE_PARTIAL_FLAG$2 = 1;
 
 /** Used for built-in method references. */
-var objectProto$11 = Object.prototype;
+var objectProto$10 = Object.prototype;
 
 /** Used to check objects for own properties. */
-var hasOwnProperty$8 = objectProto$11.hasOwnProperty;
+var hasOwnProperty$8 = objectProto$10.hasOwnProperty;
 
 /**
  * A specialized version of `baseIsEqualDeep` for objects with support for
@@ -19893,9 +20832,9 @@ var hasOwnProperty$8 = objectProto$11.hasOwnProperty;
  */
 function equalObjects(object, other, bitmask, customizer, equalFunc, stack) {
   var isPartial = bitmask & COMPARE_PARTIAL_FLAG$2,
-      objProps = getAllKeys(object),
+      objProps = _getAllKeys(object),
       objLength = objProps.length,
-      othProps = getAllKeys(other),
+      othProps = _getAllKeys(other),
       othLength = othProps.length;
 
   if (objLength != othLength && !isPartial) {
@@ -19955,21 +20894,31 @@ function equalObjects(object, other, bitmask, customizer, equalFunc, stack) {
   return result;
 }
 
-/* Built-in method references that are verified to be native. */
-var DataView = getNative(root, 'DataView');
+var _equalObjects = equalObjects;
 
 /* Built-in method references that are verified to be native. */
-var Promise$1 = getNative(root, 'Promise');
+var DataView = _getNative(_root, 'DataView');
+
+var _DataView = DataView;
 
 /* Built-in method references that are verified to be native. */
-var Set = getNative(root, 'Set');
+var Promise$1 = _getNative(_root, 'Promise');
+
+var _Promise = Promise$1;
 
 /* Built-in method references that are verified to be native. */
-var WeakMap = getNative(root, 'WeakMap');
+var Set$1 = _getNative(_root, 'Set');
+
+var _Set = Set$1;
+
+/* Built-in method references that are verified to be native. */
+var WeakMap$1 = _getNative(_root, 'WeakMap');
+
+var _WeakMap = WeakMap$1;
 
 /** `Object#toString` result references. */
 var mapTag$2 = '[object Map]',
-    objectTag$2 = '[object Object]',
+    objectTag$1 = '[object Object]',
     promiseTag = '[object Promise]',
     setTag$2 = '[object Set]',
     weakMapTag$1 = '[object WeakMap]';
@@ -19977,11 +20926,11 @@ var mapTag$2 = '[object Map]',
 var dataViewTag$2 = '[object DataView]';
 
 /** Used to detect maps, sets, and weakmaps. */
-var dataViewCtorString = toSource(DataView),
-    mapCtorString = toSource(Map),
-    promiseCtorString = toSource(Promise$1),
-    setCtorString = toSource(Set),
-    weakMapCtorString = toSource(WeakMap);
+var dataViewCtorString = _toSource(_DataView),
+    mapCtorString = _toSource(_Map),
+    promiseCtorString = _toSource(_Promise),
+    setCtorString = _toSource(_Set),
+    weakMapCtorString = _toSource(_WeakMap);
 
 /**
  * Gets the `toStringTag` of `value`.
@@ -19990,18 +20939,18 @@ var dataViewCtorString = toSource(DataView),
  * @param {*} value The value to query.
  * @returns {string} Returns the `toStringTag`.
  */
-var getTag = baseGetTag;
+var getTag = _baseGetTag;
 
 // Fallback for data views, maps, sets, and weak maps in IE 11 and promises in Node.js < 6.
-if ((DataView && getTag(new DataView(new ArrayBuffer(1))) != dataViewTag$2) ||
-    (Map && getTag(new Map) != mapTag$2) ||
-    (Promise$1 && getTag(Promise$1.resolve()) != promiseTag) ||
-    (Set && getTag(new Set) != setTag$2) ||
-    (WeakMap && getTag(new WeakMap) != weakMapTag$1)) {
+if ((_DataView && getTag(new _DataView(new ArrayBuffer(1))) != dataViewTag$2) ||
+    (_Map && getTag(new _Map) != mapTag$2) ||
+    (_Promise && getTag(_Promise.resolve()) != promiseTag) ||
+    (_Set && getTag(new _Set) != setTag$2) ||
+    (_WeakMap && getTag(new _WeakMap) != weakMapTag$1)) {
   getTag = function(value) {
-    var result = baseGetTag(value),
-        Ctor = result == objectTag$2 ? value.constructor : undefined,
-        ctorString = Ctor ? toSource(Ctor) : '';
+    var result = _baseGetTag(value),
+        Ctor = result == objectTag$1 ? value.constructor : undefined,
+        ctorString = Ctor ? _toSource(Ctor) : '';
 
     if (ctorString) {
       switch (ctorString) {
@@ -20016,7 +20965,7 @@ if ((DataView && getTag(new DataView(new ArrayBuffer(1))) != dataViewTag$2) ||
   };
 }
 
-var getTag$1 = getTag;
+var _getTag = getTag;
 
 /** Used to compose bitmasks for value comparisons. */
 var COMPARE_PARTIAL_FLAG$3 = 1;
@@ -20024,13 +20973,13 @@ var COMPARE_PARTIAL_FLAG$3 = 1;
 /** `Object#toString` result references. */
 var argsTag$2 = '[object Arguments]',
     arrayTag$1 = '[object Array]',
-    objectTag$3 = '[object Object]';
+    objectTag$2 = '[object Object]';
 
 /** Used for built-in method references. */
-var objectProto$12 = Object.prototype;
+var objectProto$11 = Object.prototype;
 
 /** Used to check objects for own properties. */
-var hasOwnProperty$9 = objectProto$12.hasOwnProperty;
+var hasOwnProperty$9 = objectProto$11.hasOwnProperty;
 
 /**
  * A specialized version of `baseIsEqual` for arrays and objects which performs
@@ -20047,30 +20996,30 @@ var hasOwnProperty$9 = objectProto$12.hasOwnProperty;
  * @returns {boolean} Returns `true` if the objects are equivalent, else `false`.
  */
 function baseIsEqualDeep(object, other, bitmask, customizer, equalFunc, stack) {
-  var objIsArr = isArray$2(object),
-      othIsArr = isArray$2(other),
-      objTag = objIsArr ? arrayTag$1 : getTag$1(object),
-      othTag = othIsArr ? arrayTag$1 : getTag$1(other);
+  var objIsArr = isArray_1(object),
+      othIsArr = isArray_1(other),
+      objTag = objIsArr ? arrayTag$1 : _getTag(object),
+      othTag = othIsArr ? arrayTag$1 : _getTag(other);
 
-  objTag = objTag == argsTag$2 ? objectTag$3 : objTag;
-  othTag = othTag == argsTag$2 ? objectTag$3 : othTag;
+  objTag = objTag == argsTag$2 ? objectTag$2 : objTag;
+  othTag = othTag == argsTag$2 ? objectTag$2 : othTag;
 
-  var objIsObj = objTag == objectTag$3,
-      othIsObj = othTag == objectTag$3,
+  var objIsObj = objTag == objectTag$2,
+      othIsObj = othTag == objectTag$2,
       isSameTag = objTag == othTag;
 
-  if (isSameTag && isBuffer(object)) {
-    if (!isBuffer(other)) {
+  if (isSameTag && isBuffer_1(object)) {
+    if (!isBuffer_1(other)) {
       return false;
     }
     objIsArr = true;
     objIsObj = false;
   }
   if (isSameTag && !objIsObj) {
-    stack || (stack = new Stack);
-    return (objIsArr || isTypedArray(object))
-      ? equalArrays(object, other, bitmask, customizer, equalFunc, stack)
-      : equalByTag(object, other, objTag, bitmask, customizer, equalFunc, stack);
+    stack || (stack = new _Stack);
+    return (objIsArr || isTypedArray_1(object))
+      ? _equalArrays(object, other, bitmask, customizer, equalFunc, stack)
+      : _equalByTag(object, other, objTag, bitmask, customizer, equalFunc, stack);
   }
   if (!(bitmask & COMPARE_PARTIAL_FLAG$3)) {
     var objIsWrapped = objIsObj && hasOwnProperty$9.call(object, '__wrapped__'),
@@ -20080,16 +21029,18 @@ function baseIsEqualDeep(object, other, bitmask, customizer, equalFunc, stack) {
       var objUnwrapped = objIsWrapped ? object.value() : object,
           othUnwrapped = othIsWrapped ? other.value() : other;
 
-      stack || (stack = new Stack);
+      stack || (stack = new _Stack);
       return equalFunc(objUnwrapped, othUnwrapped, bitmask, customizer, stack);
     }
   }
   if (!isSameTag) {
     return false;
   }
-  stack || (stack = new Stack);
-  return equalObjects(object, other, bitmask, customizer, equalFunc, stack);
+  stack || (stack = new _Stack);
+  return _equalObjects(object, other, bitmask, customizer, equalFunc, stack);
 }
+
+var _baseIsEqualDeep = baseIsEqualDeep;
 
 /**
  * The base implementation of `_.isEqual` which supports partial comparisons
@@ -20109,11 +21060,13 @@ function baseIsEqual(value, other, bitmask, customizer, stack) {
   if (value === other) {
     return true;
   }
-  if (value == null || other == null || (!isObjectLike(value) && !isObjectLike(other))) {
+  if (value == null || other == null || (!isObjectLike_1(value) && !isObjectLike_1(other))) {
     return value !== value && other !== other;
   }
-  return baseIsEqualDeep(value, other, bitmask, customizer, baseIsEqual, stack);
+  return _baseIsEqualDeep(value, other, bitmask, customizer, baseIsEqual, stack);
 }
+
+var _baseIsEqual = baseIsEqual;
 
 /**
  * This method is like `_.isEqual` except that it accepts `customizer` which
@@ -20150,16 +21103,20 @@ function baseIsEqual(value, other, bitmask, customizer, stack) {
 function isEqualWith(value, other, customizer) {
   customizer = typeof customizer == 'function' ? customizer : undefined;
   var result = customizer ? customizer(value, other) : undefined;
-  return result === undefined ? baseIsEqual(value, other, undefined, customizer) : !!result;
+  return result === undefined ? _baseIsEqual(value, other, undefined, customizer) : !!result;
 }
+
+var isEqualWith_1 = isEqualWith;
+
+var isEmpty = function isEmpty(obj) {
+  return isNil_1(obj) || obj === '' || isNaN(obj);
+};
 
 var customizer = function customizer(obj, other) {
   if (obj === other) return true;
 
   if (!obj && !other) {
-    var objIsEmpty = obj === null || obj === undefined || obj === '';
-    var otherIsEmpty = other === null || other === undefined || other === '';
-    return objIsEmpty === otherIsEmpty;
+    return isEmpty(obj) === isEmpty(other);
   }
 
   if (obj && other && obj._error !== other._error) return false;
@@ -20168,68 +21125,80 @@ var customizer = function customizer(obj, other) {
 };
 
 var deepEqual = function deepEqual(a, b) {
-  return isEqualWith(a, b, customizer);
+  return isEqualWith_1(a, b, customizer);
 };
-
-var _extends$14 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-function _defineProperty$3(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-function _toConsumableArray$1(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
 function deleteInWithPath(state, first) {
   if (state === undefined || state === null || first === undefined || first === null) {
     return state;
   }
 
-  for (var _len = arguments.length, rest = Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
+  for (var _len = arguments.length, rest = new Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
     rest[_key - 2] = arguments[_key];
   }
 
   if (rest.length) {
     if (Array.isArray(state)) {
       if (isNaN(first)) {
-        throw new Error('Must access array elements with a number, not "' + String(first) + '".');
+        throw new Error("Must access array elements with a number, not \"" + String(first) + "\".");
       }
+
       var firstIndex = Number(first);
+
       if (firstIndex < state.length) {
-        var result = deleteInWithPath.apply(undefined, [state && state[firstIndex]].concat(_toConsumableArray$1(rest)));
+        var result = deleteInWithPath.apply(void 0, [state && state[firstIndex]].concat(rest));
+
         if (result !== state[firstIndex]) {
-          var copy = [].concat(_toConsumableArray$1(state));
+          var copy = [].concat(state);
           copy[firstIndex] = result;
           return copy;
         }
       }
+
       return state;
     }
+
     if (first in state) {
-      var _result = deleteInWithPath.apply(undefined, [state && state[first]].concat(_toConsumableArray$1(rest)));
-      return state[first] === _result ? state : _extends$14({}, state, _defineProperty$3({}, first, _result));
+      var _extends2;
+
+      var _result = deleteInWithPath.apply(void 0, [state && state[first]].concat(rest));
+
+      return state[first] === _result ? state : _extends_1({}, state, (_extends2 = {}, _extends2[first] = _result, _extends2));
     }
+
     return state;
   }
+
   if (Array.isArray(state)) {
     if (isNaN(first)) {
-      throw new Error('Cannot delete non-numerical index from an array. Given: "' + String(first));
+      throw new Error("Cannot delete non-numerical index from an array. Given: \"" + String(first));
     }
+
     var _firstIndex = Number(first);
+
     if (_firstIndex < state.length) {
-      var _copy = [].concat(_toConsumableArray$1(state));
+      var _copy = [].concat(state);
+
       _copy.splice(_firstIndex, 1);
+
       return _copy;
     }
+
     return state;
   }
+
   if (first in state) {
-    var _copy2 = _extends$14({}, state);
+    var _copy2 = _extends_1({}, state);
+
     delete _copy2[first];
     return _copy2;
   }
+
   return state;
 }
 
 var deleteIn = function deleteIn(state, field) {
-  return deleteInWithPath.apply(undefined, [state].concat(_toConsumableArray$1(toPath(field))));
+  return deleteInWithPath.apply(void 0, [state].concat(toPath_1(field)));
 };
 
 function keys$2(value) {
@@ -20268,30 +21237,25 @@ var structure = {
     return items.some(callback);
   },
   splice: splice,
+  equals: function equals(a, b) {
+    return b.every(function (val) {
+      return ~a.indexOf(val);
+    });
+  },
+  orderChanged: function orderChanged(a, b) {
+    return b.some(function (val, index) {
+      return val !== a[index];
+    });
+  },
   toJS: function toJS(value) {
     return value;
   }
 };
 
-var _extends$15 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-var _createClass$4 = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _typeof$5 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
-function _objectWithoutProperties$7(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
-
-function _classCallCheck$16(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn$16(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits$16(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-
 var propsToNotUpdateFor = ['_reduxForm'];
 
 var isObject$3 = function isObject(entity) {
-  return entity && (typeof entity === 'undefined' ? 'undefined' : _typeof$5(entity)) === 'object';
+  return entity && typeof entity === 'object';
 };
 
 var isFunction$4 = function isFunction(entity) {
@@ -20321,40 +21285,43 @@ var createConnectedField = function createConnectedField(structure$$1) {
       getIn = structure$$1.getIn;
 
   var getSyncError = function getSyncError(syncErrors, name) {
-    var error = structure.getIn(syncErrors, name);
-    // Because the error for this field might not be at a level in the error structure where
+    var error = structure.getIn(syncErrors, name); // Because the error for this field might not be at a level in the error structure where
     // it can be set directly, it might need to be unwrapped from the _error property
+
     return error && error._error ? error._error : error;
   };
 
   var getSyncWarning = function getSyncWarning(syncWarnings, name) {
-    var warning = getIn(syncWarnings, name);
-    // Because the warning for this field might not be at a level in the warning structure where
+    var warning = getIn(syncWarnings, name); // Because the warning for this field might not be at a level in the warning structure where
     // it can be set directly, it might need to be unwrapped from the _warning property
+
     return warning && warning._warning ? warning._warning : warning;
   };
 
-  var ConnectedField = function (_Component) {
-    _inherits$16(ConnectedField, _Component);
+  var ConnectedField =
+  /*#__PURE__*/
+  function (_Component) {
+    inheritsLoose(ConnectedField, _Component);
 
     function ConnectedField() {
-      var _ref;
+      var _this;
 
-      var _temp, _this, _ret;
-
-      _classCallCheck$16(this, ConnectedField);
-
-      for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+      for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
         args[_key] = arguments[_key];
       }
 
-      return _ret = (_temp = (_this = _possibleConstructorReturn$16(this, (_ref = ConnectedField.__proto__ || Object.getPrototypeOf(ConnectedField)).call.apply(_ref, [this].concat(args))), _this), _this.saveRef = function (ref) {
-        return _this.ref = ref;
-      }, _this.isPristine = function () {
+      _this = _Component.call.apply(_Component, [this].concat(args)) || this;
+      _this.ref = React__default.createRef();
+
+      _this.isPristine = function () {
         return _this.props.pristine;
-      }, _this.getValue = function () {
+      };
+
+      _this.getValue = function () {
         return _this.props.value;
-      }, _this.handleChange = function (event) {
+      };
+
+      _this.handleChange = function (event) {
         var _this$props = _this.props,
             name = _this$props.name,
             dispatch = _this$props.dispatch,
@@ -20363,62 +21330,68 @@ var createConnectedField = function createConnectedField(structure$$1) {
             onChange = _this$props.onChange,
             _reduxForm = _this$props._reduxForm,
             previousValue = _this$props.value;
-
-        var newValue = onChangeValue(event, { name: name, parse: parse, normalize: normalize });
-
+        var newValue = onChangeValue(event, {
+          name: name,
+          parse: parse,
+          normalize: normalize
+        });
         var defaultPrevented = false;
+
         if (onChange) {
           // Can't seem to find a way to extend Event in React Native,
           // thus I simply avoid adding preventDefault() in a RN environment
           // to prevent the following error:
           // `One of the sources for assign has an enumerable key on the prototype chain`
           // Reference: https://github.com/facebook/react-native/issues/5507
-          if (!isReactNative) {
-            onChange(_extends$15({}, event, {
+          if (!isReactNative && isEvent(event)) {
+            onChange(_extends_1({}, event, {
               preventDefault: function preventDefault() {
                 defaultPrevented = true;
                 return eventPreventDefault(event);
               }
             }), newValue, previousValue, name);
           } else {
-            onChange(event, newValue, previousValue, name);
+            defaultPrevented = onChange(event, newValue, previousValue, name);
           }
         }
+
         if (!defaultPrevented) {
           // dispatch change action
-          dispatch(_reduxForm.change(name, newValue));
+          dispatch(_reduxForm.change(name, newValue)); // call post-change callback
 
-          // call post-change callback
           if (_reduxForm.asyncValidate) {
             _reduxForm.asyncValidate(name, newValue, 'change');
           }
         }
-      }, _this.handleFocus = function (event) {
+      };
+
+      _this.handleFocus = function (event) {
         var _this$props2 = _this.props,
             name = _this$props2.name,
             dispatch = _this$props2.dispatch,
             onFocus = _this$props2.onFocus,
             _reduxForm = _this$props2._reduxForm;
-
-
         var defaultPrevented = false;
+
         if (onFocus) {
           if (!isReactNative) {
-            onFocus(_extends$15({}, event, {
+            onFocus(_extends_1({}, event, {
               preventDefault: function preventDefault() {
                 defaultPrevented = true;
                 return eventPreventDefault(event);
               }
             }), name);
           } else {
-            onFocus(event, name);
+            defaultPrevented = onFocus(event, name);
           }
         }
 
         if (!defaultPrevented) {
           dispatch(_reduxForm.focus(name));
         }
-      }, _this.handleBlur = function (event) {
+      };
+
+      _this.handleBlur = function (event) {
         var _this$props3 = _this.props,
             name = _this$props3.name,
             dispatch = _this$props3.dispatch,
@@ -20428,62 +21401,66 @@ var createConnectedField = function createConnectedField(structure$$1) {
             _reduxForm = _this$props3._reduxForm,
             _value = _this$props3._value,
             previousValue = _this$props3.value;
-
-        var newValue = onChangeValue(event, { name: name, parse: parse, normalize: normalize });
-
-        // for checkbox and radio, if the value property of checkbox or radio equals
+        var newValue = onChangeValue(event, {
+          name: name,
+          parse: parse,
+          normalize: normalize
+        }); // for checkbox and radio, if the value property of checkbox or radio equals
         // the value passed by blur event, then fire blur action with previousValue.
+
         if (newValue === _value && _value !== undefined) {
           newValue = previousValue;
         }
 
         var defaultPrevented = false;
+
         if (onBlur) {
           if (!isReactNative) {
-            onBlur(_extends$15({}, event, {
+            onBlur(_extends_1({}, event, {
               preventDefault: function preventDefault() {
                 defaultPrevented = true;
                 return eventPreventDefault(event);
               }
             }), newValue, previousValue, name);
           } else {
-            onBlur(event, newValue, previousValue, name);
+            defaultPrevented = onBlur(event, newValue, previousValue, name);
           }
         }
 
         if (!defaultPrevented) {
           // dispatch blur action
-          dispatch(_reduxForm.blur(name, newValue));
+          dispatch(_reduxForm.blur(name, newValue)); // call post-blur callback
 
-          // call post-blur callback
           if (_reduxForm.asyncValidate) {
             _reduxForm.asyncValidate(name, newValue, 'blur');
           }
         }
-      }, _this.handleDragStart = function (event) {
+      };
+
+      _this.handleDragStart = function (event) {
         var _this$props4 = _this.props,
             name = _this$props4.name,
             onDragStart = _this$props4.onDragStart,
             value = _this$props4.value;
-
         eventDataTransferSetData(event, dataKey, value == null ? '' : value);
 
         if (onDragStart) {
           onDragStart(event, name);
         }
-      }, _this.handleDrop = function (event) {
+      };
+
+      _this.handleDrop = function (event) {
         var _this$props5 = _this.props,
             name = _this$props5.name,
             dispatch = _this$props5.dispatch,
             onDrop = _this$props5.onDrop,
             _reduxForm = _this$props5._reduxForm,
             previousValue = _this$props5.value;
-
         var newValue = eventDataTransferGetData(event, dataKey);
-
         var defaultPrevented = false;
+
         if (onDrop) {
-          onDrop(_extends$15({}, event, {
+          onDrop(_extends_1({}, event, {
             preventDefault: function preventDefault() {
               defaultPrevented = true;
               return eventPreventDefault(event);
@@ -20496,111 +21473,113 @@ var createConnectedField = function createConnectedField(structure$$1) {
           dispatch(_reduxForm.change(name, newValue));
           eventPreventDefault(event);
         }
-      }, _temp), _possibleConstructorReturn$16(_this, _ret);
+      };
+
+      return _this;
     }
 
-    _createClass$4(ConnectedField, [{
-      key: 'shouldComponentUpdate',
-      value: function shouldComponentUpdate(nextProps) {
-        var _this2 = this;
+    var _proto = ConnectedField.prototype;
 
-        var nextPropsKeys = Object.keys(nextProps);
-        var thisPropsKeys = Object.keys(this.props);
-        // if we have children, we MUST update in React 16
-        // https://twitter.com/erikras/status/915866544558788608
-        return !!(this.props.children || nextProps.children || nextPropsKeys.length !== thisPropsKeys.length || nextPropsKeys.some(function (prop) {
-          if (~(nextProps.immutableProps || []).indexOf(prop)) {
-            return _this2.props[prop] !== nextProps[prop];
-          }
-          return !~propsToNotUpdateFor.indexOf(prop) && !deepEqual(_this2.props[prop], nextProps[prop]);
-        }));
-      }
-    }, {
-      key: 'getRenderedComponent',
-      value: function getRenderedComponent() {
-        return this.ref;
-      }
-    }, {
-      key: 'render',
-      value: function render() {
-        var _props = this.props,
-            component = _props.component,
-            withRef = _props.withRef,
-            name = _props.name,
-            _reduxForm = _props._reduxForm,
-            normalize = _props.normalize,
-            onBlur = _props.onBlur,
-            onChange = _props.onChange,
-            onFocus = _props.onFocus,
-            onDragStart = _props.onDragStart,
-            onDrop = _props.onDrop,
-            immutableProps = _props.immutableProps,
-            rest = _objectWithoutProperties$7(_props, ['component', 'withRef', 'name', '_reduxForm', 'normalize', 'onBlur', 'onChange', 'onFocus', 'onDragStart', 'onDrop', 'immutableProps']);
+    _proto.shouldComponentUpdate = function shouldComponentUpdate(nextProps) {
+      var _this2 = this;
 
-        var _createFieldProps = createFieldProps(structure$$1, name, _extends$15({}, rest, {
-          form: _reduxForm.form,
-          onBlur: this.handleBlur,
-          onChange: this.handleChange,
-          onDrop: this.handleDrop,
-          onDragStart: this.handleDragStart,
-          onFocus: this.handleFocus
-        })),
-            custom = _createFieldProps.custom,
-            props = _objectWithoutProperties$7(_createFieldProps, ['custom']);
+      var nextPropsKeys = Object.keys(nextProps);
+      var thisPropsKeys = Object.keys(this.props); // if we have children, we MUST update in React 16
+      // https://twitter.com/erikras/status/915866544558788608
 
-        if (withRef) {
-          custom.ref = this.saveRef;
+      return !!(this.props.children || nextProps.children || nextPropsKeys.length !== thisPropsKeys.length || nextPropsKeys.some(function (prop) {
+        if (~(nextProps.immutableProps || []).indexOf(prop)) {
+          return _this2.props[prop] !== nextProps[prop];
         }
-        if (typeof component === 'string') {
-          var input = props.input;
+
+        return !~propsToNotUpdateFor.indexOf(prop) && !deepEqual(_this2.props[prop], nextProps[prop]);
+      }));
+    };
+
+    _proto.getRenderedComponent = function getRenderedComponent() {
+      return this.ref.current;
+    };
+
+    _proto.render = function render() {
+      var _this$props6 = this.props,
+          component = _this$props6.component,
+          forwardRef = _this$props6.forwardRef,
+          name = _this$props6.name,
+          _reduxForm = _this$props6._reduxForm,
+          normalize = _this$props6.normalize,
+          onBlur = _this$props6.onBlur,
+          onChange = _this$props6.onChange,
+          onFocus = _this$props6.onFocus,
+          onDragStart = _this$props6.onDragStart,
+          onDrop = _this$props6.onDrop,
+          immutableProps = _this$props6.immutableProps,
+          rest = objectWithoutPropertiesLoose(_this$props6, ["component", "forwardRef", "name", "_reduxForm", "normalize", "onBlur", "onChange", "onFocus", "onDragStart", "onDrop", "immutableProps"]);
+
+      var _createFieldProps = createFieldProps(structure$$1, name, _extends_1({}, rest, {
+        form: _reduxForm.form,
+        onBlur: this.handleBlur,
+        onChange: this.handleChange,
+        onDrop: this.handleDrop,
+        onDragStart: this.handleDragStart,
+        onFocus: this.handleFocus
+      })),
+          custom = _createFieldProps.custom,
+          props = objectWithoutPropertiesLoose(_createFieldProps, ["custom"]);
+
+      if (forwardRef) {
+        custom.ref = this.ref;
+      }
+
+      if (typeof component === 'string') {
+        var input = props.input;
  // eslint-disable-line no-unused-vars
-          // flatten input into other props
+        // flatten input into other props
 
-          return React.createElement(component, _extends$15({}, input, custom));
-        } else {
-          return React.createElement(component, _extends$15({}, props, custom));
-        }
+        return React.createElement(component, _extends_1({}, input, custom));
+      } else {
+        return React.createElement(component, _extends_1({}, props, custom));
       }
-    }]);
+    };
 
     return ConnectedField;
   }(React.Component);
 
   ConnectedField.propTypes = {
-    component: propTypes.oneOfType([propTypes.func, propTypes.string, propTypes.node]).isRequired,
+    component: validateComponentProp,
     props: propTypes.object
   };
-
   var connector = connect(function (state, ownProps) {
     var name = ownProps.name,
         _ownProps$_reduxForm = ownProps._reduxForm,
         initialValues = _ownProps$_reduxForm.initialValues,
         getFormState = _ownProps$_reduxForm.getFormState;
-
     var formState = getFormState(state);
-    var initialState = getIn(formState, 'initial.' + name);
+    var initialState = getIn(formState, "initial." + name);
     var initial = initialState !== undefined ? initialState : initialValues && getIn(initialValues, name);
-    var value = getIn(formState, 'values.' + name);
+    var value = getIn(formState, "values." + name);
     var submitting = getIn(formState, 'submitting');
     var syncError = getSyncError(getIn(formState, 'syncErrors'), name);
     var syncWarning = getSyncWarning(getIn(formState, 'syncWarnings'), name);
     var pristine = deepEqual(value, initial);
     return {
-      asyncError: getIn(formState, 'asyncErrors.' + name),
+      asyncError: getIn(formState, "asyncErrors." + name),
       asyncValidating: getIn(formState, 'asyncValidating') === name,
       dirty: !pristine,
       pristine: pristine,
-      state: getIn(formState, 'fields.' + name),
-      submitError: getIn(formState, 'submitErrors.' + name),
+      state: getIn(formState, "fields." + name),
+      submitError: getIn(formState, "submitErrors." + name),
       submitFailed: getIn(formState, 'submitFailed'),
       submitting: submitting,
       syncError: syncError,
       syncWarning: syncWarning,
       initial: initial,
       value: value,
-      _value: ownProps.value // save value passed in (for checkboxes)
+      _value: ownProps.value // save value passed in (for radios)
+
     };
-  }, undefined, undefined, { withRef: true });
+  }, undefined, undefined, {
+    forwardRef: true
+  });
   return connector(ConnectedField);
 };
 
@@ -20617,39 +21596,28 @@ var customizer$1 = function customizer(objectValue, otherValue, indexOrkey, obje
 };
 
 var shallowCompare = function shallowCompare(instance, nextProps, nextState) {
-  var propsEqual = isEqualWith(instance.props, nextProps, customizer$1);
-  var stateEqual = isEqualWith(instance.state, nextState, customizer$1);
+  var propsEqual = isEqualWith_1(instance.props, nextProps, customizer$1);
+
+  var stateEqual = isEqualWith_1(instance.state, nextState, customizer$1);
 
   return !propsEqual || !stateEqual;
 };
 
-var _extends$16 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-var _createClass$5 = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck$17(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn$17(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits$17(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-
 var createField = function createField(structure$$1) {
   var ConnectedField = createConnectedField(structure$$1);
-
   var setIn = structure$$1.setIn;
 
-  var Field = function (_Component) {
-    _inherits$17(Field, _Component);
+  var Field =
+  /*#__PURE__*/
+  function (_Component) {
+    inheritsLoose(Field, _Component);
 
-    function Field(props, context) {
-      _classCallCheck$17(this, Field);
+    function Field(props) {
+      var _this;
 
-      var _this = _possibleConstructorReturn$17(this, (Field.__proto__ || Object.getPrototypeOf(Field)).call(this, props, context));
-
-      _this.saveRef = function (ref) {
-        return _this.ref = ref;
-      };
+      _this = _Component.call(this, props) || this;
+      _this.ref = React__default.createRef();
+      _this.ref = React__default.createRef();
 
       _this.normalize = function (name, value) {
         var normalize = _this.props.normalize;
@@ -20657,93 +21625,91 @@ var createField = function createField(structure$$1) {
         if (!normalize) {
           return value;
         }
-        var previousValues = _this.context._reduxForm.getValues();
+
+        var previousValues = _this.props._reduxForm.getValues();
+
         var previousValue = _this.value;
         var nextValues = setIn(previousValues, name, value);
-        return normalize(value, previousValue, nextValues, previousValues);
+        return normalize(value, previousValue, nextValues, previousValues, name);
       };
 
-      if (!context._reduxForm) {
+      if (!props._reduxForm) {
         throw new Error('Field must be inside a component decorated with reduxForm()');
       }
+
       return _this;
     }
 
-    _createClass$5(Field, [{
-      key: 'componentDidMount',
-      value: function componentDidMount() {
-        var _this2 = this;
+    var _proto = Field.prototype;
 
-        this.context._reduxForm.register(this.name, 'Field', function () {
-          return _this2.props.validate;
+    _proto.componentDidMount = function componentDidMount() {
+      var _this2 = this;
+
+      this.props._reduxForm.register(this.name, 'Field', function () {
+        return _this2.props.validate;
+      }, function () {
+        return _this2.props.warn;
+      });
+    };
+
+    _proto.shouldComponentUpdate = function shouldComponentUpdate(nextProps, nextState) {
+      return shallowCompare(this, nextProps, nextState);
+    };
+
+    _proto.UNSAFE_componentWillReceiveProps = function UNSAFE_componentWillReceiveProps(nextProps) {
+      var oldName = formatName(this.props, this.props.name);
+      var newName = formatName(nextProps, nextProps.name);
+
+      if (oldName !== newName || // use deepEqual here because they could be a function or an array of functions
+      !structure.deepEqual(this.props.validate, nextProps.validate) || !structure.deepEqual(this.props.warn, nextProps.warn)) {
+        // unregister old name
+        this.props._reduxForm.unregister(oldName); // register new name
+
+
+        this.props._reduxForm.register(newName, 'Field', function () {
+          return nextProps.validate;
         }, function () {
-          return _this2.props.warn;
+          return nextProps.warn;
         });
       }
-    }, {
-      key: 'shouldComponentUpdate',
-      value: function shouldComponentUpdate(nextProps, nextState) {
-        return shallowCompare(this, nextProps, nextState);
-      }
-    }, {
-      key: 'componentWillReceiveProps',
-      value: function componentWillReceiveProps(nextProps, nextContext) {
-        var oldName = formatName(this.context, this.props.name);
-        var newName = formatName(nextContext, nextProps.name);
+    };
 
-        if (oldName !== newName ||
-        // use deepEqual here because they could be a function or an array of functions
-        !structure.deepEqual(this.props.validate, nextProps.validate) || !structure.deepEqual(this.props.warn, nextProps.warn)) {
-          // unregister old name
-          this.context._reduxForm.unregister(oldName);
-          // register new name
-          this.context._reduxForm.register(newName, 'Field', function () {
-            return nextProps.validate;
-          }, function () {
-            return nextProps.warn;
-          });
-        }
-      }
-    }, {
-      key: 'componentWillUnmount',
-      value: function componentWillUnmount() {
-        this.context._reduxForm.unregister(this.name);
-      }
-    }, {
-      key: 'getRenderedComponent',
-      value: function getRenderedComponent() {
-        invariant_1(this.props.withRef, 'If you want to access getRenderedComponent(), ' + 'you must specify a withRef prop to Field');
-        return this.ref ? this.ref.getWrappedInstance().getRenderedComponent() : undefined;
-      }
-    }, {
-      key: 'render',
-      value: function render() {
-        return React.createElement(ConnectedField, _extends$16({}, this.props, {
-          name: this.name,
-          normalize: this.normalize,
-          _reduxForm: this.context._reduxForm,
-          ref: this.saveRef
-        }));
-      }
-    }, {
-      key: 'name',
+    _proto.componentWillUnmount = function componentWillUnmount() {
+      this.props._reduxForm.unregister(this.name);
+    };
+
+    _proto.getRenderedComponent = function getRenderedComponent() {
+      invariant_1(this.props.forwardRef, 'If you want to access getRenderedComponent(), ' + 'you must specify a forwardRef prop to Field');
+      return this.ref.current ? this.ref.current.getRenderedComponent() : undefined;
+    };
+
+    _proto.render = function render() {
+      return React.createElement(ConnectedField, _extends_1({}, this.props, {
+        name: this.name,
+        normalize: this.normalize,
+        ref: this.ref
+      }));
+    };
+
+    createClass$1(Field, [{
+      key: "name",
       get: function get() {
-        return formatName(this.context, this.props.name);
+        return formatName(this.props, this.props.name);
       }
     }, {
-      key: 'dirty',
+      key: "dirty",
       get: function get() {
         return !this.pristine;
       }
     }, {
-      key: 'pristine',
+      key: "pristine",
       get: function get() {
-        return !!(this.ref && this.ref.getWrappedInstance().isPristine());
+        return !!(this.ref.current && this.ref.current.isPristine());
       }
     }, {
-      key: 'value',
+      key: "value",
       get: function get() {
-        return this.ref && this.ref.getWrappedInstance().getValue();
+        return this.ref.current && this.ref.current.getValue();
       }
     }]);
 
@@ -20752,7 +21718,7 @@ var createField = function createField(structure$$1) {
 
   Field.propTypes = {
     name: propTypes.string.isRequired,
-    component: propTypes.oneOfType([propTypes.func, propTypes.string, propTypes.node]).isRequired,
+    component: validateComponentProp,
     format: propTypes.func,
     normalize: propTypes.func,
     onBlur: propTypes.func,
@@ -20764,31 +21730,113 @@ var createField = function createField(structure$$1) {
     props: propTypes.object,
     validate: propTypes.oneOfType([propTypes.func, propTypes.arrayOf(propTypes.func)]),
     warn: propTypes.oneOfType([propTypes.func, propTypes.arrayOf(propTypes.func)]),
-    withRef: propTypes.bool,
-    immutableProps: propTypes.arrayOf(propTypes.string)
-  };
-  Field.contextTypes = {
+    forwardRef: propTypes.bool,
+    immutableProps: propTypes.arrayOf(propTypes.string),
     _reduxForm: propTypes.object
   };
-
   polyfill(Field);
-  return Field;
+  return withReduxForm(Field);
 };
 
 var Field = createField(structure);
 
-var _extends$17 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+/** Used to match property names within property paths. */
+var reIsDeepProp = /\.|\[(?:[^[\]]*|(["'])(?:(?!\1)[^\\]|\\.)*?\1)\]/,
+    reIsPlainProp = /^\w*$/;
 
-var _createClass$6 = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+/**
+ * Checks if `value` is a property name and not a property path.
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @param {Object} [object] The object to query keys on.
+ * @returns {boolean} Returns `true` if `value` is a property name, else `false`.
+ */
+function isKey(value, object) {
+  if (isArray_1(value)) {
+    return false;
+  }
+  var type = typeof value;
+  if (type == 'number' || type == 'symbol' || type == 'boolean' ||
+      value == null || isSymbol_1(value)) {
+    return true;
+  }
+  return reIsPlainProp.test(value) || !reIsDeepProp.test(value) ||
+    (object != null && value in Object(object));
+}
 
-function _objectWithoutProperties$8(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
+var _isKey = isKey;
 
-function _classCallCheck$18(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+/**
+ * Casts `value` to a path array if it's not one.
+ *
+ * @private
+ * @param {*} value The value to inspect.
+ * @param {Object} [object] The object to query keys on.
+ * @returns {Array} Returns the cast property path array.
+ */
+function castPath(value, object) {
+  if (isArray_1(value)) {
+    return value;
+  }
+  return _isKey(value, object) ? [value] : _stringToPath(toString_1(value));
+}
 
-function _possibleConstructorReturn$18(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+var _castPath = castPath;
 
-function _inherits$18(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+/**
+ * The base implementation of `_.get` without support for default values.
+ *
+ * @private
+ * @param {Object} object The object to query.
+ * @param {Array|string} path The path of the property to get.
+ * @returns {*} Returns the resolved value.
+ */
+function baseGet(object, path) {
+  path = _castPath(path, object);
 
+  var index = 0,
+      length = path.length;
+
+  while (object != null && index < length) {
+    object = object[_toKey(path[index++])];
+  }
+  return (index && index == length) ? object : undefined;
+}
+
+var _baseGet = baseGet;
+
+/**
+ * Gets the value at `path` of `object`. If the resolved value is
+ * `undefined`, the `defaultValue` is returned in its place.
+ *
+ * @static
+ * @memberOf _
+ * @since 3.7.0
+ * @category Object
+ * @param {Object} object The object to query.
+ * @param {Array|string} path The path of the property to get.
+ * @param {*} [defaultValue] The value returned for `undefined` resolved values.
+ * @returns {*} Returns the resolved value.
+ * @example
+ *
+ * var object = { 'a': [{ 'b': { 'c': 3 } }] };
+ *
+ * _.get(object, 'a[0].b.c');
+ * // => 3
+ *
+ * _.get(object, ['a', '0', 'b', 'c']);
+ * // => 3
+ *
+ * _.get(object, 'a.b.c', 'default');
+ * // => 'default'
+ */
+function get$3(object, path, defaultValue) {
+  var result = object == null ? undefined : _baseGet(object, path);
+  return result === undefined ? defaultValue : result;
+}
+
+var get_1 = get$3;
 
 var propsToNotUpdateFor$1 = ['_reduxForm'];
 
@@ -20797,31 +21845,32 @@ var createConnectedFields = function createConnectedFields(structure$$1) {
       getIn = structure$$1.getIn,
       size = structure$$1.size;
 
-
   var getSyncError = function getSyncError(syncErrors, name) {
     // Because the error for this field might not be at a level in the error structure where
     // it can be set directly, it might need to be unwrapped from the _error property
-    return structure.getIn(syncErrors, name + '._error') || structure.getIn(syncErrors, name);
+    return structure.getIn(syncErrors, name + "._error") || structure.getIn(syncErrors, name);
   };
 
   var getSyncWarning = function getSyncWarning(syncWarnings, name) {
-    var warning = getIn(syncWarnings, name);
-    // Because the warning for this field might not be at a level in the warning structure where
+    var warning = getIn(syncWarnings, name); // Because the warning for this field might not be at a level in the warning structure where
     // it can be set directly, it might need to be unwrapped from the _warning property
+
     return warning && warning._warning ? warning._warning : warning;
   };
 
-  var ConnectedFields = function (_React$Component) {
-    _inherits$18(ConnectedFields, _React$Component);
+  var ConnectedFields =
+  /*#__PURE__*/
+  function (_React$Component) {
+    inheritsLoose(ConnectedFields, _React$Component);
 
     function ConnectedFields(props) {
-      _classCallCheck$18(this, ConnectedFields);
+      var _this;
 
-      var _this = _possibleConstructorReturn$18(this, (ConnectedFields.__proto__ || Object.getPrototypeOf(ConnectedFields)).call(this, props));
-
+      _this = _React$Component.call(this, props) || this;
       _this.onChangeFns = {};
       _this.onFocusFns = {};
       _this.onBlurFns = {};
+      _this.ref = React__default.createRef();
 
       _this.prepareEventHandlers = function (_ref) {
         var names = _ref.names;
@@ -20829,9 +21878,11 @@ var createConnectedFields = function createConnectedFields(structure$$1) {
           _this.onChangeFns[name] = function (event) {
             return _this.handleChange(name, event);
           };
+
           _this.onFocusFns[name] = function () {
             return _this.handleFocus(name);
           };
+
           _this.onBlurFns[name] = function (event) {
             return _this.handleBlur(name, event);
           };
@@ -20843,12 +21894,12 @@ var createConnectedFields = function createConnectedFields(structure$$1) {
             dispatch = _this$props.dispatch,
             parse = _this$props.parse,
             _reduxForm = _this$props._reduxForm;
+        var value = onChangeValue(event, {
+          name: name,
+          parse: parse
+        });
+        dispatch(_reduxForm.change(name, value)); // call post-change callback
 
-        var value = onChangeValue(event, { name: name, parse: parse });
-
-        dispatch(_reduxForm.change(name, value));
-
-        // call post-change callback
         if (_reduxForm.asyncValidate) {
           _reduxForm.asyncValidate(name, value, 'change');
         }
@@ -20858,7 +21909,6 @@ var createConnectedFields = function createConnectedFields(structure$$1) {
         var _this$props2 = _this.props,
             dispatch = _this$props2.dispatch,
             _reduxForm = _this$props2._reduxForm;
-
         dispatch(_reduxForm.focus(name));
       };
 
@@ -20867,323 +21917,312 @@ var createConnectedFields = function createConnectedFields(structure$$1) {
             dispatch = _this$props3.dispatch,
             parse = _this$props3.parse,
             _reduxForm = _this$props3._reduxForm;
+        var value = onChangeValue(event, {
+          name: name,
+          parse: parse
+        }); // dispatch blur action
 
-        var value = onChangeValue(event, { name: name, parse: parse });
+        dispatch(_reduxForm.blur(name, value)); // call post-blur callback
 
-        // dispatch blur action
-        dispatch(_reduxForm.blur(name, value));
-
-        // call post-blur callback
         if (_reduxForm.asyncValidate) {
           _reduxForm.asyncValidate(name, value, 'blur');
         }
       };
 
-      _this.saveRef = function (ref) {
-        _this.ref = ref;
-      };
-
       _this.prepareEventHandlers(props);
+
       return _this;
     }
 
-    _createClass$6(ConnectedFields, [{
-      key: 'componentWillReceiveProps',
-      value: function componentWillReceiveProps(nextProps) {
-        var _this2 = this;
+    var _proto = ConnectedFields.prototype;
 
-        if (this.props.names !== nextProps.names && (size(this.props.names) !== size(nextProps.names) || nextProps.names.some(function (nextName) {
-          return !_this2.props._fields[nextName];
-        }))) {
-          // names has changed. The cached event handlers need to be updated
-          this.prepareEventHandlers(nextProps);
-        }
+    _proto.UNSAFE_componentWillReceiveProps = function UNSAFE_componentWillReceiveProps(nextProps) {
+      var _this2 = this;
+
+      if (this.props.names !== nextProps.names && (size(this.props.names) !== size(nextProps.names) || nextProps.names.some(function (nextName) {
+        return !_this2.props._fields[nextName];
+      }))) {
+        // names has changed. The cached event handlers need to be updated
+        this.prepareEventHandlers(nextProps);
       }
-    }, {
-      key: 'shouldComponentUpdate',
-      value: function shouldComponentUpdate(nextProps) {
-        var _this3 = this;
+    };
 
-        var nextPropsKeys = Object.keys(nextProps);
-        var thisPropsKeys = Object.keys(this.props);
-        // if we have children, we MUST update in React 16
-        // https://twitter.com/erikras/status/915866544558788608
-        return !!(this.props.children || nextProps.children || nextPropsKeys.length !== thisPropsKeys.length || nextPropsKeys.some(function (prop) {
-          return !~propsToNotUpdateFor$1.indexOf(prop) && !deepEqual(_this3.props[prop], nextProps[prop]);
-        }));
+    _proto.shouldComponentUpdate = function shouldComponentUpdate(nextProps) {
+      var _this3 = this;
+
+      var nextPropsKeys = Object.keys(nextProps);
+      var thisPropsKeys = Object.keys(this.props); // if we have children, we MUST update in React 16
+      // https://twitter.com/erikras/status/915866544558788608
+
+      return !!(this.props.children || nextProps.children || nextPropsKeys.length !== thisPropsKeys.length || nextPropsKeys.some(function (prop) {
+        return !~propsToNotUpdateFor$1.indexOf(prop) && !deepEqual(_this3.props[prop], nextProps[prop]);
+      }));
+    };
+
+    _proto.isDirty = function isDirty() {
+      var _fields = this.props._fields;
+      return Object.keys(_fields).some(function (name) {
+        return _fields[name].dirty;
+      });
+    };
+
+    _proto.getValues = function getValues() {
+      var _fields = this.props._fields;
+      return Object.keys(_fields).reduce(function (accumulator, name) {
+        return structure.setIn(accumulator, name, _fields[name].value);
+      }, {});
+    };
+
+    _proto.getRenderedComponent = function getRenderedComponent() {
+      return this.ref.current;
+    };
+
+    _proto.render = function render() {
+      var _this4 = this;
+
+      var _this$props4 = this.props,
+          component = _this$props4.component,
+          forwardRef = _this$props4.forwardRef,
+          _fields = _this$props4._fields,
+          _reduxForm = _this$props4._reduxForm,
+          rest = objectWithoutPropertiesLoose(_this$props4, ["component", "forwardRef", "_fields", "_reduxForm"]);
+
+      var sectionPrefix = _reduxForm.sectionPrefix,
+          form = _reduxForm.form;
+
+      var _Object$keys$reduce = Object.keys(_fields).reduce(function (accumulator, name) {
+        var connectedProps = _fields[name];
+
+        var _createFieldProps = createFieldProps(structure$$1, name, _extends_1({}, connectedProps, rest, {
+          form: form,
+          onBlur: _this4.onBlurFns[name],
+          onChange: _this4.onChangeFns[name],
+          onFocus: _this4.onFocusFns[name]
+        })),
+            custom = _createFieldProps.custom,
+            fieldProps = objectWithoutPropertiesLoose(_createFieldProps, ["custom"]);
+
+        accumulator.custom = custom;
+        var fieldName = sectionPrefix ? name.replace(sectionPrefix + ".", '') : name;
+        return structure.setIn(accumulator, fieldName, fieldProps);
+      }, {}),
+          custom = _Object$keys$reduce.custom,
+          props = objectWithoutPropertiesLoose(_Object$keys$reduce, ["custom"]);
+
+      if (forwardRef) {
+        props.ref = this.ref;
       }
-    }, {
-      key: 'isDirty',
-      value: function isDirty() {
-        var _fields = this.props._fields;
 
-        return Object.keys(_fields).some(function (name) {
-          return _fields[name].dirty;
-        });
-      }
-    }, {
-      key: 'getValues',
-      value: function getValues() {
-        var _fields = this.props._fields;
-
-        return Object.keys(_fields).reduce(function (accumulator, name) {
-          return structure.setIn(accumulator, name, _fields[name].value);
-        }, {});
-      }
-    }, {
-      key: 'getRenderedComponent',
-      value: function getRenderedComponent() {
-        return this.ref;
-      }
-    }, {
-      key: 'render',
-      value: function render() {
-        var _this4 = this;
-
-        var _props = this.props,
-            component = _props.component,
-            withRef = _props.withRef,
-            _fields = _props._fields,
-            _reduxForm = _props._reduxForm,
-            rest = _objectWithoutProperties$8(_props, ['component', 'withRef', '_fields', '_reduxForm']);
-
-        var sectionPrefix = _reduxForm.sectionPrefix,
-            form = _reduxForm.form;
-
-        var _Object$keys$reduce = Object.keys(_fields).reduce(function (accumulator, name) {
-          var connectedProps = _fields[name];
-
-          var _createFieldProps = createFieldProps(structure$$1, name, _extends$17({}, connectedProps, rest, {
-            form: form,
-            onBlur: _this4.onBlurFns[name],
-            onChange: _this4.onChangeFns[name],
-            onFocus: _this4.onFocusFns[name]
-          })),
-              custom = _createFieldProps.custom,
-              fieldProps = _objectWithoutProperties$8(_createFieldProps, ['custom']);
-
-          accumulator.custom = custom;
-          var fieldName = sectionPrefix ? name.replace(sectionPrefix + '.', '') : name;
-          return structure.setIn(accumulator, fieldName, fieldProps);
-        }, {}),
-            custom = _Object$keys$reduce.custom,
-            props = _objectWithoutProperties$8(_Object$keys$reduce, ['custom']);
-
-        if (withRef) {
-          props.ref = this.saveRef;
-        }
-
-        return React.createElement(component, _extends$17({}, props, custom));
-      }
-    }]);
+      return React__default.createElement(component, _extends_1({}, props, custom));
+    };
 
     return ConnectedFields;
-  }(React.Component);
+  }(React__default.Component);
 
   ConnectedFields.propTypes = {
-    component: propTypes.oneOfType([propTypes.func, propTypes.string, propTypes.node]).isRequired,
+    component: validateComponentProp,
     _fields: propTypes.object.isRequired,
     props: propTypes.object
   };
-
   var connector = connect(function (state, ownProps) {
     var names = ownProps.names,
         _ownProps$_reduxForm = ownProps._reduxForm,
         initialValues = _ownProps$_reduxForm.initialValues,
         getFormState = _ownProps$_reduxForm.getFormState;
-
     var formState = getFormState(state);
     return {
       _fields: names.reduce(function (accumulator, name) {
-        var initialState = getIn(formState, 'initial.' + name);
+        var initialState = getIn(formState, "initial." + name);
         var initial = initialState !== undefined ? initialState : initialValues && getIn(initialValues, name);
-        var value = getIn(formState, 'values.' + name);
+        var value = getIn(formState, "values." + name);
         var syncError = getSyncError(getIn(formState, 'syncErrors'), name);
         var syncWarning = getSyncWarning(getIn(formState, 'syncWarnings'), name);
         var submitting = getIn(formState, 'submitting');
         var pristine = value === initial;
         accumulator[name] = {
-          asyncError: getIn(formState, 'asyncErrors.' + name),
+          asyncError: getIn(formState, "asyncErrors." + name),
           asyncValidating: getIn(formState, 'asyncValidating') === name,
           dirty: !pristine,
           initial: initial,
           pristine: pristine,
-          state: getIn(formState, 'fields.' + name),
-          submitError: getIn(formState, 'submitErrors.' + name),
+          state: getIn(formState, "fields." + name),
+          submitError: getIn(formState, "submitErrors." + name),
           submitFailed: getIn(formState, 'submitFailed'),
           submitting: submitting,
           syncError: syncError,
           syncWarning: syncWarning,
           value: value,
-          _value: ownProps.value // save value passed in (for checkboxes)
+          _value: ownProps.value // save value passed in (for radios)
+
         };
         return accumulator;
       }, {})
     };
-  }, undefined, undefined, { withRef: true });
+  }, undefined, undefined, {
+    forwardRef: true
+  });
   return connector(ConnectedFields);
 };
-
-var _extends$18 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-var _createClass$7 = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck$19(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn$19(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits$19(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
 
 var validateNameProp = function validateNameProp(prop) {
   if (!prop) {
     return new Error('No "names" prop was specified <Fields/>');
   }
+
   if (!Array.isArray(prop) && !prop._isFieldArray) {
     return new Error('Invalid prop "names" supplied to <Fields/>. Must be either an array of strings or the fields array generated by FieldArray.');
   }
 };
 
+var warnAndValidatePropType = propTypes.oneOfType([propTypes.func, propTypes.arrayOf(propTypes.func), propTypes.objectOf(propTypes.oneOfType([propTypes.func, propTypes.arrayOf(propTypes.func)]))]);
+var fieldsPropTypes = {
+  component: validateComponentProp,
+  format: propTypes.func,
+  parse: propTypes.func,
+  props: propTypes.object,
+  forwardRef: propTypes.bool,
+  validate: warnAndValidatePropType,
+  warn: warnAndValidatePropType
+};
+
+var getFieldWarnAndValidate = function getFieldWarnAndValidate(prop, name) {
+  return Array.isArray(prop) || typeof prop === 'function' ? prop : get_1(prop, name, undefined);
+};
+
 var createFields = function createFields(structure$$1) {
   var ConnectedFields = createConnectedFields(structure$$1);
 
-  var Fields = function (_Component) {
-    _inherits$19(Fields, _Component);
+  var Fields =
+  /*#__PURE__*/
+  function (_Component) {
+    inheritsLoose(Fields, _Component);
 
-    function Fields(props, context) {
-      _classCallCheck$19(this, Fields);
+    function Fields(props) {
+      var _this;
 
-      var _this = _possibleConstructorReturn$19(this, (Fields.__proto__ || Object.getPrototypeOf(Fields)).call(this, props, context));
+      _this = _Component.call(this, props) || this;
 
-      if (!context._reduxForm) {
+      if (!props._reduxForm) {
         throw new Error('Fields must be inside a component decorated with reduxForm()');
       }
+
       var error = validateNameProp(props.names);
+
       if (error) {
         throw error;
       }
+
       return _this;
     }
 
-    _createClass$7(Fields, [{
-      key: 'shouldComponentUpdate',
-      value: function shouldComponentUpdate(nextProps) {
-        return shallowCompare(this, nextProps);
-      }
-    }, {
-      key: 'componentDidMount',
-      value: function componentDidMount() {
-        var context = this.context;
-        var register = context._reduxForm.register;
+    var _proto = Fields.prototype;
 
-        this.names.forEach(function (name) {
-          return register(name, 'Field');
-        });
-      }
-    }, {
-      key: 'componentWillReceiveProps',
-      value: function componentWillReceiveProps(nextProps) {
-        if (!structure.deepEqual(this.props.names, nextProps.names)) {
-          var context = this.context;
-          var _context$_reduxForm = context._reduxForm,
-              register = _context$_reduxForm.register,
-              unregister = _context$_reduxForm.unregister;
-          // unregister old name
+    _proto.shouldComponentUpdate = function shouldComponentUpdate(nextProps) {
+      return shallowCompare(this, nextProps);
+    };
 
-          this.props.names.forEach(function (name) {
-            return unregister(formatName(context, name));
-          });
-          // register new name
-          nextProps.names.forEach(function (name) {
-            return register(formatName(context, name), 'Field');
-          });
-        }
-      }
-    }, {
-      key: 'componentWillUnmount',
-      value: function componentWillUnmount() {
-        var context = this.context;
-        var unregister = context._reduxForm.unregister;
+    _proto.componentDidMount = function componentDidMount() {
+      this.registerFields(this.props.names);
+    };
+
+    _proto.UNSAFE_componentWillReceiveProps = function UNSAFE_componentWillReceiveProps(nextProps) {
+      if (!structure.deepEqual(this.props.names, nextProps.names)) {
+        var props = this.props;
+        var unregister = props._reduxForm.unregister; // unregister old name
 
         this.props.names.forEach(function (name) {
-          return unregister(formatName(context, name));
+          return unregister(formatName(props, name));
+        }); // register new name
+
+        this.registerFields(nextProps.names);
+      }
+    };
+
+    _proto.componentWillUnmount = function componentWillUnmount() {
+      var props = this.props;
+      var unregister = props._reduxForm.unregister;
+      this.props.names.forEach(function (name) {
+        return unregister(formatName(props, name));
+      });
+    };
+
+    _proto.registerFields = function registerFields(names) {
+      var _this2 = this;
+
+      var props = this.props;
+      var register = props._reduxForm.register;
+      names.forEach(function (name) {
+        return register(formatName(props, name), 'Field', function () {
+          return getFieldWarnAndValidate(_this2.props.validate, name);
+        }, function () {
+          return getFieldWarnAndValidate(_this2.props.warn, name);
         });
-      }
-    }, {
-      key: 'getRenderedComponent',
-      value: function getRenderedComponent() {
-        invariant_1(this.props.withRef, 'If you want to access getRenderedComponent(), ' + 'you must specify a withRef prop to Fields');
-        return this.refs.connected.getWrappedInstance().getRenderedComponent();
-      }
-    }, {
-      key: 'render',
-      value: function render() {
-        var context = this.context;
+      });
+    };
 
-        return React.createElement(ConnectedFields, _extends$18({}, this.props, {
-          names: this.props.names.map(function (name) {
-            return formatName(context, name);
-          }),
-          _reduxForm: this.context._reduxForm,
-          ref: 'connected'
-        }));
-      }
-    }, {
-      key: 'names',
+    _proto.getRenderedComponent = function getRenderedComponent() {
+      invariant_1(this.props.forwardRef, 'If you want to access getRenderedComponent(), ' + 'you must specify a forwardRef prop to Fields');
+      return this.refs.connected.getRenderedComponent();
+    };
+
+    _proto.render = function render() {
+      var props = this.props;
+      return React.createElement(ConnectedFields, _extends_1({}, this.props, {
+        names: this.props.names.map(function (name) {
+          return formatName(props, name);
+        }),
+        ref: 'connected'
+      }));
+    };
+
+    createClass$1(Fields, [{
+      key: "names",
       get: function get() {
-        var context = this.context;
-
+        var props = this.props;
         return this.props.names.map(function (name) {
-          return formatName(context, name);
+          return formatName(props, name);
         });
       }
     }, {
-      key: 'dirty',
+      key: "dirty",
       get: function get() {
-        return this.refs.connected.getWrappedInstance().isDirty();
+        return this.refs.connected.isDirty();
       }
     }, {
-      key: 'pristine',
+      key: "pristine",
       get: function get() {
         return !this.dirty;
       }
     }, {
-      key: 'values',
+      key: "values",
       get: function get() {
-        return this.refs.connected && this.refs.connected.getWrappedInstance().getValues();
+        return this.refs.connected && this.refs.connected.getValues();
       }
     }]);
 
     return Fields;
   }(React.Component);
 
-  Fields.propTypes = {
+  Fields.propTypes = _extends_1({
     names: function names(props, propName) {
       return validateNameProp(props[propName]);
-    },
-    component: propTypes.oneOfType([propTypes.func, propTypes.string, propTypes.node]).isRequired,
-    format: propTypes.func,
-    parse: propTypes.func,
-    props: propTypes.object,
-    withRef: propTypes.bool
-  };
-  Fields.contextTypes = {
-    _reduxForm: propTypes.object
-  };
-
+    }
+  }, fieldsPropTypes);
   polyfill(Fields);
-  return Fields;
+  return withReduxForm(Fields);
 };
 
 createFields(structure);
 
 var defineProperty$3 = (function() {
   try {
-    var func = getNative(Object, 'defineProperty');
+    var func = _getNative(Object, 'defineProperty');
     func({}, '', {});
     return func;
   } catch (e) {}
 }());
+
+var _defineProperty$3 = defineProperty$3;
 
 /**
  * The base implementation of `assignValue` and `assignMergeValue` without
@@ -21195,8 +22234,8 @@ var defineProperty$3 = (function() {
  * @param {*} value The value to assign.
  */
 function baseAssignValue(object, key, value) {
-  if (key == '__proto__' && defineProperty$3) {
-    defineProperty$3(object, key, {
+  if (key == '__proto__' && _defineProperty$3) {
+    _defineProperty$3(object, key, {
       'configurable': true,
       'enumerable': true,
       'value': value,
@@ -21206,6 +22245,8 @@ function baseAssignValue(object, key, value) {
     object[key] = value;
   }
 }
+
+var _baseAssignValue = baseAssignValue;
 
 /**
  * Creates a base function for methods like `_.forIn` and `_.forOwn`.
@@ -21231,6 +22272,8 @@ function createBaseFor(fromRight) {
   };
 }
 
+var _createBaseFor = createBaseFor;
+
 /**
  * The base implementation of `baseForOwn` which iterates over `object`
  * properties returned by `keysFunc` and invokes `iteratee` for each property.
@@ -21242,7 +22285,9 @@ function createBaseFor(fromRight) {
  * @param {Function} keysFunc The function to get the keys of `object`.
  * @returns {Object} Returns `object`.
  */
-var baseFor = createBaseFor();
+var baseFor = _createBaseFor();
+
+var _baseFor = baseFor;
 
 /**
  * The base implementation of `_.forOwn` without support for iteratee shorthands.
@@ -21253,8 +22298,10 @@ var baseFor = createBaseFor();
  * @returns {Object} Returns `object`.
  */
 function baseForOwn(object, iteratee) {
-  return object && baseFor(object, iteratee, keys$1);
+  return object && _baseFor(object, iteratee, keys_1);
 }
+
+var _baseForOwn = baseForOwn;
 
 /** Used to compose bitmasks for value comparisons. */
 var COMPARE_PARTIAL_FLAG$4 = 1,
@@ -21299,12 +22346,12 @@ function baseIsMatch(object, source, matchData, customizer) {
         return false;
       }
     } else {
-      var stack = new Stack;
+      var stack = new _Stack;
       if (customizer) {
         var result = customizer(objValue, srcValue, key, object, source, stack);
       }
       if (!(result === undefined
-            ? baseIsEqual(srcValue, objValue, COMPARE_PARTIAL_FLAG$4 | COMPARE_UNORDERED_FLAG$2, customizer, stack)
+            ? _baseIsEqual(srcValue, objValue, COMPARE_PARTIAL_FLAG$4 | COMPARE_UNORDERED_FLAG$2, customizer, stack)
             : result
           )) {
         return false;
@@ -21313,6 +22360,8 @@ function baseIsMatch(object, source, matchData, customizer) {
   }
   return true;
 }
+
+var _baseIsMatch = baseIsMatch;
 
 /**
  * Checks if `value` is suitable for strict equality comparisons, i.e. `===`.
@@ -21323,8 +22372,10 @@ function baseIsMatch(object, source, matchData, customizer) {
  *  equality comparisons, else `false`.
  */
 function isStrictComparable(value) {
-  return value === value && !isObject$2(value);
+  return value === value && !isObject_1(value);
 }
+
+var _isStrictComparable = isStrictComparable;
 
 /**
  * Gets the property names, values, and compare flags of `object`.
@@ -21334,17 +22385,19 @@ function isStrictComparable(value) {
  * @returns {Array} Returns the match data of `object`.
  */
 function getMatchData(object) {
-  var result = keys$1(object),
+  var result = keys_1(object),
       length = result.length;
 
   while (length--) {
     var key = result[length],
         value = object[key];
 
-    result[length] = [key, value, isStrictComparable(value)];
+    result[length] = [key, value, _isStrictComparable(value)];
   }
   return result;
 }
+
+var _getMatchData = getMatchData;
 
 /**
  * A specialized version of `matchesProperty` for source values suitable
@@ -21365,6 +22418,8 @@ function matchesStrictComparable(key, srcValue) {
   };
 }
 
+var _matchesStrictComparable = matchesStrictComparable;
+
 /**
  * The base implementation of `_.matches` which doesn't clone `source`.
  *
@@ -21373,104 +22428,16 @@ function matchesStrictComparable(key, srcValue) {
  * @returns {Function} Returns the new spec function.
  */
 function baseMatches(source) {
-  var matchData = getMatchData(source);
+  var matchData = _getMatchData(source);
   if (matchData.length == 1 && matchData[0][2]) {
-    return matchesStrictComparable(matchData[0][0], matchData[0][1]);
+    return _matchesStrictComparable(matchData[0][0], matchData[0][1]);
   }
   return function(object) {
-    return object === source || baseIsMatch(object, source, matchData);
+    return object === source || _baseIsMatch(object, source, matchData);
   };
 }
 
-/** Used to match property names within property paths. */
-var reIsDeepProp = /\.|\[(?:[^[\]]*|(["'])(?:(?!\1)[^\\]|\\.)*?\1)\]/,
-    reIsPlainProp = /^\w*$/;
-
-/**
- * Checks if `value` is a property name and not a property path.
- *
- * @private
- * @param {*} value The value to check.
- * @param {Object} [object] The object to query keys on.
- * @returns {boolean} Returns `true` if `value` is a property name, else `false`.
- */
-function isKey(value, object) {
-  if (isArray$2(value)) {
-    return false;
-  }
-  var type = typeof value;
-  if (type == 'number' || type == 'symbol' || type == 'boolean' ||
-      value == null || isSymbol$1(value)) {
-    return true;
-  }
-  return reIsPlainProp.test(value) || !reIsDeepProp.test(value) ||
-    (object != null && value in Object(object));
-}
-
-/**
- * Casts `value` to a path array if it's not one.
- *
- * @private
- * @param {*} value The value to inspect.
- * @param {Object} [object] The object to query keys on.
- * @returns {Array} Returns the cast property path array.
- */
-function castPath(value, object) {
-  if (isArray$2(value)) {
-    return value;
-  }
-  return isKey(value, object) ? [value] : stringToPath(toString$1(value));
-}
-
-/**
- * The base implementation of `_.get` without support for default values.
- *
- * @private
- * @param {Object} object The object to query.
- * @param {Array|string} path The path of the property to get.
- * @returns {*} Returns the resolved value.
- */
-function baseGet(object, path) {
-  path = castPath(path, object);
-
-  var index = 0,
-      length = path.length;
-
-  while (object != null && index < length) {
-    object = object[toKey(path[index++])];
-  }
-  return (index && index == length) ? object : undefined;
-}
-
-/**
- * Gets the value at `path` of `object`. If the resolved value is
- * `undefined`, the `defaultValue` is returned in its place.
- *
- * @static
- * @memberOf _
- * @since 3.7.0
- * @category Object
- * @param {Object} object The object to query.
- * @param {Array|string} path The path of the property to get.
- * @param {*} [defaultValue] The value returned for `undefined` resolved values.
- * @returns {*} Returns the resolved value.
- * @example
- *
- * var object = { 'a': [{ 'b': { 'c': 3 } }] };
- *
- * _.get(object, 'a[0].b.c');
- * // => 3
- *
- * _.get(object, ['a', '0', 'b', 'c']);
- * // => 3
- *
- * _.get(object, 'a.b.c', 'default');
- * // => 'default'
- */
-function get$3(object, path, defaultValue) {
-  var result = object == null ? undefined : baseGet(object, path);
-  return result === undefined ? defaultValue : result;
-}
+var _baseMatches = baseMatches;
 
 /**
  * The base implementation of `_.hasIn` without support for deep paths.
@@ -21484,6 +22451,8 @@ function baseHasIn(object, key) {
   return object != null && key in Object(object);
 }
 
+var _baseHasIn = baseHasIn;
+
 /**
  * Checks if `path` exists on `object`.
  *
@@ -21494,14 +22463,14 @@ function baseHasIn(object, key) {
  * @returns {boolean} Returns `true` if `path` exists, else `false`.
  */
 function hasPath(object, path, hasFunc) {
-  path = castPath(path, object);
+  path = _castPath(path, object);
 
   var index = -1,
       length = path.length,
       result = false;
 
   while (++index < length) {
-    var key = toKey(path[index]);
+    var key = _toKey(path[index]);
     if (!(result = object != null && hasFunc(object, key))) {
       break;
     }
@@ -21511,9 +22480,11 @@ function hasPath(object, path, hasFunc) {
     return result;
   }
   length = object == null ? 0 : object.length;
-  return !!length && isLength(length) && isIndex(key, length) &&
-    (isArray$2(object) || isArguments(object));
+  return !!length && isLength_1(length) && _isIndex(key, length) &&
+    (isArray_1(object) || isArguments_1(object));
 }
+
+var _hasPath = hasPath;
 
 /**
  * Checks if `path` is a direct or inherited property of `object`.
@@ -21542,8 +22513,10 @@ function hasPath(object, path, hasFunc) {
  * // => false
  */
 function hasIn(object, path) {
-  return object != null && hasPath(object, path, baseHasIn);
+  return object != null && _hasPath(object, path, _baseHasIn);
 }
+
+var hasIn_1 = hasIn;
 
 /** Used to compose bitmasks for value comparisons. */
 var COMPARE_PARTIAL_FLAG$5 = 1,
@@ -21558,16 +22531,18 @@ var COMPARE_PARTIAL_FLAG$5 = 1,
  * @returns {Function} Returns the new spec function.
  */
 function baseMatchesProperty(path, srcValue) {
-  if (isKey(path) && isStrictComparable(srcValue)) {
-    return matchesStrictComparable(toKey(path), srcValue);
+  if (_isKey(path) && _isStrictComparable(srcValue)) {
+    return _matchesStrictComparable(_toKey(path), srcValue);
   }
   return function(object) {
-    var objValue = get$3(object, path);
+    var objValue = get_1(object, path);
     return (objValue === undefined && objValue === srcValue)
-      ? hasIn(object, path)
-      : baseIsEqual(srcValue, objValue, COMPARE_PARTIAL_FLAG$5 | COMPARE_UNORDERED_FLAG$3);
+      ? hasIn_1(object, path)
+      : _baseIsEqual(srcValue, objValue, COMPARE_PARTIAL_FLAG$5 | COMPARE_UNORDERED_FLAG$3);
   };
 }
+
+var _baseMatchesProperty = baseMatchesProperty;
 
 /**
  * This method returns the first argument it receives.
@@ -21589,6 +22564,8 @@ function identity(value) {
   return value;
 }
 
+var identity_1 = identity;
+
 /**
  * The base implementation of `_.property` without support for deep paths.
  *
@@ -21602,6 +22579,8 @@ function baseProperty(key) {
   };
 }
 
+var _baseProperty = baseProperty;
+
 /**
  * A specialized version of `baseProperty` which supports deep paths.
  *
@@ -21611,9 +22590,11 @@ function baseProperty(key) {
  */
 function basePropertyDeep(path) {
   return function(object) {
-    return baseGet(object, path);
+    return _baseGet(object, path);
   };
 }
+
+var _basePropertyDeep = basePropertyDeep;
 
 /**
  * Creates a function that returns the value at `path` of a given object.
@@ -21638,8 +22619,10 @@ function basePropertyDeep(path) {
  * // => [1, 2]
  */
 function property(path) {
-  return isKey(path) ? baseProperty(toKey(path)) : basePropertyDeep(path);
+  return _isKey(path) ? _baseProperty(_toKey(path)) : _basePropertyDeep(path);
 }
+
+var property_1 = property;
 
 /**
  * The base implementation of `_.iteratee`.
@@ -21655,15 +22638,17 @@ function baseIteratee(value) {
     return value;
   }
   if (value == null) {
-    return identity;
+    return identity_1;
   }
   if (typeof value == 'object') {
-    return isArray$2(value)
-      ? baseMatchesProperty(value[0], value[1])
-      : baseMatches(value);
+    return isArray_1(value)
+      ? _baseMatchesProperty(value[0], value[1])
+      : _baseMatches(value);
   }
-  return property(value);
+  return property_1(value);
 }
+
+var _baseIteratee = baseIteratee;
 
 /**
  * Creates an object with the same keys as `object` and values generated
@@ -21695,54 +22680,53 @@ function baseIteratee(value) {
  */
 function mapValues(object, iteratee) {
   var result = {};
-  iteratee = baseIteratee(iteratee, 3);
+  iteratee = _baseIteratee(iteratee, 3);
 
-  baseForOwn(object, function(value, key, object) {
-    baseAssignValue(result, key, iteratee(value, key, object));
+  _baseForOwn(object, function(value, key, object) {
+    _baseAssignValue(result, key, iteratee(value, key, object));
   });
   return result;
 }
 
-var _extends$19 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var mapValues_1 = mapValues;
 
-function _objectWithoutProperties$9(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
+var createFieldArrayProps = function createFieldArrayProps(_ref, name, form, sectionPrefix, getValue, _ref2) {
+  var getIn = _ref.getIn;
 
-var createFieldArrayProps = function createFieldArrayProps(_ref2, name, form, sectionPrefix, getValue, _ref) {
-  var getIn = _ref2.getIn;
-
-  var arrayInsert = _ref.arrayInsert,
-      arrayMove = _ref.arrayMove,
-      arrayPop = _ref.arrayPop,
-      arrayPush = _ref.arrayPush,
-      arrayRemove = _ref.arrayRemove,
-      arrayRemoveAll = _ref.arrayRemoveAll,
-      arrayShift = _ref.arrayShift,
-      arraySplice = _ref.arraySplice,
-      arraySwap = _ref.arraySwap,
-      arrayUnshift = _ref.arrayUnshift,
-      asyncError = _ref.asyncError,
-      dirty = _ref.dirty,
-      length = _ref.length,
-      pristine = _ref.pristine,
-      submitError = _ref.submitError,
-      state = _ref.state,
-      submitFailed = _ref.submitFailed,
-      submitting = _ref.submitting,
-      syncError = _ref.syncError,
-      syncWarning = _ref.syncWarning,
-      value = _ref.value,
-      props = _ref.props,
-      rest = _objectWithoutProperties$9(_ref, ['arrayInsert', 'arrayMove', 'arrayPop', 'arrayPush', 'arrayRemove', 'arrayRemoveAll', 'arrayShift', 'arraySplice', 'arraySwap', 'arrayUnshift', 'asyncError', 'dirty', 'length', 'pristine', 'submitError', 'state', 'submitFailed', 'submitting', 'syncError', 'syncWarning', 'value', 'props']);
+  var arrayInsert = _ref2.arrayInsert,
+      arrayMove = _ref2.arrayMove,
+      arrayPop = _ref2.arrayPop,
+      arrayPush = _ref2.arrayPush,
+      arrayRemove = _ref2.arrayRemove,
+      arrayRemoveAll = _ref2.arrayRemoveAll,
+      arrayShift = _ref2.arrayShift,
+      arraySplice = _ref2.arraySplice,
+      arraySwap = _ref2.arraySwap,
+      arrayUnshift = _ref2.arrayUnshift,
+      asyncError = _ref2.asyncError,
+      dirty = _ref2.dirty,
+      length = _ref2.length,
+      pristine = _ref2.pristine,
+      submitError = _ref2.submitError,
+      state = _ref2.state,
+      submitFailed = _ref2.submitFailed,
+      submitting = _ref2.submitting,
+      syncError = _ref2.syncError,
+      syncWarning = _ref2.syncWarning,
+      value = _ref2.value,
+      props = _ref2.props,
+      rest = objectWithoutPropertiesLoose(_ref2, ["arrayInsert", "arrayMove", "arrayPop", "arrayPush", "arrayRemove", "arrayRemoveAll", "arrayShift", "arraySplice", "arraySwap", "arrayUnshift", "asyncError", "dirty", "length", "pristine", "submitError", "state", "submitFailed", "submitting", "syncError", "syncWarning", "value", "props"]);
 
   var error = syncError || asyncError || submitError;
   var warning = syncWarning;
-  var fieldName = sectionPrefix ? name.replace(sectionPrefix + '.', '') : name;
-  var finalProps = _extends$19({
+  var fieldName = sectionPrefix ? name.replace(sectionPrefix + ".", '') : name;
+
+  var finalProps = _extends_1({
     fields: {
       _isFieldArray: true,
       forEach: function forEach(callback) {
         return (value || []).forEach(function (item, index) {
-          return callback(fieldName + '[' + index + ']', index, finalProps.fields);
+          return callback(fieldName + "[" + index + "]", index, finalProps.fields);
         });
       },
       get: getValue,
@@ -21753,7 +22737,7 @@ var createFieldArrayProps = function createFieldArrayProps(_ref2, name, form, se
       length: length,
       map: function map(callback) {
         return (value || []).map(function (item, index) {
-          return callback(fieldName + '[' + index + ']', index, finalProps.fields);
+          return callback(fieldName + "[" + index + "]", index, finalProps.fields);
         });
       },
       move: arrayMove,
@@ -21765,7 +22749,7 @@ var createFieldArrayProps = function createFieldArrayProps(_ref2, name, form, se
       push: arrayPush,
       reduce: function reduce(callback, initial) {
         return (value || []).reduce(function (accumulator, item, index) {
-          return callback(accumulator, fieldName + '[' + index + ']', index, finalProps.fields);
+          return callback(accumulator, fieldName + "[" + index + "]", index, finalProps.fields);
         }, initial);
       },
       remove: arrayRemove,
@@ -21790,133 +22774,127 @@ var createFieldArrayProps = function createFieldArrayProps(_ref2, name, form, se
       valid: !error
     }
   }, props, rest);
+
   return finalProps;
 };
-
-var _createClass$8 = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _objectWithoutProperties$10(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
-
-function _classCallCheck$20(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn$20(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits$20(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
 
 var propsToNotUpdateFor$2 = ['_reduxForm', 'value'];
 
 var createConnectedFieldArray = function createConnectedFieldArray(structure$$1) {
   var deepEqual = structure$$1.deepEqual,
       getIn = structure$$1.getIn,
-      size = structure$$1.size;
+      size = structure$$1.size,
+      equals = structure$$1.equals,
+      orderChanged = structure$$1.orderChanged;
 
   var getSyncError = function getSyncError(syncErrors, name) {
     // For an array, the error can _ONLY_ be under _error.
     // This is why this getSyncError is not the same as the
     // one in Field.
-    return structure.getIn(syncErrors, name + '._error');
+    return structure.getIn(syncErrors, name + "._error");
   };
 
   var getSyncWarning = function getSyncWarning(syncWarnings, name) {
     // For an array, the warning can _ONLY_ be under _warning.
     // This is why this getSyncError is not the same as the
     // one in Field.
-    return getIn(syncWarnings, name + '._warning');
+    return getIn(syncWarnings, name + "._warning");
   };
 
-  var ConnectedFieldArray = function (_React$Component) {
-    _inherits$20(ConnectedFieldArray, _React$Component);
+  var ConnectedFieldArray =
+  /*#__PURE__*/
+  function (_Component) {
+    inheritsLoose(ConnectedFieldArray, _Component);
 
     function ConnectedFieldArray() {
-      var _ref;
+      var _this;
 
-      var _temp, _this, _ret;
-
-      _classCallCheck$20(this, ConnectedFieldArray);
-
-      for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+      for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
         args[_key] = arguments[_key];
       }
 
-      return _ret = (_temp = (_this = _possibleConstructorReturn$20(this, (_ref = ConnectedFieldArray.__proto__ || Object.getPrototypeOf(ConnectedFieldArray)).call.apply(_ref, [this].concat(args))), _this), _this.saveRef = function (ref) {
-        _this.ref = ref;
-      }, _this.getValue = function (index) {
+      _this = _Component.call.apply(_Component, [this].concat(args)) || this;
+      _this.ref = React__default.createRef();
+
+      _this.getValue = function (index) {
         return _this.props.value && getIn(_this.props.value, String(index));
-      }, _temp), _possibleConstructorReturn$20(_this, _ret);
+      };
+
+      return _this;
     }
 
-    _createClass$8(ConnectedFieldArray, [{
-      key: 'shouldComponentUpdate',
-      value: function shouldComponentUpdate(nextProps) {
-        var _this2 = this;
+    var _proto = ConnectedFieldArray.prototype;
 
-        // Update if the elements of the value array was updated.
-        var thisValue = this.props.value;
-        var nextValue = nextProps.value;
+    _proto.shouldComponentUpdate = function shouldComponentUpdate(nextProps) {
+      var _this2 = this;
 
-        if (thisValue && nextValue) {
-          var nextValueItemsSame = nextValue.every(function (val) {
-            return ~thisValue.indexOf(val);
-          });
-          var nextValueItemsOrderChanged = nextValue.some(function (val, index) {
-            return val !== thisValue[index];
-          });
-          if (thisValue.length !== nextValue.length || nextValueItemsSame && nextValueItemsOrderChanged || nextProps.rerenderOnEveryChange && thisValue.some(function (val, index) {
-            return !deepEqual(val, nextValue[index]);
-          })) {
-            return true;
-          }
+      // Update if the elements of the value array was updated.
+      var thisValue = this.props.value;
+      var nextValue = nextProps.value;
+
+      if (thisValue && nextValue) {
+        var nextValueItemsSame = equals(nextValue, thisValue); //.every(val => ~thisValue.indexOf(val))
+
+        var nextValueItemsOrderChanged = orderChanged(thisValue, nextValue);
+        var thisValueLength = thisValue.length || thisValue.size;
+        var nextValueLength = nextValue.length || nextValue.size;
+
+        if (thisValueLength !== nextValueLength || nextValueItemsSame && nextValueItemsOrderChanged || nextProps.rerenderOnEveryChange && thisValue.some(function (val, index) {
+          return !deepEqual(val, nextValue[index]);
+        })) {
+          return true;
         }
+      }
 
-        var nextPropsKeys = Object.keys(nextProps);
-        var thisPropsKeys = Object.keys(this.props);
-        // if we have children, we MUST update in React 16
-        // https://twitter.com/erikras/status/915866544558788608
-        return !!(this.props.children || nextProps.children || nextPropsKeys.length !== thisPropsKeys.length || nextPropsKeys.some(function (prop) {
-          // useful to debug rerenders
-          // if (!plain.deepEqual(this.props[ prop ], nextProps[ prop ])) {
-          //   console.info(prop, 'changed', this.props[ prop ], '==>', nextProps[ prop ])
-          // }
-          return !~propsToNotUpdateFor$2.indexOf(prop) && !deepEqual(_this2.props[prop], nextProps[prop]);
-        }));
-      }
-    }, {
-      key: 'getRenderedComponent',
-      value: function getRenderedComponent() {
-        return this.ref;
-      }
-    }, {
-      key: 'render',
-      value: function render() {
-        var _props = this.props,
-            component = _props.component,
-            withRef = _props.withRef,
-            name = _props.name,
-            _reduxForm = _props._reduxForm,
-            validate = _props.validate,
-            warn = _props.warn,
-            rerenderOnEveryChange = _props.rerenderOnEveryChange,
-            rest = _objectWithoutProperties$10(_props, ['component', 'withRef', 'name', '_reduxForm', 'validate', 'warn', 'rerenderOnEveryChange']);
+      var nextPropsKeys = Object.keys(nextProps);
+      var thisPropsKeys = Object.keys(this.props); // if we have children, we MUST update in React 16
+      // https://twitter.com/erikras/status/915866544558788608
 
-        var props = createFieldArrayProps(structure$$1, name, _reduxForm.form, _reduxForm.sectionPrefix, this.getValue, rest);
-        if (withRef) {
-          props.ref = this.saveRef;
-        }
-        return React.createElement(component, props);
+      return !!(this.props.children || nextProps.children || nextPropsKeys.length !== thisPropsKeys.length || nextPropsKeys.some(function (prop) {
+        // useful to debug rerenders
+        // if (!plain.deepEqual(this.props[ prop ], nextProps[ prop ])) {
+        //   console.info(prop, 'changed', this.props[ prop ], '==>', nextProps[ prop ])
+        // }
+        return !~propsToNotUpdateFor$2.indexOf(prop) && !deepEqual(_this2.props[prop], nextProps[prop]);
+      }));
+    };
+
+    _proto.getRenderedComponent = function getRenderedComponent() {
+      return this.ref.current;
+    };
+
+    _proto.render = function render() {
+      var _this$props = this.props,
+          component = _this$props.component,
+          forwardRef = _this$props.forwardRef,
+          name = _this$props.name,
+          _reduxForm = _this$props._reduxForm,
+          validate = _this$props.validate,
+          warn = _this$props.warn,
+          rerenderOnEveryChange = _this$props.rerenderOnEveryChange,
+          rest = objectWithoutPropertiesLoose(_this$props, ["component", "forwardRef", "name", "_reduxForm", "validate", "warn", "rerenderOnEveryChange"]);
+
+      var props = createFieldArrayProps(structure$$1, name, _reduxForm.form, _reduxForm.sectionPrefix, this.getValue, rest);
+
+      if (forwardRef) {
+        props.ref = this.ref;
       }
-    }, {
-      key: 'dirty',
+
+      return React.createElement(component, props);
+    };
+
+    createClass$1(ConnectedFieldArray, [{
+      key: "dirty",
       get: function get() {
         return this.props.dirty;
       }
     }, {
-      key: 'pristine',
+      key: "pristine",
       get: function get() {
         return this.props.pristine;
       }
     }, {
-      key: 'value',
+      key: "value",
       get: function get() {
         return this.props.value;
       }
@@ -21926,38 +22904,31 @@ var createConnectedFieldArray = function createConnectedFieldArray(structure$$1)
   }(React.Component);
 
   ConnectedFieldArray.propTypes = {
-    component: propTypes.oneOfType([propTypes.func, propTypes.string, propTypes.node]).isRequired,
+    component: validateComponentProp,
     props: propTypes.object,
     rerenderOnEveryChange: propTypes.bool
   };
-
   ConnectedFieldArray.defaultProps = {
     rerenderOnEveryChange: false
   };
-
-  ConnectedFieldArray.contextTypes = {
-    _reduxForm: propTypes.object
-  };
-
   var connector = connect(function (state, ownProps) {
     var name = ownProps.name,
         _ownProps$_reduxForm = ownProps._reduxForm,
         initialValues = _ownProps$_reduxForm.initialValues,
         getFormState = _ownProps$_reduxForm.getFormState;
-
     var formState = getFormState(state);
-    var initial = getIn(formState, 'initial.' + name) || initialValues && getIn(initialValues, name);
-    var value = getIn(formState, 'values.' + name);
+    var initial = getIn(formState, "initial." + name) || initialValues && getIn(initialValues, name);
+    var value = getIn(formState, "values." + name);
     var submitting = getIn(formState, 'submitting');
     var syncError = getSyncError(getIn(formState, 'syncErrors'), name);
     var syncWarning = getSyncWarning(getIn(formState, 'syncWarnings'), name);
     var pristine = deepEqual(value, initial);
     return {
-      asyncError: getIn(formState, 'asyncErrors.' + name + '._error'),
+      asyncError: getIn(formState, "asyncErrors." + name + "._error"),
       dirty: !pristine,
       pristine: pristine,
-      state: getIn(formState, 'fields.' + name),
-      submitError: getIn(formState, 'submitErrors.' + name + '._error'),
+      state: getIn(formState, "fields." + name),
+      submitError: getIn(formState, "submitErrors." + name + "._error"),
       submitFailed: getIn(formState, 'submitFailed'),
       submitting: submitting,
       syncError: syncError,
@@ -21978,8 +22949,7 @@ var createConnectedFieldArray = function createConnectedFieldArray(structure$$1)
         arraySplice = _reduxForm.arraySplice,
         arraySwap = _reduxForm.arraySwap,
         arrayUnshift = _reduxForm.arrayUnshift;
-
-    return mapValues({
+    return mapValues_1({
       arrayInsert: arrayInsert,
       arrayMove: arrayMove,
       arrayPop: arrayPop,
@@ -21993,22 +22963,11 @@ var createConnectedFieldArray = function createConnectedFieldArray(structure$$1)
     }, function (actionCreator) {
       return bindActionCreators(actionCreator.bind(null, name), dispatch);
     });
-  }, undefined, { withRef: true });
+  }, undefined, {
+    forwardRef: true
+  });
   return connector(ConnectedFieldArray);
 };
-
-var _extends$20 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-var _createClass$9 = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck$21(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn$21(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits$21(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-function _defineProperty$4(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
 
 var toArray$1 = function toArray(value) {
   return Array.isArray(value) ? value : [value];
@@ -22017,10 +22976,14 @@ var toArray$1 = function toArray(value) {
 var wrapError = function wrapError(fn, key) {
   return fn && function () {
     var validators = toArray$1(fn);
+
     for (var i = 0; i < validators.length; i++) {
       var result = validators[i].apply(validators, arguments);
+
       if (result) {
-        return _defineProperty$4({}, key, result);
+        var _ref;
+
+        return _ref = {}, _ref[key] = result, _ref;
       }
     }
   };
@@ -22029,87 +22992,84 @@ var wrapError = function wrapError(fn, key) {
 var createFieldArray = function createFieldArray(structure) {
   var ConnectedFieldArray = createConnectedFieldArray(structure);
 
-  var FieldArray = function (_Component) {
-    _inherits$21(FieldArray, _Component);
+  var FieldArray =
+  /*#__PURE__*/
+  function (_Component) {
+    inheritsLoose(FieldArray, _Component);
 
-    function FieldArray(props, context) {
-      _classCallCheck$21(this, FieldArray);
+    function FieldArray(props) {
+      var _this;
 
-      var _this = _possibleConstructorReturn$21(this, (FieldArray.__proto__ || Object.getPrototypeOf(FieldArray)).call(this, props, context));
+      _this = _Component.call(this, props) || this;
+      _this.ref = React__default.createRef();
 
-      _this.saveRef = function (ref) {
-        _this.ref = ref;
-      };
-
-      if (!context._reduxForm) {
+      if (!props._reduxForm) {
         throw new Error('FieldArray must be inside a component decorated with reduxForm()');
       }
+
       return _this;
     }
 
-    _createClass$9(FieldArray, [{
-      key: 'componentDidMount',
-      value: function componentDidMount() {
-        var _this2 = this;
+    var _proto = FieldArray.prototype;
 
-        this.context._reduxForm.register(this.name, 'FieldArray', function () {
-          return wrapError(_this2.props.validate, '_error');
-        }, function () {
-          return wrapError(_this2.props.warn, '_warning');
-        });
-      }
-    }, {
-      key: 'componentWillReceiveProps',
-      value: function componentWillReceiveProps(nextProps, nextContext) {
-        var oldName = formatName(this.context, this.props.name);
-        var newName = formatName(nextContext, nextProps.name);
+    _proto.componentDidMount = function componentDidMount() {
+      var _this2 = this;
 
-        if (oldName !== newName) {
-          // unregister old name
-          this.context._reduxForm.unregister(oldName);
-          // register new name
-          this.context._reduxForm.register(newName, 'FieldArray');
-        }
+      this.props._reduxForm.register(this.name, 'FieldArray', function () {
+        return wrapError(_this2.props.validate, '_error');
+      }, function () {
+        return wrapError(_this2.props.warn, '_warning');
+      });
+    };
+
+    _proto.UNSAFE_componentWillReceiveProps = function UNSAFE_componentWillReceiveProps(nextProps) {
+      var oldName = formatName(this.props, this.props.name);
+      var newName = formatName(nextProps, nextProps.name);
+
+      if (oldName !== newName) {
+        // unregister old name
+        this.props._reduxForm.unregister(oldName); // register new name
+
+
+        this.props._reduxForm.register(newName, 'FieldArray');
       }
-    }, {
-      key: 'componentWillUnmount',
-      value: function componentWillUnmount() {
-        this.context._reduxForm.unregister(this.name);
-      }
-    }, {
-      key: 'getRenderedComponent',
-      value: function getRenderedComponent() {
-        invariant_1(this.props.withRef, 'If you want to access getRenderedComponent(), ' + 'you must specify a withRef prop to FieldArray');
-        return this.ref && this.ref.getWrappedInstance().getRenderedComponent();
-      }
-    }, {
-      key: 'render',
-      value: function render() {
-        return React.createElement(ConnectedFieldArray, _extends$20({}, this.props, {
-          name: this.name,
-          _reduxForm: this.context._reduxForm,
-          ref: this.saveRef
-        }));
-      }
-    }, {
-      key: 'name',
+    };
+
+    _proto.componentWillUnmount = function componentWillUnmount() {
+      this.props._reduxForm.unregister(this.name);
+    };
+
+    _proto.getRenderedComponent = function getRenderedComponent() {
+      invariant_1(this.props.forwardRef, 'If you want to access getRenderedComponent(), ' + 'you must specify a forwardRef prop to FieldArray');
+      return this.ref && this.ref.current.getRenderedComponent();
+    };
+
+    _proto.render = function render() {
+      return React.createElement(ConnectedFieldArray, _extends_1({}, this.props, {
+        name: this.name,
+        ref: this.ref
+      }));
+    };
+
+    createClass$1(FieldArray, [{
+      key: "name",
       get: function get() {
-        return formatName(this.context, this.props.name);
+        return formatName(this.props, this.props.name);
       }
     }, {
-      key: 'dirty',
+      key: "dirty",
       get: function get() {
-        return !this.ref || this.ref.getWrappedInstance().dirty;
+        return !this.ref || this.ref.current.dirty;
       }
     }, {
-      key: 'pristine',
+      key: "pristine",
       get: function get() {
-        return !!(this.ref && this.ref.getWrappedInstance().pristine);
+        return !!(this.ref && this.ref.current.pristine);
       }
     }, {
-      key: 'value',
+      key: "value",
       get: function get() {
-        return this.ref ? this.ref.getWrappedInstance().value : undefined;
+        return this.ref ? this.ref.current.value : undefined;
       }
     }]);
 
@@ -22118,18 +23078,15 @@ var createFieldArray = function createFieldArray(structure) {
 
   FieldArray.propTypes = {
     name: propTypes.string.isRequired,
-    component: propTypes.oneOfType([propTypes.func, propTypes.string, propTypes.node]).isRequired,
+    component: validateComponentProp,
     props: propTypes.object,
     validate: propTypes.oneOfType([propTypes.func, propTypes.arrayOf(propTypes.func)]),
     warn: propTypes.oneOfType([propTypes.func, propTypes.arrayOf(propTypes.func)]),
-    withRef: propTypes.bool
-  };
-  FieldArray.contextTypes = {
+    forwardRef: propTypes.bool,
     _reduxForm: propTypes.object
   };
-
   polyfill(FieldArray);
-  return FieldArray;
+  return withReduxForm(FieldArray);
 };
 
 createFieldArray(structure);
@@ -22138,19 +23095,21 @@ var createFormValueSelector = function createFormValueSelector(_ref) {
   var getIn = _ref.getIn;
   return function (form, getFormState) {
     invariant_1(form, 'Form value must be specified');
+
     var nonNullGetFormState = getFormState || function (state) {
       return getIn(state, 'form');
     };
+
     return function (state) {
-      for (var _len = arguments.length, fields = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+      for (var _len = arguments.length, fields = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
         fields[_key - 1] = arguments[_key];
       }
 
       invariant_1(fields.length, 'No fields specified');
       return fields.length === 1 ? // only selecting one field, so return its value
-      getIn(nonNullGetFormState(state), form + '.values.' + fields[0]) : // selecting many fields, so return an object of field values
+      getIn(nonNullGetFormState(state), form + ".values." + fields[0]) : // selecting many fields, so return an object of field values
       fields.reduce(function (accumulator, field) {
-        var value = getIn(nonNullGetFormState(state), form + '.values.' + field);
+        var value = getIn(nonNullGetFormState(state), form + ".values." + field);
         return value === undefined ? accumulator : structure.setIn(accumulator, field, value);
       }, {});
     };
@@ -22188,18 +23147,20 @@ createFormValueSelector(structure);
  * // => false
  */
 function isEqual(value, other) {
-  return baseIsEqual(value, other);
+  return _baseIsEqual(value, other);
 }
+
+var isEqual_1 = isEqual;
 
 /** `Object#toString` result references. */
 var mapTag$3 = '[object Map]',
     setTag$3 = '[object Set]';
 
 /** Used for built-in method references. */
-var objectProto$13 = Object.prototype;
+var objectProto$12 = Object.prototype;
 
 /** Used to check objects for own properties. */
-var hasOwnProperty$10 = objectProto$13.hasOwnProperty;
+var hasOwnProperty$10 = objectProto$12.hasOwnProperty;
 
 /**
  * Checks if `value` is an empty object, collection, map, or set.
@@ -22234,21 +23195,21 @@ var hasOwnProperty$10 = objectProto$13.hasOwnProperty;
  * _.isEmpty({ 'a': 1 });
  * // => false
  */
-function isEmpty(value) {
+function isEmpty$1(value) {
   if (value == null) {
     return true;
   }
-  if (isArrayLike(value) &&
-      (isArray$2(value) || typeof value == 'string' || typeof value.splice == 'function' ||
-        isBuffer(value) || isTypedArray(value) || isArguments(value))) {
+  if (isArrayLike_1(value) &&
+      (isArray_1(value) || typeof value == 'string' || typeof value.splice == 'function' ||
+        isBuffer_1(value) || isTypedArray_1(value) || isArguments_1(value))) {
     return !value.length;
   }
-  var tag = getTag$1(value);
+  var tag = _getTag(value);
   if (tag == mapTag$3 || tag == setTag$3) {
     return !value.size;
   }
-  if (isPrototype(value)) {
-    return !baseKeys(value).length;
+  if (_isPrototype(value)) {
+    return !_baseKeys(value).length;
   }
   for (var key in value) {
     if (hasOwnProperty$10.call(value, key)) {
@@ -22258,125 +23219,113 @@ function isEmpty(value) {
   return true;
 }
 
-var _extends$21 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-var _createClass$10 = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _objectWithoutProperties$11(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
-
-function _defineProperty$5(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-function _classCallCheck$22(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn$22(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits$22(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
+var isEmpty_1 = isEmpty$1;
 
 var createValues = function createValues(_ref) {
   var getIn = _ref.getIn;
   return function (firstArg) {
-    for (var _len = arguments.length, rest = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+    for (var _len = arguments.length, rest = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
       rest[_key - 1] = arguments[_key];
     }
 
     // create a class that reads current form name and creates a selector
     // return
     return function (Component) {
-      var FormValues = function (_React$Component) {
-        _inherits$22(FormValues, _React$Component);
+      var FormValues =
+      /*#__PURE__*/
+      function (_React$Component) {
+        inheritsLoose(FormValues, _React$Component);
 
-        function FormValues(props, context) {
-          _classCallCheck$22(this, FormValues);
+        function FormValues(props) {
+          var _this;
 
-          var _this = _possibleConstructorReturn$22(this, (FormValues.__proto__ || Object.getPrototypeOf(FormValues)).call(this, props, context));
+          _this = _React$Component.call(this, props) || this;
 
-          if (!context._reduxForm) {
+          if (!props._reduxForm) {
             throw new Error('formValues() must be used inside a React tree decorated with reduxForm()');
           }
+
           _this.updateComponent(props);
+
           return _this;
         }
 
-        _createClass$10(FormValues, [{
-          key: 'componentWillReceiveProps',
-          value: function componentWillReceiveProps(props) {
-            if (typeof firstArg === 'function') {
-              this.updateComponent(props);
-            }
+        var _proto = FormValues.prototype;
+
+        _proto.UNSAFE_componentWillReceiveProps = function UNSAFE_componentWillReceiveProps(props) {
+          if (typeof firstArg === 'function') {
+            this.updateComponent(props);
           }
-        }, {
-          key: 'render',
-          value: function render() {
-            var Component = this.Component;
+        };
 
-            return React__default.createElement(Component
-            // so that the connected component updates props when sectionPrefix has changed
-            , _extends$21({ sectionPrefix: this.context._reduxForm.sectionPrefix
-            }, this.props));
+        _proto.render = function render() {
+          var Component = this.Component;
+          return React__default.createElement(Component // so that the connected component updates props when sectionPrefix has changed
+          , _extends_1({
+            sectionPrefix: this.props._reduxForm.sectionPrefix
+          }, this.props));
+        };
+
+        _proto.updateComponent = function updateComponent(props) {
+          var valuesMap;
+          var resolvedFirstArg = typeof firstArg === 'function' ? firstArg(props) : firstArg;
+
+          if (typeof resolvedFirstArg === 'string') {
+            var _rest$reduce;
+
+            valuesMap = rest.reduce(function (result, k) {
+              result[k] = k;
+              return result;
+            }, (_rest$reduce = {}, _rest$reduce[resolvedFirstArg] = resolvedFirstArg, _rest$reduce));
+          } else {
+            valuesMap = resolvedFirstArg;
           }
-        }, {
-          key: 'updateComponent',
-          value: function updateComponent(props) {
-            var valuesMap = void 0;
-            var resolvedFirstArg = typeof firstArg === 'function' ? firstArg(props) : firstArg;
-            if (typeof resolvedFirstArg === 'string') {
-              valuesMap = rest.reduce(function (result, k) {
-                result[k] = k;
-                return result;
-              }, _defineProperty$5({}, resolvedFirstArg, resolvedFirstArg));
-            } else {
-              valuesMap = resolvedFirstArg;
-            }
-            if (isEmpty(valuesMap)) {
-              // maybe that empty valuesMap is ok if firstArg is a function?
-              // if this is the case, we probably should set this.Component = Component
-              throw new Error('formValues(): You must specify values to get as formValues(name1, name2, ...) or formValues({propName1: propPath1, ...}) or formValues((props) => name) or formValues((props) => ({propName1: propPath1, ...}))');
-            }
-            if (isEqual(valuesMap, this._valuesMap)) {
-              // no change in valuesMap
-              return;
-            }
-            this._valuesMap = valuesMap;
-            this.setComponent();
+
+          if (isEmpty_1(valuesMap)) {
+            // maybe that empty valuesMap is ok if firstArg is a function?
+            // if this is the case, we probably should set this.Component = Component
+            throw new Error('formValues(): You must specify values to get as formValues(name1, name2, ...) or formValues({propName1: propPath1, ...}) or formValues((props) => name) or formValues((props) => ({propName1: propPath1, ...}))');
           }
-        }, {
-          key: 'setComponent',
-          value: function setComponent() {
-            var _this2 = this;
 
-            var formValuesSelector = function formValuesSelector(_, _ref2) {
-              var sectionPrefix = _ref2.sectionPrefix;
+          if (isEqual_1(valuesMap, this._valuesMap)) {
+            // no change in valuesMap
+            return;
+          }
 
-              // Yes, we're only using connect() for listening to updates.
-              // The second argument needs to be there so that connect calls
-              // the selector when props change
-              var getValues = _this2.context._reduxForm.getValues;
+          this._valuesMap = valuesMap;
+          this.setComponent();
+        };
 
-              var values = getValues();
-              return mapValues(_this2._valuesMap, function (path) {
-                return getIn(values, formatName(_this2.context, path));
-              });
-            };
-            this.Component = connect(formValuesSelector, function () {
-              return {};
-            } // ignore dispatch
-            )(function (_ref3) {
-              var sectionPrefix = _ref3.sectionPrefix,
-                  otherProps = _objectWithoutProperties$11(_ref3, ['sectionPrefix']);
+        _proto.setComponent = function setComponent() {
+          var _this2 = this;
 
-              return React__default.createElement(Component, otherProps);
+          var formValuesSelector = function formValuesSelector(_, _ref2) {
+            var sectionPrefix = _ref2.sectionPrefix;
+            // Yes, we're only using connect() for listening to updates.
+            // The second argument needs to be there so that connect calls
+            // the selector when props change
+            var getValues = _this2.props._reduxForm.getValues;
+            var values = getValues();
+            return mapValues_1(_this2._valuesMap, function (path) {
+              return getIn(values, formatName(_this2.props, path));
             });
-          }
-        }]);
+          };
+
+          this.Component = connect(formValuesSelector, function () {
+            return {};
+          } // ignore dispatch
+          )(function (_ref3) {
+            var sectionPrefix = _ref3.sectionPrefix,
+                otherProps = objectWithoutPropertiesLoose(_ref3, ["sectionPrefix"]);
+
+            return React__default.createElement(Component, otherProps);
+          });
+        };
 
         return FormValues;
       }(React__default.Component);
 
-      FormValues.contextTypes = {
-        _reduxForm: propTypes.object
-      };
-      return FormValues;
+      return withReduxForm(FormValues);
     };
   };
 };
@@ -22390,7 +23339,8 @@ var createGetFormError = function createGetFormError(_ref) {
       var nonNullGetFormState = getFormState || function (state) {
         return getIn(state, 'form');
       };
-      return getIn(nonNullGetFormState(state), form + '.error');
+
+      return getIn(nonNullGetFormState(state), form + ".error");
     };
   };
 };
@@ -22400,12 +23350,12 @@ createGetFormError(structure);
 function createGetFormNames(_ref) {
   var getIn = _ref.getIn,
       keys = _ref.keys;
-
   return function (getFormState) {
     return function (state) {
       var nonNullGetFormState = getFormState || function (state) {
         return getIn(state, 'form');
       };
+
       return keys(nonNullGetFormState(state));
     };
   };
@@ -22420,7 +23370,8 @@ var createGetFormValues = function createGetFormValues(_ref) {
       var nonNullGetFormState = getFormState || function (state) {
         return getIn(state, 'form');
       };
-      return getIn(nonNullGetFormState(state), form + '.values');
+
+      return getIn(nonNullGetFormState(state), form + ".values");
     };
   };
 };
@@ -22434,7 +23385,8 @@ var createGetFormInitialValues = function createGetFormInitialValues(_ref) {
       var nonNullGetFormState = getFormState || function (state) {
         return getIn(state, 'form');
       };
-      return getIn(nonNullGetFormState(state), form + '.initial');
+
+      return getIn(nonNullGetFormState(state), form + ".initial");
     };
   };
 };
@@ -22449,7 +23401,8 @@ var createGetFormSyncErrors = function createGetFormSyncErrors(_ref) {
       var nonNullGetFormState = getFormState || function (state) {
         return getIn(state, 'form');
       };
-      return getIn(nonNullGetFormState(state), form + '.syncErrors') || empty;
+
+      return getIn(nonNullGetFormState(state), form + ".syncErrors") || empty;
     };
   };
 };
@@ -22464,7 +23417,8 @@ var createGetFormMeta = function createGetFormMeta(_ref) {
       var nonNullGetFormState = getFormState || function (state) {
         return getIn(state, 'form');
       };
-      return getIn(nonNullGetFormState(state), form + '.fields') || empty;
+
+      return getIn(nonNullGetFormState(state), form + ".fields") || empty;
     };
   };
 };
@@ -22478,7 +23432,8 @@ var createGetFormAsyncErrors = function createGetFormAsyncErrors(_ref) {
       var nonNullGetFormState = getFormState || function (state) {
         return getIn(state, 'form');
       };
-      return getIn(nonNullGetFormState(state), form + '.asyncErrors');
+
+      return getIn(nonNullGetFormState(state), form + ".asyncErrors");
     };
   };
 };
@@ -22493,7 +23448,8 @@ var createGetFormSyncWarnings = function createGetFormSyncWarnings(_ref) {
       var nonNullGetFormState = getFormState || function (state) {
         return getIn(state, 'form');
       };
-      return getIn(nonNullGetFormState(state), form + '.syncWarnings') || empty;
+
+      return getIn(nonNullGetFormState(state), form + ".syncWarnings") || empty;
     };
   };
 };
@@ -22508,7 +23464,8 @@ var createGetFormSubmitErrors = function createGetFormSubmitErrors(_ref) {
       var nonNullGetFormState = getFormState || function (state) {
         return getIn(state, 'form');
       };
-      return getIn(nonNullGetFormState(state), form + '.submitErrors') || empty;
+
+      return getIn(nonNullGetFormState(state), form + ".submitErrors") || empty;
     };
   };
 };
@@ -22522,7 +23479,8 @@ var createIsAsyncValidating = function createIsAsyncValidating(_ref) {
       var nonNullGetFormState = getFormState || function (state) {
         return getIn(state, 'form');
       };
-      return !!getIn(nonNullGetFormState(state), form + '.asyncValidating');
+
+      return !!getIn(nonNullGetFormState(state), form + ".asyncValidating");
     };
   };
 };
@@ -22535,23 +23493,26 @@ var createIsPristine = function createIsPristine(_ref) {
       getIn = _ref.getIn;
   return function (form, getFormState) {
     return function (state) {
-      for (var _len = arguments.length, fields = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-        fields[_key - 1] = arguments[_key];
-      }
-
       var nonNullGetFormState = getFormState || function (state) {
         return getIn(state, 'form');
       };
+
       var formState = nonNullGetFormState(state);
+
+      for (var _len = arguments.length, fields = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+        fields[_key - 1] = arguments[_key];
+      }
+
       if (fields && fields.length) {
         return fields.every(function (field) {
-          var fieldInitial = getIn(formState, form + '.initial.' + field);
-          var fieldValue = getIn(formState, form + '.values.' + field);
+          var fieldInitial = getIn(formState, form + ".initial." + field);
+          var fieldValue = getIn(formState, form + ".values." + field);
           return deepEqual(fieldInitial, fieldValue);
         });
       }
-      var initial = getIn(formState, form + '.initial') || empty;
-      var values = getIn(formState, form + '.values') || initial;
+
+      var initial = getIn(formState, form + ".initial") || empty;
+      var values = getIn(formState, form + ".values") || initial;
       return deepEqual(initial, values);
     };
   };
@@ -22560,14 +23521,15 @@ var createIsPristine = function createIsPristine(_ref) {
 var getErrorKeys = function getErrorKeys(name, type) {
   switch (type) {
     case 'Field':
-      return [name, name + '._error'];
+      return [name, name + "._error"];
+
     case 'FieldArray':
-      return [name + '._error'];
+      return [name + "._error"];
+
     default:
       throw new Error('Unknown field type');
   }
 };
-
 
 var createHasError = function createHasError(_ref) {
   var getIn = _ref.getIn;
@@ -22583,47 +23545,57 @@ var createHasError = function createHasError(_ref) {
       return getIn(syncErrors, key) || getIn(asyncErrors, key) || getIn(submitErrors, key);
     });
   };
+
   return hasError;
 };
 
 var createIsValid = function createIsValid(structure) {
   var getIn = structure.getIn,
       keys = structure.keys;
-
   var hasError = createHasError(structure);
-  return function (form, getFormState) {
-    var ignoreSubmitErrors = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+  return function (form, getFormState, ignoreSubmitErrors) {
+    if (ignoreSubmitErrors === void 0) {
+      ignoreSubmitErrors = false;
+    }
+
     return function (state) {
       var nonNullGetFormState = getFormState || function (state) {
         return getIn(state, 'form');
       };
+
       var formState = nonNullGetFormState(state);
-      var syncError = getIn(formState, form + '.syncError');
+      var syncError = getIn(formState, form + ".syncError");
+
       if (syncError) {
         return false;
       }
+
       if (!ignoreSubmitErrors) {
-        var error = getIn(formState, form + '.error');
+        var error = getIn(formState, form + ".error");
+
         if (error) {
           return false;
         }
       }
-      var syncErrors = getIn(formState, form + '.syncErrors');
-      var asyncErrors = getIn(formState, form + '.asyncErrors');
-      var submitErrors = ignoreSubmitErrors ? undefined : getIn(formState, form + '.submitErrors');
+
+      var syncErrors = getIn(formState, form + ".syncErrors");
+      var asyncErrors = getIn(formState, form + ".asyncErrors");
+      var submitErrors = ignoreSubmitErrors ? undefined : getIn(formState, form + ".submitErrors");
+
       if (!syncErrors && !asyncErrors && !submitErrors) {
         return true;
       }
 
-      var registeredFields = getIn(formState, form + '.registeredFields');
+      var registeredFields = getIn(formState, form + ".registeredFields");
+
       if (!registeredFields) {
         return true;
       }
 
       return !keys(registeredFields).filter(function (name) {
-        return getIn(registeredFields, '[\'' + name + '\'].count') > 0;
+        return getIn(registeredFields, "['" + name + "'].count") > 0;
       }).some(function (name) {
-        return hasError(getIn(registeredFields, '[\'' + name + '\']'), syncErrors, asyncErrors, submitErrors);
+        return hasError(getIn(registeredFields, "['" + name + "']"), syncErrors, asyncErrors, submitErrors);
       });
     };
   };
@@ -22640,7 +23612,8 @@ var createIsSubmitting = function createIsSubmitting(_ref) {
       var nonNullGetFormState = getFormState || function (state) {
         return getIn(state, 'form');
       };
-      return !!getIn(nonNullGetFormState(state), form + '.submitting');
+
+      return !!getIn(nonNullGetFormState(state), form + ".submitting");
     };
   };
 };
@@ -22654,7 +23627,8 @@ var createHasSubmitSucceeded = function createHasSubmitSucceeded(_ref) {
       var nonNullGetFormState = getFormState || function (state) {
         return getIn(state, 'form');
       };
-      return !!getIn(nonNullGetFormState(state), form + '.submitSucceeded');
+
+      return !!getIn(nonNullGetFormState(state), form + ".submitSucceeded");
     };
   };
 };
@@ -22668,7 +23642,8 @@ var createHasSubmitFailed = function createHasSubmitFailed(_ref) {
       var nonNullGetFormState = getFormState || function (state) {
         return getIn(state, 'form');
       };
-      return !!getIn(nonNullGetFormState(state), form + '.submitFailed');
+
+      return !!getIn(nonNullGetFormState(state), form + ".submitFailed");
     };
   };
 };
@@ -22685,24 +23660,27 @@ createHasSubmitFailed(structure);
  * @param {*} value The value to assign.
  */
 function assignMergeValue(object, key, value) {
-  if ((value !== undefined && !eq(object[key], value)) ||
+  if ((value !== undefined && !eq_1(object[key], value)) ||
       (value === undefined && !(key in object))) {
-    baseAssignValue(object, key, value);
+    _baseAssignValue(object, key, value);
   }
 }
 
+var _assignMergeValue = assignMergeValue;
+
+var _cloneBuffer = createCommonjsModule(function (module, exports) {
 /** Detect free variable `exports`. */
-var freeExports$2 = typeof exports == 'object' && exports && !exports.nodeType && exports;
+var freeExports = exports && !exports.nodeType && exports;
 
 /** Detect free variable `module`. */
-var freeModule$2 = freeExports$2 && typeof module == 'object' && module && !module.nodeType && module;
+var freeModule = freeExports && 'object' == 'object' && module && !module.nodeType && module;
 
 /** Detect the popular CommonJS extension `module.exports`. */
-var moduleExports$2 = freeModule$2 && freeModule$2.exports === freeExports$2;
+var moduleExports = freeModule && freeModule.exports === freeExports;
 
 /** Built-in value references. */
-var Buffer$1 = moduleExports$2 ? root.Buffer : undefined,
-    allocUnsafe = Buffer$1 ? Buffer$1.allocUnsafe : undefined;
+var Buffer = moduleExports ? _root.Buffer : undefined,
+    allocUnsafe = Buffer ? Buffer.allocUnsafe : undefined;
 
 /**
  * Creates a clone of  `buffer`.
@@ -22723,6 +23701,9 @@ function cloneBuffer(buffer, isDeep) {
   return result;
 }
 
+module.exports = cloneBuffer;
+});
+
 /**
  * Creates a clone of `arrayBuffer`.
  *
@@ -22732,9 +23713,11 @@ function cloneBuffer(buffer, isDeep) {
  */
 function cloneArrayBuffer(arrayBuffer) {
   var result = new arrayBuffer.constructor(arrayBuffer.byteLength);
-  new Uint8Array(result).set(new Uint8Array(arrayBuffer));
+  new _Uint8Array(result).set(new _Uint8Array(arrayBuffer));
   return result;
 }
+
+var _cloneArrayBuffer = cloneArrayBuffer;
 
 /**
  * Creates a clone of `typedArray`.
@@ -22745,9 +23728,11 @@ function cloneArrayBuffer(arrayBuffer) {
  * @returns {Object} Returns the cloned typed array.
  */
 function cloneTypedArray(typedArray, isDeep) {
-  var buffer = isDeep ? cloneArrayBuffer(typedArray.buffer) : typedArray.buffer;
+  var buffer = isDeep ? _cloneArrayBuffer(typedArray.buffer) : typedArray.buffer;
   return new typedArray.constructor(buffer, typedArray.byteOffset, typedArray.length);
 }
+
+var _cloneTypedArray = cloneTypedArray;
 
 /** Built-in value references. */
 var objectCreate = Object.create;
@@ -22763,7 +23748,7 @@ var objectCreate = Object.create;
 var baseCreate = (function() {
   function object() {}
   return function(proto) {
-    if (!isObject$2(proto)) {
+    if (!isObject_1(proto)) {
       return {};
     }
     if (objectCreate) {
@@ -22776,6 +23761,13 @@ var baseCreate = (function() {
   };
 }());
 
+var _baseCreate = baseCreate;
+
+/** Built-in value references. */
+var getPrototype = _overArg(Object.getPrototypeOf, Object);
+
+var _getPrototype = getPrototype;
+
 /**
  * Initializes an object clone.
  *
@@ -22784,10 +23776,12 @@ var baseCreate = (function() {
  * @returns {Object} Returns the initialized clone.
  */
 function initCloneObject(object) {
-  return (typeof object.constructor == 'function' && !isPrototype(object))
-    ? baseCreate(getPrototype(object))
+  return (typeof object.constructor == 'function' && !_isPrototype(object))
+    ? _baseCreate(_getPrototype(object))
     : {};
 }
+
+var _initCloneObject = initCloneObject;
 
 /**
  * This method is like `_.isArrayLike` except that it also checks if `value`
@@ -22815,8 +23809,69 @@ function initCloneObject(object) {
  * // => false
  */
 function isArrayLikeObject(value) {
-  return isObjectLike(value) && isArrayLike(value);
+  return isObjectLike_1(value) && isArrayLike_1(value);
 }
+
+var isArrayLikeObject_1 = isArrayLikeObject;
+
+/** `Object#toString` result references. */
+var objectTag$3 = '[object Object]';
+
+/** Used for built-in method references. */
+var funcProto$2 = Function.prototype,
+    objectProto$13 = Object.prototype;
+
+/** Used to resolve the decompiled source of functions. */
+var funcToString$2 = funcProto$2.toString;
+
+/** Used to check objects for own properties. */
+var hasOwnProperty$11 = objectProto$13.hasOwnProperty;
+
+/** Used to infer the `Object` constructor. */
+var objectCtorString = funcToString$2.call(Object);
+
+/**
+ * Checks if `value` is a plain object, that is, an object created by the
+ * `Object` constructor or one with a `[[Prototype]]` of `null`.
+ *
+ * @static
+ * @memberOf _
+ * @since 0.8.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a plain object, else `false`.
+ * @example
+ *
+ * function Foo() {
+ *   this.a = 1;
+ * }
+ *
+ * _.isPlainObject(new Foo);
+ * // => false
+ *
+ * _.isPlainObject([1, 2, 3]);
+ * // => false
+ *
+ * _.isPlainObject({ 'x': 0, 'y': 0 });
+ * // => true
+ *
+ * _.isPlainObject(Object.create(null));
+ * // => true
+ */
+function isPlainObject$4(value) {
+  if (!isObjectLike_1(value) || _baseGetTag(value) != objectTag$3) {
+    return false;
+  }
+  var proto = _getPrototype(value);
+  if (proto === null) {
+    return true;
+  }
+  var Ctor = hasOwnProperty$11.call(proto, 'constructor') && proto.constructor;
+  return typeof Ctor == 'function' && Ctor instanceof Ctor &&
+    funcToString$2.call(Ctor) == objectCtorString;
+}
+
+var isPlainObject_1 = isPlainObject$4;
 
 /**
  * Gets the value at `key`, unless `key` is "__proto__" or "constructor".
@@ -22838,11 +23893,13 @@ function safeGet(object, key) {
   return object[key];
 }
 
+var _safeGet = safeGet;
+
 /** Used for built-in method references. */
 var objectProto$14 = Object.prototype;
 
 /** Used to check objects for own properties. */
-var hasOwnProperty$11 = objectProto$14.hasOwnProperty;
+var hasOwnProperty$12 = objectProto$14.hasOwnProperty;
 
 /**
  * Assigns `value` to `key` of `object` if the existing value is not equivalent
@@ -22856,11 +23913,13 @@ var hasOwnProperty$11 = objectProto$14.hasOwnProperty;
  */
 function assignValue(object, key, value) {
   var objValue = object[key];
-  if (!(hasOwnProperty$11.call(object, key) && eq(objValue, value)) ||
+  if (!(hasOwnProperty$12.call(object, key) && eq_1(objValue, value)) ||
       (value === undefined && !(key in object))) {
-    baseAssignValue(object, key, value);
+    _baseAssignValue(object, key, value);
   }
 }
+
+var _assignValue = assignValue;
 
 /**
  * Copies properties of `source` to `object`.
@@ -22890,13 +23949,15 @@ function copyObject(source, props, object, customizer) {
       newValue = source[key];
     }
     if (isNew) {
-      baseAssignValue(object, key, newValue);
+      _baseAssignValue(object, key, newValue);
     } else {
-      assignValue(object, key, newValue);
+      _assignValue(object, key, newValue);
     }
   }
   return object;
 }
+
+var _copyObject = copyObject;
 
 /**
  * This function is like
@@ -22917,11 +23978,13 @@ function nativeKeysIn(object) {
   return result;
 }
 
+var _nativeKeysIn = nativeKeysIn;
+
 /** Used for built-in method references. */
 var objectProto$15 = Object.prototype;
 
 /** Used to check objects for own properties. */
-var hasOwnProperty$12 = objectProto$15.hasOwnProperty;
+var hasOwnProperty$13 = objectProto$15.hasOwnProperty;
 
 /**
  * The base implementation of `_.keysIn` which doesn't treat sparse arrays as dense.
@@ -22931,19 +23994,21 @@ var hasOwnProperty$12 = objectProto$15.hasOwnProperty;
  * @returns {Array} Returns the array of property names.
  */
 function baseKeysIn(object) {
-  if (!isObject$2(object)) {
-    return nativeKeysIn(object);
+  if (!isObject_1(object)) {
+    return _nativeKeysIn(object);
   }
-  var isProto = isPrototype(object),
+  var isProto = _isPrototype(object),
       result = [];
 
   for (var key in object) {
-    if (!(key == 'constructor' && (isProto || !hasOwnProperty$12.call(object, key)))) {
+    if (!(key == 'constructor' && (isProto || !hasOwnProperty$13.call(object, key)))) {
       result.push(key);
     }
   }
   return result;
 }
+
+var _baseKeysIn = baseKeysIn;
 
 /**
  * Creates an array of the own and inherited enumerable property names of `object`.
@@ -22969,8 +24034,10 @@ function baseKeysIn(object) {
  * // => ['a', 'b', 'c'] (iteration order is not guaranteed)
  */
 function keysIn(object) {
-  return isArrayLike(object) ? arrayLikeKeys(object, true) : baseKeysIn(object);
+  return isArrayLike_1(object) ? _arrayLikeKeys(object, true) : _baseKeysIn(object);
 }
+
+var keysIn_1 = keysIn;
 
 /**
  * Converts `value` to a plain object flattening inherited enumerable string
@@ -22997,8 +24064,10 @@ function keysIn(object) {
  * // => { 'a': 1, 'b': 2, 'c': 3 }
  */
 function toPlainObject(value) {
-  return copyObject(value, keysIn(value));
+  return _copyObject(value, keysIn_1(value));
 }
+
+var toPlainObject_1 = toPlainObject;
 
 /**
  * A specialized version of `baseMerge` for arrays and objects which performs
@@ -23016,12 +24085,12 @@ function toPlainObject(value) {
  *  counterparts.
  */
 function baseMergeDeep(object, source, key, srcIndex, mergeFunc, customizer, stack) {
-  var objValue = safeGet(object, key),
-      srcValue = safeGet(source, key),
+  var objValue = _safeGet(object, key),
+      srcValue = _safeGet(source, key),
       stacked = stack.get(srcValue);
 
   if (stacked) {
-    assignMergeValue(object, key, stacked);
+    _assignMergeValue(object, key, stacked);
     return;
   }
   var newValue = customizer
@@ -23031,37 +24100,37 @@ function baseMergeDeep(object, source, key, srcIndex, mergeFunc, customizer, sta
   var isCommon = newValue === undefined;
 
   if (isCommon) {
-    var isArr = isArray$2(srcValue),
-        isBuff = !isArr && isBuffer(srcValue),
-        isTyped = !isArr && !isBuff && isTypedArray(srcValue);
+    var isArr = isArray_1(srcValue),
+        isBuff = !isArr && isBuffer_1(srcValue),
+        isTyped = !isArr && !isBuff && isTypedArray_1(srcValue);
 
     newValue = srcValue;
     if (isArr || isBuff || isTyped) {
-      if (isArray$2(objValue)) {
+      if (isArray_1(objValue)) {
         newValue = objValue;
       }
-      else if (isArrayLikeObject(objValue)) {
-        newValue = copyArray(objValue);
+      else if (isArrayLikeObject_1(objValue)) {
+        newValue = _copyArray(objValue);
       }
       else if (isBuff) {
         isCommon = false;
-        newValue = cloneBuffer(srcValue, true);
+        newValue = _cloneBuffer(srcValue, true);
       }
       else if (isTyped) {
         isCommon = false;
-        newValue = cloneTypedArray(srcValue, true);
+        newValue = _cloneTypedArray(srcValue, true);
       }
       else {
         newValue = [];
       }
     }
-    else if (isPlainObject(srcValue) || isArguments(srcValue)) {
+    else if (isPlainObject_1(srcValue) || isArguments_1(srcValue)) {
       newValue = objValue;
-      if (isArguments(objValue)) {
-        newValue = toPlainObject(objValue);
+      if (isArguments_1(objValue)) {
+        newValue = toPlainObject_1(objValue);
       }
-      else if (!isObject$2(objValue) || isFunction$3(objValue)) {
-        newValue = initCloneObject(srcValue);
+      else if (!isObject_1(objValue) || isFunction_1(objValue)) {
+        newValue = _initCloneObject(srcValue);
       }
     }
     else {
@@ -23074,8 +24143,10 @@ function baseMergeDeep(object, source, key, srcIndex, mergeFunc, customizer, sta
     mergeFunc(newValue, srcValue, srcIndex, customizer, stack);
     stack['delete'](srcValue);
   }
-  assignMergeValue(object, key, newValue);
+  _assignMergeValue(object, key, newValue);
 }
+
+var _baseMergeDeep = baseMergeDeep;
 
 /**
  * The base implementation of `_.merge` without support for multiple sources.
@@ -23092,23 +24163,25 @@ function baseMerge(object, source, srcIndex, customizer, stack) {
   if (object === source) {
     return;
   }
-  baseFor(source, function(srcValue, key) {
-    stack || (stack = new Stack);
-    if (isObject$2(srcValue)) {
-      baseMergeDeep(object, source, key, srcIndex, baseMerge, customizer, stack);
+  _baseFor(source, function(srcValue, key) {
+    stack || (stack = new _Stack);
+    if (isObject_1(srcValue)) {
+      _baseMergeDeep(object, source, key, srcIndex, baseMerge, customizer, stack);
     }
     else {
       var newValue = customizer
-        ? customizer(safeGet(object, key), srcValue, (key + ''), object, source, stack)
+        ? customizer(_safeGet(object, key), srcValue, (key + ''), object, source, stack)
         : undefined;
 
       if (newValue === undefined) {
         newValue = srcValue;
       }
-      assignMergeValue(object, key, newValue);
+      _assignMergeValue(object, key, newValue);
     }
-  }, keysIn);
+  }, keysIn_1);
 }
+
+var _baseMerge = baseMerge;
 
 /**
  * A faster alternative to `Function#apply`, this function invokes `func`
@@ -23129,6 +24202,8 @@ function apply(func, thisArg, args) {
   }
   return func.apply(thisArg, args);
 }
+
+var _apply = apply;
 
 /* Built-in method references for those with the same name as other `lodash` methods. */
 var nativeMax = Math.max;
@@ -23159,9 +24234,11 @@ function overRest(func, start, transform) {
       otherArgs[index] = args[index];
     }
     otherArgs[start] = transform(array);
-    return apply(func, this, otherArgs);
+    return _apply(func, this, otherArgs);
   };
 }
+
+var _overRest = overRest;
 
 /**
  * Creates a function that returns `value`.
@@ -23188,6 +24265,8 @@ function constant(value) {
   };
 }
 
+var constant_1 = constant;
+
 /**
  * The base implementation of `setToString` without support for hot loop shorting.
  *
@@ -23196,14 +24275,16 @@ function constant(value) {
  * @param {Function} string The `toString` result.
  * @returns {Function} Returns `func`.
  */
-var baseSetToString = !defineProperty$3 ? identity : function(func, string) {
-  return defineProperty$3(func, 'toString', {
+var baseSetToString = !_defineProperty$3 ? identity_1 : function(func, string) {
+  return _defineProperty$3(func, 'toString', {
     'configurable': true,
     'enumerable': false,
-    'value': constant(string),
+    'value': constant_1(string),
     'writable': true
   });
 };
+
+var _baseSetToString = baseSetToString;
 
 /** Used to detect hot functions by number of calls within a span of milliseconds. */
 var HOT_COUNT = 800,
@@ -23241,6 +24322,8 @@ function shortOut(func) {
   };
 }
 
+var _shortOut = shortOut;
+
 /**
  * Sets the `toString` method of `func` to return `string`.
  *
@@ -23249,7 +24332,9 @@ function shortOut(func) {
  * @param {Function} string The `toString` result.
  * @returns {Function} Returns `func`.
  */
-var setToString = shortOut(baseSetToString);
+var setToString = _shortOut(_baseSetToString);
+
+var _setToString = setToString;
 
 /**
  * The base implementation of `_.rest` which doesn't validate or coerce arguments.
@@ -23260,8 +24345,10 @@ var setToString = shortOut(baseSetToString);
  * @returns {Function} Returns the new function.
  */
 function baseRest(func, start) {
-  return setToString(overRest(func, start, identity), func + '');
+  return _setToString(_overRest(func, start, identity_1), func + '');
 }
+
+var _baseRest = baseRest;
 
 /**
  * Checks if the given arguments are from an iteratee call.
@@ -23274,18 +24361,20 @@ function baseRest(func, start) {
  *  else `false`.
  */
 function isIterateeCall(value, index, object) {
-  if (!isObject$2(object)) {
+  if (!isObject_1(object)) {
     return false;
   }
   var type = typeof index;
   if (type == 'number'
-        ? (isArrayLike(object) && isIndex(index, object.length))
+        ? (isArrayLike_1(object) && _isIndex(index, object.length))
         : (type == 'string' && index in object)
       ) {
-    return eq(object[index], value);
+    return eq_1(object[index], value);
   }
   return false;
 }
+
+var _isIterateeCall = isIterateeCall;
 
 /**
  * Creates a function like `_.assign`.
@@ -23295,7 +24384,7 @@ function isIterateeCall(value, index, object) {
  * @returns {Function} Returns the new assigner function.
  */
 function createAssigner(assigner) {
-  return baseRest(function(object, sources) {
+  return _baseRest(function(object, sources) {
     var index = -1,
         length = sources.length,
         customizer = length > 1 ? sources[length - 1] : undefined,
@@ -23305,7 +24394,7 @@ function createAssigner(assigner) {
       ? (length--, customizer)
       : undefined;
 
-    if (guard && isIterateeCall(sources[0], sources[1], guard)) {
+    if (guard && _isIterateeCall(sources[0], sources[1], guard)) {
       customizer = length < 3 ? undefined : customizer;
       length = 1;
     }
@@ -23319,6 +24408,8 @@ function createAssigner(assigner) {
     return object;
   });
 }
+
+var _createAssigner = createAssigner;
 
 /**
  * This method is like `_.assign` except that it recursively merges own and
@@ -23351,76 +24442,11 @@ function createAssigner(assigner) {
  * _.merge(object, other);
  * // => { 'a': [{ 'b': 2, 'c': 3 }, { 'd': 4, 'e': 5 }] }
  */
-var merge$1 = createAssigner(function(object, source, srcIndex) {
-  baseMerge(object, source, srcIndex);
+var merge$1 = _createAssigner(function(object, source, srcIndex) {
+  _baseMerge(object, source, srcIndex);
 });
 
-/**
- * Copyright 2015, Yahoo! Inc.
- * Copyrights licensed under the New BSD License. See the accompanying LICENSE file for terms.
- */
-var REACT_STATICS$3 = {
-    childContextTypes: true,
-    contextTypes: true,
-    defaultProps: true,
-    displayName: true,
-    getDefaultProps: true,
-    getDerivedStateFromProps: true,
-    mixins: true,
-    propTypes: true,
-    type: true
-};
-
-var KNOWN_STATICS$3 = {
-    name: true,
-    length: true,
-    prototype: true,
-    caller: true,
-    callee: true,
-    arguments: true,
-    arity: true
-};
-
-var defineProperty$4 = Object.defineProperty;
-var getOwnPropertyNames$3 = Object.getOwnPropertyNames;
-var getOwnPropertySymbols$3 = Object.getOwnPropertySymbols;
-var getOwnPropertyDescriptor$3 = Object.getOwnPropertyDescriptor;
-var getPrototypeOf$3 = Object.getPrototypeOf;
-var objectPrototype$3 = getPrototypeOf$3 && getPrototypeOf$3(Object);
-
-function hoistNonReactStatics$3(targetComponent, sourceComponent, blacklist) {
-    if (typeof sourceComponent !== 'string') { // don't hoist over string (html) components
-
-        if (objectPrototype$3) {
-            var inheritedComponent = getPrototypeOf$3(sourceComponent);
-            if (inheritedComponent && inheritedComponent !== objectPrototype$3) {
-                hoistNonReactStatics$3(targetComponent, inheritedComponent, blacklist);
-            }
-        }
-
-        var keys = getOwnPropertyNames$3(sourceComponent);
-
-        if (getOwnPropertySymbols$3) {
-            keys = keys.concat(getOwnPropertySymbols$3(sourceComponent));
-        }
-
-        for (var i = 0; i < keys.length; ++i) {
-            var key = keys[i];
-            if (!REACT_STATICS$3[key] && !KNOWN_STATICS$3[key] && (!blacklist || !blacklist[key])) {
-                var descriptor = getOwnPropertyDescriptor$3(sourceComponent, key);
-                try { // Avoid failures from read-only properties
-                    defineProperty$4(targetComponent, key, descriptor);
-                } catch (e) {}
-            }
-        }
-
-        return targetComponent;
-    }
-
-    return targetComponent;
-}
-
-var hoistNonReactStatics_cjs$2 = hoistNonReactStatics$3;
+var merge_1 = merge$1;
 
 var isPromise_1 = isPromise;
 
@@ -23431,9 +24457,11 @@ function isPromise(obj) {
 var asyncValidation = function asyncValidation(fn, start, stop, field) {
   start(field);
   var promise = fn();
+
   if (!isPromise_1(promise)) {
     throw new Error('asyncValidate function passed to reduxForm must return a promise');
   }
+
   var handleErrors = function handleErrors(rejected) {
     return function (errors) {
       if (rejected) {
@@ -23445,28 +24473,32 @@ var asyncValidation = function asyncValidation(fn, start, stop, field) {
           throw new Error('Asynchronous validation promise was rejected without errors.');
         }
       }
+
       stop();
       return Promise.resolve();
     };
   };
+
   return promise.then(handleErrors(false), handleErrors(true));
 };
 
 var silenceEvent = function silenceEvent(event) {
   var is = isEvent(event);
+
   if (is) {
     event.preventDefault();
   }
+
   return is;
 };
 
 var silenceEvents = function silenceEvents(fn) {
   return function (event) {
-    for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+    for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
       args[_key - 1] = arguments[_key];
     }
 
-    return silenceEvent(event) ? fn.apply(undefined, args) : fn.apply(undefined, [event].concat(args));
+    return silenceEvent(event) ? fn.apply(void 0, args) : fn.apply(void 0, [event].concat(args));
   };
 };
 
@@ -23476,8 +24508,10 @@ var toArray$2 = function toArray(value) {
 
 var getError = function getError(value, values, props, validators, name) {
   var array = toArray$2(validators);
+
   for (var i = 0; i < array.length; i++) {
     var error = array[i](value, values, props, name);
+
     if (error) {
       return error;
     }
@@ -23491,6 +24525,7 @@ var generateValidator = function generateValidator(validators, _ref) {
     Object.keys(validators).forEach(function (name) {
       var value = getIn(values, name);
       var error = getError(value, values, props, validators[name], name);
+
       if (error) {
         errors = structure.setIn(errors, name, error);
       }
@@ -23499,102 +24534,157 @@ var generateValidator = function generateValidator(validators, _ref) {
   };
 };
 
-var _extends$22 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var isSubmissionError = function isSubmissionError(error) {
+  return error && error.name === SubmissionError.name;
+};
 
-function _toConsumableArray$3(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+var mergeErrors = function mergeErrors(_ref) {
+  var asyncErrors = _ref.asyncErrors,
+      syncErrors = _ref.syncErrors;
+  return asyncErrors && typeof asyncErrors.merge === 'function' ? asyncErrors.merge(syncErrors).toJS() : _extends_1({}, asyncErrors, syncErrors);
+};
+
+var isImmutableList;
+
+try {
+  // ImmutableJS isList implementation if available
+  // eslint-disable-next-line import/no-extraneous-dependencies
+  var _require = require('immutable'),
+      List = _require.List;
+
+  isImmutableList = List.isList;
+} catch (err) {
+  isImmutableList = function isImmutableList(maybeList) {
+    return false;
+  };
+} // fields may be an Immutable List which cannot be spread
+// convert the fields to an array if necessary
 
 
-var handleSubmit = function handleSubmit(submit, props, valid, asyncValidate, fields) {
+var makeFieldsArray = function makeFieldsArray(fields) {
+  return isImmutableList(fields) ? fields.toArray() : fields;
+};
+
+var executeSubmit = function executeSubmit(submit, fields, props) {
   var dispatch = props.dispatch,
+      submitAsSideEffect = props.submitAsSideEffect,
       onSubmitFail = props.onSubmitFail,
       onSubmitSuccess = props.onSubmitSuccess,
       startSubmit = props.startSubmit,
       stopSubmit = props.stopSubmit,
       setSubmitFailed = props.setSubmitFailed,
       setSubmitSucceeded = props.setSubmitSucceeded,
-      syncErrors = props.syncErrors,
-      asyncErrors = props.asyncErrors,
-      touch = props.touch,
-      values = props.values,
-      persistentSubmitErrors = props.persistentSubmitErrors;
+      values = props.values;
+  fields = makeFieldsArray(fields);
+  var result;
 
+  try {
+    result = submit(values, dispatch, props);
+  } catch (submitError) {
+    var error = isSubmissionError(submitError) ? submitError.errors : undefined;
+    stopSubmit(error);
+    setSubmitFailed.apply(void 0, fields);
 
-  touch.apply(undefined, _toConsumableArray$3(fields)); // mark all fields as touched
+    if (onSubmitFail) {
+      onSubmitFail(error, dispatch, submitError, props);
+    }
 
-  if (valid || persistentSubmitErrors) {
-    var doSubmit = function doSubmit() {
-      var result = void 0;
-      try {
-        result = submit(values, dispatch, props);
-      } catch (submitError) {
-        var error = submitError instanceof SubmissionError ? submitError.errors : undefined;
+    if (error || onSubmitFail) {
+      // if you've provided an onSubmitFail callback, don't re-throw the error
+      return error;
+    } else {
+      throw submitError;
+    }
+  }
+
+  if (submitAsSideEffect) {
+    if (result) {
+      dispatch(result);
+    }
+  } else {
+    if (isPromise_1(result)) {
+      startSubmit();
+      return result.then(function (submitResult) {
+        stopSubmit();
+        setSubmitSucceeded();
+
+        if (onSubmitSuccess) {
+          onSubmitSuccess(submitResult, dispatch, props);
+        }
+
+        return submitResult;
+      }, function (submitError) {
+        var error = isSubmissionError(submitError) ? submitError.errors : undefined;
         stopSubmit(error);
-        setSubmitFailed.apply(undefined, _toConsumableArray$3(fields));
+        setSubmitFailed.apply(void 0, fields);
+
         if (onSubmitFail) {
           onSubmitFail(error, dispatch, submitError, props);
         }
+
         if (error || onSubmitFail) {
           // if you've provided an onSubmitFail callback, don't re-throw the error
           return error;
         } else {
           throw submitError;
         }
-      }
-      if (isPromise_1(result)) {
-        startSubmit();
-        return result.then(function (submitResult) {
-          stopSubmit();
-          setSubmitSucceeded();
-          if (onSubmitSuccess) {
-            onSubmitSuccess(submitResult, dispatch, props);
-          }
-          return submitResult;
-        }, function (submitError) {
-          var error = submitError instanceof SubmissionError ? submitError.errors : undefined;
-          stopSubmit(error);
-          setSubmitFailed.apply(undefined, _toConsumableArray$3(fields));
-          if (onSubmitFail) {
-            onSubmitFail(error, dispatch, submitError, props);
-          }
-          if (error || onSubmitFail) {
-            // if you've provided an onSubmitFail callback, don't re-throw the error
-            return error;
-          } else {
-            throw submitError;
-          }
-        });
-      } else {
-        setSubmitSucceeded();
-        if (onSubmitSuccess) {
-          onSubmitSuccess(result, dispatch, props);
-        }
-      }
-      return result;
-    };
+      });
+    } else {
+      setSubmitSucceeded();
 
+      if (onSubmitSuccess) {
+        onSubmitSuccess(result, dispatch, props);
+      }
+    }
+  }
+
+  return result;
+};
+
+var handleSubmit = function handleSubmit(submit, props, valid, asyncValidate, fields) {
+  var dispatch = props.dispatch,
+      onSubmitFail = props.onSubmitFail,
+      setSubmitFailed = props.setSubmitFailed,
+      syncErrors = props.syncErrors,
+      asyncErrors = props.asyncErrors,
+      touch = props.touch,
+      persistentSubmitErrors = props.persistentSubmitErrors;
+  fields = makeFieldsArray(fields);
+  touch.apply(void 0, fields); // mark all fields as touched
+
+  if (valid || persistentSubmitErrors) {
     var asyncValidateResult = asyncValidate && asyncValidate();
+
     if (asyncValidateResult) {
       return asyncValidateResult.then(function (asyncErrors) {
         if (asyncErrors) {
           throw asyncErrors;
         }
-        return doSubmit();
-      }).catch(function (asyncErrors) {
-        setSubmitFailed.apply(undefined, _toConsumableArray$3(fields));
+
+        return executeSubmit(submit, fields, props);
+      })["catch"](function (asyncErrors) {
+        setSubmitFailed.apply(void 0, fields);
+
         if (onSubmitFail) {
           onSubmitFail(asyncErrors, dispatch, null, props);
         }
+
         return Promise.reject(asyncErrors);
       });
     } else {
-      return doSubmit();
+      return executeSubmit(submit, fields, props);
     }
   } else {
-    setSubmitFailed.apply(undefined, _toConsumableArray$3(fields));
-    var errors = _extends$22({}, asyncErrors, syncErrors);
+    setSubmitFailed.apply(void 0, fields);
+    var errors = mergeErrors({
+      asyncErrors: asyncErrors,
+      syncErrors: syncErrors
+    });
+
     if (onSubmitFail) {
       onSubmitFail(errors, dispatch, null, props);
     }
+
     return errors;
   }
 };
@@ -23604,33 +24694,14 @@ var getDisplayName = function getDisplayName(Comp) {
 };
 
 var isHotReloading = function isHotReloading() {
-  return !!(typeof module !== 'undefined' && module.hot && typeof module.hot.status === 'function' && module.hot.status() === 'apply');
+  var castModule = module;
+  return !!(typeof castModule !== 'undefined' && castModule.hot && typeof castModule.hot.status === 'function' && castModule.hot.status() === 'apply');
 };
-
-var _createClass$11 = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _extends$23 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-var _typeof$6 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
-function _defineProperty$6(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-function _classCallCheck$23(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn$23(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits$23(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-function _toConsumableArray$4(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
-
-function _objectWithoutProperties$12(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
-
 
 var isClassComponent = function isClassComponent(Component) {
-  return Boolean(Component && Component.prototype && _typeof$6(Component.prototype.isReactComponent) === 'object');
-};
+  return Boolean(Component && Component.prototype && typeof Component.prototype.isReactComponent === 'object');
+}; // extract field-specific actions
 
-// extract field-specific actions
 
 var arrayInsert$1 = actions$3.arrayInsert,
     arrayMove$1 = actions$3.arrayMove,
@@ -23645,7 +24716,7 @@ var arrayInsert$1 = actions$3.arrayInsert,
     blur$1 = actions$3.blur,
     change$1 = actions$3.change,
     focus$1 = actions$3.focus,
-    formActions = _objectWithoutProperties$12(actions$3, ['arrayInsert', 'arrayMove', 'arrayPop', 'arrayPush', 'arrayRemove', 'arrayRemoveAll', 'arrayShift', 'arraySplice', 'arraySwap', 'arrayUnshift', 'blur', 'change', 'focus']);
+    formActions = objectWithoutPropertiesLoose(actions$3, ["arrayInsert", "arrayMove", "arrayPop", "arrayPush", "arrayRemove", "arrayRemoveAll", "arrayShift", "arraySplice", "arraySwap", "arrayUnshift", "blur", "change", "focus"]);
 
 var arrayActions = {
   arrayInsert: arrayInsert$1,
@@ -23659,13 +24730,13 @@ var arrayActions = {
   arraySwap: arraySwap$1,
   arrayUnshift: arrayUnshift$1
 };
-
-var propsToNotUpdateFor$3 = [].concat(_toConsumableArray$4(Object.keys(actions$3)), ['array', 'asyncErrors', 'initialValues', 'syncErrors', 'syncWarnings', 'values', 'registeredFields']);
+var propsToNotUpdateFor$3 = [].concat(Object.keys(actions$3), ['array', 'asyncErrors', 'initialValues', 'syncErrors', 'syncWarnings', 'values', 'registeredFields']);
 
 var checkSubmit = function checkSubmit(submit) {
   if (!submit || typeof submit !== 'function') {
     throw new Error('You must either pass handleSubmit() an onSubmit function or pass onSubmit as a prop');
   }
+
   return submit;
 };
 
@@ -23679,10 +24750,9 @@ var createReduxForm = function createReduxForm(structure$$1) {
       setIn = structure$$1.setIn,
       keys = structure$$1.keys,
       fromJS = structure$$1.fromJS;
-
   var isValid = createIsValid(structure$$1);
   return function (initialConfig) {
-    var config = _extends$23({
+    var config = _extends_1({
       touchOnBlur: true,
       touchOnChange: false,
       persistentSubmitErrors: false,
@@ -23698,53 +24768,75 @@ var createReduxForm = function createReduxForm(structure$$1) {
         return getIn(state, 'form');
       },
       pure: true,
-      forceUnregisterOnUnmount: false
+      forceUnregisterOnUnmount: false,
+      submitAsSideEffect: false
     }, initialConfig);
 
     return function (WrappedComponent) {
-      var Form = function (_Component) {
-        _inherits$23(Form, _Component);
+      var Form =
+      /*#__PURE__*/
+      function (_React$Component) {
+        inheritsLoose(Form, _React$Component);
 
         function Form() {
-          var _ref;
+          var _this;
 
-          var _temp, _this, _ret;
-
-          _classCallCheck$23(this, Form);
-
-          for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+          for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
             args[_key] = arguments[_key];
           }
 
-          return _ret = (_temp = (_this = _possibleConstructorReturn$23(this, (_ref = Form.__proto__ || Object.getPrototypeOf(Form)).call.apply(_ref, [this].concat(args))), _this), _this.destroyed = false, _this.fieldCounts = {}, _this.fieldValidators = {}, _this.lastFieldValidatorKeys = [], _this.fieldWarners = {}, _this.lastFieldWarnerKeys = [], _this.innerOnSubmit = undefined, _this.submitPromise = undefined, _this.getValues = function () {
+          _this = _React$Component.call.apply(_React$Component, [this].concat(args)) || this;
+          _this.wrapped = React__default.createRef();
+          _this.destroyed = false;
+          _this.fieldCounts = {};
+          _this.fieldValidators = {};
+          _this.lastFieldValidatorKeys = [];
+          _this.fieldWarners = {};
+          _this.lastFieldWarnerKeys = [];
+          _this.innerOnSubmit = undefined;
+          _this.submitPromise = undefined;
+
+          _this.getValues = function () {
             return _this.props.values;
-          }, _this.isValid = function () {
+          };
+
+          _this.isValid = function () {
             return _this.props.valid;
-          }, _this.isPristine = function () {
+          };
+
+          _this.isPristine = function () {
             return _this.props.pristine;
-          }, _this.register = function (name, type, getValidator, getWarner) {
+          };
+
+          _this.register = function (name, type, getValidator, getWarner) {
             var lastCount = _this.fieldCounts[name];
             var nextCount = (lastCount || 0) + 1;
             _this.fieldCounts[name] = nextCount;
+
             _this.props.registerField(name, type);
+
             if (getValidator) {
               _this.fieldValidators[name] = getValidator;
             }
+
             if (getWarner) {
               _this.fieldWarners[name] = getWarner;
             }
-          }, _this.unregister = function (name) {
+          };
+
+          _this.unregister = function (name) {
             var lastCount = _this.fieldCounts[name];
             if (lastCount === 1) delete _this.fieldCounts[name];else if (lastCount != null) _this.fieldCounts[name] = lastCount - 1;
 
             if (!_this.destroyed) {
               var _this$props = _this.props,
                   _destroyOnUnmount = _this$props.destroyOnUnmount,
-                  _forceUnregisterOnUnmount = _this$props.forceUnregisterOnUnmount,
-                  _unregisterField = _this$props.unregisterField;
+                  forceUnregisterOnUnmount = _this$props.forceUnregisterOnUnmount,
+                  unregisterField = _this$props.unregisterField;
 
-              if (_destroyOnUnmount || _forceUnregisterOnUnmount) {
-                _unregisterField(name, _destroyOnUnmount);
+              if (_destroyOnUnmount || forceUnregisterOnUnmount) {
+                unregisterField(name, _destroyOnUnmount);
+
                 if (!_this.fieldCounts[name]) {
                   delete _this.fieldValidators[name];
                   delete _this.fieldWarners[name];
@@ -23753,50 +24845,78 @@ var createReduxForm = function createReduxForm(structure$$1) {
                   });
                 }
               } else {
-                _unregisterField(name, false);
+                unregisterField(name, false);
               }
             }
-          }, _this.getFieldList = function (options) {
+          };
+
+          _this.getFieldList = function (options) {
             var registeredFields = _this.props.registeredFields;
             var list = [];
+
             if (!registeredFields) {
               return list;
             }
+
             var keySeq = keys(registeredFields);
-            if (options && options.excludeFieldArray) {
-              keySeq = keySeq.filter(function (name) {
-                return getIn(registeredFields, '[\'' + name + '\'].type') !== 'FieldArray';
-              });
+
+            if (options) {
+              if (options.excludeFieldArray) {
+                keySeq = keySeq.filter(function (name) {
+                  return getIn(registeredFields, "['" + name + "'].type") !== 'FieldArray';
+                });
+              }
+
+              if (options.excludeUnregistered) {
+                keySeq = keySeq.filter(function (name) {
+                  return getIn(registeredFields, "['" + name + "'].count") !== 0;
+                });
+              }
             }
+
             return fromJS(keySeq.reduce(function (acc, key) {
               acc.push(key);
               return acc;
             }, list));
-          }, _this.getValidators = function () {
+          };
+
+          _this.getValidators = function () {
             var validators = {};
             Object.keys(_this.fieldValidators).forEach(function (name) {
               var validator = _this.fieldValidators[name]();
+
               if (validator) {
                 validators[name] = validator;
               }
             });
             return validators;
-          }, _this.generateValidator = function () {
+          };
+
+          _this.generateValidator = function () {
             var validators = _this.getValidators();
+
             return Object.keys(validators).length ? generateValidator(validators, structure$$1) : undefined;
-          }, _this.getWarners = function () {
+          };
+
+          _this.getWarners = function () {
             var warners = {};
             Object.keys(_this.fieldWarners).forEach(function (name) {
               var warner = _this.fieldWarners[name]();
+
               if (warner) {
                 warners[name] = warner;
               }
             });
             return warners;
-          }, _this.generateWarner = function () {
+          };
+
+          _this.generateWarner = function () {
             var warners = _this.getWarners();
+
             return Object.keys(warners).length ? generateValidator(warners, structure$$1) : undefined;
-          }, _this.asyncValidate = function (name, value, trigger) {
+          };
+
+          _this.asyncValidate = function (name, value, trigger) {
             var _this$props2 = _this.props,
                 asyncBlurFields = _this$props2.asyncBlurFields,
                 asyncChangeFields = _this$props2.asyncChangeFields,
@@ -23810,20 +24930,19 @@ var createReduxForm = function createReduxForm(structure$$1) {
                 stopAsyncValidation = _this$props2.stopAsyncValidation,
                 syncErrors = _this$props2.syncErrors,
                 values = _this$props2.values;
-
             var submitting = !name;
 
             var fieldNeedsValidation = function fieldNeedsValidation() {
               var fieldNeedsValidationForBlur = asyncBlurFields && name && ~asyncBlurFields.indexOf(name.replace(/\[[0-9]+\]/g, '[]'));
               var fieldNeedsValidationForChange = asyncChangeFields && name && ~asyncChangeFields.indexOf(name.replace(/\[[0-9]+\]/g, '[]'));
               var asyncValidateByDefault = !(asyncBlurFields || asyncChangeFields);
-
               return submitting || asyncValidateByDefault || (trigger === 'blur' ? fieldNeedsValidationForBlur : fieldNeedsValidationForChange);
             };
 
             if (asyncValidate) {
               var valuesToValidate = submitting ? values : setIn(values, name, value);
               var syncValidationPasses = submitting || !getIn(syncErrors, name);
+
               if (fieldNeedsValidation() && shouldAsyncValidate({
                 asyncErrors: asyncErrors,
                 initialized: initialized,
@@ -23837,25 +24956,33 @@ var createReduxForm = function createReduxForm(structure$$1) {
                 }, startAsyncValidation, stopAsyncValidation, name);
               }
             }
-          }, _this.submitCompleted = function (result) {
+          };
+
+          _this.submitCompleted = function (result) {
             delete _this.submitPromise;
             return result;
-          }, _this.submitFailed = function (error) {
+          };
+
+          _this.submitFailed = function (error) {
             delete _this.submitPromise;
             throw error;
-          }, _this.listenToSubmit = function (promise) {
+          };
+
+          _this.listenToSubmit = function (promise) {
             if (!isPromise_1(promise)) {
               return promise;
             }
+
             _this.submitPromise = promise;
             return promise.then(_this.submitCompleted, _this.submitFailed);
-          }, _this.submit = function (submitOrEvent) {
+          };
+
+          _this.submit = function (submitOrEvent) {
             var _this$props3 = _this.props,
                 onSubmit = _this$props3.onSubmit,
                 blur = _this$props3.blur,
                 change = _this$props3.change,
                 dispatch = _this$props3.dispatch;
-
 
             if (!submitOrEvent || silenceEvent(submitOrEvent)) {
               // submitOrEvent is an event: fire submit if not already submitting
@@ -23865,399 +24992,401 @@ var createReduxForm = function createReduxForm(structure$$1) {
                   // will call "submitOrEvent is the submit function" block below
                   return _this.innerOnSubmit();
                 } else {
-                  return _this.listenToSubmit(handleSubmit(checkSubmit(onSubmit), _extends$23({}, _this.props, bindActionCreators({ blur: blur, change: change }, dispatch)), _this.props.validExceptSubmit, _this.asyncValidate, _this.getFieldList({ excludeFieldArray: true })));
+                  return _this.listenToSubmit(handleSubmit(checkSubmit(onSubmit), _extends_1({}, _this.props, bindActionCreators({
+                    blur: blur,
+                    change: change
+                  }, dispatch)), _this.props.validExceptSubmit, _this.asyncValidate, _this.getFieldList({
+                    excludeFieldArray: true,
+                    excludeUnregistered: true
+                  })));
                 }
               }
             } else {
               // submitOrEvent is the submit function: return deferred submit thunk
               return silenceEvents(function () {
-                return !_this.submitPromise && _this.listenToSubmit(handleSubmit(checkSubmit(submitOrEvent), _extends$23({}, _this.props, bindActionCreators({ blur: blur, change: change }, dispatch)), _this.props.validExceptSubmit, _this.asyncValidate, _this.getFieldList({ excludeFieldArray: true })));
+                return !_this.submitPromise && _this.listenToSubmit(handleSubmit(checkSubmit(submitOrEvent), _extends_1({}, _this.props, bindActionCreators({
+                  blur: blur,
+                  change: change
+                }, dispatch)), _this.props.validExceptSubmit, _this.asyncValidate, _this.getFieldList({
+                  excludeFieldArray: true,
+                  excludeUnregistered: true
+                })));
               });
             }
-          }, _this.reset = function () {
+          };
+
+          _this.reset = function () {
             return _this.props.reset();
-          }, _this.saveRef = function (ref) {
-            _this.wrapped = ref;
-          }, _temp), _possibleConstructorReturn$23(_this, _ret);
+          };
+
+          return _this;
         }
 
-        _createClass$11(Form, [{
-          key: 'getChildContext',
-          value: function getChildContext() {
-            var _this2 = this;
+        var _proto = Form.prototype;
 
-            return {
-              _reduxForm: _extends$23({}, this.props, {
-                getFormState: function getFormState(state) {
-                  return getIn(_this2.props.getFormState(state), _this2.props.form);
-                },
-                asyncValidate: this.asyncValidate,
-                getValues: this.getValues,
-                sectionPrefix: undefined,
-                register: this.register,
-                unregister: this.unregister,
-                registerInnerOnSubmit: function registerInnerOnSubmit(innerOnSubmit) {
-                  return _this2.innerOnSubmit = innerOnSubmit;
-                }
-              })
-            };
-          }
-        }, {
-          key: 'initIfNeeded',
-          value: function initIfNeeded(nextProps) {
-            var enableReinitialize = this.props.enableReinitialize;
+        _proto.initIfNeeded = function initIfNeeded(nextProps) {
+          var enableReinitialize = this.props.enableReinitialize;
 
-            if (nextProps) {
-              if ((enableReinitialize || !nextProps.initialized) && !deepEqual(this.props.initialValues, nextProps.initialValues)) {
-                var _keepDirty = nextProps.initialized && this.props.keepDirtyOnReinitialize;
-                this.props.initialize(nextProps.initialValues, _keepDirty, {
-                  keepValues: nextProps.keepValues,
-                  lastInitialValues: this.props.initialValues,
-                  updateUnregisteredFields: nextProps.updateUnregisteredFields
-                });
-              }
-            } else if (this.props.initialValues && (!this.props.initialized || enableReinitialize)) {
-              this.props.initialize(this.props.initialValues, this.props.keepDirtyOnReinitialize, {
-                keepValues: this.props.keepValues,
-                updateUnregisteredFields: this.props.updateUnregisteredFields
+          if (nextProps) {
+            if ((enableReinitialize || !nextProps.initialized) && !deepEqual(this.props.initialValues, nextProps.initialValues)) {
+              var _keepDirty = nextProps.initialized && this.props.keepDirtyOnReinitialize;
+
+              this.props.initialize(nextProps.initialValues, _keepDirty, {
+                keepValues: nextProps.keepValues,
+                lastInitialValues: this.props.initialValues,
+                updateUnregisteredFields: nextProps.updateUnregisteredFields
               });
             }
-          }
-        }, {
-          key: 'updateSyncErrorsIfNeeded',
-          value: function updateSyncErrorsIfNeeded(nextSyncErrors, nextError, lastSyncErrors) {
-            var _props = this.props,
-                error = _props.error,
-                updateSyncErrors = _props.updateSyncErrors;
-
-            var noErrors = (!lastSyncErrors || !Object.keys(lastSyncErrors).length) && !error;
-            var nextNoErrors = (!nextSyncErrors || !Object.keys(nextSyncErrors).length) && !nextError;
-            if (!(noErrors && nextNoErrors) && (!structure.deepEqual(lastSyncErrors, nextSyncErrors) || !structure.deepEqual(error, nextError))) {
-              updateSyncErrors(nextSyncErrors, nextError);
-            }
-          }
-        }, {
-          key: 'clearSubmitPromiseIfNeeded',
-          value: function clearSubmitPromiseIfNeeded(nextProps) {
-            var submitting = this.props.submitting;
-
-            if (this.submitPromise && submitting && !nextProps.submitting) {
-              delete this.submitPromise;
-            }
-          }
-        }, {
-          key: 'submitIfNeeded',
-          value: function submitIfNeeded(nextProps) {
-            var _props2 = this.props,
-                clearSubmit = _props2.clearSubmit,
-                triggerSubmit = _props2.triggerSubmit;
-
-            if (!triggerSubmit && nextProps.triggerSubmit) {
-              clearSubmit();
-              this.submit();
-            }
-          }
-        }, {
-          key: 'shouldErrorFunction',
-          value: function shouldErrorFunction() {
-            var _props3 = this.props,
-                shouldValidate = _props3.shouldValidate,
-                shouldError = _props3.shouldError;
-
-            var shouldValidateOverridden = shouldValidate !== defaultShouldValidate;
-            var shouldErrorOverridden = shouldError !== defaultShouldError;
-
-            return shouldValidateOverridden && !shouldErrorOverridden ? shouldValidate : shouldError;
-          }
-        }, {
-          key: 'validateIfNeeded',
-          value: function validateIfNeeded(nextProps) {
-            var _props4 = this.props,
-                validate = _props4.validate,
-                values = _props4.values;
-
-            var shouldError = this.shouldErrorFunction();
-            var fieldLevelValidate = this.generateValidator();
-            if (validate || fieldLevelValidate) {
-              var initialRender = nextProps === undefined;
-              var fieldValidatorKeys = Object.keys(this.getValidators());
-              var validateParams = {
-                values: values,
-                nextProps: nextProps,
-                props: this.props,
-                initialRender: initialRender,
-                lastFieldValidatorKeys: this.lastFieldValidatorKeys,
-                fieldValidatorKeys: fieldValidatorKeys,
-                structure: structure$$1
-              };
-
-              if (shouldError(validateParams)) {
-                var propsToValidate = initialRender || !nextProps ? this.props : nextProps;
-
-                var _merge2 = merge$1(validate ? validate(propsToValidate.values, propsToValidate) || {} : {}, fieldLevelValidate ? fieldLevelValidate(propsToValidate.values, propsToValidate) || {} : {}),
-                    _error = _merge2._error,
-                    nextSyncErrors = _objectWithoutProperties$12(_merge2, ['_error']);
-
-                this.lastFieldValidatorKeys = fieldValidatorKeys;
-                this.updateSyncErrorsIfNeeded(nextSyncErrors, _error, propsToValidate.syncErrors);
-              }
-            } else {
-              this.lastFieldValidatorKeys = [];
-            }
-          }
-        }, {
-          key: 'updateSyncWarningsIfNeeded',
-          value: function updateSyncWarningsIfNeeded(nextSyncWarnings, nextWarning, lastSyncWarnings) {
-            var _props5 = this.props,
-                warning = _props5.warning,
-                syncWarnings = _props5.syncWarnings,
-                updateSyncWarnings = _props5.updateSyncWarnings;
-
-            var noWarnings = (!syncWarnings || !Object.keys(syncWarnings).length) && !warning;
-            var nextNoWarnings = (!nextSyncWarnings || !Object.keys(nextSyncWarnings).length) && !nextWarning;
-            if (!(noWarnings && nextNoWarnings) && (!structure.deepEqual(lastSyncWarnings, nextSyncWarnings) || !structure.deepEqual(warning, nextWarning))) {
-              updateSyncWarnings(nextSyncWarnings, nextWarning);
-            }
-          }
-        }, {
-          key: 'shouldWarnFunction',
-          value: function shouldWarnFunction() {
-            var _props6 = this.props,
-                shouldValidate = _props6.shouldValidate,
-                shouldWarn = _props6.shouldWarn;
-
-            var shouldValidateOverridden = shouldValidate !== defaultShouldValidate;
-            var shouldWarnOverridden = shouldWarn !== defaultShouldWarn;
-
-            return shouldValidateOverridden && !shouldWarnOverridden ? shouldValidate : shouldWarn;
-          }
-        }, {
-          key: 'warnIfNeeded',
-          value: function warnIfNeeded(nextProps) {
-            var _props7 = this.props,
-                warn = _props7.warn,
-                values = _props7.values;
-
-            var shouldWarn = this.shouldWarnFunction();
-            var fieldLevelWarn = this.generateWarner();
-            if (warn || fieldLevelWarn) {
-              var initialRender = nextProps === undefined;
-              var fieldWarnerKeys = Object.keys(this.getWarners());
-              var validateParams = {
-                values: values,
-                nextProps: nextProps,
-                props: this.props,
-                initialRender: initialRender,
-                lastFieldValidatorKeys: this.lastFieldWarnerKeys,
-                fieldValidatorKeys: fieldWarnerKeys,
-                structure: structure$$1
-              };
-
-              if (shouldWarn(validateParams)) {
-                var propsToWarn = initialRender || !nextProps ? this.props : nextProps;
-
-                var _merge3 = merge$1(warn ? warn(propsToWarn.values, propsToWarn) : {}, fieldLevelWarn ? fieldLevelWarn(propsToWarn.values, propsToWarn) : {}),
-                    _warning = _merge3._warning,
-                    nextSyncWarnings = _objectWithoutProperties$12(_merge3, ['_warning']);
-
-                this.lastFieldWarnerKeys = fieldWarnerKeys;
-                this.updateSyncWarningsIfNeeded(nextSyncWarnings, _warning, propsToWarn.syncWarnings);
-              }
-            }
-          }
-        }, {
-          key: 'componentWillMount',
-          value: function componentWillMount() {
-            if (!isHotReloading()) {
-              this.initIfNeeded();
-              this.validateIfNeeded();
-              this.warnIfNeeded();
-            }
-            invariant_1(this.props.shouldValidate, 'shouldValidate() is deprecated and will be removed in v8.0.0. Use shouldWarn() or shouldError() instead.');
-          }
-        }, {
-          key: 'componentWillReceiveProps',
-          value: function componentWillReceiveProps(nextProps) {
-            this.initIfNeeded(nextProps);
-            this.validateIfNeeded(nextProps);
-            this.warnIfNeeded(nextProps);
-            this.clearSubmitPromiseIfNeeded(nextProps);
-            this.submitIfNeeded(nextProps);
-            var onChange = nextProps.onChange,
-                values = nextProps.values,
-                dispatch = nextProps.dispatch;
-
-            if (onChange && !deepEqual(values, this.props.values)) {
-              onChange(values, dispatch, nextProps, this.props.values);
-            }
-          }
-        }, {
-          key: 'shouldComponentUpdate',
-          value: function shouldComponentUpdate(nextProps) {
-            var _this3 = this;
-
-            if (!this.props.pure) return true;
-            var _config$immutableProp = config.immutableProps,
-                immutableProps = _config$immutableProp === undefined ? [] : _config$immutableProp;
-            // if we have children, we MUST update in React 16
-            // https://twitter.com/erikras/status/915866544558788608
-
-            return !!(this.props.children || nextProps.children || Object.keys(nextProps).some(function (prop) {
-              // useful to debug rerenders
-              // if (!plain.deepEqual(this.props[ prop ], nextProps[ prop ])) {
-              //   console.info(prop, 'changed', this.props[ prop ], '==>', nextProps[ prop ])
-              // }
-              if (~immutableProps.indexOf(prop)) {
-                return _this3.props[prop] !== nextProps[prop];
-              }
-              return !~propsToNotUpdateFor$3.indexOf(prop) && !deepEqual(_this3.props[prop], nextProps[prop]);
-            }));
-          }
-        }, {
-          key: 'componentDidMount',
-          value: function componentDidMount() {
-            if (!isHotReloading()) {
-              this.initIfNeeded(this.props);
-              this.validateIfNeeded();
-              this.warnIfNeeded();
-            }
-            invariant_1(this.props.shouldValidate, 'shouldValidate() is deprecated and will be removed in v8.0.0. Use shouldWarn() or shouldError() instead.');
-          }
-        }, {
-          key: 'componentWillUnmount',
-          value: function componentWillUnmount() {
-            var _props8 = this.props,
-                destroyOnUnmount = _props8.destroyOnUnmount,
-                destroy = _props8.destroy;
-
-            if (destroyOnUnmount && !isHotReloading()) {
-              this.destroyed = true;
-              destroy();
-            }
-          }
-        }, {
-          key: 'render',
-          value: function render() {
-            // remove some redux-form config-only props
-            /* eslint-disable no-unused-vars */
-            var _props9 = this.props,
-                anyTouched = _props9.anyTouched,
-                array = _props9.array,
-                arrayInsert = _props9.arrayInsert,
-                arrayMove = _props9.arrayMove,
-                arrayPop = _props9.arrayPop,
-                arrayPush = _props9.arrayPush,
-                arrayRemove = _props9.arrayRemove,
-                arrayRemoveAll = _props9.arrayRemoveAll,
-                arrayShift = _props9.arrayShift,
-                arraySplice = _props9.arraySplice,
-                arraySwap = _props9.arraySwap,
-                arrayUnshift = _props9.arrayUnshift,
-                asyncErrors = _props9.asyncErrors,
-                asyncValidate = _props9.asyncValidate,
-                asyncValidating = _props9.asyncValidating,
-                blur = _props9.blur,
-                change = _props9.change,
-                clearSubmit = _props9.clearSubmit,
-                destroy = _props9.destroy,
-                destroyOnUnmount = _props9.destroyOnUnmount,
-                forceUnregisterOnUnmount = _props9.forceUnregisterOnUnmount,
-                dirty = _props9.dirty,
-                dispatch = _props9.dispatch,
-                enableReinitialize = _props9.enableReinitialize,
-                error = _props9.error,
-                focus = _props9.focus,
-                form = _props9.form,
-                getFormState = _props9.getFormState,
-                immutableProps = _props9.immutableProps,
-                initialize = _props9.initialize,
-                initialized = _props9.initialized,
-                initialValues = _props9.initialValues,
-                invalid = _props9.invalid,
-                keepDirtyOnReinitialize = _props9.keepDirtyOnReinitialize,
-                keepValues = _props9.keepValues,
-                updateUnregisteredFields = _props9.updateUnregisteredFields,
-                pristine = _props9.pristine,
-                propNamespace = _props9.propNamespace,
-                registeredFields = _props9.registeredFields,
-                registerField = _props9.registerField,
-                reset = _props9.reset,
-                resetSection = _props9.resetSection,
-                setSubmitFailed = _props9.setSubmitFailed,
-                setSubmitSucceeded = _props9.setSubmitSucceeded,
-                shouldAsyncValidate = _props9.shouldAsyncValidate,
-                shouldValidate = _props9.shouldValidate,
-                shouldError = _props9.shouldError,
-                shouldWarn = _props9.shouldWarn,
-                startAsyncValidation = _props9.startAsyncValidation,
-                startSubmit = _props9.startSubmit,
-                stopAsyncValidation = _props9.stopAsyncValidation,
-                stopSubmit = _props9.stopSubmit,
-                submitting = _props9.submitting,
-                submitFailed = _props9.submitFailed,
-                submitSucceeded = _props9.submitSucceeded,
-                touch = _props9.touch,
-                touchOnBlur = _props9.touchOnBlur,
-                touchOnChange = _props9.touchOnChange,
-                persistentSubmitErrors = _props9.persistentSubmitErrors,
-                syncErrors = _props9.syncErrors,
-                syncWarnings = _props9.syncWarnings,
-                unregisterField = _props9.unregisterField,
-                untouch = _props9.untouch,
-                updateSyncErrors = _props9.updateSyncErrors,
-                updateSyncWarnings = _props9.updateSyncWarnings,
-                valid = _props9.valid,
-                validExceptSubmit = _props9.validExceptSubmit,
-                values = _props9.values,
-                warning = _props9.warning,
-                rest = _objectWithoutProperties$12(_props9, ['anyTouched', 'array', 'arrayInsert', 'arrayMove', 'arrayPop', 'arrayPush', 'arrayRemove', 'arrayRemoveAll', 'arrayShift', 'arraySplice', 'arraySwap', 'arrayUnshift', 'asyncErrors', 'asyncValidate', 'asyncValidating', 'blur', 'change', 'clearSubmit', 'destroy', 'destroyOnUnmount', 'forceUnregisterOnUnmount', 'dirty', 'dispatch', 'enableReinitialize', 'error', 'focus', 'form', 'getFormState', 'immutableProps', 'initialize', 'initialized', 'initialValues', 'invalid', 'keepDirtyOnReinitialize', 'keepValues', 'updateUnregisteredFields', 'pristine', 'propNamespace', 'registeredFields', 'registerField', 'reset', 'resetSection', 'setSubmitFailed', 'setSubmitSucceeded', 'shouldAsyncValidate', 'shouldValidate', 'shouldError', 'shouldWarn', 'startAsyncValidation', 'startSubmit', 'stopAsyncValidation', 'stopSubmit', 'submitting', 'submitFailed', 'submitSucceeded', 'touch', 'touchOnBlur', 'touchOnChange', 'persistentSubmitErrors', 'syncErrors', 'syncWarnings', 'unregisterField', 'untouch', 'updateSyncErrors', 'updateSyncWarnings', 'valid', 'validExceptSubmit', 'values', 'warning']);
-            /* eslint-enable no-unused-vars */
-
-
-            var reduxFormProps = _extends$23({
-              array: array,
-              anyTouched: anyTouched,
-              asyncValidate: this.asyncValidate,
-              asyncValidating: asyncValidating
-            }, bindActionCreators({ blur: blur, change: change }, dispatch), {
-              clearSubmit: clearSubmit,
-              destroy: destroy,
-              dirty: dirty,
-              dispatch: dispatch,
-              error: error,
-              form: form,
-              handleSubmit: this.submit,
-              initialize: initialize,
-              initialized: initialized,
-              initialValues: initialValues,
-              invalid: invalid,
-              pristine: pristine,
-              reset: reset,
-              resetSection: resetSection,
-              submitting: submitting,
-              submitFailed: submitFailed,
-              submitSucceeded: submitSucceeded,
-              touch: touch,
-              untouch: untouch,
-              valid: valid,
-              warning: warning
+          } else if (this.props.initialValues && (!this.props.initialized || enableReinitialize)) {
+            this.props.initialize(this.props.initialValues, this.props.keepDirtyOnReinitialize, {
+              keepValues: this.props.keepValues,
+              updateUnregisteredFields: this.props.updateUnregisteredFields
             });
-            var propsToPass = _extends$23({}, propNamespace ? _defineProperty$6({}, propNamespace, reduxFormProps) : reduxFormProps, rest);
-            if (isClassComponent(WrappedComponent)) {
-propsToPass.ref = this.saveRef;
-            }
-            return React.createElement(WrappedComponent, propsToPass);
           }
-        }]);
+        };
+
+        _proto.updateSyncErrorsIfNeeded = function updateSyncErrorsIfNeeded(nextSyncErrors, nextError, lastSyncErrors) {
+          var _this$props4 = this.props,
+              error = _this$props4.error,
+              updateSyncErrors = _this$props4.updateSyncErrors;
+          var noErrors = (!lastSyncErrors || !Object.keys(lastSyncErrors).length) && !error;
+          var nextNoErrors = (!nextSyncErrors || !Object.keys(nextSyncErrors).length) && !nextError;
+
+          if (!(noErrors && nextNoErrors) && (!structure.deepEqual(lastSyncErrors, nextSyncErrors) || !structure.deepEqual(error, nextError))) {
+            updateSyncErrors(nextSyncErrors, nextError);
+          }
+        };
+
+        _proto.clearSubmitPromiseIfNeeded = function clearSubmitPromiseIfNeeded(nextProps) {
+          var submitting = this.props.submitting;
+
+          if (this.submitPromise && submitting && !nextProps.submitting) {
+            delete this.submitPromise;
+          }
+        };
+
+        _proto.submitIfNeeded = function submitIfNeeded(nextProps) {
+          var _this$props5 = this.props,
+              clearSubmit = _this$props5.clearSubmit,
+              triggerSubmit = _this$props5.triggerSubmit;
+
+          if (!triggerSubmit && nextProps.triggerSubmit) {
+            clearSubmit();
+            this.submit();
+          }
+        };
+
+        _proto.shouldErrorFunction = function shouldErrorFunction() {
+          var _this$props6 = this.props,
+              shouldValidate = _this$props6.shouldValidate,
+              shouldError = _this$props6.shouldError;
+          var shouldValidateOverridden = shouldValidate !== defaultShouldValidate;
+          var shouldErrorOverridden = shouldError !== defaultShouldError;
+          return shouldValidateOverridden && !shouldErrorOverridden ? shouldValidate : shouldError;
+        };
+
+        _proto.validateIfNeeded = function validateIfNeeded(nextProps) {
+          var _this$props7 = this.props,
+              validate = _this$props7.validate,
+              values = _this$props7.values;
+          var shouldError = this.shouldErrorFunction();
+          var fieldLevelValidate = this.generateValidator();
+
+          if (validate || fieldLevelValidate) {
+            var initialRender = nextProps === undefined;
+            var fieldValidatorKeys = Object.keys(this.getValidators());
+            var validateParams = {
+              values: values,
+              nextProps: nextProps,
+              props: this.props,
+              initialRender: initialRender,
+              lastFieldValidatorKeys: this.lastFieldValidatorKeys,
+              fieldValidatorKeys: fieldValidatorKeys,
+              structure: structure$$1
+            };
+
+            if (shouldError(validateParams)) {
+              var propsToValidate = initialRender || !nextProps ? this.props : nextProps;
+
+              var _merge2 = merge_1(validate ? validate(propsToValidate.values, propsToValidate) || {} : {}, fieldLevelValidate ? fieldLevelValidate(propsToValidate.values, propsToValidate) || {} : {}),
+                  _error = _merge2._error,
+                  nextSyncErrors = objectWithoutPropertiesLoose(_merge2, ["_error"]);
+
+              this.lastFieldValidatorKeys = fieldValidatorKeys;
+              this.updateSyncErrorsIfNeeded(nextSyncErrors, _error, propsToValidate.syncErrors);
+            }
+          } else {
+            this.lastFieldValidatorKeys = [];
+          }
+        };
+
+        _proto.updateSyncWarningsIfNeeded = function updateSyncWarningsIfNeeded(nextSyncWarnings, nextWarning, lastSyncWarnings) {
+          var _this$props8 = this.props,
+              warning = _this$props8.warning,
+              updateSyncWarnings = _this$props8.updateSyncWarnings;
+          var noWarnings = (!lastSyncWarnings || !Object.keys(lastSyncWarnings).length) && !warning;
+          var nextNoWarnings = (!nextSyncWarnings || !Object.keys(nextSyncWarnings).length) && !nextWarning;
+
+          if (!(noWarnings && nextNoWarnings) && (!structure.deepEqual(lastSyncWarnings, nextSyncWarnings) || !structure.deepEqual(warning, nextWarning))) {
+            updateSyncWarnings(nextSyncWarnings, nextWarning);
+          }
+        };
+
+        _proto.shouldWarnFunction = function shouldWarnFunction() {
+          var _this$props9 = this.props,
+              shouldValidate = _this$props9.shouldValidate,
+              shouldWarn = _this$props9.shouldWarn;
+          var shouldValidateOverridden = shouldValidate !== defaultShouldValidate;
+          var shouldWarnOverridden = shouldWarn !== defaultShouldWarn;
+          return shouldValidateOverridden && !shouldWarnOverridden ? shouldValidate : shouldWarn;
+        };
+
+        _proto.warnIfNeeded = function warnIfNeeded(nextProps) {
+          var _this$props10 = this.props,
+              warn = _this$props10.warn,
+              values = _this$props10.values;
+          var shouldWarn = this.shouldWarnFunction();
+          var fieldLevelWarn = this.generateWarner();
+
+          if (warn || fieldLevelWarn) {
+            var initialRender = nextProps === undefined;
+            var fieldWarnerKeys = Object.keys(this.getWarners());
+            var validateParams = {
+              values: values,
+              nextProps: nextProps,
+              props: this.props,
+              initialRender: initialRender,
+              lastFieldValidatorKeys: this.lastFieldWarnerKeys,
+              fieldValidatorKeys: fieldWarnerKeys,
+              structure: structure$$1
+            };
+
+            if (shouldWarn(validateParams)) {
+              var propsToWarn = initialRender || !nextProps ? this.props : nextProps;
+
+              var _merge3 = merge_1(warn ? warn(propsToWarn.values, propsToWarn) : {}, fieldLevelWarn ? fieldLevelWarn(propsToWarn.values, propsToWarn) : {}),
+                  _warning = _merge3._warning,
+                  nextSyncWarnings = objectWithoutPropertiesLoose(_merge3, ["_warning"]);
+
+              this.lastFieldWarnerKeys = fieldWarnerKeys;
+              this.updateSyncWarningsIfNeeded(nextSyncWarnings, _warning, propsToWarn.syncWarnings);
+            }
+          }
+        };
+
+        _proto.UNSAFE_componentWillMount = function UNSAFE_componentWillMount() {
+          if (!isHotReloading()) {
+            this.initIfNeeded();
+            this.validateIfNeeded();
+            this.warnIfNeeded();
+          }
+
+          invariant_1(this.props.shouldValidate, 'shouldValidate() is deprecated and will be removed in v9.0.0. Use shouldWarn() or shouldError() instead.');
+        };
+
+        _proto.UNSAFE_componentWillReceiveProps = function UNSAFE_componentWillReceiveProps(nextProps) {
+          this.initIfNeeded(nextProps);
+          this.validateIfNeeded(nextProps);
+          this.warnIfNeeded(nextProps);
+          this.clearSubmitPromiseIfNeeded(nextProps);
+          this.submitIfNeeded(nextProps);
+          var onChange = nextProps.onChange,
+              values = nextProps.values,
+              dispatch = nextProps.dispatch;
+
+          if (onChange && !deepEqual(values, this.props.values)) {
+            onChange(values, dispatch, nextProps, this.props.values);
+          }
+        };
+
+        _proto.shouldComponentUpdate = function shouldComponentUpdate(nextProps) {
+          var _this2 = this;
+
+          if (!this.props.pure) return true;
+          var _config$immutableProp = config.immutableProps,
+              immutableProps = _config$immutableProp === void 0 ? [] : _config$immutableProp; // if we have children, we MUST update in React 16
+          // https://twitter.com/erikras/status/915866544558788608
+
+          return !!(this.props.children || nextProps.children || Object.keys(nextProps).some(function (prop) {
+            // useful to debug rerenders
+            // if (!plain.deepEqual(this.props[ prop ], nextProps[ prop ])) {
+            //   console.info(prop, 'changed', this.props[ prop ], '==>', nextProps[ prop ])
+            // }
+            if (~immutableProps.indexOf(prop)) {
+              return _this2.props[prop] !== nextProps[prop];
+            }
+
+            return !~propsToNotUpdateFor$3.indexOf(prop) && !deepEqual(_this2.props[prop], nextProps[prop]);
+          }));
+        };
+
+        _proto.componentDidMount = function componentDidMount() {
+          if (!isHotReloading()) {
+            this.initIfNeeded(this.props);
+            this.validateIfNeeded();
+            this.warnIfNeeded();
+          }
+
+          invariant_1(this.props.shouldValidate, 'shouldValidate() is deprecated and will be removed in v9.0.0. Use shouldWarn() or shouldError() instead.');
+        };
+
+        _proto.componentWillUnmount = function componentWillUnmount() {
+          var _this$props11 = this.props,
+              destroyOnUnmount = _this$props11.destroyOnUnmount,
+              destroy = _this$props11.destroy;
+
+          if (destroyOnUnmount && !isHotReloading()) {
+            this.destroyed = true;
+            destroy();
+          }
+        };
+
+        _proto.render = function render() {
+          var _ref,
+              _this3 = this;
+
+          // remove some redux-form config-only props
+
+          /* eslint-disable no-unused-vars */
+          var _this$props12 = this.props,
+              anyTouched = _this$props12.anyTouched,
+              array = _this$props12.array,
+              arrayInsert = _this$props12.arrayInsert,
+              arrayMove = _this$props12.arrayMove,
+              arrayPop = _this$props12.arrayPop,
+              arrayPush = _this$props12.arrayPush,
+              arrayRemove = _this$props12.arrayRemove,
+              arrayRemoveAll = _this$props12.arrayRemoveAll,
+              arrayShift = _this$props12.arrayShift,
+              arraySplice = _this$props12.arraySplice,
+              arraySwap = _this$props12.arraySwap,
+              arrayUnshift = _this$props12.arrayUnshift,
+              asyncErrors = _this$props12.asyncErrors,
+              asyncValidate = _this$props12.asyncValidate,
+              asyncValidating = _this$props12.asyncValidating,
+              blur = _this$props12.blur,
+              change = _this$props12.change,
+              clearSubmit = _this$props12.clearSubmit,
+              destroy = _this$props12.destroy,
+              destroyOnUnmount = _this$props12.destroyOnUnmount,
+              forceUnregisterOnUnmount = _this$props12.forceUnregisterOnUnmount,
+              dirty = _this$props12.dirty,
+              dispatch = _this$props12.dispatch,
+              enableReinitialize = _this$props12.enableReinitialize,
+              error = _this$props12.error,
+              focus = _this$props12.focus,
+              form = _this$props12.form,
+              getFormState = _this$props12.getFormState,
+              immutableProps = _this$props12.immutableProps,
+              initialize = _this$props12.initialize,
+              initialized = _this$props12.initialized,
+              initialValues = _this$props12.initialValues,
+              invalid = _this$props12.invalid,
+              keepDirtyOnReinitialize = _this$props12.keepDirtyOnReinitialize,
+              keepValues = _this$props12.keepValues,
+              updateUnregisteredFields = _this$props12.updateUnregisteredFields,
+              pristine = _this$props12.pristine,
+              propNamespace = _this$props12.propNamespace,
+              registeredFields = _this$props12.registeredFields,
+              registerField = _this$props12.registerField,
+              reset = _this$props12.reset,
+              resetSection = _this$props12.resetSection,
+              setSubmitFailed = _this$props12.setSubmitFailed,
+              setSubmitSucceeded = _this$props12.setSubmitSucceeded,
+              shouldAsyncValidate = _this$props12.shouldAsyncValidate,
+              shouldValidate = _this$props12.shouldValidate,
+              shouldError = _this$props12.shouldError,
+              shouldWarn = _this$props12.shouldWarn,
+              startAsyncValidation = _this$props12.startAsyncValidation,
+              startSubmit = _this$props12.startSubmit,
+              stopAsyncValidation = _this$props12.stopAsyncValidation,
+              stopSubmit = _this$props12.stopSubmit,
+              submitAsSideEffect = _this$props12.submitAsSideEffect,
+              submitting = _this$props12.submitting,
+              submitFailed = _this$props12.submitFailed,
+              submitSucceeded = _this$props12.submitSucceeded,
+              touch = _this$props12.touch,
+              touchOnBlur = _this$props12.touchOnBlur,
+              touchOnChange = _this$props12.touchOnChange,
+              persistentSubmitErrors = _this$props12.persistentSubmitErrors,
+              syncErrors = _this$props12.syncErrors,
+              syncWarnings = _this$props12.syncWarnings,
+              unregisterField = _this$props12.unregisterField,
+              untouch = _this$props12.untouch,
+              updateSyncErrors = _this$props12.updateSyncErrors,
+              updateSyncWarnings = _this$props12.updateSyncWarnings,
+              valid = _this$props12.valid,
+              validExceptSubmit = _this$props12.validExceptSubmit,
+              values = _this$props12.values,
+              warning = _this$props12.warning,
+              rest = objectWithoutPropertiesLoose(_this$props12, ["anyTouched", "array", "arrayInsert", "arrayMove", "arrayPop", "arrayPush", "arrayRemove", "arrayRemoveAll", "arrayShift", "arraySplice", "arraySwap", "arrayUnshift", "asyncErrors", "asyncValidate", "asyncValidating", "blur", "change", "clearSubmit", "destroy", "destroyOnUnmount", "forceUnregisterOnUnmount", "dirty", "dispatch", "enableReinitialize", "error", "focus", "form", "getFormState", "immutableProps", "initialize", "initialized", "initialValues", "invalid", "keepDirtyOnReinitialize", "keepValues", "updateUnregisteredFields", "pristine", "propNamespace", "registeredFields", "registerField", "reset", "resetSection", "setSubmitFailed", "setSubmitSucceeded", "shouldAsyncValidate", "shouldValidate", "shouldError", "shouldWarn", "startAsyncValidation", "startSubmit", "stopAsyncValidation", "stopSubmit", "submitAsSideEffect", "submitting", "submitFailed", "submitSucceeded", "touch", "touchOnBlur", "touchOnChange", "persistentSubmitErrors", "syncErrors", "syncWarnings", "unregisterField", "untouch", "updateSyncErrors", "updateSyncWarnings", "valid", "validExceptSubmit", "values", "warning"]);
+          /* eslint-enable no-unused-vars */
+
+
+          var reduxFormProps = _extends_1({
+            array: array,
+            anyTouched: anyTouched,
+            asyncValidate: this.asyncValidate,
+            asyncValidating: asyncValidating
+          }, bindActionCreators({
+            blur: blur,
+            change: change
+          }, dispatch), {
+            clearSubmit: clearSubmit,
+            destroy: destroy,
+            dirty: dirty,
+            dispatch: dispatch,
+            error: error,
+            form: form,
+            handleSubmit: this.submit,
+            initialize: initialize,
+            initialized: initialized,
+            initialValues: initialValues,
+            invalid: invalid,
+            pristine: pristine,
+            reset: reset,
+            resetSection: resetSection,
+            submitting: submitting,
+            submitAsSideEffect: submitAsSideEffect,
+            submitFailed: submitFailed,
+            submitSucceeded: submitSucceeded,
+            touch: touch,
+            untouch: untouch,
+            valid: valid,
+            warning: warning
+          });
+
+          var propsToPass = _extends_1({}, propNamespace ? (_ref = {}, _ref[propNamespace] = reduxFormProps, _ref) : reduxFormProps, rest);
+
+          if (isClassComponent(WrappedComponent)) {
+            propsToPass.ref = this.wrapped;
+          }
+
+          var _reduxForm = _extends_1({}, this.props, {
+            getFormState: function getFormState(state) {
+              return getIn(_this3.props.getFormState(state), _this3.props.form);
+            },
+            asyncValidate: this.asyncValidate,
+            getValues: this.getValues,
+            sectionPrefix: undefined,
+            register: this.register,
+            unregister: this.unregister,
+            registerInnerOnSubmit: function registerInnerOnSubmit(innerOnSubmit) {
+              return _this3.innerOnSubmit = innerOnSubmit;
+            }
+          });
+
+          return React.createElement(ReduxFormContext.Provider, {
+            value: _reduxForm,
+            children: React.createElement(WrappedComponent, propsToPass)
+          });
+        };
 
         return Form;
-      }(React.Component);
+      }(React__default.Component);
 
-      Form.displayName = 'Form(' + getDisplayName(WrappedComponent) + ')';
+      Form.displayName = "Form(" + getDisplayName(WrappedComponent) + ")";
       Form.WrappedComponent = WrappedComponent;
-      Form.childContextTypes = {
-        _reduxForm: propTypes.object.isRequired
-      };
       Form.propTypes = {
         destroyOnUnmount: propTypes.bool,
         forceUnregisterOnUnmount: propTypes.bool,
@@ -24276,24 +25405,20 @@ propsToPass.ref = this.saveRef;
         persistentSubmitErrors: propTypes.bool,
         registeredFields: propTypes.any
       };
-
       var connector = connect(function (state, props) {
         var form = props.form,
             getFormState = props.getFormState,
             initialValues = props.initialValues,
             enableReinitialize = props.enableReinitialize,
             keepDirtyOnReinitialize = props.keepDirtyOnReinitialize;
-
         var formState = getIn(getFormState(state) || empty, form) || empty;
         var stateInitial = getIn(formState, 'initial');
         var initialized = !!stateInitial;
-
         var shouldUpdateInitialValues = enableReinitialize && initialized && !deepEqual(initialValues, stateInitial);
         var shouldResetValues = shouldUpdateInitialValues && !keepDirtyOnReinitialize;
-
         var initial = initialValues || stateInitial || empty;
 
-        if (shouldUpdateInitialValues) {
+        if (!shouldUpdateInitialValues) {
           initial = stateInitial || empty;
         }
 
@@ -24341,20 +25466,23 @@ propsToPass.ref = this.saveRef;
       }, function (dispatch, initialProps) {
         var bindForm = function bindForm(actionCreator) {
           return actionCreator.bind(null, initialProps.form);
-        };
+        }; // Bind the first parameter on `props.form`
 
-        // Bind the first parameter on `props.form`
-        var boundFormACs = mapValues(formActions, bindForm);
-        var boundArrayACs = mapValues(arrayActions, bindForm);
+
+        var boundFormACs = mapValues_1(formActions, bindForm);
+
+        var boundArrayACs = mapValues_1(arrayActions, bindForm);
+
         var boundBlur = function boundBlur(field, value) {
           return blur$1(initialProps.form, field, value, !!initialProps.touchOnBlur);
         };
+
         var boundChange = function boundChange(field, value) {
           return change$1(initialProps.form, field, value, !!initialProps.touchOnChange, !!initialProps.persistentSubmitErrors);
         };
-        var boundFocus = bindForm(focus$1);
 
-        // Wrap action creators with `dispatch`
+        var boundFocus = bindForm(focus$1); // Wrap action creators with `dispatch`
+
         var connectedFormACs = bindActionCreators(boundFormACs, dispatch);
         var connectedArrayACs = {
           insert: bindActionCreators(boundArrayACs.arrayInsert, dispatch),
@@ -24368,106 +25496,106 @@ propsToPass.ref = this.saveRef;
           swap: bindActionCreators(boundArrayACs.arraySwap, dispatch),
           unshift: bindActionCreators(boundArrayACs.arrayUnshift, dispatch)
         };
-
-        var computedActions = _extends$23({}, connectedFormACs, boundArrayACs, {
+        return _extends_1({}, connectedFormACs, boundArrayACs, {
           blur: boundBlur,
           change: boundChange,
           array: connectedArrayACs,
           focus: boundFocus,
           dispatch: dispatch
         });
+      }, undefined, {
+        forwardRef: true
+      });
+      var ConnectedForm = hoistNonReactStatics_cjs(connector(Form), WrappedComponent);
+      ConnectedForm.defaultProps = config; // build outer component to expose instance api
 
-        return function () {
-          return computedActions;
-        };
-      }, undefined, { withRef: true });
-      var ConnectedForm = hoistNonReactStatics_cjs$2(connector(Form), WrappedComponent);
-      ConnectedForm.defaultProps = config;
-
-      // build outer component to expose instance api
-
-      var ReduxForm = function (_Component2) {
-        _inherits$23(ReduxForm, _Component2);
+      var ReduxForm =
+      /*#__PURE__*/
+      function (_React$Component2) {
+        inheritsLoose(ReduxForm, _React$Component2);
 
         function ReduxForm() {
-          _classCallCheck$23(this, ReduxForm);
+          var _this4;
 
-          return _possibleConstructorReturn$23(this, (ReduxForm.__proto__ || Object.getPrototypeOf(ReduxForm)).apply(this, arguments));
+          for (var _len2 = arguments.length, args = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+            args[_key2] = arguments[_key2];
+          }
+
+          _this4 = _React$Component2.call.apply(_React$Component2, [this].concat(args)) || this;
+          _this4.ref = React__default.createRef();
+          return _this4;
         }
 
-        _createClass$11(ReduxForm, [{
-          key: 'submit',
-          value: function submit() {
-            return this.ref && this.ref.getWrappedInstance().submit();
-          }
-        }, {
-          key: 'reset',
-          value: function reset() {
-            if (this.ref) {
-              this.ref.getWrappedInstance().reset();
-            }
-          }
-        }, {
-          key: 'render',
-          value: function render() {
-            var _this5 = this;
+        var _proto2 = ReduxForm.prototype;
 
-            var _props10 = this.props,
-                initialValues = _props10.initialValues,
-                rest = _objectWithoutProperties$12(_props10, ['initialValues']);
+        _proto2.submit = function submit() {
+          return this.ref.current && this.ref.current.submit();
+        };
 
-            return React.createElement(ConnectedForm, _extends$23({}, rest, {
-              ref: function ref(_ref3) {
-                _this5.ref = _ref3;
-              },
-              // convert initialValues if need to
-              initialValues: fromJS(initialValues)
-            }));
+        _proto2.reset = function reset() {
+          if (this.ref) {
+            this.ref.current.reset();
           }
-        }, {
-          key: 'valid',
+        };
+
+        _proto2.render = function render() {
+          var _this$props13 = this.props,
+              initialValues = _this$props13.initialValues,
+              rest = objectWithoutPropertiesLoose(_this$props13, ["initialValues"]);
+
+          return React.createElement(ConnectedForm, _extends_1({}, rest, {
+            ref: this.ref,
+            // convert initialValues if need to
+            initialValues: fromJS(initialValues)
+          }));
+        };
+
+        createClass$1(ReduxForm, [{
+          key: "valid",
           get: function get() {
-            return !!(this.ref && this.ref.getWrappedInstance().isValid());
+            return !!(this.ref.current && this.ref.current.isValid());
           }
         }, {
-          key: 'invalid',
+          key: "invalid",
           get: function get() {
             return !this.valid;
           }
         }, {
-          key: 'pristine',
+          key: "pristine",
           get: function get() {
-            return !!(this.ref && this.ref.getWrappedInstance().isPristine());
+            return !!(this.ref.current && this.ref.current.isPristine());
           }
         }, {
-          key: 'dirty',
+          key: "dirty",
           get: function get() {
             return !this.pristine;
           }
         }, {
-          key: 'values',
+          key: "values",
           get: function get() {
-            return this.ref ? this.ref.getWrappedInstance().getValues() : empty;
+            return this.ref.current ? this.ref.current.getValues() : empty;
           }
         }, {
-          key: 'fieldList',
+          key: "fieldList",
           get: function get() {
             // mainly provided for testing
-            return this.ref ? this.ref.getWrappedInstance().getFieldList() : [];
+            return this.ref.current ? this.ref.current.getFieldList() : [];
           }
         }, {
-          key: 'wrappedInstance',
+          key: "wrappedInstance",
           get: function get() {
             // for testing
-            return this.ref && this.ref.getWrappedInstance().wrapped;
+            return this.ref.current && this.ref.current.wrapped.current;
           }
         }]);
 
         return ReduxForm;
-      }(React.Component);
+      }(React__default.Component);
 
       polyfill(ReduxForm);
-      return hoistNonReactStatics_cjs$2(ReduxForm, WrappedComponent);
+      var WithContext = hoistNonReactStatics_cjs(withReduxForm(ReduxForm), WrappedComponent);
+      WithContext.defaultProps = config;
+      return WithContext;
     };
   };
 };
@@ -24486,15 +25614,16 @@ function createDeleteInWithCleanUp(structure) {
       getIn = structure.getIn,
       deleteIn = structure.deleteIn,
       setIn = structure.setIn;
-
-
-  return function () {
-    var shouldDelete = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : shouldDeleteDefault;
+  return function (shouldDelete) {
+    if (shouldDelete === void 0) {
+      shouldDelete = shouldDeleteDefault;
+    }
 
     var deleteInWithCleanUp = function deleteInWithCleanUp(state, path) {
       if (path[path.length - 1] === ']') {
         // array path
-        var pathTokens = toPath(path);
+        var pathTokens = toPath_1(path);
+
         pathTokens.pop();
         var parent = getIn(state, pathTokens.join('.'));
         return parent ? setIn(state, path) : state;
@@ -24507,15 +25636,19 @@ function createDeleteInWithCleanUp(structure) {
       }
 
       var dotIndex = path.lastIndexOf('.');
+
       if (dotIndex > 0) {
         var parentPath = path.substring(0, dotIndex);
+
         if (parentPath[parentPath.length - 1] !== ']') {
           var _parent = getIn(result, parentPath);
+
           if (deepEqual(_parent, empty)) {
             return deleteInWithCleanUp(result, parentPath);
           }
         }
       }
+
       return result;
     };
 
@@ -24523,22 +25656,16 @@ function createDeleteInWithCleanUp(structure) {
   };
 }
 
-function _defineProperty$7(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-function _objectWithoutProperties$13(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
-
-
 var shouldDelete = function shouldDelete(_ref) {
   var getIn = _ref.getIn;
   return function (state, path) {
     var initialValuesPath = null;
 
-    if (path.startsWith('values')) {
+    if (/^values/.test(path)) {
       initialValuesPath = path.replace('values', 'initial');
     }
 
     var initialValueComparison = initialValuesPath ? getIn(state, initialValuesPath) === undefined : true;
-
     return getIn(state, path) !== undefined && initialValueComparison;
   };
 };
@@ -24561,19 +25688,22 @@ function createReducer(structure$$1) {
       size = structure$$1.size,
       some = structure$$1.some,
       splice = structure$$1.splice;
-
   var deleteInWithCleanUp = createDeleteInWithCleanUp(structure$$1)(shouldDelete);
   var plainDeleteInWithCleanUp = createDeleteInWithCleanUp(structure)(shouldDelete);
+
   var doSplice = function doSplice(state, key, field, index, removeNum, value, force) {
-    var existing = getIn(state, key + '.' + field);
-    return existing || force ? setIn(state, key + '.' + field, splice(existing, index, removeNum, value)) : state;
+    var existing = getIn(state, key + "." + field);
+    return existing || force ? setIn(state, key + "." + field, splice(existing, index, removeNum, value)) : state;
   };
+
   var doPlainSplice = function doPlainSplice(state, key, field, index, removeNum, value, force) {
     var slice = getIn(state, key);
     var existing = structure.getIn(slice, field);
     return existing || force ? setIn(state, key, structure.setIn(slice, field, structure.splice(existing, index, removeNum, value))) : state;
   };
+
   var rootKeys = ['values', 'fields', 'submitErrors', 'asyncErrors'];
+
   var arraySplice = function arraySplice(state, field, index, removeNum, value) {
     var result = state;
     var nonValuesValue = value != null ? empty : undefined;
@@ -24586,230 +25716,241 @@ function createReducer(structure$$1) {
     return result;
   };
 
-  var behaviors = (_behaviors = {}, _defineProperty$7(_behaviors, ARRAY_INSERT, function (state, _ref2) {
+  var behaviors = (_behaviors = {}, _behaviors[ARRAY_INSERT] = function (state, _ref2) {
     var _ref2$meta = _ref2.meta,
         field = _ref2$meta.field,
         index = _ref2$meta.index,
         payload = _ref2.payload;
-
     return arraySplice(state, field, index, 0, payload);
-  }), _defineProperty$7(_behaviors, ARRAY_MOVE, function (state, _ref3) {
+  }, _behaviors[ARRAY_MOVE] = function (state, _ref3) {
     var _ref3$meta = _ref3.meta,
         field = _ref3$meta.field,
         from = _ref3$meta.from,
         to = _ref3$meta.to;
-
-    var array = getIn(state, 'values.' + field);
+    var array = getIn(state, "values." + field);
     var length = array ? size(array) : 0;
     var result = state;
+
     if (length) {
       rootKeys.forEach(function (key) {
-        var path = key + '.' + field;
+        var path = key + "." + field;
+
         if (getIn(result, path)) {
-          var value = getIn(result, path + '[' + from + ']');
+          var value = getIn(result, path + "[" + from + "]");
           result = setIn(result, path, splice(getIn(result, path), from, 1)); // remove
+
           result = setIn(result, path, splice(getIn(result, path), to, 0, value)); // insert
         }
       });
     }
-    return result;
-  }), _defineProperty$7(_behaviors, ARRAY_POP, function (state, _ref4) {
-    var field = _ref4.meta.field;
 
-    var array = getIn(state, 'values.' + field);
+    return result;
+  }, _behaviors[ARRAY_POP] = function (state, _ref4) {
+    var field = _ref4.meta.field;
+    var array = getIn(state, "values." + field);
     var length = array ? size(array) : 0;
     return length ? arraySplice(state, field, length - 1, 1) : state;
-  }), _defineProperty$7(_behaviors, ARRAY_PUSH, function (state, _ref5) {
+  }, _behaviors[ARRAY_PUSH] = function (state, _ref5) {
     var field = _ref5.meta.field,
         payload = _ref5.payload;
-
-    var array = getIn(state, 'values.' + field);
+    var array = getIn(state, "values." + field);
     var length = array ? size(array) : 0;
     return arraySplice(state, field, length, 0, payload);
-  }), _defineProperty$7(_behaviors, ARRAY_REMOVE, function (state, _ref6) {
+  }, _behaviors[ARRAY_REMOVE] = function (state, _ref6) {
     var _ref6$meta = _ref6.meta,
         field = _ref6$meta.field,
         index = _ref6$meta.index;
-
     return arraySplice(state, field, index, 1);
-  }), _defineProperty$7(_behaviors, ARRAY_REMOVE_ALL, function (state, _ref7) {
+  }, _behaviors[ARRAY_REMOVE_ALL] = function (state, _ref7) {
     var field = _ref7.meta.field;
-
-    var array = getIn(state, 'values.' + field);
+    var array = getIn(state, "values." + field);
     var length = array ? size(array) : 0;
     return length ? arraySplice(state, field, 0, length) : state;
-  }), _defineProperty$7(_behaviors, ARRAY_SHIFT, function (state, _ref8) {
+  }, _behaviors[ARRAY_SHIFT] = function (state, _ref8) {
     var field = _ref8.meta.field;
-
     return arraySplice(state, field, 0, 1);
-  }), _defineProperty$7(_behaviors, ARRAY_SPLICE, function (state, _ref9) {
+  }, _behaviors[ARRAY_SPLICE] = function (state, _ref9) {
     var _ref9$meta = _ref9.meta,
         field = _ref9$meta.field,
         index = _ref9$meta.index,
         removeNum = _ref9$meta.removeNum,
         payload = _ref9.payload;
-
     return arraySplice(state, field, index, removeNum, payload);
-  }), _defineProperty$7(_behaviors, ARRAY_SWAP, function (state, _ref10) {
+  }, _behaviors[ARRAY_SWAP] = function (state, _ref10) {
     var _ref10$meta = _ref10.meta,
         field = _ref10$meta.field,
         indexA = _ref10$meta.indexA,
         indexB = _ref10$meta.indexB;
-
     var result = state;
     rootKeys.forEach(function (key) {
-      var valueA = getIn(result, key + '.' + field + '[' + indexA + ']');
-      var valueB = getIn(result, key + '.' + field + '[' + indexB + ']');
+      var valueA = getIn(result, key + "." + field + "[" + indexA + "]");
+      var valueB = getIn(result, key + "." + field + "[" + indexB + "]");
+
       if (valueA !== undefined || valueB !== undefined) {
-        result = setIn(result, key + '.' + field + '[' + indexA + ']', valueB);
-        result = setIn(result, key + '.' + field + '[' + indexB + ']', valueA);
+        result = setIn(result, key + "." + field + "[" + indexA + "]", valueB);
+        result = setIn(result, key + "." + field + "[" + indexB + "]", valueA);
       }
     });
     return result;
-  }), _defineProperty$7(_behaviors, ARRAY_UNSHIFT, function (state, _ref11) {
+  }, _behaviors[ARRAY_UNSHIFT] = function (state, _ref11) {
     var field = _ref11.meta.field,
         payload = _ref11.payload;
-
     return arraySplice(state, field, 0, 0, payload);
-  }), _defineProperty$7(_behaviors, AUTOFILL, function (state, _ref12) {
+  }, _behaviors[AUTOFILL] = function (state, _ref12) {
     var field = _ref12.meta.field,
         payload = _ref12.payload;
-
     var result = state;
-    result = deleteInWithCleanUp(result, 'asyncErrors.' + field);
-    result = deleteInWithCleanUp(result, 'submitErrors.' + field);
-    result = setIn(result, 'fields.' + field + '.autofilled', true);
-    result = setIn(result, 'values.' + field, payload);
+    result = deleteInWithCleanUp(result, "asyncErrors." + field);
+    result = deleteInWithCleanUp(result, "submitErrors." + field);
+    result = setIn(result, "fields." + field + ".autofilled", true);
+    result = setIn(result, "values." + field, payload);
     return result;
-  }), _defineProperty$7(_behaviors, BLUR, function (state, _ref13) {
+  }, _behaviors[BLUR] = function (state, _ref13) {
     var _ref13$meta = _ref13.meta,
         field = _ref13$meta.field,
         touch = _ref13$meta.touch,
         payload = _ref13.payload;
-
     var result = state;
-    var initial = getIn(result, 'initial.' + field);
+    var initial = getIn(result, "initial." + field);
+
     if (initial === undefined && payload === '') {
-      result = deleteInWithCleanUp(result, 'values.' + field);
+      result = deleteInWithCleanUp(result, "values." + field);
     } else if (payload !== undefined) {
-      result = setIn(result, 'values.' + field, payload);
+      result = setIn(result, "values." + field, payload);
     }
+
     if (field === getIn(result, 'active')) {
       result = deleteIn(result, 'active');
     }
-    result = deleteIn(result, 'fields.' + field + '.active');
+
+    result = deleteIn(result, "fields." + field + ".active");
+
     if (touch) {
-      result = setIn(result, 'fields.' + field + '.touched', true);
+      result = setIn(result, "fields." + field + ".touched", true);
       result = setIn(result, 'anyTouched', true);
     }
+
     return result;
-  }), _defineProperty$7(_behaviors, CHANGE, function (state, _ref14) {
+  }, _behaviors[CHANGE] = function (state, _ref14) {
     var _ref14$meta = _ref14.meta,
         field = _ref14$meta.field,
         touch = _ref14$meta.touch,
         persistentSubmitErrors = _ref14$meta.persistentSubmitErrors,
         payload = _ref14.payload;
-
     var result = state;
-    var initial = getIn(result, 'initial.' + field);
-    if (initial === undefined && payload === '') {
-      result = deleteInWithCleanUp(result, 'values.' + field);
-    } else if (payload !== undefined) {
-      result = setIn(result, 'values.' + field, payload);
+    var initial = getIn(result, "initial." + field);
+
+    if (initial === undefined && payload === '' || payload === undefined) {
+      result = deleteInWithCleanUp(result, "values." + field);
+    } else if (isFunction_1(payload)) {
+      var fieldCurrentValue = getIn(state, "values." + field);
+      result = setIn(result, "values." + field, payload(fieldCurrentValue, state.values));
+    } else {
+      result = setIn(result, "values." + field, payload);
     }
-    result = deleteInWithCleanUp(result, 'asyncErrors.' + field);
+
+    result = deleteInWithCleanUp(result, "asyncErrors." + field);
+
     if (!persistentSubmitErrors) {
-      result = deleteInWithCleanUp(result, 'submitErrors.' + field);
+      result = deleteInWithCleanUp(result, "submitErrors." + field);
     }
-    result = deleteInWithCleanUp(result, 'fields.' + field + '.autofilled');
+
+    result = deleteInWithCleanUp(result, "fields." + field + ".autofilled");
+
     if (touch) {
-      result = setIn(result, 'fields.' + field + '.touched', true);
+      result = setIn(result, "fields." + field + ".touched", true);
       result = setIn(result, 'anyTouched', true);
     }
+
     return result;
-  }), _defineProperty$7(_behaviors, CLEAR_SUBMIT, function (state) {
+  }, _behaviors[CLEAR_SUBMIT] = function (state) {
     return deleteIn(state, 'triggerSubmit');
-  }), _defineProperty$7(_behaviors, CLEAR_SUBMIT_ERRORS, function (state) {
+  }, _behaviors[CLEAR_SUBMIT_ERRORS] = function (state) {
     var result = state;
     result = deleteInWithCleanUp(result, 'submitErrors');
     result = deleteIn(result, 'error');
     return result;
-  }), _defineProperty$7(_behaviors, CLEAR_ASYNC_ERROR, function (state, _ref15) {
+  }, _behaviors[CLEAR_ASYNC_ERROR] = function (state, _ref15) {
     var field = _ref15.meta.field;
-
-    return deleteIn(state, 'asyncErrors.' + field);
-  }), _defineProperty$7(_behaviors, CLEAR_FIELDS, function (state, _ref16) {
+    return deleteIn(state, "asyncErrors." + field);
+  }, _behaviors[CLEAR_FIELDS] = function (state, _ref16) {
     var _ref16$meta = _ref16.meta,
         keepTouched = _ref16$meta.keepTouched,
         persistentSubmitErrors = _ref16$meta.persistentSubmitErrors,
         fields = _ref16$meta.fields;
-
     var result = state;
     fields.forEach(function (field) {
-      result = deleteInWithCleanUp(result, 'values.' + field);
-      result = deleteInWithCleanUp(result, 'asyncErrors.' + field);
+      result = deleteInWithCleanUp(result, "values." + field);
+      result = deleteInWithCleanUp(result, "asyncErrors." + field);
+
       if (!persistentSubmitErrors) {
-        result = deleteInWithCleanUp(result, 'submitErrors.' + field);
+        result = deleteInWithCleanUp(result, "submitErrors." + field);
       }
-      result = deleteInWithCleanUp(result, 'fields.' + field + '.autofilled');
+
+      result = deleteInWithCleanUp(result, "fields." + field + ".autofilled");
+
       if (!keepTouched) {
-        result = deleteIn(result, 'fields.' + field + '.touched');
+        result = deleteIn(result, "fields." + field + ".touched");
       }
     });
     var anyTouched = some(keys(getIn(result, 'registeredFields')), function (key) {
-      return getIn(result, 'fields.' + key + '.touched');
+      return getIn(result, "fields." + key + ".touched");
     });
     result = anyTouched ? setIn(result, 'anyTouched', true) : deleteIn(result, 'anyTouched');
     return result;
-  }), _defineProperty$7(_behaviors, FOCUS, function (state, _ref17) {
+  }, _behaviors[FOCUS] = function (state, _ref17) {
     var field = _ref17.meta.field;
-
     var result = state;
     var previouslyActive = getIn(state, 'active');
-    result = deleteIn(result, 'fields.' + previouslyActive + '.active');
-    result = setIn(result, 'fields.' + field + '.visited', true);
-    result = setIn(result, 'fields.' + field + '.active', true);
+    result = deleteIn(result, "fields." + previouslyActive + ".active");
+    result = setIn(result, "fields." + field + ".visited", true);
+    result = setIn(result, "fields." + field + ".active", true);
     result = setIn(result, 'active', field);
     return result;
-  }), _defineProperty$7(_behaviors, INITIALIZE, function (state, _ref18) {
+  }, _behaviors[INITIALIZE] = function (state, _ref18) {
     var payload = _ref18.payload,
         _ref18$meta = _ref18.meta,
         keepDirty = _ref18$meta.keepDirty,
         keepSubmitSucceeded = _ref18$meta.keepSubmitSucceeded,
         updateUnregisteredFields = _ref18$meta.updateUnregisteredFields,
         keepValues = _ref18$meta.keepValues;
-
     var mapData = fromJS(payload);
     var result = empty; // clean all field state
-
     // persist old warnings, they will get recalculated if the new form values are different from the old values
+
     var warning = getIn(state, 'warning');
+
     if (warning) {
       result = setIn(result, 'warning', warning);
     }
+
     var syncWarnings = getIn(state, 'syncWarnings');
+
     if (syncWarnings) {
       result = setIn(result, 'syncWarnings', syncWarnings);
-    }
+    } // persist old errors, they will get recalculated if the new form values are different from the old values
 
-    // persist old errors, they will get recalculated if the new form values are different from the old values
+
     var error = getIn(state, 'error');
+
     if (error) {
       result = setIn(result, 'error', error);
     }
+
     var syncErrors = getIn(state, 'syncErrors');
+
     if (syncErrors) {
       result = setIn(result, 'syncErrors', syncErrors);
     }
 
     var registeredFields = getIn(state, 'registeredFields');
+
     if (registeredFields) {
       result = setIn(result, 'registeredFields', registeredFields);
     }
 
     var previousValues = getIn(state, 'values');
     var previousInitialValues = getIn(state, 'initial');
-
     var newInitialValues = mapData;
     var newValues = previousValues;
 
@@ -24834,11 +25975,10 @@ function createReducer(structure$$1) {
 
           if (deepEqual(previousValue, previousInitialValue)) {
             // Overwrite the old pristine value with the new pristine value
-            var newInitialValue = getIn(newInitialValues, name);
-
-            // This check prevents any 'setIn' call that would create useless
+            var newInitialValue = getIn(newInitialValues, name); // This check prevents any 'setIn' call that would create useless
             // nested objects, since the path to the new field value would
             // evaluate to the same (especially for undefined values)
+
             if (getIn(newValues, name) !== newInitialValue) {
               newValues = setIn(newValues, name, newInitialValue);
             }
@@ -24853,6 +25993,7 @@ function createReducer(structure$$1) {
 
         forEach(keys(newInitialValues), function (name) {
           var previousInitialValue = getIn(previousInitialValues, name);
+
           if (typeof previousInitialValue === 'undefined') {
             // Add new values at the root level.
             var newInitialValue = getIn(newInitialValues, name);
@@ -24871,13 +26012,10 @@ function createReducer(structure$$1) {
     if (keepValues) {
       forEach(keys(previousValues), function (name) {
         var previousValue = getIn(previousValues, name);
-
         newValues = setIn(newValues, name, previousValue);
       });
-
       forEach(keys(previousInitialValues), function (name) {
         var previousInitialValue = getIn(previousInitialValues, name);
-
         newInitialValues = setIn(newInitialValues, name, previousInitialValue);
       });
     }
@@ -24885,75 +26023,80 @@ function createReducer(structure$$1) {
     if (keepSubmitSucceeded && getIn(state, 'submitSucceeded')) {
       result = setIn(result, 'submitSucceeded', true);
     }
+
     result = setIn(result, 'values', newValues);
     result = setIn(result, 'initial', newInitialValues);
     return result;
-  }), _defineProperty$7(_behaviors, REGISTER_FIELD, function (state, _ref19) {
+  }, _behaviors[REGISTER_FIELD] = function (state, _ref19) {
     var _ref19$payload = _ref19.payload,
         name = _ref19$payload.name,
         type = _ref19$payload.type;
-
-    var key = 'registeredFields[\'' + name + '\']';
+    var key = "registeredFields['" + name + "']";
     var field = getIn(state, key);
+
     if (field) {
       var count = getIn(field, 'count') + 1;
       field = setIn(field, 'count', count);
     } else {
-      field = fromJS({ name: name, type: type, count: 1 });
+      field = fromJS({
+        name: name,
+        type: type,
+        count: 1
+      });
     }
+
     return setIn(state, key, field);
-  }), _defineProperty$7(_behaviors, RESET, function (state) {
+  }, _behaviors[RESET] = function (state) {
     var result = empty;
     var registeredFields = getIn(state, 'registeredFields');
+
     if (registeredFields) {
       result = setIn(result, 'registeredFields', registeredFields);
     }
+
     var values = getIn(state, 'initial');
+
     if (values) {
       result = setIn(result, 'values', values);
       result = setIn(result, 'initial', values);
     }
+
     return result;
-  }), _defineProperty$7(_behaviors, RESET_SECTION, function (state, _ref20) {
+  }, _behaviors[RESET_SECTION] = function (state, _ref20) {
     var sections = _ref20.meta.sections;
-
     var result = state;
-
     sections.forEach(function (section) {
-      result = deleteInWithCleanUp(result, 'asyncErrors.' + section);
-      result = deleteInWithCleanUp(result, 'submitErrors.' + section);
-      result = deleteInWithCleanUp(result, 'fields.' + section);
-
-      var values = getIn(state, 'initial.' + section);
-      result = values ? setIn(result, 'values.' + section, values) : deleteInWithCleanUp(result, 'values.' + section);
+      result = deleteInWithCleanUp(result, "asyncErrors." + section);
+      result = deleteInWithCleanUp(result, "submitErrors." + section);
+      result = deleteInWithCleanUp(result, "fields." + section);
+      var values = getIn(state, "initial." + section);
+      result = values ? setIn(result, "values." + section, values) : deleteInWithCleanUp(result, "values." + section);
     });
-
     var anyTouched = some(keys(getIn(result, 'registeredFields')), function (key) {
-      return getIn(result, 'fields.' + key + '.touched');
+      return getIn(result, "fields." + key + ".touched");
     });
     result = anyTouched ? setIn(result, 'anyTouched', true) : deleteIn(result, 'anyTouched');
-
     return result;
-  }), _defineProperty$7(_behaviors, SUBMIT, function (state) {
+  }, _behaviors[SUBMIT] = function (state) {
     return setIn(state, 'triggerSubmit', true);
-  }), _defineProperty$7(_behaviors, START_ASYNC_VALIDATION, function (state, _ref21) {
+  }, _behaviors[START_ASYNC_VALIDATION] = function (state, _ref21) {
     var field = _ref21.meta.field;
-
     return setIn(state, 'asyncValidating', field || true);
-  }), _defineProperty$7(_behaviors, START_SUBMIT, function (state) {
+  }, _behaviors[START_SUBMIT] = function (state) {
     return setIn(state, 'submitting', true);
-  }), _defineProperty$7(_behaviors, STOP_ASYNC_VALIDATION, function (state, _ref22) {
+  }, _behaviors[STOP_ASYNC_VALIDATION] = function (state, _ref22) {
     var payload = _ref22.payload;
-
     var result = state;
     result = deleteIn(result, 'asyncValidating');
+
     if (payload && Object.keys(payload).length) {
       var _error = payload._error,
-          fieldErrors = _objectWithoutProperties$13(payload, ['_error']);
+          fieldErrors = objectWithoutPropertiesLoose(payload, ["_error"]);
 
       if (_error) {
         result = setIn(result, 'error', _error);
       }
+
       if (Object.keys(fieldErrors).length) {
         result = setIn(result, 'asyncErrors', fromJS(fieldErrors));
       }
@@ -24961,124 +26104,137 @@ function createReducer(structure$$1) {
       result = deleteIn(result, 'error');
       result = deleteIn(result, 'asyncErrors');
     }
-    return result;
-  }), _defineProperty$7(_behaviors, STOP_SUBMIT, function (state, _ref23) {
-    var payload = _ref23.payload;
 
+    return result;
+  }, _behaviors[STOP_SUBMIT] = function (state, _ref23) {
+    var payload = _ref23.payload;
     var result = state;
     result = deleteIn(result, 'submitting');
     result = deleteIn(result, 'submitFailed');
     result = deleteIn(result, 'submitSucceeded');
+
     if (payload && Object.keys(payload).length) {
       var _error = payload._error,
-          fieldErrors = _objectWithoutProperties$13(payload, ['_error']);
+          fieldErrors = objectWithoutPropertiesLoose(payload, ["_error"]);
 
       if (_error) {
         result = setIn(result, 'error', _error);
       } else {
         result = deleteIn(result, 'error');
       }
+
       if (Object.keys(fieldErrors).length) {
         result = setIn(result, 'submitErrors', fromJS(fieldErrors));
       } else {
         result = deleteIn(result, 'submitErrors');
       }
+
       result = setIn(result, 'submitFailed', true);
     } else {
       result = deleteIn(result, 'error');
       result = deleteIn(result, 'submitErrors');
     }
-    return result;
-  }), _defineProperty$7(_behaviors, SET_SUBMIT_FAILED, function (state, _ref24) {
-    var fields = _ref24.meta.fields;
 
+    return result;
+  }, _behaviors[SET_SUBMIT_FAILED] = function (state, _ref24) {
+    var fields = _ref24.meta.fields;
     var result = state;
     result = setIn(result, 'submitFailed', true);
     result = deleteIn(result, 'submitSucceeded');
     result = deleteIn(result, 'submitting');
     fields.forEach(function (field) {
-      return result = setIn(result, 'fields.' + field + '.touched', true);
+      return result = setIn(result, "fields." + field + ".touched", true);
     });
+
     if (fields.length) {
       result = setIn(result, 'anyTouched', true);
     }
+
     return result;
-  }), _defineProperty$7(_behaviors, SET_SUBMIT_SUCCEEDED, function (state) {
+  }, _behaviors[SET_SUBMIT_SUCCEEDED] = function (state) {
     var result = state;
     result = deleteIn(result, 'submitFailed');
     result = setIn(result, 'submitSucceeded', true);
     return result;
-  }), _defineProperty$7(_behaviors, TOUCH, function (state, _ref25) {
+  }, _behaviors[TOUCH] = function (state, _ref25) {
     var fields = _ref25.meta.fields;
-
     var result = state;
     fields.forEach(function (field) {
-      return result = setIn(result, 'fields.' + field + '.touched', true);
+      return result = setIn(result, "fields." + field + ".touched", true);
     });
     result = setIn(result, 'anyTouched', true);
     return result;
-  }), _defineProperty$7(_behaviors, UNREGISTER_FIELD, function (state, _ref26) {
+  }, _behaviors[UNREGISTER_FIELD] = function (state, _ref26) {
     var _ref26$payload = _ref26.payload,
         name = _ref26$payload.name,
         destroyOnUnmount = _ref26$payload.destroyOnUnmount;
-
     var result = state;
-    var key = 'registeredFields[\'' + name + '\']';
+    var key = "registeredFields['" + name + "']";
     var field = getIn(result, key);
+
     if (!field) {
       return result;
     }
 
     var count = getIn(field, 'count') - 1;
+
     if (count <= 0 && destroyOnUnmount) {
       // Note: Cannot use deleteWithCleanUp here because of the flat nature of registeredFields
       result = deleteIn(result, key);
+
       if (deepEqual(getIn(result, 'registeredFields'), empty)) {
         result = deleteIn(result, 'registeredFields');
       }
+
       var syncErrors = getIn(result, 'syncErrors');
+
       if (syncErrors) {
         syncErrors = plainDeleteInWithCleanUp(syncErrors, name);
+
         if (structure.deepEqual(syncErrors, structure.empty)) {
           result = deleteIn(result, 'syncErrors');
         } else {
           result = setIn(result, 'syncErrors', syncErrors);
         }
       }
+
       var syncWarnings = getIn(result, 'syncWarnings');
+
       if (syncWarnings) {
         syncWarnings = plainDeleteInWithCleanUp(syncWarnings, name);
+
         if (structure.deepEqual(syncWarnings, structure.empty)) {
           result = deleteIn(result, 'syncWarnings');
         } else {
           result = setIn(result, 'syncWarnings', syncWarnings);
         }
       }
-      result = deleteInWithCleanUp(result, 'submitErrors.' + name);
-      result = deleteInWithCleanUp(result, 'asyncErrors.' + name);
+
+      result = deleteInWithCleanUp(result, "submitErrors." + name);
+      result = deleteInWithCleanUp(result, "asyncErrors." + name);
     } else {
       field = setIn(field, 'count', count);
       result = setIn(result, key, field);
     }
-    return result;
-  }), _defineProperty$7(_behaviors, UNTOUCH, function (state, _ref27) {
-    var fields = _ref27.meta.fields;
 
+    return result;
+  }, _behaviors[UNTOUCH] = function (state, _ref27) {
+    var fields = _ref27.meta.fields;
     var result = state;
     fields.forEach(function (field) {
-      return result = deleteIn(result, 'fields.' + field + '.touched');
+      return result = deleteIn(result, "fields." + field + ".touched");
     });
     var anyTouched = some(keys(getIn(result, 'registeredFields')), function (key) {
-      return getIn(result, 'fields.' + key + '.touched');
+      return getIn(result, "fields." + key + ".touched");
     });
     result = anyTouched ? setIn(result, 'anyTouched', true) : deleteIn(result, 'anyTouched');
     return result;
-  }), _defineProperty$7(_behaviors, UPDATE_SYNC_ERRORS, function (state, _ref28) {
+  }, _behaviors[UPDATE_SYNC_ERRORS] = function (state, _ref28) {
     var _ref28$payload = _ref28.payload,
         syncErrors = _ref28$payload.syncErrors,
         error = _ref28$payload.error;
-
     var result = state;
+
     if (error) {
       result = setIn(result, 'error', error);
       result = setIn(result, 'syncError', true);
@@ -25086,70 +26242,97 @@ function createReducer(structure$$1) {
       result = deleteIn(result, 'error');
       result = deleteIn(result, 'syncError');
     }
+
     if (Object.keys(syncErrors).length) {
       result = setIn(result, 'syncErrors', syncErrors);
     } else {
       result = deleteIn(result, 'syncErrors');
     }
+
     return result;
-  }), _defineProperty$7(_behaviors, UPDATE_SYNC_WARNINGS, function (state, _ref29) {
+  }, _behaviors[UPDATE_SYNC_WARNINGS] = function (state, _ref29) {
     var _ref29$payload = _ref29.payload,
         syncWarnings = _ref29$payload.syncWarnings,
         warning = _ref29$payload.warning;
-
     var result = state;
+
     if (warning) {
       result = setIn(result, 'warning', warning);
     } else {
       result = deleteIn(result, 'warning');
     }
+
     if (Object.keys(syncWarnings).length) {
       result = setIn(result, 'syncWarnings', syncWarnings);
     } else {
       result = deleteIn(result, 'syncWarnings');
     }
-    return result;
-  }), _behaviors);
 
-  var reducer = function reducer() {
-    var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : empty;
-    var action = arguments[1];
+    return result;
+  }, _behaviors);
+
+  var reducer = function reducer(state, action) {
+    if (state === void 0) {
+      state = empty;
+    }
 
     var behavior = behaviors[action.type];
     return behavior ? behavior(state, action) : state;
   };
 
   var byForm = function byForm(reducer) {
-    return function () {
-      var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : empty;
-      var action = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : { type: 'NONE' };
+    return function (state, action) {
+      if (state === void 0) {
+        state = empty;
+      }
+
+      if (action === void 0) {
+        action = {
+          type: 'NONE'
+        };
+      }
 
       var form = action && action.meta && action.meta.form;
+
       if (!form || !isReduxFormAction(action)) {
         return state;
       }
+
       if (action.type === DESTROY && action.meta && action.meta.form) {
         return action.meta.form.reduce(function (result, form) {
           return deleteInWithCleanUp(result, form);
         }, state);
       }
+
       var formState = getIn(state, form);
       var result = reducer(formState, action);
       return result === formState ? state : setIn(state, form, result);
     };
   };
-
   /**
    * Adds additional functionality to the reducer
    */
+
+
   function decorate(target) {
-    target.plugin = function (reducers) {
+    target.plugin = function (reducers, config) {
       var _this = this;
 
+      if (config === void 0) {
+        config = {};
+      }
+
       // use 'function' keyword to enable 'this'
-      return decorate(function () {
-        var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : empty;
-        var action = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : { type: 'NONE' };
+      return decorate(function (state, action) {
+        if (state === void 0) {
+          state = empty;
+        }
+
+        if (action === void 0) {
+          action = {
+            type: 'NONE'
+          };
+        }
 
         var callPlugin = function callPlugin(processed, key) {
           var previousState = getIn(processed, key);
@@ -25158,9 +26341,11 @@ function createReducer(structure$$1) {
         };
 
         var processed = _this(state, action); // run through redux-form reducer
+
+
         var form = action && action.meta && action.meta.form;
 
-        if (form) {
+        if (form && !config.receiveAllFormActions) {
           // this is an action aimed at forms, so only give it to the specified form's plugin
           return reducers[form] ? callPlugin(processed, form) : processed;
         } else {
@@ -25178,15 +26363,10 @@ function createReducer(structure$$1) {
 
 createReducer(structure);
 
-var _extends$24 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-function _defineProperty$8(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-
 var createValues$1 = function createValues(_ref) {
   var getIn = _ref.getIn;
   return function (config) {
-    var _prop$getFormState$co = _extends$24({
+    var _prop$getFormState$co = _extends_1({
       prop: 'values',
       getFormState: function getFormState(state) {
         return getIn(state, 'form');
@@ -25197,9 +26377,10 @@ var createValues$1 = function createValues(_ref) {
         getFormState = _prop$getFormState$co.getFormState;
 
     return connect(function (state) {
-      return _defineProperty$8({}, prop, getIn(getFormState(state), form + '.values'));
-    }
-    // ignore dispatch
+      var _ref2;
+
+      return _ref2 = {}, _ref2[prop] = getIn(getFormState(state), form + ".values"), _ref2;
+    } // ignore dispatch
     );
   };
 };
@@ -25853,39 +27034,39 @@ function styleInject(css, ref) {
 var css$1 = ".rdw-option-wrapper {\n  border: 1px solid #F1F1F1;\n  padding: 5px;\n  min-width: 25px;\n  height: 20px;\n  border-radius: 2px;\n  margin: 0 4px;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  cursor: pointer;\n  background: white;\n  text-transform: capitalize;\n}\n.rdw-option-wrapper:hover {\n  box-shadow: 1px 1px 0px #BFBDBD;\n}\n.rdw-option-wrapper:active {\n  box-shadow: 1px 1px 0px #BFBDBD inset;\n}\n.rdw-option-active {\n  box-shadow: 1px 1px 0px #BFBDBD inset;\n}\n.rdw-option-disabled {\n  opacity: 0.3;\n  cursor: default;\n}\n.rdw-dropdown-wrapper {\n  height: 30px;\n  background: white;\n  cursor: pointer;\n  border: 1px solid #F1F1F1;\n  border-radius: 2px;\n  margin: 0 3px;\n  text-transform: capitalize;\n  background: white;\n}\n.rdw-dropdown-wrapper:focus {\n  outline: none;\n}\n.rdw-dropdown-wrapper:hover {\n  box-shadow: 1px 1px 0px #BFBDBD;\n  background-color: #FFFFFF;\n}\n.rdw-dropdown-wrapper:active {\n  box-shadow: 1px 1px 0px #BFBDBD inset;\n}\n.rdw-dropdown-carettoopen {\n  height: 0px;\n  width: 0px;\n  position: absolute;\n  top: 35%;\n  right: 10%;\n  border-top: 6px solid black;\n  border-left: 5px solid transparent;\n  border-right: 5px solid transparent;\n}\n.rdw-dropdown-carettoclose {\n  height: 0px;\n  width: 0px;\n  position: absolute;\n  top: 35%;\n  right: 10%;\n  border-bottom: 6px solid black;\n  border-left: 5px solid transparent;\n  border-right: 5px solid transparent;\n}\n.rdw-dropdown-selectedtext {\n  display: flex;\n  position: relative;\n  height: 100%;\n  align-items: center;\n  padding: 0 5px;\n}\n.rdw-dropdown-optionwrapper {\n  z-index: 100;\n  position: relative;\n  border: 1px solid #F1F1F1;\n  width: 98%;\n  background: white;\n  border-radius: 2px;\n  margin: 0;\n  padding: 0;\n  max-height: 250px;\n  overflow-y: scroll;\n}\n.rdw-dropdown-optionwrapper:hover {\n  box-shadow: 1px 1px 0px #BFBDBD;\n  background-color: #FFFFFF;\n}\n.rdw-dropdownoption-default {\n  min-height: 25px;\n  display: flex;\n  align-items: center;\n  padding: 0 5px;\n}\n.rdw-dropdownoption-highlighted {\n  background: #F1F1F1;\n}\n.rdw-dropdownoption-active {\n  background: #f5f5f5;\n}\n.rdw-dropdownoption-disabled {\n  opacity: 0.3;\n  cursor: default;\n}\n.rdw-inline-wrapper {\n  display: flex;\n  align-items: center;\n  margin-bottom: 6px;\n  flex-wrap: wrap\n}\n.rdw-inline-dropdown {\n  width: 50px;\n}\n.rdw-inline-dropdownoption {\n  height: 40px;\n  display: flex;\n  justify-content: center;\n}\n.rdw-block-wrapper {\n  display: flex;\n  align-items: center;\n  margin-bottom: 6px;\n  flex-wrap: wrap\n}\n.rdw-block-dropdown {\n  width: 110px;\n}\n.rdw-fontsize-wrapper {\n  display: flex;\n  align-items: center;\n  margin-bottom: 6px;\n  flex-wrap: wrap\n}\n.rdw-fontsize-dropdown {\n  min-width: 40px;\n}\n.rdw-fontsize-option {\n  display: flex;\n  justify-content: center;\n}\n.rdw-fontfamily-wrapper {\n  display: flex;\n  align-items: center;\n  margin-bottom: 6px;\n  flex-wrap: wrap\n}\n.rdw-fontfamily-dropdown {\n  width: 115px;\n}\n.rdw-fontfamily-placeholder {\n  white-space: nowrap;\n  max-width: 90px;\n  overflow: hidden;\n  text-overflow: ellipsis;\n}\n.rdw-fontfamily-optionwrapper {\n  width: 140px;\n}\n.rdw-list-wrapper {\n  display: flex;\n  align-items: center;\n  margin-bottom: 6px;\n  flex-wrap: wrap\n}\n.rdw-list-dropdown {\n  width: 50px;\n  z-index: 90;\n}\n.rdw-list-dropdownOption {\n  height: 40px;\n  display: flex;\n  justify-content: center;\n}\n.rdw-text-align-wrapper {\n  display: flex;\n  align-items: center;\n  margin-bottom: 6px;\n  flex-wrap: wrap\n}\n.rdw-text-align-dropdown {\n  width: 50px;\n  z-index: 90;\n}\n.rdw-text-align-dropdownOption {\n  height: 40px;\n  display: flex;\n  justify-content: center;\n}\n.rdw-right-aligned-block {\n  text-align: right;\n}\n.rdw-left-aligned-block {\n  text-align: left !important;\n}\n.rdw-center-aligned-block {\n  text-align: center !important;\n}\n.rdw-justify-aligned-block {\n  text-align: justify !important;\n}\n.rdw-right-aligned-block > div {\n  display: inline-block;\n}\n.rdw-left-aligned-block > div {\n  display: inline-block;\n}\n.rdw-center-aligned-block > div {\n  display: inline-block;\n}\n.rdw-justify-aligned-block > div {\n  display: inline-block;\n}\n.rdw-colorpicker-wrapper {\n  display: flex;\n  align-items: center;\n  margin-bottom: 6px;\n  position: relative;\n  flex-wrap: wrap\n}\n.rdw-colorpicker-modal {\n  position: absolute;\n  top: 35px;\n  left: 5px;\n  display: flex;\n  flex-direction: column;\n  width: 175px;\n  height: 175px;\n  border: 1px solid #F1F1F1;\n  padding: 15px;\n  border-radius: 2px;\n  z-index: 100;\n  background: white;\n  box-shadow: 3px 3px 5px #BFBDBD;\n}\n.rdw-colorpicker-modal-header {\n  display: flex;\n  padding-bottom: 5px;\n}\n.rdw-colorpicker-modal-style-label {\n  font-size: 15px;\n  width: 50%;\n  text-align: center;\n  cursor: pointer;\n  padding: 0 10px 5px;\n}\n.rdw-colorpicker-modal-style-label-active {\n  border-bottom: 2px solid #0a66b7;\n}\n.rdw-colorpicker-modal-options {\n  margin: 5px auto;\n  display: flex;\n  width: 100%;\n  height: 100%;\n  flex-wrap: wrap;\n  overflow: scroll;\n}\n.rdw-colorpicker-cube {\n  width: 22px;\n  height: 22px;\n  border: 1px solid #F1F1F1;\n}\n.rdw-colorpicker-option {\n  margin: 3px;\n  padding: 0;\n  min-height: 20px;\n  border: none;\n  width: 22px;\n  height: 22px;\n  min-width: 22px;\n  box-shadow: 1px 2px 1px #BFBDBD inset;\n}\n.rdw-colorpicker-option:hover {\n  box-shadow: 1px 2px 1px #BFBDBD;\n}\n.rdw-colorpicker-option:active {\n  box-shadow: -1px -2px 1px #BFBDBD;\n}\n.rdw-colorpicker-option-active {\n  box-shadow: 0px 0px 2px 2px #BFBDBD;\n}\n.rdw-link-wrapper {\n  display: flex;\n  align-items: center;\n  margin-bottom: 6px;\n  position: relative;\n  flex-wrap: wrap\n}\n.rdw-link-dropdown {\n  width: 50px;\n}\n.rdw-link-dropdownOption {\n  height: 40px;\n  display: flex;\n  justify-content: center;\n}\n.rdw-link-dropdownPlaceholder {\n  margin-left: 8px;\n}\n.rdw-link-modal {\n  position: absolute;\n  top: 35px;\n  left: 5px;\n  display: flex;\n  flex-direction: column;\n  width: 235px;\n  height: 205px;\n  border: 1px solid #F1F1F1;\n  padding: 15px;\n  border-radius: 2px;\n  z-index: 100;\n  background: white;\n  box-shadow: 3px 3px 5px #BFBDBD;\n}\n.rdw-link-modal-label {\n  font-size: 15px;\n}\n.rdw-link-modal-input {\n  margin-top: 5px;\n  border-radius: 2px;\n  border: 1px solid #F1F1F1;\n  height: 25px;\n  margin-bottom: 15px;\n  padding: 0 5px;\n}\n.rdw-link-modal-input:focus {\n  outline: none;\n}\n.rdw-link-modal-buttonsection {\n  margin: 0 auto;\n}\n.rdw-link-modal-target-option {\n  margin-bottom: 20px;\n}\n.rdw-link-modal-target-option > span {\n  margin-left: 5px;\n}\n.rdw-link-modal-btn {\n  margin-left: 10px;\n  width: 75px;\n  height: 30px;\n  border: 1px solid #F1F1F1;\n  border-radius: 2px;\n  cursor: pointer;\n  background: white;\n  text-transform: capitalize;\n}\n.rdw-link-modal-btn:hover {\n  box-shadow: 1px 1px 0px #BFBDBD;\n}\n.rdw-link-modal-btn:active {\n  box-shadow: 1px 1px 0px #BFBDBD inset;\n}\n.rdw-link-modal-btn:focus {\n  outline: none !important;\n}\n.rdw-link-modal-btn:disabled {\n  background: #ece9e9;\n}\n.rdw-link-dropdownoption {\n  height: 40px;\n  display: flex;\n  justify-content: center;\n}\n.rdw-history-dropdown {\n  width: 50px;\n}\n.rdw-embedded-wrapper {\n  display: flex;\n  align-items: center;\n  margin-bottom: 6px;\n  position: relative;\n  flex-wrap: wrap\n}\n.rdw-embedded-modal {\n  position: absolute;\n  top: 35px;\n  left: 5px;\n  display: flex;\n  flex-direction: column;\n  width: 235px;\n  height: 180px;\n  border: 1px solid #F1F1F1;\n  padding: 15px;\n  border-radius: 2px;\n  z-index: 100;\n  background: white;\n  justify-content: space-between;\n  box-shadow: 3px 3px 5px #BFBDBD;\n}\n.rdw-embedded-modal-header {\n  font-size: 15px;\n  display: flex;\n}\n.rdw-embedded-modal-header-option {\n  width: 50%;\n  cursor: pointer;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  flex-direction: column;\n}\n.rdw-embedded-modal-header-label {\n  width: 95px;\n  border: 1px solid #f1f1f1;\n  margin-top: 5px;\n  background: #6EB8D4;\n  border-bottom: 2px solid #0a66b7;\n}\n.rdw-embedded-modal-link-section {\n  display: flex;\n  flex-direction: column;\n}\n.rdw-embedded-modal-link-input {\n  width: 88%;\n  height: 35px;\n  margin: 10px 0;\n  border: 1px solid #F1F1F1;\n  border-radius: 2px;\n  font-size: 15px;\n  padding: 0 5px;\n}\n.rdw-embedded-modal-link-input-wrapper {\n  display: flex;\n  align-items: center;\n}\n.rdw-embedded-modal-link-input:focus {\n  outline: none;\n}\n.rdw-embedded-modal-btn-section {\n  display: flex;\n  justify-content: center;\n}\n.rdw-embedded-modal-btn {\n  margin: 0 3px;\n  width: 75px;\n  height: 30px;\n  border: 1px solid #F1F1F1;\n  border-radius: 2px;\n  cursor: pointer;\n  background: white;\n  text-transform: capitalize;\n}\n.rdw-embedded-modal-btn:hover {\n  box-shadow: 1px 1px 0px #BFBDBD;\n}\n.rdw-embedded-modal-btn:active {\n  box-shadow: 1px 1px 0px #BFBDBD inset;\n}\n.rdw-embedded-modal-btn:focus {\n  outline: none !important;\n}\n.rdw-embedded-modal-btn:disabled {\n  background: #ece9e9;\n}\n.rdw-embedded-modal-size {\n  align-items: center;\n  display: flex;\n  margin: 8px 0;\n  justify-content: space-between;\n}\n.rdw-embedded-modal-size-input {\n  width: 80%;\n  height: 20px;\n  border: 1px solid #F1F1F1;\n  border-radius: 2px;\n  font-size: 12px;\n}\n.rdw-embedded-modal-size-input:focus {\n  outline: none;\n}\n.rdw-emoji-wrapper {\n  display: flex;\n  align-items: center;\n  margin-bottom: 6px;\n  position: relative;\n  flex-wrap: wrap\n}\n.rdw-emoji-modal {\n  overflow: auto;\n  position: absolute;\n  top: 35px;\n  left: 5px;\n  display: flex;\n  flex-wrap: wrap;\n  width: 235px;\n  height: 180px;\n  border: 1px solid #F1F1F1;\n  padding: 15px;\n  border-radius: 2px;\n  z-index: 100;\n  background: white;\n  box-shadow: 3px 3px 5px #BFBDBD;\n}\n.rdw-emoji-icon {\n  margin: 2.5px;\n  height: 24px;\n  width: 24px;\n  cursor: pointer;\n  font-size: 22px;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n}\n.rdw-spinner {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  height: 100%;\n  width: 100%;\n}\n.rdw-spinner > div {\n  width: 12px;\n  height: 12px;\n  background-color: #333;\n\n  border-radius: 100%;\n  display: inline-block;\n  -webkit-animation: sk-bouncedelay 1.4s infinite ease-in-out both;\n  animation: sk-bouncedelay 1.4s infinite ease-in-out both;\n}\n.rdw-spinner .rdw-bounce1 {\n  -webkit-animation-delay: -0.32s;\n  animation-delay: -0.32s;\n}\n.rdw-spinner .rdw-bounce2 {\n  -webkit-animation-delay: -0.16s;\n  animation-delay: -0.16s;\n}\n@-webkit-keyframes sk-bouncedelay {\n  0%, 80%, 100% { -webkit-transform: scale(0) }\n  40% { -webkit-transform: scale(1.0) }\n}\n@keyframes sk-bouncedelay {\n  0%, 80%, 100% {\n    -webkit-transform: scale(0);\n    transform: scale(0);\n  } 40% {\n    -webkit-transform: scale(1.0);\n    transform: scale(1.0);\n  }\n}\n.rdw-image-wrapper {\n  display: flex;\n  align-items: center;\n  margin-bottom: 6px;\n  position: relative;\n  flex-wrap: wrap\n}\n.rdw-image-modal {\n  position: absolute;\n  top: 35px;\n  left: 5px;\n  display: flex;\n  flex-direction: column;\n  width: 235px;\n  border: 1px solid #F1F1F1;\n  padding: 15px;\n  border-radius: 2px;\n  z-index: 100;\n  background: white;\n  box-shadow: 3px 3px 5px #BFBDBD;\n}\n.rdw-image-modal-header {\n  font-size: 15px;\n  margin: 10px 0;\n  display: flex;\n}\n.rdw-image-modal-header-option {\n  width: 50%;\n  cursor: pointer;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  flex-direction: column;\n}\n.rdw-image-modal-header-label {\n  width: 80px;\n  background: #f1f1f1;\n  border: 1px solid #f1f1f1;\n  margin-top: 5px;\n}\n.rdw-image-modal-header-label-highlighted {\n  background: #6EB8D4;\n  border-bottom: 2px solid #0a66b7;\n}\n.rdw-image-modal-upload-option {\n  width: 100%;\n  color: gray;\n  cursor: pointer;\n  display: flex;\n  border: none;\n  font-size: 15px;\n  align-items: center;\n  justify-content: center;\n  background-color: #f1f1f1;\n  outline: 2px dashed gray;\n  outline-offset: -10px;\n  margin: 10px 0;\n  padding: 9px 0;\n}\n.rdw-image-modal-upload-option-highlighted {\n  outline: 2px dashed #0a66b7;\n}\n.rdw-image-modal-upload-option-label {\n  cursor: pointer;\n  height: 100%;\n  width: 100%;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  padding: 15px;\n}\n.rdw-image-modal-upload-option-label span{\n  padding: 0 20px;\n}\n.rdw-image-modal-upload-option-image-preview {\n  max-width: 100%;\n  max-height: 200px;\n}\n.rdw-image-modal-upload-option-input {\n\twidth: 0.1px;\n\theight: 0.1px;\n\topacity: 0;\n\toverflow: hidden;\n\tposition: absolute;\n\tz-index: -1;\n}\n.rdw-image-modal-url-section {\n  display: flex;\n  align-items: center;\n}\n.rdw-image-modal-url-input {\n  width: 90%;\n  height: 35px;\n  margin: 15px 0 12px;\n  border: 1px solid #F1F1F1;\n  border-radius: 2px;\n  font-size: 15px;\n  padding: 0 5px;\n}\n.rdw-image-modal-btn-section {\n  margin: 10px auto 0;\n}\n.rdw-image-modal-url-input:focus {\n  outline: none;\n}\n.rdw-image-modal-btn {\n  margin: 0 5px;\n  width: 75px;\n  height: 30px;\n  border: 1px solid #F1F1F1;\n  border-radius: 2px;\n  cursor: pointer;\n  background: white;\n  text-transform: capitalize;\n}\n.rdw-image-modal-btn:hover {\n  box-shadow: 1px 1px 0px #BFBDBD;\n}\n.rdw-image-modal-btn:active {\n  box-shadow: 1px 1px 0px #BFBDBD inset;\n}\n.rdw-image-modal-btn:focus {\n  outline: none !important;\n}\n.rdw-image-modal-btn:disabled {\n  background: #ece9e9;\n}\n.rdw-image-modal-spinner {\n  position: absolute;\n  top: -3px;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  opacity: 0.5;\n}\n.rdw-image-modal-alt-input {\n  width: 70%;\n  height: 20px;\n  border: 1px solid #F1F1F1;\n  border-radius: 2px;\n  font-size: 12px;\n  margin-left: 5px;\n}\n.rdw-image-modal-alt-input:focus {\n  outline: none;\n}\n.rdw-image-modal-alt-lbl {\n  font-size: 12px;\n}\n.rdw-image-modal-size {\n  align-items: center;\n  display: flex;\n  margin: 8px 0;\n  justify-content: space-between;\n}\n.rdw-image-modal-size-input {\n  width: 40%;\n  height: 20px;\n  border: 1px solid #F1F1F1;\n  border-radius: 2px;\n  font-size: 12px;\n}\n.rdw-image-modal-size-input:focus {\n  outline: none;\n}\n.rdw-image-mandatory-sign {\n  color: red;\n  margin-left: 3px;\n  margin-right: 3px;\n}\n.rdw-remove-wrapper {\n  display: flex;\n  align-items: center;\n  margin-bottom: 6px;\n  position: relative;\n  flex-wrap: wrap\n}\n.rdw-history-wrapper {\n  display: flex;\n  align-items: center;\n  margin-bottom: 6px;\n  flex-wrap: wrap\n}\n.rdw-history-dropdownoption {\n  height: 40px;\n  display: flex;\n  justify-content: center;\n}\n.rdw-history-dropdown {\n  width: 50px;\n}\n.rdw-link-decorator-wrapper {\n  position: relative;\n}\n.rdw-link-decorator-icon {\n  position: absolute;\n  left: 40%;\n  top: 0;\n  cursor: pointer;\n  background-color: white;\n}\n.rdw-mention-link {\n  text-decoration: none;\n  color: #1236ff;\n  background-color: #f0fbff;\n  padding: 1px 2px;\n  border-radius: 2px;\n}\n.rdw-suggestion-wrapper {\n  position: relative;\n}\n.rdw-suggestion-dropdown {\n  position: absolute;\n  display: flex;\n  flex-direction: column;\n  border: 1px solid #F1F1F1;\n  min-width: 100px;\n  max-height: 150px;\n  overflow: auto;\n  background: white;\n  z-index: 100;\n}\n.rdw-suggestion-option {\n  padding: 7px 5px;\n  border-bottom: 1px solid #f1f1f1;\n}\n.rdw-suggestion-option-active {\n  background-color: #F1F1F1;\n}\n.rdw-hashtag-link {\n  text-decoration: none;\n  color: #1236ff;\n  background-color: #f0fbff;\n  padding: 1px 2px;\n  border-radius: 2px;\n}\n.rdw-image-alignment-options-popup {\n  position: absolute;\n  background: white;\n  display: flex;\n  padding: 5px 2px;\n  border-radius: 2px;\n  border: 1px solid #F1F1F1;\n  width: 105px;\n  cursor: pointer;\n  z-index: 100;\n}\n.rdw-alignment-option-left {\n  justify-content: flex-start;\n}\n.rdw-image-alignment-option {\n  height: 15px;\n  width: 15px;\n  min-width: 15px;\n}\n.rdw-image-alignment {\n  position: relative;\n}\n.rdw-image-imagewrapper {\n  position: relative;\n}\n.rdw-image-center {\n  display: flex;\n  justify-content: center;\n}\n.rdw-image-left {\n  display: flex;\n}\n.rdw-image-right {\n  display: flex;\n  justify-content: flex-end;\n}\n.rdw-image-alignment-options-popup-right {\n  right: 0;\n}\n.rdw-editor-main {\n  height: 100%;\n  overflow: auto;\n  box-sizing: border-box;\n}\n.rdw-editor-toolbar {\n  padding: 6px 5px 0;\n  border-radius: 2px;\n  border: 1px solid #F1F1F1;\n  display: flex;\n  justify-content: flex-start;\n  background: white;\n  flex-wrap: wrap;\n  font-size: 15px;\n  margin-bottom: 5px;\n  user-select: none;\n}\n.public-DraftStyleDefault-block {\n  margin: 1em 0;\n}\n.rdw-editor-wrapper:focus {\n  outline: none;\n}\n.rdw-editor-wrapper {\n  box-sizing: content-box;\n}\n.rdw-editor-main blockquote {\n  border-left: 5px solid #f1f1f1;\n  padding-left: 5px;\n}\n.rdw-editor-main pre {\n  background: #f1f1f1;\n  border-radius: 3px;\n  padding: 1px 10px;\n}/**\n * Draft v0.9.1\n *\n * Copyright (c) 2013-present, Facebook, Inc.\n * All rights reserved.\n *\n * This source code is licensed under the BSD-style license found in the\n * LICENSE file in the root directory of this source tree. An additional grant\n * of patent rights can be found in the PATENTS file in the same directory.\n */\n.DraftEditor-editorContainer,.DraftEditor-root,.public-DraftEditor-content{height:inherit;text-align:initial}.public-DraftEditor-content[contenteditable=true]{-webkit-user-modify:read-write-plaintext-only}.DraftEditor-root{position:relative}.DraftEditor-editorContainer{background-color:rgba(255,255,255,0);border-left:.1px solid transparent;position:relative;z-index:1}.public-DraftEditor-block{position:relative}.DraftEditor-alignLeft .public-DraftStyleDefault-block{text-align:left}.DraftEditor-alignLeft .public-DraftEditorPlaceholder-root{left:0;text-align:left}.DraftEditor-alignCenter .public-DraftStyleDefault-block{text-align:center}.DraftEditor-alignCenter .public-DraftEditorPlaceholder-root{margin:0 auto;text-align:center;width:100%}.DraftEditor-alignRight .public-DraftStyleDefault-block{text-align:right}.DraftEditor-alignRight .public-DraftEditorPlaceholder-root{right:0;text-align:right}.public-DraftEditorPlaceholder-root{color:#9197a3;position:absolute;z-index:0}.public-DraftEditorPlaceholder-hasFocus{color:#bdc1c9}.DraftEditorPlaceholder-hidden{display:none}.public-DraftStyleDefault-block{position:relative;white-space:pre-wrap}.public-DraftStyleDefault-ltr{direction:ltr;text-align:left}.public-DraftStyleDefault-rtl{direction:rtl;text-align:right}.public-DraftStyleDefault-listLTR{direction:ltr}.public-DraftStyleDefault-listRTL{direction:rtl}.public-DraftStyleDefault-ol,.public-DraftStyleDefault-ul{margin:16px 0;padding:0}.public-DraftStyleDefault-depth0.public-DraftStyleDefault-listLTR{margin-left:1.5em}.public-DraftStyleDefault-depth0.public-DraftStyleDefault-listRTL{margin-right:1.5em}.public-DraftStyleDefault-depth1.public-DraftStyleDefault-listLTR{margin-left:3em}.public-DraftStyleDefault-depth1.public-DraftStyleDefault-listRTL{margin-right:3em}.public-DraftStyleDefault-depth2.public-DraftStyleDefault-listLTR{margin-left:4.5em}.public-DraftStyleDefault-depth2.public-DraftStyleDefault-listRTL{margin-right:4.5em}.public-DraftStyleDefault-depth3.public-DraftStyleDefault-listLTR{margin-left:6em}.public-DraftStyleDefault-depth3.public-DraftStyleDefault-listRTL{margin-right:6em}.public-DraftStyleDefault-depth4.public-DraftStyleDefault-listLTR{margin-left:7.5em}.public-DraftStyleDefault-depth4.public-DraftStyleDefault-listRTL{margin-right:7.5em}.public-DraftStyleDefault-unorderedListItem{list-style-type:square;position:relative}.public-DraftStyleDefault-unorderedListItem.public-DraftStyleDefault-depth0{list-style-type:disc}.public-DraftStyleDefault-unorderedListItem.public-DraftStyleDefault-depth1{list-style-type:circle}.public-DraftStyleDefault-orderedListItem{list-style-type:none;position:relative}.public-DraftStyleDefault-orderedListItem.public-DraftStyleDefault-listLTR:before{left:-36px;position:absolute;text-align:right;width:30px}.public-DraftStyleDefault-orderedListItem.public-DraftStyleDefault-listRTL:before{position:absolute;right:-36px;text-align:left;width:30px}.public-DraftStyleDefault-orderedListItem:before{content:counter(ol0) \". \";counter-increment:ol0}.public-DraftStyleDefault-orderedListItem.public-DraftStyleDefault-depth1:before{content:counter(ol1) \". \";counter-increment:ol1}.public-DraftStyleDefault-orderedListItem.public-DraftStyleDefault-depth2:before{content:counter(ol2) \". \";counter-increment:ol2}.public-DraftStyleDefault-orderedListItem.public-DraftStyleDefault-depth3:before{content:counter(ol3) \". \";counter-increment:ol3}.public-DraftStyleDefault-orderedListItem.public-DraftStyleDefault-depth4:before{content:counter(ol4) \". \";counter-increment:ol4}.public-DraftStyleDefault-depth0.public-DraftStyleDefault-reset{counter-reset:ol0}.public-DraftStyleDefault-depth1.public-DraftStyleDefault-reset{counter-reset:ol1}.public-DraftStyleDefault-depth2.public-DraftStyleDefault-reset{counter-reset:ol2}.public-DraftStyleDefault-depth3.public-DraftStyleDefault-reset{counter-reset:ol3}.public-DraftStyleDefault-depth4.public-DraftStyleDefault-reset{counter-reset:ol4}";
 styleInject(css$1);
 
-function _typeof$7(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof$7 = function _typeof(obj) { return typeof obj; }; } else { _typeof$7 = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof$7(obj); }
+function _typeof$5(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof$5 = function _typeof(obj) { return typeof obj; }; } else { _typeof$5 = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof$5(obj); }
 
-function _classCallCheck$24(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _classCallCheck$13(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-function _defineProperties$2(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+function _defineProperties$3(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
-function _createClass$12(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties$2(Constructor.prototype, protoProps); if (staticProps) _defineProperties$2(Constructor, staticProps); return Constructor; }
+function _createClass$3(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties$3(Constructor.prototype, protoProps); if (staticProps) _defineProperties$3(Constructor, staticProps); return Constructor; }
 
-function _possibleConstructorReturn$24(self, call) { if (call && (_typeof$7(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized$3(self); }
+function _possibleConstructorReturn$13(self, call) { if (call && (_typeof$5(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized$2(self); }
 
 function _getPrototypeOf$2(o) { _getPrototypeOf$2 = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf$2(o); }
 
-function _assertThisInitialized$3(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+function _assertThisInitialized$2(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
-function _inherits$24(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf$2(subClass, superClass); }
+function _inherits$13(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf$2(subClass, superClass); }
 
 function _setPrototypeOf$2(o, p) { _setPrototypeOf$2 = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf$2(o, p); }
 
-function _defineProperty$9(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _defineProperty$4(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 var DraftEditor =
 /*#__PURE__*/
 function (_Component) {
-  _inherits$24(DraftEditor, _Component);
+  _inherits$13(DraftEditor, _Component);
 
   function DraftEditor(props) {
     var _this;
 
-    _classCallCheck$24(this, DraftEditor);
+    _classCallCheck$13(this, DraftEditor);
 
-    _this = _possibleConstructorReturn$24(this, _getPrototypeOf$2(DraftEditor).call(this, props));
+    _this = _possibleConstructorReturn$13(this, _getPrototypeOf$2(DraftEditor).call(this, props));
 
-    _defineProperty$9(_assertThisInitialized$3(_this), "onEditorStateChange", function (editorState) {
+    _defineProperty$4(_assertThisInitialized$2(_this), "onEditorStateChange", function (editorState) {
       _this.setState({
         editorState: editorState
       });
@@ -25899,7 +27080,7 @@ function (_Component) {
     return _this;
   }
 
-  _createClass$12(DraftEditor, [{
+  _createClass$3(DraftEditor, [{
     key: "render",
     value: function render() {
       var editorState = this.state.editorState;
@@ -25984,9 +27165,9 @@ function UploaderFilePreview(props) {
   }));
 }
 
-function _typeof$8(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof$8 = function _typeof(obj) { return typeof obj; }; } else { _typeof$8 = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof$8(obj); }
+function _typeof$6(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof$6 = function _typeof(obj) { return typeof obj; }; } else { _typeof$6 = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof$6(obj); }
 
-function _toConsumableArray$5(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
 
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
 
@@ -25994,23 +27175,23 @@ function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.
 
 function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
 
-function _classCallCheck$25(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _classCallCheck$14(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-function _defineProperties$3(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+function _defineProperties$4(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
-function _createClass$13(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties$3(Constructor.prototype, protoProps); if (staticProps) _defineProperties$3(Constructor, staticProps); return Constructor; }
+function _createClass$4(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties$4(Constructor.prototype, protoProps); if (staticProps) _defineProperties$4(Constructor, staticProps); return Constructor; }
 
-function _possibleConstructorReturn$25(self, call) { if (call && (_typeof$8(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized$4(self); }
+function _possibleConstructorReturn$14(self, call) { if (call && (_typeof$6(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized$3(self); }
 
 function _getPrototypeOf$3(o) { _getPrototypeOf$3 = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf$3(o); }
 
-function _assertThisInitialized$4(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+function _assertThisInitialized$3(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
-function _inherits$25(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf$3(subClass, superClass); }
+function _inherits$14(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf$3(subClass, superClass); }
 
 function _setPrototypeOf$3(o, p) { _setPrototypeOf$3 = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf$3(o, p); }
 
-function _defineProperty$10(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _defineProperty$5(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 var setUploaderDefaultFileList = actions.setUploaderDefaultFileList;
 
 var UploadDecorator = function UploadDecorator(UploaderComponent) {
@@ -26019,22 +27200,22 @@ var UploadDecorator = function UploadDecorator(UploaderComponent) {
   return _temp =
   /*#__PURE__*/
   function (_Component) {
-    _inherits$25(Uploader, _Component);
+    _inherits$14(Uploader, _Component);
 
     function Uploader(props) {
       var _this;
 
-      _classCallCheck$25(this, Uploader);
+      _classCallCheck$14(this, Uploader);
 
-      _this = _possibleConstructorReturn$25(this, _getPrototypeOf$3(Uploader).call(this, props));
+      _this = _possibleConstructorReturn$14(this, _getPrototypeOf$3(Uploader).call(this, props));
 
-      _defineProperty$10(_assertThisInitialized$4(_this), "setPreview", function (id) {
+      _defineProperty$5(_assertThisInitialized$3(_this), "setPreview", function (id) {
         _this.setState({
           preview: id
         });
       });
 
-      _defineProperty$10(_assertThisInitialized$4(_this), "handleFileRemove", function (file) {
+      _defineProperty$5(_assertThisInitialized$3(_this), "handleFileRemove", function (file) {
         var newFileList = _this.props.fileListStored.filter(function (f) {
           return f.uid !== file.uid;
         });
@@ -26048,7 +27229,7 @@ var UploadDecorator = function UploadDecorator(UploaderComponent) {
       return _this;
     }
 
-    _createClass$13(Uploader, [{
+    _createClass$4(Uploader, [{
       key: "render",
       value: function render() {
         var _this2 = this;
@@ -26075,7 +27256,7 @@ var UploadDecorator = function UploadDecorator(UploaderComponent) {
               return false;
             }
 
-            var newFileList = !multiple ? [file] : isMax ? fileListStored : [].concat(_toConsumableArray$5(fileListStored), [file]);
+            var newFileList = !multiple ? [file] : isMax ? fileListStored : [].concat(_toConsumableArray(fileListStored), [file]);
 
             _this2.props.onChange(newFileList);
 
@@ -26154,7 +27335,7 @@ Uploader.defaultProps = {
 };
 var Uploader$1 = UploadDecorator$1(Uploader);
 
-function _extends$25() { _extends$25 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends$25.apply(this, arguments); }
+function _extends$9() { _extends$9 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends$9.apply(this, arguments); }
 var setUploaderFiles = actions.setUploaderFiles,
     setUploaderDefaultFileList$1 = actions.setUploaderDefaultFileList,
     fetchFileConfig = actions.fetchFileConfig;
@@ -26168,7 +27349,7 @@ function CrudUploader(props) {
     };
   }, []);
   console.log(props.config[props.modelName]);
-  return React__default.createElement(Uploader$1, _extends$25({}, props, {
+  return React__default.createElement(Uploader$1, _extends$9({}, props, {
     config: props.config[props.modelName] && props.config[props.modelName].data ? props.config[props.modelName].data.files.config : {},
     onChange: function onChange(files) {
       return props.setUploaderFiles(files, props.modelName);
@@ -26196,7 +27377,7 @@ var Uploader$2 = connect(function (state, props) {
   fetchFileConfig: fetchFileConfig
 })(CrudUploader);
 
-function _extends$26() { _extends$26 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends$26.apply(this, arguments); }
+function _extends$10() { _extends$10 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends$10.apply(this, arguments); }
 var SelectOption = antd.Select.Option;
 var Search = antd.Input.Search;
 var renderField = function renderField(_ref) {
@@ -26224,7 +27405,7 @@ var renderField = function renderField(_ref) {
       dropdownRender = _ref.dropdownRender,
       uploaderParams = _ref.uploaderParams,
       locale = _ref.locale;
-  return React__default.createElement(antd.Form.Item, _extends$26({
+  return React__default.createElement(antd.Form.Item, _extends$10({
     hasFeedback: true
   }, layout, {
     label: label,
@@ -26233,7 +27414,7 @@ var renderField = function renderField(_ref) {
   }), function () {
     switch (type) {
       case 'select':
-        return React__default.createElement(antd.Select, _extends$26({}, input, {
+        return React__default.createElement(antd.Select, _extends$10({}, input, {
           value: input.value || [],
           mode: mode,
           showSearch: true,
@@ -26252,7 +27433,7 @@ var renderField = function renderField(_ref) {
         }));
 
       case 'textarea':
-        return React__default.createElement(antd.Input.TextArea, _extends$26({}, input, {
+        return React__default.createElement(antd.Input.TextArea, _extends$10({}, input, {
           placeholder: placeholder,
           type: type,
           className: "form-control",
@@ -26263,7 +27444,7 @@ var renderField = function renderField(_ref) {
         return React__default.createElement(antd.Checkbox, input, placeholder);
 
       case 'search':
-        return React__default.createElement(Search, _extends$26({
+        return React__default.createElement(Search, _extends$10({
           onPressEnter: onPressEnter
         }, input, {
           value: input.value || defaultValue,
@@ -26272,7 +27453,7 @@ var renderField = function renderField(_ref) {
         }));
 
       case 'date':
-        return React__default.createElement(antd.DatePicker, _extends$26({
+        return React__default.createElement(antd.DatePicker, _extends$10({
           style: {
             width: '100%'
           },
@@ -26292,12 +27473,12 @@ var renderField = function renderField(_ref) {
         });
 
       case 'uploader':
-        return React__default.createElement(Uploader$2, _extends$26({}, uploaderParams, {
+        return React__default.createElement(Uploader$2, _extends$10({}, uploaderParams, {
           defaultFileList: input.value
         }));
 
       default:
-        return React__default.createElement(antd.Input, _extends$26({
+        return React__default.createElement(antd.Input, _extends$10({
           onPressEnter: onPressEnter
         }, input, {
           value: input.value || defaultValue,
@@ -26314,61 +27495,61 @@ var renderField = function renderField(_ref) {
   }());
 };
 
-function _typeof$9(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof$9 = function _typeof(obj) { return typeof obj; }; } else { _typeof$9 = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof$9(obj); }
+function _typeof$7(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof$7 = function _typeof(obj) { return typeof obj; }; } else { _typeof$7 = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof$7(obj); }
 
-function _extends$27() { _extends$27 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends$27.apply(this, arguments); }
+function _extends$11() { _extends$11 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends$11.apply(this, arguments); }
 
-function _classCallCheck$26(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _classCallCheck$15(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-function _defineProperties$4(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+function _defineProperties$5(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
-function _createClass$14(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties$4(Constructor.prototype, protoProps); if (staticProps) _defineProperties$4(Constructor, staticProps); return Constructor; }
+function _createClass$5(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties$5(Constructor.prototype, protoProps); if (staticProps) _defineProperties$5(Constructor, staticProps); return Constructor; }
 
-function _possibleConstructorReturn$26(self, call) { if (call && (_typeof$9(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized$5(self); }
+function _possibleConstructorReturn$15(self, call) { if (call && (_typeof$7(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized$4(self); }
 
 function _getPrototypeOf$4(o) { _getPrototypeOf$4 = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf$4(o); }
 
-function _assertThisInitialized$5(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+function _assertThisInitialized$4(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
-function _inherits$26(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf$4(subClass, superClass); }
+function _inherits$15(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf$4(subClass, superClass); }
 
 function _setPrototypeOf$4(o, p) { _setPrototypeOf$4 = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf$4(o, p); }
 
-function _defineProperty$11(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _defineProperty$6(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 var CreateModalForm =
 /*#__PURE__*/
 function (_Component) {
-  _inherits$26(CreateModalForm, _Component);
+  _inherits$15(CreateModalForm, _Component);
 
   function CreateModalForm() {
     var _getPrototypeOf2;
 
     var _this;
 
-    _classCallCheck$26(this, CreateModalForm);
+    _classCallCheck$15(this, CreateModalForm);
 
     for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
       args[_key] = arguments[_key];
     }
 
-    _this = _possibleConstructorReturn$26(this, (_getPrototypeOf2 = _getPrototypeOf$4(CreateModalForm)).call.apply(_getPrototypeOf2, [this].concat(args)));
+    _this = _possibleConstructorReturn$15(this, (_getPrototypeOf2 = _getPrototypeOf$4(CreateModalForm)).call.apply(_getPrototypeOf2, [this].concat(args)));
 
-    _defineProperty$11(_assertThisInitialized$5(_this), "handleCancel", function () {
+    _defineProperty$6(_assertThisInitialized$4(_this), "handleCancel", function () {
       _this.props.onClose();
     });
 
-    _defineProperty$11(_assertThisInitialized$5(_this), "handleSubmit", function (form) {
+    _defineProperty$6(_assertThisInitialized$4(_this), "handleSubmit", function (form) {
       _this.props.onCreate(form);
     });
 
-    _defineProperty$11(_assertThisInitialized$5(_this), "handleAdd", function () {});
+    _defineProperty$6(_assertThisInitialized$4(_this), "handleAdd", function () {});
 
-    _defineProperty$11(_assertThisInitialized$5(_this), "mapFields", function (fields) {
+    _defineProperty$6(_assertThisInitialized$4(_this), "mapFields", function (fields) {
       return fields.map(function (props) {
         return props.fields ? React__default.createElement("div", {
           key: props.name
-        }, _this.mapFields(props.fields)) : React__default.createElement(Field, _extends$27({}, props, {
+        }, _this.mapFields(props.fields)) : React__default.createElement(Field, _extends$11({}, props, {
           component: props.component || _this.props.renderField,
           key: props.name,
           options: _this.props.options[props.optionsKey] || props.options || []
@@ -26379,7 +27560,7 @@ function (_Component) {
     return _this;
   }
 
-  _createClass$14(CreateModalForm, [{
+  _createClass$5(CreateModalForm, [{
     key: "componentDidMount",
     value: function componentDidMount() {}
   }, {
@@ -26408,7 +27589,7 @@ function (_Component) {
   return CreateModalForm;
 }(React.Component);
 
-_defineProperty$11(CreateModalForm, "propTypes", {
+_defineProperty$6(CreateModalForm, "propTypes", {
   modalType: propTypes.string,
   onClose: propTypes.func.isRequired,
   onCreate: propTypes.func.isRequired,
@@ -26420,7 +27601,7 @@ _defineProperty$11(CreateModalForm, "propTypes", {
   uploadFileUrl: propTypes.string
 });
 
-_defineProperty$11(CreateModalForm, "defaultProps", {
+_defineProperty$6(CreateModalForm, "defaultProps", {
   renderField: renderField
 });
 
@@ -26451,59 +27632,59 @@ CreateModalForm = connect(function (state, props) {
 }, {})(CreateModalForm);
 var CreateModel = CreateModalForm;
 
-function _typeof$10(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof$10 = function _typeof(obj) { return typeof obj; }; } else { _typeof$10 = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof$10(obj); }
+function _typeof$8(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof$8 = function _typeof(obj) { return typeof obj; }; } else { _typeof$8 = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof$8(obj); }
 
-function _extends$28() { _extends$28 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends$28.apply(this, arguments); }
+function _extends$12() { _extends$12 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends$12.apply(this, arguments); }
 
-function _classCallCheck$27(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _classCallCheck$16(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-function _defineProperties$5(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+function _defineProperties$6(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
-function _createClass$15(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties$5(Constructor.prototype, protoProps); if (staticProps) _defineProperties$5(Constructor, staticProps); return Constructor; }
+function _createClass$6(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties$6(Constructor.prototype, protoProps); if (staticProps) _defineProperties$6(Constructor, staticProps); return Constructor; }
 
-function _possibleConstructorReturn$27(self, call) { if (call && (_typeof$10(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized$6(self); }
+function _possibleConstructorReturn$16(self, call) { if (call && (_typeof$8(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized$5(self); }
 
 function _getPrototypeOf$5(o) { _getPrototypeOf$5 = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf$5(o); }
 
-function _assertThisInitialized$6(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+function _assertThisInitialized$5(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
-function _inherits$27(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf$5(subClass, superClass); }
+function _inherits$16(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf$5(subClass, superClass); }
 
 function _setPrototypeOf$5(o, p) { _setPrototypeOf$5 = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf$5(o, p); }
 
-function _defineProperty$12(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _defineProperty$7(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 var CreateViewForm =
 /*#__PURE__*/
 function (_Component) {
-  _inherits$27(CreateViewForm, _Component);
+  _inherits$16(CreateViewForm, _Component);
 
   function CreateViewForm() {
     var _getPrototypeOf2;
 
     var _this;
 
-    _classCallCheck$27(this, CreateViewForm);
+    _classCallCheck$16(this, CreateViewForm);
 
     for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
       args[_key] = arguments[_key];
     }
 
-    _this = _possibleConstructorReturn$27(this, (_getPrototypeOf2 = _getPrototypeOf$5(CreateViewForm)).call.apply(_getPrototypeOf2, [this].concat(args)));
+    _this = _possibleConstructorReturn$16(this, (_getPrototypeOf2 = _getPrototypeOf$5(CreateViewForm)).call.apply(_getPrototypeOf2, [this].concat(args)));
 
-    _defineProperty$12(_assertThisInitialized$6(_this), "handleCancel", function () {
+    _defineProperty$7(_assertThisInitialized$5(_this), "handleCancel", function () {
       return _this.props.onClose();
     });
 
-    _defineProperty$12(_assertThisInitialized$6(_this), "handleSubmit", function (form) {
+    _defineProperty$7(_assertThisInitialized$5(_this), "handleSubmit", function (form) {
       return _this.props.onCreate(form);
     });
 
-    _defineProperty$12(_assertThisInitialized$6(_this), "mapFields", function (fields) {
+    _defineProperty$7(_assertThisInitialized$5(_this), "mapFields", function (fields) {
       return fields.map(function (props) {
         return props.fields ? React__default.createElement("div", {
           key: props.name
-        }, _this.mapFields(props.fields)) : React__default.createElement(Field, _extends$28({}, props, {
+        }, _this.mapFields(props.fields)) : React__default.createElement(Field, _extends$12({}, props, {
           component: props.component || _this.props.renderField,
           key: props.name,
           options: _this.props.options[props.optionsKey] || props.options || []
@@ -26514,7 +27695,7 @@ function (_Component) {
     return _this;
   }
 
-  _createClass$15(CreateViewForm, [{
+  _createClass$6(CreateViewForm, [{
     key: "componentDidMount",
     value: function componentDidMount() {}
   }, {
@@ -26561,7 +27742,7 @@ function (_Component) {
   return CreateViewForm;
 }(React.Component);
 
-_defineProperty$12(CreateViewForm, "propTypes", {
+_defineProperty$7(CreateViewForm, "propTypes", {
   modalType: propTypes.string,
   onClose: propTypes.func.isRequired,
   onCreate: propTypes.func.isRequired,
@@ -26571,7 +27752,7 @@ _defineProperty$12(CreateViewForm, "propTypes", {
   renderField: propTypes.oneOfType([propTypes.func, propTypes.object])
 });
 
-_defineProperty$12(CreateViewForm, "defaultProps", {
+_defineProperty$7(CreateViewForm, "defaultProps", {
   renderField: renderField
 });
 
@@ -26606,53 +27787,53 @@ CreateViewForm = connect(function (state, props) {
 }, {})(CreateViewForm);
 var CreateModelView = CreateViewForm;
 
-function _typeof$11(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof$11 = function _typeof(obj) { return typeof obj; }; } else { _typeof$11 = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof$11(obj); }
+function _typeof$9(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof$9 = function _typeof(obj) { return typeof obj; }; } else { _typeof$9 = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof$9(obj); }
 
-function _classCallCheck$28(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _classCallCheck$17(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-function _defineProperties$6(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+function _defineProperties$7(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
-function _createClass$16(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties$6(Constructor.prototype, protoProps); if (staticProps) _defineProperties$6(Constructor, staticProps); return Constructor; }
+function _createClass$7(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties$7(Constructor.prototype, protoProps); if (staticProps) _defineProperties$7(Constructor, staticProps); return Constructor; }
 
-function _possibleConstructorReturn$28(self, call) { if (call && (_typeof$11(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized$7(self); }
+function _possibleConstructorReturn$17(self, call) { if (call && (_typeof$9(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized$6(self); }
 
 function _getPrototypeOf$6(o) { _getPrototypeOf$6 = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf$6(o); }
 
-function _assertThisInitialized$7(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+function _assertThisInitialized$6(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
-function _inherits$28(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf$6(subClass, superClass); }
+function _inherits$17(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf$6(subClass, superClass); }
 
 function _setPrototypeOf$6(o, p) { _setPrototypeOf$6 = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf$6(o, p); }
 
-function _defineProperty$13(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _defineProperty$8(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 var CreateViewForm$1 =
 /*#__PURE__*/
 function (_Component) {
-  _inherits$28(CreateViewForm, _Component);
+  _inherits$17(CreateViewForm, _Component);
 
   function CreateViewForm() {
     var _getPrototypeOf2;
 
     var _this;
 
-    _classCallCheck$28(this, CreateViewForm);
+    _classCallCheck$17(this, CreateViewForm);
 
     for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
       args[_key] = arguments[_key];
     }
 
-    _this = _possibleConstructorReturn$28(this, (_getPrototypeOf2 = _getPrototypeOf$6(CreateViewForm)).call.apply(_getPrototypeOf2, [this].concat(args)));
+    _this = _possibleConstructorReturn$17(this, (_getPrototypeOf2 = _getPrototypeOf$6(CreateViewForm)).call.apply(_getPrototypeOf2, [this].concat(args)));
 
-    _defineProperty$13(_assertThisInitialized$7(_this), "handleCancel", function () {
+    _defineProperty$8(_assertThisInitialized$6(_this), "handleCancel", function () {
       return _this.props.onClose();
     });
 
-    _defineProperty$13(_assertThisInitialized$7(_this), "handleSubmit", function (form) {
+    _defineProperty$8(_assertThisInitialized$6(_this), "handleSubmit", function (form) {
       return _this.props.onCreate(form);
     });
 
-    _defineProperty$13(_assertThisInitialized$7(_this), "mapFields", function (fields) {
+    _defineProperty$8(_assertThisInitialized$6(_this), "mapFields", function (fields) {
       if (fields.length) {
         return fields.map(function (elem) {
           return React__default.createElement(antd.Form, {
@@ -26673,7 +27854,7 @@ function (_Component) {
     return _this;
   }
 
-  _createClass$16(CreateViewForm, [{
+  _createClass$7(CreateViewForm, [{
     key: "componentDidMount",
     value: function componentDidMount() {}
   }, {
@@ -26705,7 +27886,7 @@ function (_Component) {
   return CreateViewForm;
 }(React.Component);
 
-_defineProperty$13(CreateViewForm$1, "propTypes", {
+_defineProperty$8(CreateViewForm$1, "propTypes", {
   modalType: propTypes.string,
   onClose: propTypes.func.isRequired,
   onCreate: propTypes.func.isRequired,
@@ -26715,7 +27896,7 @@ _defineProperty$13(CreateViewForm$1, "propTypes", {
   renderField: propTypes.oneOfType([propTypes.func, propTypes.object])
 });
 
-_defineProperty$13(CreateViewForm$1, "defaultProps", {
+_defineProperty$8(CreateViewForm$1, "defaultProps", {
   renderField: renderField
 });
 
@@ -26753,29 +27934,29 @@ var ShowModelView = CreateViewForm$1;
 var css$2 = ".anticon:before {\n\tdisplay: initial !important;\n}\n\n.crud-table-column {\n    min-width: 100px!important;\n}\n\n\n.ant-table-row.success {\n    background-color: #c3e6cb;\n}\n\n.ant-table-row.secondary {\n    background-color: #d6d8db;\n}\n\n.ant-table-row.primary {\n    background-color: #b8daff;\n}\n\n.ant-table-row.danger {\n    background-color: #f5c6cb;\n}\n.ant-table-row.warning {\n    background-color: #ffeeba;\n}\n.ant-table-row.info {\n    background-color: #bee5eb;\n}\n.ant-table-row.light {\n    background-color: #fdfdfe;\n}\n.ant-table-row.dark {\n    background-color: #c6c8ca;\n}\n\n.ant-table-row.dark td, .ant-table-row.dark th {\n    border-color: #32383e;\n}\n\n";
 styleInject(css$2);
 
-function _typeof$12(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof$12 = function _typeof(obj) { return typeof obj; }; } else { _typeof$12 = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof$12(obj); }
+function _typeof$10(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof$10 = function _typeof(obj) { return typeof obj; }; } else { _typeof$10 = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof$10(obj); }
 
-function ownKeys$1(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+function ownKeys$2(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
-function _objectSpread$1(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys$1(source, true).forEach(function (key) { _defineProperty$14(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys$1(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+function _objectSpread$1(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys$2(source, true).forEach(function (key) { _defineProperty$9(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys$2(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
 
-function _classCallCheck$29(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _classCallCheck$18(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-function _defineProperties$7(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+function _defineProperties$8(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
-function _createClass$17(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties$7(Constructor.prototype, protoProps); if (staticProps) _defineProperties$7(Constructor, staticProps); return Constructor; }
+function _createClass$8(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties$8(Constructor.prototype, protoProps); if (staticProps) _defineProperties$8(Constructor, staticProps); return Constructor; }
 
-function _possibleConstructorReturn$29(self, call) { if (call && (_typeof$12(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized$8(self); }
+function _possibleConstructorReturn$18(self, call) { if (call && (_typeof$10(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized$7(self); }
 
 function _getPrototypeOf$7(o) { _getPrototypeOf$7 = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf$7(o); }
 
-function _assertThisInitialized$8(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+function _assertThisInitialized$7(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
-function _inherits$29(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf$7(subClass, superClass); }
+function _inherits$18(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf$7(subClass, superClass); }
 
 function _setPrototypeOf$7(o, p) { _setPrototypeOf$7 = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf$7(o, p); }
 
-function _defineProperty$14(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _defineProperty$9(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 var toggleCreateModelModal = actions.toggleCreateModelModal,
     deleteModel = actions.deleteModel,
     restoreModel = actions.restoreModel,
@@ -26787,22 +27968,22 @@ var toggleCreateModelModal = actions.toggleCreateModelModal,
 var CrudFull =
 /*#__PURE__*/
 function (_Component) {
-  _inherits$29(CrudFull, _Component);
+  _inherits$18(CrudFull, _Component);
 
   function CrudFull() {
     var _getPrototypeOf2;
 
     var _this;
 
-    _classCallCheck$29(this, CrudFull);
+    _classCallCheck$18(this, CrudFull);
 
     for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
       args[_key] = arguments[_key];
     }
 
-    _this = _possibleConstructorReturn$29(this, (_getPrototypeOf2 = _getPrototypeOf$7(CrudFull)).call.apply(_getPrototypeOf2, [this].concat(args)));
+    _this = _possibleConstructorReturn$18(this, (_getPrototypeOf2 = _getPrototypeOf$7(CrudFull)).call.apply(_getPrototypeOf2, [this].concat(args)));
 
-    _defineProperty$14(_assertThisInitialized$8(_this), "actionsFunc", function (action, elem) {
+    _defineProperty$9(_assertThisInitialized$7(_this), "actionsFunc", function (action, elem) {
       var customActionsFunc = _this.props.customActionsFunc;
 
       switch (action.id) {
@@ -26831,42 +28012,42 @@ function (_Component) {
       }
     });
 
-    _defineProperty$14(_assertThisInitialized$8(_this), "openUpdateFrom", function (action, elem) {
+    _defineProperty$9(_assertThisInitialized$7(_this), "openUpdateFrom", function (action, elem) {
       _this.props.setModelModalForm('edit', elem, action);
 
       _this.toggleModal(_this.props.modelName);
     });
 
-    _defineProperty$14(_assertThisInitialized$8(_this), "openViewFrom", function (action, elem) {
+    _defineProperty$9(_assertThisInitialized$7(_this), "openViewFrom", function (action, elem) {
       _this.props.setModelModalForm('view', elem, action);
 
       _this.toggleModal(_this.props.modelName);
     });
 
-    _defineProperty$14(_assertThisInitialized$8(_this), "toggleModal", function (modelName) {
+    _defineProperty$9(_assertThisInitialized$7(_this), "toggleModal", function (modelName) {
       _this.props.toggleCreateModelModal(modelName);
     });
 
-    _defineProperty$14(_assertThisInitialized$8(_this), "handleClose", function (modelName) {
+    _defineProperty$9(_assertThisInitialized$7(_this), "handleClose", function (modelName) {
       _this.toggleModal();
 
       _this.props.setModelModalForm(null, null);
     });
 
-    _defineProperty$14(_assertThisInitialized$8(_this), "handleUpdate", function (form) {
+    _defineProperty$9(_assertThisInitialized$7(_this), "handleUpdate", function (form) {
       _this.props.changeModel(form, _this.props.objectModal.action, _this.props.modelName);
     });
 
-    _defineProperty$14(_assertThisInitialized$8(_this), "handleCreate", function (form) {
+    _defineProperty$9(_assertThisInitialized$7(_this), "handleCreate", function (form) {
       _this.props.createModel(form, _this.props.crudCreate, _this.props.modelName);
     });
 
-    _defineProperty$14(_assertThisInitialized$8(_this), "handleDelete", function (action, elem) {
+    _defineProperty$9(_assertThisInitialized$7(_this), "handleDelete", function (action, elem) {
       var conf = window.confirm(_this.props.onDeleteConfirmMessageFunc(elem));
       if (conf) _this.props.deleteModel(elem.id, action, _this.props.modelName);
     });
 
-    _defineProperty$14(_assertThisInitialized$8(_this), "handleRestore", function (action, elem) {
+    _defineProperty$9(_assertThisInitialized$7(_this), "handleRestore", function (action, elem) {
       var conf = window.confirm("\u0425\u043E\u0442\u0438\u0442\u0435 \u0432\u043E\u0441\u0441\u0442\u0430\u043D\u043E\u0432\u0438\u0442\u044C \"".concat(elem.name, "\" (ID: ").concat(elem.id, ")?"));
       if (conf) _this.props.restoreModel(elem.id, action.url, _this.props.modelName);
     });
@@ -26874,7 +28055,7 @@ function (_Component) {
     return _this;
   }
 
-  _createClass$17(CrudFull, [{
+  _createClass$8(CrudFull, [{
     key: "componentDidMount",
     value: function componentDidMount() {
       this.props.setCrudActionsFunc(this.actionsFunc, this.props.modelName);
@@ -27065,11 +28246,11 @@ var SUCCESS$1 = '_SUCCESS';
 var ERROR = '_ERROR';
 var FAIL = 'FAIL';
 
-function ownKeys$2(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+function ownKeys$3(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
-function _objectSpread$2(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys$2(source, true).forEach(function (key) { _defineProperty$15(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys$2(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+function _objectSpread$2(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys$3(source, true).forEach(function (key) { _defineProperty$10(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys$3(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
 
-function _defineProperty$15(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _defineProperty$10(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 var crudModelsReducer = function crudModelsReducer() {
   var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
@@ -27081,22 +28262,22 @@ var crudModelsReducer = function crudModelsReducer() {
 
   switch (type) {
     case actions.FETCH_CRUD_MODELS + SUCCESS$1:
-      return _objectSpread$2({}, state, _defineProperty$15({}, payload.params.modelName, response));
+      return _objectSpread$2({}, state, _defineProperty$10({}, payload.params.modelName, response));
 
     case actions.FETCH_CRUD_MODELS + ERROR:
-      return _objectSpread$2({}, state, _defineProperty$15({}, payload.params.modelName, _objectSpread$2({}, state[payload.params.modelName], {
+      return _objectSpread$2({}, state, _defineProperty$10({}, payload.params.modelName, _objectSpread$2({}, state[payload.params.modelName], {
         loading: false,
         error: error
       })));
 
     case actions.FETCH_CRUD_MODELS + START:
-      return _objectSpread$2({}, state, _defineProperty$15({}, payload.params.modelName, _objectSpread$2({}, state[payload.params.modelName], {
+      return _objectSpread$2({}, state, _defineProperty$10({}, payload.params.modelName, _objectSpread$2({}, state[payload.params.modelName], {
         loading: true
       })));
 
     case actions.FETCH_CRUD_CHILDREN + SUCCESS$1:
       var model = state[payload.params.modelName];
-      return _objectSpread$2({}, state, _defineProperty$15({}, payload.params.modelName, _objectSpread$2({}, model, {
+      return _objectSpread$2({}, state, _defineProperty$10({}, payload.params.modelName, _objectSpread$2({}, model, {
         data: _objectSpread$2({}, model.data, {
           items: model.data.items.map(function (elem) {
             return elem.id === payload.id ? _objectSpread$2({}, elem, {
@@ -27120,9 +28301,9 @@ var crudFilterValuesReducer = function crudFilterValuesReducer() {
 
   switch (type) {
     case actions.FETCH_CRUD_FILTER_VALUES + SUCCESS$1:
-      return _objectSpread$2({}, state, _defineProperty$15({
+      return _objectSpread$2({}, state, _defineProperty$10({
         loading: false
-      }, payload.modelName, _objectSpread$2({}, state[payload.modelName], _defineProperty$15({}, payload.filter, response.data))));
+      }, payload.modelName, _objectSpread$2({}, state[payload.modelName], _defineProperty$10({}, payload.filter, response.data))));
 
     case actions.FETCH_CRUD_FILTER_VALUES + ERROR:
       return _objectSpread$2({}, state, {
@@ -27149,7 +28330,7 @@ var crudActionsFuncReducer = function crudActionsFuncReducer() {
 
   switch (type) {
     case actions.SET_CRUD_ACTIONS_FUNC:
-      return _objectSpread$2({}, state, _defineProperty$15({}, payload.modelName, payload.func));
+      return _objectSpread$2({}, state, _defineProperty$10({}, payload.modelName, payload.func));
 
     default:
       return state;
@@ -27197,7 +28378,7 @@ var crudParamsReducer = function crudParamsReducer() {
 
   switch (type) {
     case actions.SET_CRUD_PARAMS:
-      return _objectSpread$2({}, state, _defineProperty$15({}, payload.modelName, payload));
+      return _objectSpread$2({}, state, _defineProperty$10({}, payload.modelName, payload));
 
     default:
       return state;
@@ -27230,12 +28411,12 @@ var uploaderFilesReducer = function uploaderFilesReducer() {
 
   switch (type) {
     case actions.SET_UPLOADER_FILES:
-      return _objectSpread$2({}, state, _defineProperty$15({}, payload.modelName, _objectSpread$2({}, state[payload.modelName], {
+      return _objectSpread$2({}, state, _defineProperty$10({}, payload.modelName, _objectSpread$2({}, state[payload.modelName], {
         fileList: payload.files
       })));
 
     case actions.SET_UPLOADER_DEFAULT_FILE_LIST:
-      return _objectSpread$2({}, state, _defineProperty$15({}, payload.modelName, _objectSpread$2({}, state[payload.modelName], {
+      return _objectSpread$2({}, state, _defineProperty$10({}, payload.modelName, _objectSpread$2({}, state[payload.modelName], {
         defaultFileList: payload.defaultFileList
       })));
 
@@ -27253,7 +28434,7 @@ function fetchFileConfigReducer() {
 
   switch (type) {
     case actions.FETCH_FILE_CONFIG + SUCCESS$1:
-      return _objectSpread$2({}, state, _defineProperty$15({}, payload.modelName, response));
+      return _objectSpread$2({}, state, _defineProperty$10({}, payload.modelName, response));
 
     case actions.FETCH_FILE_CONFIG + ERROR:
       return {
@@ -27276,7 +28457,7 @@ var crudReducers = {
   fileConfig: fetchFileConfigReducer
 };
 
-var _typeof$13 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+var _typeof$11 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 var sym = function sym(id) {
   return '@@redux-saga/' + id;
@@ -27295,9 +28476,9 @@ function check(value, predicate, error) {
   }
 }
 
-var hasOwnProperty$13 = Object.prototype.hasOwnProperty;
+var hasOwnProperty$14 = Object.prototype.hasOwnProperty;
 function hasOwn$1(object, property) {
-  return is$1.notUndef(object) && hasOwnProperty$13.call(object, property);
+  return is$1.notUndef(object) && hasOwnProperty$14.call(object, property);
 }
 
 var is$1 = {
@@ -27318,7 +28499,7 @@ var is$1 = {
   },
   array: Array.isArray,
   object: function object(obj) {
-    return obj && !is$1.array(obj) && (typeof obj === 'undefined' ? 'undefined' : _typeof$13(obj)) === 'object';
+    return obj && !is$1.array(obj) && (typeof obj === 'undefined' ? 'undefined' : _typeof$11(obj)) === 'object';
   },
   promise: function promise(p) {
     return p && is$1.func(p.then);
@@ -27339,7 +28520,7 @@ var is$1 = {
     return buf && is$1.func(buf.isEmpty) && is$1.func(buf.take) && is$1.func(buf.put);
   },
   pattern: function pattern(pat) {
-    return pat && (is$1.string(pat) || (typeof pat === 'undefined' ? 'undefined' : _typeof$13(pat)) === 'symbol' || is$1.func(pat) || is$1.array(pat));
+    return pat && (is$1.string(pat) || (typeof pat === 'undefined' ? 'undefined' : _typeof$11(pat)) === 'symbol' || is$1.func(pat) || is$1.array(pat));
   },
   channel: function channel(ch) {
     return ch && is$1.func(ch.take) && is$1.func(ch.close);
@@ -28513,11 +29694,11 @@ function reduceMessages(messages) {
   }, {});
 }
 
-function ownKeys$3(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+function ownKeys$4(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
-function _objectSpread$3(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys$3(source, true).forEach(function (key) { _defineProperty$16(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys$3(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+function _objectSpread$3(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys$4(source, true).forEach(function (key) { _defineProperty$11(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys$4(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
 
-function _defineProperty$16(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _defineProperty$11(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 var _marked =
 /*#__PURE__*/
@@ -28608,7 +29789,7 @@ function isDateColumn(columns, key) {
 
 function getFiltersValues(filters, columns) {
   var res = Object.keys(filters).reduce(function (acc, key) {
-    return _objectSpread$3({}, acc, _defineProperty$16({}, key, isDateColumn(columns, key) ? filters[key] instanceof Array || null ? null : hooks(filters[key]).unix() : filters[key].constructor !== Array ? filters[key] : null));
+    return _objectSpread$3({}, acc, _defineProperty$11({}, key, isDateColumn(columns, key) ? filters[key] instanceof Array || null ? null : hooks(filters[key]).unix() : filters[key].constructor !== Array ? filters[key] : null));
   }, {}); // buildUrlSearchForArray(filters[key], key)
 
   return res;
@@ -29135,11 +30316,11 @@ runtimeModule.mark(requestSaga),
 /*#__PURE__*/
 runtimeModule.mark(requests);
 
-function ownKeys$4(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+function ownKeys$5(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
-function _objectSpread$4(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys$4(source, true).forEach(function (key) { _defineProperty$17(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys$4(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+function _objectSpread$4(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys$5(source, true).forEach(function (key) { _defineProperty$12(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys$5(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
 
-function _defineProperty$17(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _defineProperty$12(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 function getCookie(name) {
   var matches = document.cookie.match(new RegExp('(?:^|; )' + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + '=([^;]*)'));
   return matches ? decodeURIComponent(matches[1]) : undefined;
