@@ -2,7 +2,6 @@ import React from 'react'
 import { connect } from 'react-redux'
 import { CrudFull } from '../../dist';
 import createCommissionFields from './createCategoryFields';
-import PropTypes from 'prop-types'
 
 // commission_list_container
 
@@ -11,6 +10,7 @@ function CrudCommisionList({ taskType, userTag }) {
 	return (
 		<div className="box box-body crud-table">
 			<CrudFull
+				bordered
 				crudRead="/v2/admin/task/commission/list"
 				crudCreate="/v2/admin/task/commission"
 				modelName="crudCommisionList"
@@ -53,10 +53,6 @@ function CrudCommisionList({ taskType, userTag }) {
 	)
 }
 
-CrudCommisionList.propTypes = {
-	taskType: PropTypes.array,
-	userTag: PropTypes.array,
-};
 const mapState = state => ({
 	taskType: state.crudFilterValues && state.crudFilterValues.crudCommisionList
 		? state.crudFilterValues.crudCommisionList.task_type
