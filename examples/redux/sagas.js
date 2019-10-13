@@ -156,8 +156,8 @@ function* fetchFileConfigSaga(action) {
 export default function* rootSaga() {
 	yield all([
 		saga(),
-		// takeEvery('REQUEST', requestSaga),
-		// takeEvery(actions.FETCH_FILE_CONFIG, fetchFileConfigSaga),
-		takeEvery('REQUEST', requestWHOSaga),
+		takeEvery('REQUEST', requestSaga),
+		takeEvery(actions.FETCH_FILE_CONFIG, fetchFileConfigSaga),
+		// takeEvery('REQUEST', requestWHOSaga),
 	]);
 }
