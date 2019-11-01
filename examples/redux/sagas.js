@@ -5,7 +5,7 @@ import { START, ERROR, SUCCESS } from './constants';
 import { request } from 'sm-redux-saga-request';
 import actions from './actions'
 
-export const API = 'http://api.rentrika.kosmoz.online';
+export const API = 'https://api.rentrika.kosmoz.online';
 export const token = '8b9e2568e2fc85a9ae1b5b8ac7e81d00';
 
 export function* requestSaga(action) {

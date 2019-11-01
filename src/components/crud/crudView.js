@@ -85,7 +85,7 @@ class CrudView extends Component {
 
 		const columns = items.data.columns.map(col => ({
 			className: 'crud-table-column' + (tdClass ? ' ' + tdClass : ''),
-			title: col.title, // <IntlMessages id="antTable.title.id"/>,
+			title: <span dangerouslySetInnerHTML={{ __html: col.title }} />, // <IntlMessages id="antTable.title.id"/>,
 			key: col.id,
 			fixed: col.id === 'actions' && !isNotMiddleSizeWindow && fixActionColumn ? 'right' : null,
 			width: col.id === 'actions' && !isNotMiddleSizeWindow && fixActionColumn ? 150 : 'auto',

@@ -38,6 +38,7 @@ export class CrudFull extends Component {
 
 	actionsFunc = (action, elem) => {
 		const { customActionsFunc } = this.props;
+		console.log(action, elem)
 		switch (action.id) {
 			case 'update':
 				this.openUpdateFrom(action, elem);
