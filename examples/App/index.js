@@ -58,7 +58,7 @@ class CrudSiteAlerts extends React.Component {
 		return (
 			<div className="box box-body crudTable">
 				<CrudFull
-					crudRead={'/v1/owner/object/98/keys/actions'}
+					crudRead="/v1/owner/object/list"
 					// crudCreate={`/v1/owner/object/57/key`}
 					submitShape={form => ({ ...form })}
 					updateShape={elem => ({ config: elem.files.config })}

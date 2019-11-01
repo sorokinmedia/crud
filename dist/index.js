@@ -16945,7 +16945,11 @@ function (_Component) {
       var columns = items.data.columns.map(function (col) {
         return {
           className: 'crud-table-column' + (tdClass ? ' ' + tdClass : ''),
-          title: col.title,
+          title: React__default.createElement("span", {
+            dangerouslySetInnerHTML: {
+              __html: col.title
+            }
+          }),
           // <IntlMessages id="antTable.title.id"/>,
           key: col.id,
           fixed: col.id === 'actions' && !isNotMiddleSizeWindow && fixActionColumn ? 'right' : null,
@@ -27003,6 +27007,7 @@ function (_Component) {
 
     _defineProperty$14(_assertThisInitialized$7(_this), "actionsFunc", function (action, elem) {
       var customActionsFunc = _this.props.customActionsFunc;
+      console.log(action, elem);
 
       switch (action.id) {
         case 'update':
