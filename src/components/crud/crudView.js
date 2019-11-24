@@ -70,7 +70,8 @@ class CrudView extends Component {
 			scrollX,
 			pageSize,
 			rowSelection,
-			bordered
+			bordered,
+			tableProps
 		} = this.props;
 
 		if (items && !items.data && items.loading) return <Loader />;
@@ -107,9 +108,11 @@ class CrudView extends Component {
 		}));
 
 		const TableComponent = TableWrapper || Table;
+		const scrollXPTable = !isNotMiddleSizeWindow && fixActionColumn ? { x: scrollX } : {};
 
 		return (
 			<TableComponent
+				{...tableProps}
 				columns={columns}
 				dataSource={listItems}
 				className="isoSortingTable"
@@ -121,7 +124,10 @@ class CrudView extends Component {
 					hideOnSinglePage: true
 				}}
 				loading={items.loading}
-				scroll={!isNotMiddleSizeWindow && fixActionColumn ? { x: scrollX } : {}}
+				scroll={{
+					...tableProps.scroll,
+					...scrollXPTable
+				}}
 				onExpand={this.handleExpand}
 				size={size}
 				tableStyle={tableStyle}
@@ -143,13 +149,15 @@ CrudView.propTypes = {
 	tdClass: PropTypes.string,
 	scrollX: PropTypes.number,
 	pageSize: PropTypes.number,
-	rowSelection: PropTypes.func
+	rowSelection: PropTypes.func,
+	tableProps: PropTypes.object,
 };
 
 CrudView.defaultProps = {
 	fixActionColumn: true,
 	scrollX: 1300,
-	pageSize: 20
+	pageSize: 20,
+	tableProps: {}
 };
 
 export default connect((state, props) => ({

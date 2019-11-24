@@ -16825,6 +16825,8 @@ var Loader = function Loader() {
 
 function _typeof$6(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof$6 = function _typeof(obj) { return typeof obj; }; } else { _typeof$6 = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof$6(obj); }
 
+function _extends$16() { _extends$16 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends$16.apply(this, arguments); }
+
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty$1(target, key, source[key]); }); } return target; }
 
 function _classCallCheck$14(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -16932,7 +16934,8 @@ function (_Component) {
           scrollX = _this$props2.scrollX,
           pageSize = _this$props2.pageSize,
           rowSelection = _this$props2.rowSelection,
-          bordered = _this$props2.bordered;
+          bordered = _this$props2.bordered,
+          tableProps = _this$props2.tableProps;
       if (items && !items.data && items.loading) return React__default.createElement(Loader, null);
       if (!items || !items.data) return null;
       var listItems = items.data.items.map(function (elem) {
@@ -16973,7 +16976,10 @@ function (_Component) {
         };
       });
       var TableComponent = TableWrapper || antd.Table;
-      return React__default.createElement(TableComponent, {
+      var scrollXPTable = !isNotMiddleSizeWindow && fixActionColumn ? {
+        x: scrollX
+      } : {};
+      return React__default.createElement(TableComponent, _extends$16({}, tableProps, {
         columns: columns,
         dataSource: listItems,
         className: "isoSortingTable",
@@ -16985,9 +16991,7 @@ function (_Component) {
           hideOnSinglePage: true
         },
         loading: items.loading,
-        scroll: !isNotMiddleSizeWindow && fixActionColumn ? {
-          x: scrollX
-        } : {},
+        scroll: _objectSpread({}, tableProps.scroll, scrollXPTable),
         onExpand: this.handleExpand,
         size: size,
         tableStyle: tableStyle,
@@ -16996,7 +17000,7 @@ function (_Component) {
         },
         rowSelection: rowSelection,
         bordered: bordered
-      });
+      }));
     }
   }]);
 
@@ -17013,12 +17017,14 @@ CrudView.propTypes = {
   tdClass: propTypes.string,
   scrollX: propTypes.number,
   pageSize: propTypes.number,
-  rowSelection: propTypes.func
+  rowSelection: propTypes.func,
+  tableProps: propTypes.object
 };
 CrudView.defaultProps = {
   fixActionColumn: true,
   scrollX: 1300,
-  pageSize: 20
+  pageSize: 20,
+  tableProps: {}
 };
 var CrudView$1 = connect(function (state, props) {
   return {
@@ -17070,7 +17076,7 @@ var UNTOUCH = prefix + 'UNTOUCH';
 var UPDATE_SYNC_ERRORS = prefix + 'UPDATE_SYNC_ERRORS';
 var UPDATE_SYNC_WARNINGS = prefix + 'UPDATE_SYNC_WARNINGS';
 
-var _extends$16 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$17 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 
 var arrayInsert = function arrayInsert(form, field, index, value) {
@@ -17236,7 +17242,7 @@ var initialize = function initialize(form, values, keepDirty) {
   }
   return {
     type: INITIALIZE,
-    meta: _extends$16({ form: form, keepDirty: keepDirty }, otherMeta),
+    meta: _extends$17({ form: form, keepDirty: keepDirty }, otherMeta),
     payload: values
   };
 };
@@ -17703,7 +17709,7 @@ var formatName = function formatName(_ref, name) {
   return sectionPrefix ? sectionPrefix + '.' + name : name;
 };
 
-var _extends$17 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$18 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 var _createClass$3 = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -17736,7 +17742,7 @@ var FormSection = function (_Component) {
           name = this.props.name;
 
       return {
-        _reduxForm: _extends$17({}, context._reduxForm, {
+        _reduxForm: _extends$18({}, context._reduxForm, {
           sectionPrefix: formatName(context, name)
         })
       };
@@ -17754,7 +17760,7 @@ var FormSection = function (_Component) {
         return children;
       }
 
-      return React.createElement(component, _extends$17({}, rest, {
+      return React.createElement(component, _extends$18({}, rest, {
         children: children
       }));
     }
@@ -18004,7 +18010,7 @@ var fieldArrayPropTypes = {
   meta: shape(fieldArrayMetaPropTypes).isRequired
 };
 
-var _extends$18 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$19 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 function _objectWithoutProperties$9(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
@@ -18012,23 +18018,23 @@ var processProps = function processProps(type, props, _value, deepEqual) {
   var value = props.value;
 
   if (type === 'checkbox') {
-    return _extends$18({}, props, {
+    return _extends$19({}, props, {
       checked: !!value
     });
   }
   if (type === 'radio') {
-    return _extends$18({}, props, {
+    return _extends$19({}, props, {
       checked: deepEqual(value, _value),
       value: _value
     });
   }
   if (type === 'select-multiple') {
-    return _extends$18({}, props, {
+    return _extends$19({}, props, {
       value: value || []
     });
   }
   if (type === 'file') {
-    return _extends$18({}, props, {
+    return _extends$19({}, props, {
       value: value || undefined
     });
   }
@@ -18090,7 +18096,7 @@ var createFieldProps = function createFieldProps(_ref2, name, _ref) {
       onFocus: onFocus,
       value: formattedFieldValue
     }, _value, deepEqual),
-    meta: _extends$18({}, toJS(state), {
+    meta: _extends$19({}, toJS(state), {
       active: !!(state && getIn(state, 'active')),
       asyncValidating: asyncValidating,
       autofilled: !!(state && getIn(state, 'autofilled')),
@@ -18108,7 +18114,7 @@ var createFieldProps = function createFieldProps(_ref2, name, _ref) {
       valid: !error,
       visited: !!(state && getIn(state, 'visited'))
     }),
-    custom: _extends$18({}, custom, props)
+    custom: _extends$19({}, custom, props)
   };
 };
 
@@ -19144,7 +19150,7 @@ var getIn = function getIn(state, field) {
   return result;
 };
 
-var _extends$19 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$20 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 function _defineProperty$2(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
@@ -19172,7 +19178,7 @@ var setInWithPath = function setInWithPath(state, value, path, pathIndex) {
     return copy;
   }
 
-  return _extends$19({}, state, _defineProperty$2({}, first, next));
+  return _extends$20({}, state, _defineProperty$2({}, first, next));
 };
 
 var setIn = function setIn(state, field, value) {
@@ -20447,7 +20453,7 @@ var deepEqual = function deepEqual(a, b) {
   return isEqualWith(a, b, customizer);
 };
 
-var _extends$20 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$21 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 function _defineProperty$3(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
@@ -20480,7 +20486,7 @@ function deleteInWithPath(state, first) {
     }
     if (first in state) {
       var _result = deleteInWithPath.apply(undefined, [state && state[first]].concat(_toConsumableArray$1(rest)));
-      return state[first] === _result ? state : _extends$20({}, state, _defineProperty$3({}, first, _result));
+      return state[first] === _result ? state : _extends$21({}, state, _defineProperty$3({}, first, _result));
     }
     return state;
   }
@@ -20497,7 +20503,7 @@ function deleteInWithPath(state, first) {
     return state;
   }
   if (first in state) {
-    var _copy2 = _extends$20({}, state);
+    var _copy2 = _extends$21({}, state);
     delete _copy2[first];
     return _copy2;
   }
@@ -20549,7 +20555,7 @@ var structure = {
   }
 };
 
-var _extends$21 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$22 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 var _createClass$4 = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -20650,7 +20656,7 @@ var createConnectedField = function createConnectedField(structure$$1) {
           // `One of the sources for assign has an enumerable key on the prototype chain`
           // Reference: https://github.com/facebook/react-native/issues/5507
           if (!isReactNative) {
-            onChange(_extends$21({}, event, {
+            onChange(_extends$22({}, event, {
               preventDefault: function preventDefault() {
                 defaultPrevented = true;
                 return eventPreventDefault(event);
@@ -20680,7 +20686,7 @@ var createConnectedField = function createConnectedField(structure$$1) {
         var defaultPrevented = false;
         if (onFocus) {
           if (!isReactNative) {
-            onFocus(_extends$21({}, event, {
+            onFocus(_extends$22({}, event, {
               preventDefault: function preventDefault() {
                 defaultPrevented = true;
                 return eventPreventDefault(event);
@@ -20716,7 +20722,7 @@ var createConnectedField = function createConnectedField(structure$$1) {
         var defaultPrevented = false;
         if (onBlur) {
           if (!isReactNative) {
-            onBlur(_extends$21({}, event, {
+            onBlur(_extends$22({}, event, {
               preventDefault: function preventDefault() {
                 defaultPrevented = true;
                 return eventPreventDefault(event);
@@ -20759,7 +20765,7 @@ var createConnectedField = function createConnectedField(structure$$1) {
 
         var defaultPrevented = false;
         if (onDrop) {
-          onDrop(_extends$21({}, event, {
+          onDrop(_extends$22({}, event, {
             preventDefault: function preventDefault() {
               defaultPrevented = true;
               return eventPreventDefault(event);
@@ -20813,7 +20819,7 @@ var createConnectedField = function createConnectedField(structure$$1) {
             immutableProps = _props.immutableProps,
             rest = _objectWithoutProperties$10(_props, ['component', 'withRef', 'name', '_reduxForm', 'normalize', 'onBlur', 'onChange', 'onFocus', 'onDragStart', 'onDrop', 'immutableProps']);
 
-        var _createFieldProps = createFieldProps(structure$$1, name, _extends$21({}, rest, {
+        var _createFieldProps = createFieldProps(structure$$1, name, _extends$22({}, rest, {
           form: _reduxForm.form,
           onBlur: this.handleBlur,
           onChange: this.handleChange,
@@ -20832,9 +20838,9 @@ var createConnectedField = function createConnectedField(structure$$1) {
  // eslint-disable-line no-unused-vars
           // flatten input into other props
 
-          return React.createElement(component, _extends$21({}, input, custom));
+          return React.createElement(component, _extends$22({}, input, custom));
         } else {
-          return React.createElement(component, _extends$21({}, props, custom));
+          return React.createElement(component, _extends$22({}, props, custom));
         }
       }
     }]);
@@ -20899,7 +20905,7 @@ var shallowCompare = function shallowCompare(instance, nextProps, nextState) {
   return !propsEqual || !stateEqual;
 };
 
-var _extends$22 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$23 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 var _createClass$5 = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -20994,7 +21000,7 @@ var createField = function createField(structure$$1) {
     }, {
       key: 'render',
       value: function render() {
-        return React.createElement(ConnectedField, _extends$22({}, this.props, {
+        return React.createElement(ConnectedField, _extends$23({}, this.props, {
           name: this.name,
           normalize: this.normalize,
           _reduxForm: this.context._reduxForm,
@@ -21053,7 +21059,7 @@ var createField = function createField(structure$$1) {
 
 var Field = createField(structure);
 
-var _extends$23 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$24 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 var _createClass$6 = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -21229,7 +21235,7 @@ var createConnectedFields = function createConnectedFields(structure$$1) {
         var _Object$keys$reduce = Object.keys(_fields).reduce(function (accumulator, name) {
           var connectedProps = _fields[name];
 
-          var _createFieldProps = createFieldProps(structure$$1, name, _extends$23({}, connectedProps, rest, {
+          var _createFieldProps = createFieldProps(structure$$1, name, _extends$24({}, connectedProps, rest, {
             form: form,
             onBlur: _this4.onBlurFns[name],
             onChange: _this4.onChangeFns[name],
@@ -21249,7 +21255,7 @@ var createConnectedFields = function createConnectedFields(structure$$1) {
           props.ref = this.saveRef;
         }
 
-        return React.createElement(component, _extends$23({}, props, custom));
+        return React.createElement(component, _extends$24({}, props, custom));
       }
     }]);
 
@@ -21300,7 +21306,7 @@ var createConnectedFields = function createConnectedFields(structure$$1) {
   return connector(ConnectedFields);
 };
 
-var _extends$24 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$25 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 var _createClass$7 = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -21396,7 +21402,7 @@ var createFields = function createFields(structure$$1) {
       value: function render() {
         var context = this.context;
 
-        return React.createElement(ConnectedFields, _extends$24({}, this.props, {
+        return React.createElement(ConnectedFields, _extends$25({}, this.props, {
           names: this.props.names.map(function (name) {
             return formatName(context, name);
           }),
@@ -21979,7 +21985,7 @@ function mapValues(object, iteratee) {
   return result;
 }
 
-var _extends$25 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$26 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 function _objectWithoutProperties$12(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
@@ -22013,7 +22019,7 @@ var createFieldArrayProps = function createFieldArrayProps(_ref2, name, form, se
   var error = syncError || asyncError || submitError;
   var warning = syncWarning;
   var fieldName = sectionPrefix ? name.replace(sectionPrefix + '.', '') : name;
-  var finalProps = _extends$25({
+  var finalProps = _extends$26({
     fields: {
       _isFieldArray: true,
       forEach: function forEach(callback) {
@@ -22273,7 +22279,7 @@ var createConnectedFieldArray = function createConnectedFieldArray(structure$$1)
   return connector(ConnectedFieldArray);
 };
 
-var _extends$26 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$27 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 var _createClass$9 = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -22361,7 +22367,7 @@ var createFieldArray = function createFieldArray(structure) {
     }, {
       key: 'render',
       value: function render() {
-        return React.createElement(ConnectedFieldArray, _extends$26({}, this.props, {
+        return React.createElement(ConnectedFieldArray, _extends$27({}, this.props, {
           name: this.name,
           _reduxForm: this.context._reduxForm,
           ref: this.saveRef
@@ -22534,7 +22540,7 @@ function isEmpty(value) {
   return true;
 }
 
-var _extends$27 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$28 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 var _createClass$10 = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -22588,7 +22594,7 @@ var createValues = function createValues(_ref) {
 
             return React__default.createElement(Component
             // so that the connected component updates props when sectionPrefix has changed
-            , _extends$27({ sectionPrefix: this.context._reduxForm.sectionPrefix
+            , _extends$28({ sectionPrefix: this.context._reduxForm.sectionPrefix
             }, this.props));
           }
         }, {
@@ -23704,7 +23710,7 @@ var generateValidator = function generateValidator(validators, _ref) {
   };
 };
 
-var _extends$28 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$29 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 function _toConsumableArray$3(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
@@ -23796,7 +23802,7 @@ var handleSubmit = function handleSubmit(submit, props, valid, asyncValidate, fi
     }
   } else {
     setSubmitFailed.apply(undefined, _toConsumableArray$3(fields));
-    var errors = _extends$28({}, asyncErrors, syncErrors);
+    var errors = _extends$29({}, asyncErrors, syncErrors);
     if (onSubmitFail) {
       onSubmitFail(errors, dispatch, null, props);
     }
@@ -23814,7 +23820,7 @@ var isHotReloading = function isHotReloading() {
 
 var _createClass$11 = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _extends$29 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$30 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 var _typeof$8 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
@@ -23887,7 +23893,7 @@ var createReduxForm = function createReduxForm(structure$$1) {
 
   var isValid = createIsValid(structure$$1);
   return function (initialConfig) {
-    var config = _extends$29({
+    var config = _extends$30({
       touchOnBlur: true,
       touchOnChange: false,
       persistentSubmitErrors: false,
@@ -24070,13 +24076,13 @@ var createReduxForm = function createReduxForm(structure$$1) {
                   // will call "submitOrEvent is the submit function" block below
                   return _this.innerOnSubmit();
                 } else {
-                  return _this.listenToSubmit(handleSubmit(checkSubmit(onSubmit), _extends$29({}, _this.props, bindActionCreators({ blur: blur, change: change }, dispatch)), _this.props.validExceptSubmit, _this.asyncValidate, _this.getFieldList({ excludeFieldArray: true })));
+                  return _this.listenToSubmit(handleSubmit(checkSubmit(onSubmit), _extends$30({}, _this.props, bindActionCreators({ blur: blur, change: change }, dispatch)), _this.props.validExceptSubmit, _this.asyncValidate, _this.getFieldList({ excludeFieldArray: true })));
                 }
               }
             } else {
               // submitOrEvent is the submit function: return deferred submit thunk
               return silenceEvents(function () {
-                return !_this.submitPromise && _this.listenToSubmit(handleSubmit(checkSubmit(submitOrEvent), _extends$29({}, _this.props, bindActionCreators({ blur: blur, change: change }, dispatch)), _this.props.validExceptSubmit, _this.asyncValidate, _this.getFieldList({ excludeFieldArray: true })));
+                return !_this.submitPromise && _this.listenToSubmit(handleSubmit(checkSubmit(submitOrEvent), _extends$30({}, _this.props, bindActionCreators({ blur: blur, change: change }, dispatch)), _this.props.validExceptSubmit, _this.asyncValidate, _this.getFieldList({ excludeFieldArray: true })));
               });
             }
           }, _this.reset = function () {
@@ -24092,7 +24098,7 @@ var createReduxForm = function createReduxForm(structure$$1) {
             var _this2 = this;
 
             return {
-              _reduxForm: _extends$29({}, this.props, {
+              _reduxForm: _extends$30({}, this.props, {
                 getFormState: function getFormState(state) {
                   return getIn(_this2.props.getFormState(state), _this2.props.form);
                 },
@@ -24419,7 +24425,7 @@ var createReduxForm = function createReduxForm(structure$$1) {
             /* eslint-enable no-unused-vars */
 
 
-            var reduxFormProps = _extends$29({
+            var reduxFormProps = _extends$30({
               array: array,
               anyTouched: anyTouched,
               asyncValidate: this.asyncValidate,
@@ -24447,7 +24453,7 @@ var createReduxForm = function createReduxForm(structure$$1) {
               valid: valid,
               warning: warning
             });
-            var propsToPass = _extends$29({}, propNamespace ? _defineProperty$6({}, propNamespace, reduxFormProps) : reduxFormProps, rest);
+            var propsToPass = _extends$30({}, propNamespace ? _defineProperty$6({}, propNamespace, reduxFormProps) : reduxFormProps, rest);
             if (isClassComponent(WrappedComponent)) {
 propsToPass.ref = this.saveRef;
             }
@@ -24574,7 +24580,7 @@ propsToPass.ref = this.saveRef;
           unshift: bindActionCreators(boundArrayACs.arrayUnshift, dispatch)
         };
 
-        var computedActions = _extends$29({}, connectedFormACs, boundArrayACs, {
+        var computedActions = _extends$30({}, connectedFormACs, boundArrayACs, {
           blur: boundBlur,
           change: boundChange,
           array: connectedArrayACs,
@@ -24621,7 +24627,7 @@ propsToPass.ref = this.saveRef;
                 initialValues = _props10.initialValues,
                 rest = _objectWithoutProperties$15(_props10, ['initialValues']);
 
-            return React.createElement(ConnectedForm, _extends$29({}, rest, {
+            return React.createElement(ConnectedForm, _extends$30({}, rest, {
               ref: function ref(_ref3) {
                 _this5.ref = _ref3;
               },
@@ -25383,7 +25389,7 @@ function createReducer(structure$$1) {
 
 createReducer(structure);
 
-var _extends$30 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$31 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 function _defineProperty$8(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
@@ -25391,7 +25397,7 @@ function _defineProperty$8(obj, key, value) { if (key in obj) { Object.definePro
 var createValues$1 = function createValues(_ref) {
   var getIn = _ref.getIn;
   return function (config) {
-    var _prop$getFormState$co = _extends$30({
+    var _prop$getFormState$co = _extends$31({
       prop: 'values',
       getFormState: function getFormState(state) {
         return getIn(state, 'form');
@@ -26359,7 +26365,7 @@ Uploader.defaultProps = {
 };
 var Uploader$1 = UploadDecorator$1(Uploader);
 
-function _extends$31() { _extends$31 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends$31.apply(this, arguments); }
+function _extends$32() { _extends$32 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends$32.apply(this, arguments); }
 var setUploaderFiles = actions.setUploaderFiles,
     setUploaderDefaultFileList$1 = actions.setUploaderDefaultFileList,
     fetchFileConfig = actions.fetchFileConfig;
@@ -26373,7 +26379,7 @@ function CrudUploader(props) {
     };
   }, []);
   console.log(props.config[props.modelName]);
-  return React__default.createElement(Uploader$1, _extends$31({}, props, {
+  return React__default.createElement(Uploader$1, _extends$32({}, props, {
     config: props.config[props.modelName] && props.config[props.modelName].data ? props.config[props.modelName].data.files.config : {},
     onChange: function onChange(files) {
       return props.setUploaderFiles(files, props.modelName);
@@ -26401,7 +26407,7 @@ var Uploader$2 = connect(function (state, props) {
   fetchFileConfig: fetchFileConfig
 })(CrudUploader);
 
-function _extends$32() { _extends$32 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends$32.apply(this, arguments); }
+function _extends$33() { _extends$33 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends$33.apply(this, arguments); }
 var SelectOption = antd.Select.Option;
 var Search = antd.Input.Search;
 var renderField = function renderField(_ref) {
@@ -26429,7 +26435,7 @@ var renderField = function renderField(_ref) {
       dropdownRender = _ref.dropdownRender,
       uploaderParams = _ref.uploaderParams,
       locale = _ref.locale;
-  return React__default.createElement(antd.Form.Item, _extends$32({
+  return React__default.createElement(antd.Form.Item, _extends$33({
     hasFeedback: true
   }, layout, {
     label: label,
@@ -26438,7 +26444,7 @@ var renderField = function renderField(_ref) {
   }), function () {
     switch (type) {
       case 'select':
-        return React__default.createElement(antd.Select, _extends$32({}, input, {
+        return React__default.createElement(antd.Select, _extends$33({}, input, {
           value: input.value || [],
           mode: mode,
           showSearch: true,
@@ -26457,7 +26463,7 @@ var renderField = function renderField(_ref) {
         }));
 
       case 'textarea':
-        return React__default.createElement(antd.Input.TextArea, _extends$32({}, input, {
+        return React__default.createElement(antd.Input.TextArea, _extends$33({}, input, {
           placeholder: placeholder,
           type: type,
           className: "form-control",
@@ -26468,7 +26474,7 @@ var renderField = function renderField(_ref) {
         return React__default.createElement(antd.Checkbox, input, placeholder);
 
       case 'search':
-        return React__default.createElement(Search, _extends$32({
+        return React__default.createElement(Search, _extends$33({
           onPressEnter: onPressEnter
         }, input, {
           value: input.value || defaultValue,
@@ -26477,7 +26483,7 @@ var renderField = function renderField(_ref) {
         }));
 
       case 'date':
-        return React__default.createElement(antd.DatePicker, _extends$32({
+        return React__default.createElement(antd.DatePicker, _extends$33({
           style: {
             width: '100%'
           },
@@ -26497,12 +26503,12 @@ var renderField = function renderField(_ref) {
         });
 
       case 'uploader':
-        return React__default.createElement(Uploader$2, _extends$32({}, uploaderParams, {
+        return React__default.createElement(Uploader$2, _extends$33({}, uploaderParams, {
           defaultFileList: input.value
         }));
 
       default:
-        return React__default.createElement(antd.Input, _extends$32({
+        return React__default.createElement(antd.Input, _extends$33({
           onPressEnter: onPressEnter
         }, input, {
           value: input.value || defaultValue,
@@ -26521,7 +26527,7 @@ var renderField = function renderField(_ref) {
 
 function _typeof$11(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof$11 = function _typeof(obj) { return typeof obj; }; } else { _typeof$11 = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof$11(obj); }
 
-function _extends$33() { _extends$33 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends$33.apply(this, arguments); }
+function _extends$34() { _extends$34 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends$34.apply(this, arguments); }
 
 function _classCallCheck$29(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -26573,7 +26579,7 @@ function (_Component) {
       return fields.map(function (props) {
         return props.fields ? React__default.createElement("div", {
           key: props.name
-        }, _this.mapFields(props.fields)) : React__default.createElement(Field, _extends$33({}, props, {
+        }, _this.mapFields(props.fields)) : React__default.createElement(Field, _extends$34({}, props, {
           component: props.component || _this.props.renderField,
           key: props.name,
           options: _this.props.options[props.optionsKey] || props.options || []
@@ -26658,7 +26664,7 @@ var CreateModel = CreateModalForm;
 
 function _typeof$12(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof$12 = function _typeof(obj) { return typeof obj; }; } else { _typeof$12 = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof$12(obj); }
 
-function _extends$34() { _extends$34 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends$34.apply(this, arguments); }
+function _extends$35() { _extends$35 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends$35.apply(this, arguments); }
 
 function _classCallCheck$30(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -26708,7 +26714,7 @@ function (_Component) {
       return fields.map(function (props) {
         return props.fields ? React__default.createElement("div", {
           key: props.name
-        }, _this.mapFields(props.fields)) : React__default.createElement(Field, _extends$34({}, props, {
+        }, _this.mapFields(props.fields)) : React__default.createElement(Field, _extends$35({}, props, {
           component: props.component || _this.props.renderField,
           key: props.name,
           options: _this.props.options[props.optionsKey] || props.options || []
@@ -27121,7 +27127,8 @@ function (_Component) {
           renderField = _this$props.renderField,
           CustomButtons = _this$props.CustomButtons,
           rowSelection = _this$props.rowSelection,
-          bordered = _this$props.bordered;
+          bordered = _this$props.bordered,
+          tableProps = _this$props.tableProps;
 
       var _ref = createFormOptions || {},
           title = _ref.title,
@@ -27170,7 +27177,8 @@ function (_Component) {
         tdClass: tdClass,
         scrollX: scrollX,
         rowSelection: rowSelection,
-        bordered: bordered
+        bordered: bordered,
+        tableProps: tableProps
       }), isModalOpen === modelName && !createDisabled ? React__default.createElement(CreateModel, {
         title: title || 'Создать',
         titleEdit: titleEdit || 'Редактировать',
@@ -27217,7 +27225,8 @@ CrudFull.propTypes = {
   rowSelection: propTypes.oneOfType([propTypes.func, propTypes.object]),
   CustomButtons: propTypes.oneOfType([propTypes.func, propTypes.object]),
   uploadFilesSettings: propTypes.string,
-  bordered: propTypes.bool
+  bordered: propTypes.bool,
+  tableProps: propTypes.object
 };
 CrudFull.defaultProps = {
   createButtonTitle: 'Добавить',
@@ -27243,7 +27252,8 @@ CrudFull.defaultProps = {
   onDeleteConfirmMessageFunc: function onDeleteConfirmMessageFunc(elem) {
     return "\u0425\u043E\u0442\u0438\u0442\u0435 \u0443\u0434\u0430\u043B\u0438\u0442\u044C \"".concat(elem.name, "\" (ID: ").concat(elem.id, ")?");
   },
-  uploadFilesSettings: null
+  uploadFilesSettings: null,
+  tableProps: {}
 };
 var crudFull = connect(function (state) {
   return {

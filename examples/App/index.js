@@ -71,6 +71,7 @@ class CrudSiteAlerts extends React.Component {
 					onDeleteConfirmMessageFunc={() => 'Удалить запись?'}
 					fixActionColumn={false}
 					rowSelection={rowSelection}
+					tableProps={{ scroll: { y: 240 } }}
 				/>
 			</div>
 		)

@@ -122,7 +122,8 @@ export class CrudFull extends Component {
 			renderField,
 			CustomButtons,
 			rowSelection,
-			bordered
+			bordered,
+			tableProps
 		} = this.props;
 
 		const { title, titleEdit, fields } = createFormOptions || {};
@@ -192,6 +193,7 @@ export class CrudFull extends Component {
 					scrollX={scrollX}
 					rowSelection={rowSelection}
 					bordered={bordered}
+					tableProps={tableProps}
 				/>
 				{isModalOpen === modelName && !createDisabled
 					? (
@@ -251,6 +253,7 @@ CrudFull.propTypes = {
 	]),
 	uploadFilesSettings: PropTypes.string,
 	bordered: PropTypes.bool,
+	tableProps: PropTypes.object
 };
 
 CrudFull.defaultProps = {
@@ -267,7 +270,8 @@ CrudFull.defaultProps = {
 	CustomButtons: () => null,
 	rowSelection: null,
 	onDeleteConfirmMessageFunc: elem => `Хотите удалить "${elem.name}" (ID: ${elem.id})?`,
-	uploadFilesSettings: null
+	uploadFilesSettings: null,
+	tableProps: {}
 };
 
 export default connect(state => ({
