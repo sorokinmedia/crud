@@ -5,7 +5,7 @@ import React from 'react'
 import { Provider } from 'react-redux'
 import configureStore from 'redux-mock-store'
 import jsdom from 'jsdom'
-import CrudView from '../components/crud/crudView'
+import CrudView from '../components/crud/view/crudView'
 import thunk from 'redux-thunk'
 import { shallowToJson } from 'enzyme-to-json'
 import { BrowserRouter } from "react-router-dom"

@@ -3,10 +3,10 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import actions from '../../redux/actions';
-import CrudView from './crudView'
-import CreateModel from './createModel'
-import CreateModelView from './createModelView'
-import ShowModelView from './showModelView'
+import CrudView from './view/crudView'
+import CreateModel from './create/createModelPopup'
+import CreateModelView from './create/createModelPage'
+import ShowModelView from './view/modelView'
 import { Button } from 'antd';
 import '../../style.css'
 
@@ -38,7 +38,7 @@ export class CrudFull extends Component {
 
 	actionsFunc = (action, elem) => {
 		const { customActionsFunc } = this.props;
-		console.log(action, elem)
+
 		switch (action.id) {
 			case 'update':
 				this.openUpdateFrom(action, elem);
@@ -72,7 +72,7 @@ export class CrudFull extends Component {
 		this.props.toggleCreateModelModal(modelName);
 	};
 
-	handleClose = (modelName) => {
+	handleClose = () => {
 		this.toggleModal();
 		this.props.setModelModalForm(null, null);
 	};

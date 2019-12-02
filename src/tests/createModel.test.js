@@ -6,7 +6,7 @@ import { Provider } from 'react-redux'
 import configureStore from 'redux-mock-store'
 import jsdom from 'jsdom'
 import { BrowserRouter } from 'react-router-dom'
-import CreateModel from '../components/crud/createModel'
+import CreateModel from '../components/crud/create/createModelPopup'
 import thunk from 'redux-thunk';
 import { shallowToJson } from 'enzyme-to-json';
 import actions from '../redux/actions'

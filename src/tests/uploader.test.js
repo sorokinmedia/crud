@@ -3,7 +3,7 @@ import Adapter from 'enzyme-adapter-react-16/build/index'
 import React from 'react'
 import configureStore from 'redux-mock-store'
 import jsdom from 'jsdom'
-import UploderWrapper from '../components/crud/uploader'
+import UploderWrapper from '../components/crud/uploader/uploader'
 import UploderComponent from '../components/custom/Uploader/index'
 import UploderDecorator from '../components/custom/Uploader/index'
 import thunk from 'redux-thunk';

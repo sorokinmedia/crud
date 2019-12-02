@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux'
 import PropTypes from 'prop-types';
-import { Icon, Table } from 'antd';
-import crudActions from '../../redux/actions'
-import filterRenderer from './filterRenderer'
-import dataRenderer from './dataRenderer'
-import Loader from './loader'
+import { Icon, Table } from 'antd/lib/index';
+import crudActions from '../../../redux/actions'
+import filterRenderer from '../filter/filterRenderer'
+import dataRenderer from '../dataRenderer'
+import Loader from '../loader'
 
 const { fetchCrudModels, fetchCrudChildren, setCrudParams } = crudActions;
 const viewWidth = Math.min(window.innerWidth, screen.width);
