@@ -211,7 +211,7 @@ export class CrudFull extends Component {
 								: initialModal || {}}
 							renderField={renderField}
 						/>
-					) : ''
+					) : null
 				}
 			</div>)
 	}

@@ -8,6 +8,9 @@ import CreateModelView from './create/createModelPage'
 import ShowModelView from './view/modelView'
 import { Button } from 'antd/lib/index';
 import '../../style.css'
+import CreateButton from "./create/createButton";
+import View from "./view/view";
+import useModal from "../../hooks/useModal";
 
 const {
 	toggleCreateModelModal,
@@ -21,6 +24,8 @@ const {
 } = actions;
 
 const CrudFull = (props) => {
+	const { isModalOpen, toggleModal, objectModal } = useModal(props.modelName);
+	const { title, titleEdit, fields, initialModal } = props.createFormOptions || {};
 	const openUpdateFrom = (action, elem) => {
 		props.setModelModalForm('edit', elem, action);
 		toggleModal(props.modelName);
@@ -28,9 +33,6 @@ const CrudFull = (props) => {
 	const openViewFrom = (action, elem) => {
 		props.setModelModalForm('view', elem, action);
 		toggleModal(props.modelName);
-	};
-	const toggleModal = (modelName) => {
-		props.toggleCreateModelModal(modelName);
 	};
 	const handleClose = () => {
 		toggleModal();
@@ -83,7 +85,56 @@ const CrudFull = (props) => {
 			iconsProvider: props.iconsProvider,
 			uploadFilesSettings: props.uploadFilesSettings
 		})
-	}, [])
+	}, []);
+
+	if (props.isView && isModalOpen === modelName) return (
+		<View
+			createDisabled={props.createDisabled}
+			objectModal={objectModal}
+			updateShape={props.updateShape}
+			renderField={props.renderField}
+			fields={props.fields}
+			initialModal={props.initialModal}
+			title={props.title}
+			titleEdit={props.titleEdit}
+		/>
+	);
+
+	return (
+		<div>
+			<CreateButton
+				modelName={props.modelName}
+				createDisabled={props.createDisabled}
+				btnStyle={props.btnStyle}
+				ButtonComponent={props.ButtonComponent}
+				createButtonLabel={props.createButtonTitle}
+			/>
+			<props.CustomButtons />
+			<CrudView
+				modelName={props.modelName}
+				url={props.crudRead}
+				tableProps={tableProps}
+			/>
+			{isModalOpen === modelName && !createDisabled
+				? (
+					<CreateModel
+						title={title || 'Создать'}
+						titleEdit={titleEdit || 'Редактировать'}
+						modalType={objectModal.modalType}
+						onClose={this.handleClose}
+						onCreate={objectModal.modalType === 'edit'
+							? this.handleUpdate
+							: this.handleCreate}
+						fields={fields}
+						initialValues={objectModal.initialValues
+							? updateShape(objectModal.initialValues)
+							: initialModal || {}}
+						renderField={renderField}
+					/>
+				) : null
+			}
+		</div>
+	);
 };
 
 export default connect(state => ({
