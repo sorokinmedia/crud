@@ -32,13 +32,25 @@ export const crudModelsReducer = (state = {}, action) => {
 				...model,
 				data: {
 					...model.data,
-					items: model.data.items.map(elem => elem.id === payload.id ? {
+					items: model.data.items.map(elem => (elem.id === payload.id ? {
 						...elem,
 						children: response.data.items
-					} : elem)
+					} : elem))
 				}
 			}
 		};
+	default:
+		return state;
+	}
+};
+
+export const crudColumnsReducer = (state = [], action) => {
+	const { type, response, payload } = action;
+	switch (type) {
+		case actions.FETCH_CRUD_MODELS + SUCCESS:
+		return response.data.columns.map(e => ({ ...e, visible: true }));
+	case actions.SET_CRUD_COLUMNS:
+		return payload.columns;
 	default:
 		return state;
 	}
@@ -176,5 +188,6 @@ export default {
 	crudParams: crudParamsReducer,
 	crudCreateModalLoading: crudCreateModalLoadingReducer,
 	uploaderFiles: uploaderFilesReducer,
-	fileConfig: fetchFileConfigReducer
+	fileConfig: fetchFileConfigReducer,
+	crudColumns: crudColumnsReducer
 }
