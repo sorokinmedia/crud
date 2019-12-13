@@ -6,7 +6,7 @@ import crudActions from '../../../redux/actions'
 import filterRenderer from '../filter/filterRenderer'
 import dataRenderer from '../dataRenderer'
 import Loader from '../loader'
-import ColumnSelect from "../columnSelect";
+import ColumnSelect from '../columnSelect';
 
 const { fetchCrudModels, fetchCrudChildren, setCrudParams } = crudActions;
 const viewWidth = Math.min(window.innerWidth, screen.width);
@@ -114,7 +114,7 @@ class CrudView extends Component {
 		const scrollXPTable = !isNotMiddleSizeWindow && fixActionColumn ? { x: scrollX } : {};
 
 		return (
-			<div>
+			<div style={{ position: 'relative' }}>
 				<ColumnSelect />
 				<TableComponent
 					{...tableProps}
@@ -136,7 +136,7 @@ class CrudView extends Component {
 					onExpand={this.handleExpand}
 					size={size}
 					tableStyle={tableStyle}
-					rowClassName={record => record.row ? record.row.state : 'default'}
+					rowClassName={record => (record.row ? record.row.state : 'default')}
 					rowSelection={rowSelection}
 					bordered={bordered}
 				/>
