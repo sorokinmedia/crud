@@ -86,7 +86,9 @@ class CrudView extends Component {
 		}));
 		// console.log(fixActionColumn, isNotMiddleSizeWindow)
 
-		const columns = filteredColumns.filter(e => e.visible).map(col => ({
+		const columnsDirty = filteredColumns[modelName];
+		console.log(filteredColumns);
+		const columns = (columnsDirty || []).filter(e => e.visible).map(col => ({
 			id: col.id,
 			className: 'crud-table-column' + (tdClass ? ' ' + tdClass : ''),
 			title: <span dangerouslySetInnerHTML={{ __html: col.title }} />, // <IntlMessages id="antTable.title.id"/>,
@@ -115,7 +117,7 @@ class CrudView extends Component {
 
 		return (
 			<div style={{ position: 'relative' }}>
-				<ColumnSelect />
+				<ColumnSelect modelName={modelName} />
 				<TableComponent
 					{...tableProps}
 					columns={columns}

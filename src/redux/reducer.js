@@ -44,13 +44,14 @@ export const crudModelsReducer = (state = {}, action) => {
 	}
 };
 
-export const crudColumnsReducer = (state = [], action) => {
+export const crudColumnsReducer = (state = {}, action) => {
 	const { type, response, payload } = action;
+
 	switch (type) {
-		case actions.FETCH_CRUD_MODELS + SUCCESS:
-		return response.data.columns.map(e => ({ ...e, visible: true }));
+	case actions.FETCH_CRUD_MODELS + SUCCESS:
+		return { ...state, [payload.params.modelName]: response.data.columns };
 	case actions.SET_CRUD_COLUMNS:
-		return payload.columns;
+		return { ...state, [payload.modelName]: payload.columns };
 	default:
 		return state;
 	}

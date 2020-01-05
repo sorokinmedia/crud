@@ -15,7 +15,7 @@ const actions = {
 	SET_UPLOADER_DEFAULT_FILE_LIST: 'SET_UPLOADER_DEFAULT_FILE_LIST',
 	FETCH_FILE_CONFIG: 'FETCH_FILE_CONFIG',
 	SET_CRUD_COLUMNS: 'SET_CRUD_COLUMNS',
-	setCrudColumns: columns => ({ type: actions.SET_CRUD_COLUMNS, payload: { columns } }),
+	setCrudColumns: (columns, modelName) => ({ type: actions.SET_CRUD_COLUMNS, payload: { columns, modelName } }),
 	fetchFileConfig: (url, modelName) => ({ type: actions.FETCH_FILE_CONFIG, payload: { url, modelName } }),
 	setUploaderDefaultFileList: (defaultFileList, modelName) => ({
 		type: actions.SET_UPLOADER_DEFAULT_FILE_LIST,

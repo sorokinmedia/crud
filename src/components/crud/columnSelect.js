@@ -16,14 +16,21 @@ const listStyle = {
 	border: '1px #cccccc70 solid'
 };
 
-const ColumnSelect = ({ setCrudColumns: setCrudColumnsConnected, filteredColumns }) => {
+const ColumnSelect = ({ setCrudColumns: setCrudColumnsConnected, filteredColumns, modelName }) => {
 	const [selectIsOpen, setSelectIsOpen] = useState(false);
+
 	const handleColumnsSelect = useCallback((column, checked, index) => {
 		const newColumns = [...filteredColumns];
 		newColumns[index].visible = checked;
 
-		setCrudColumnsConnected(newColumns)
-	});
+		setCrudColumnsConnected(newColumns, modelName);
+	}, [filteredColumns, setCrudColumnsConnected]);
+
+	const isDisabled = useCallback(
+		column => filteredColumns
+			.filter(e => e.visible).length === 2 && column.visible
+		, [filteredColumns]
+	);
 
 	const inner = (
 		<span>
@@ -31,16 +38,23 @@ const ColumnSelect = ({ setCrudColumns: setCrudColumnsConnected, filteredColumns
 				? <Icon type="setting" onClick={() => setSelectIsOpen(true)} />
 				: <Icon type="close" onClick={() => setSelectIsOpen(false)} />
 			}
-			{selectIsOpen && <span style={listStyle}>{filteredColumns.map((column, i) => (
-				<Checkbox
-					onChange={ev => handleColumnsSelect(column, ev.target.checked, i)}
-					checked={column.visible}
-					style={{ display: 'block', marginLeft: '0px' }}
-				>
-					{column.title}
-				</Checkbox>
-			))}
-			</span>}
+			{selectIsOpen && (
+				<span style={listStyle}>{
+					filteredColumns
+						.filter(column => column.id !== 'actions')
+						.map((column, i) => (
+							<Checkbox
+								onChange={ev => handleColumnsSelect(column, ev.target.checked, i)}
+								checked={column.visible}
+								style={{ display: 'block', marginLeft: '0px' }}
+								disabled={isDisabled(column)}
+							>
+								{column.title}
+							</Checkbox>
+						))
+				}
+				</span>
+			)}
 		</span>
 	);
 
@@ -57,6 +71,7 @@ const ColumnSelect = ({ setCrudColumns: setCrudColumnsConnected, filteredColumns
 ColumnSelect.propTypes = {
 	setCrudColumns: PropTypes.func.isRequired,
 	filteredColumns: PropTypes.array.isRequired,
+	modelName: PropTypes.string.isRequired,
 };
 
-export default connect(state => ({ filteredColumns: state.crudColumns }), { setCrudColumns })(ColumnSelect)
+export default connect((state, props) => ({ filteredColumns: state.crudColumns[props.modelName] }), { setCrudColumns })(ColumnSelect)
