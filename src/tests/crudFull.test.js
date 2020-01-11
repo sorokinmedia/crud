@@ -1,6 +1,5 @@
 import { configure, mount, shallow } from 'enzyme'
 import Adapter from 'enzyme-adapter-react-16/build/index'
-import 'babel-polyfill'
 import React from 'react'
 import { Provider } from 'react-redux'
 import configureStore from 'redux-mock-store'
@@ -50,6 +49,7 @@ describe('should mount CrudFull', () => {
 			crudActionsFunc: { [modelName]: crudActionsFunc },
 			crudModels: { [modelName]: responseMock },
 			crudFilterValues: { [modelName]: {} },
+			crudColumns: { [modelName]: responseMock.data.columns.map(e => ({ ...e, visible: true })) },
 			isModalOpen: true
 		});
 		container = mount(<Provider store={store}>
@@ -90,6 +90,7 @@ describe('should mount CrudFull', () => {
 			createDisabled={false}
 			setCrudActionsFunc={jest.fn()}
 			setCrudParams={jest.fn()}
+			filteredColumns={{}}
 			isModalOpen={true}
 			objectModal={{}}
 		/>);
