@@ -1,6 +1,6 @@
 {
 	"name": "sm-react-crud",
-	"version": "3.0.0",
+	"version": "3.0.1",
 	"description": "Common frontend CRUD components for SM",
 	"main": "dist/index.js",
 	"repository": {
@@ -84,9 +84,9 @@
 		"collectCoverageFrom": [
 			"src/**/*.js"
 		],
-      "moduleNameMapper": {
-        "\\.(css|less|scss|sss|styl)$": "<rootDir>/node_modules/jest-css-modules"
-      }
+		"moduleNameMapper": {
+			"\\.(css|less|scss|sss|styl)$": "<rootDir>/node_modules/jest-css-modules"
+		}
 	},
 	"dependencies": {
 		"antd": "^3.25.2",
