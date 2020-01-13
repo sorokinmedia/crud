@@ -8,12 +8,11 @@ import notification from '../notification';
 import actions from './actions';
 import regeneratorRuntime from 'regenerator-runtime'
 import reduceMessages from '../helpers/reduceMessages';
-import {useEffect} from "react";
 
 export const selectCrudParams = state => state.crudParams;
 
 export function* notifySaga(action) {
-	if (action.error) yield notification('error', action.error.message)
+	if (action.error) yield notification('error', action.error.message);
 	if (action.response.status === SUCCESS_REQ) yield notification('success', action.response.message)
 }
 
@@ -55,7 +54,6 @@ export function* fetchCrudModelsSaga(action) {
 		order: !order ? null : order === 'ascend' ? SORT_ASC : SORT_DESC,
 		order_by,
 		page
-
 	}) : '';
 
 	const paramsArr = [params];
