@@ -1,4 +1,4 @@
-import { Button, Col, Row, Typography } from 'antd/lib/index';
+import { Button, Col, Row, Typography } from 'antd';
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'

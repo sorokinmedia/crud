@@ -1,5 +1,5 @@
 import React from 'react'
-import { Icon } from 'antd/lib/index'
+import { Icon } from 'antd'
 
 const layoutStyle = {
 	position: 'fixed',

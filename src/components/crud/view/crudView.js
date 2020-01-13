@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux'
 import PropTypes from 'prop-types';
-import { Icon, Table } from 'antd/lib/index';
+import { Icon, Table } from 'antd';
 import crudActions from '../../../redux/actions'
 import filterRenderer from '../filter/filterRenderer'
 import dataRenderer from '../dataRenderer'

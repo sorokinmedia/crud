@@ -1,5 +1,5 @@
 import React from 'react'
-import { Input, Button, Checkbox, Select, DatePicker } from 'antd/lib/index';
+import { Input, Button, Checkbox, Select, DatePicker } from 'antd';
 import moment from 'moment/moment'
 import 'moment/locale/ru'
 

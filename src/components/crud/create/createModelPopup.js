@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
-import { Modal } from 'antd/lib/index';
+import { Modal } from 'antd';
 import { reduxForm, Field } from 'redux-form'
 import { renderField } from '../../../helpers/renderField'
 

@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { renderField } from '../../../helpers/renderField'
-import { Form, Input, Button, Col, Row, Typography } from 'antd/lib/index'
+import { Form, Input, Button, Col, Row, Typography } from 'antd'
 import { reduxForm } from 'redux-form'
 
 class CreateViewForm extends Component {
