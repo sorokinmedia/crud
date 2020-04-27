@@ -16960,7 +16960,7 @@ var listStyle = {
   background: '#fff',
   padding: '10px',
   width: '300px',
-  zIndex: '9999',
+  zIndex: '100',
   display: 'flex',
   flexDirection: 'column',
   direction: 'ltr',
