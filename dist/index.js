@@ -16960,7 +16960,7 @@ var listStyle = {
   background: '#fff',
   padding: '10px',
   width: '300px',
-  zIndex: '100',
+  zIndex: '9999',
   display: 'flex',
   flexDirection: 'column',
   direction: 'ltr',
@@ -17022,7 +17022,7 @@ var ColumnSelect = function ColumnSelect(_ref) {
       position: 'absolute',
       top: '-40px',
       right: '0px',
-      zIndex: '9999'
+      zIndex: '100'
     }
   }, inner);
 };

@@ -9,7 +9,7 @@ const listStyle = {
 	background: '#fff',
 	padding: '10px',
 	width: '300px',
-	zIndex: '100',
+	zIndex: '9999',
 	display: 'flex',
 	flexDirection: 'column',
 	direction: 'ltr',
@@ -60,7 +60,7 @@ const ColumnSelect = ({ setCrudColumns: setCrudColumnsConnected, filteredColumns
 
 	return (
 		<span style={{
-			display: 'flex', direction: 'rtl', position: 'absolute', top: '-40px', right: '0px', zIndex: '9999'
+			display: 'flex', direction: 'rtl', position: 'absolute', top: '-40px', right: '0px', zIndex: '100'
 		}}
 		>
 			{inner}
