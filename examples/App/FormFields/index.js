@@ -10,6 +10,7 @@ export default [
 		name: 'text',
 		type: 'editor',
 		placeholder: 'Текст алерта',
+        visibleFunc: values => values.name === 'alert'
 	},
 	{
 		name: 'image',

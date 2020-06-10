@@ -57,6 +57,7 @@ export function* fetchCrudModelsSaga(action) {
 	}) : '';
 
 	const paramsArr = [params];
+	console.log(params)
 
 	if (payload.filters) Object.keys(payload.filters).forEach((key) => {
 		if (payload.filters[key] && payload.filters[key].constructor === Array) {

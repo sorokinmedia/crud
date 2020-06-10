@@ -274,7 +274,7 @@ CrudFull.defaultProps = {
 	tableProps: {}
 };
 
-export default connect((state, props) => ({
+export default connect((state) => ({
 	objectModal: state.modelModalForm,
 	isModalOpen: state.isOpenModelModal
 }), {

@@ -2,11 +2,10 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { Modal } from 'antd';
-import { reduxForm, Field } from 'redux-form'
+import { reduxForm, Field, getFormValues } from 'redux-form'
 import { renderField } from '../../../helpers/renderField'
 
 class CreateModalForm extends Component {
-
 	static propTypes = {
 		modalType: PropTypes.string,
 		onClose: PropTypes.func.isRequired,
@@ -24,10 +23,6 @@ class CreateModalForm extends Component {
 
 	static defaultProps = { renderField };
 
-	componentDidMount() {
-
-	}
-
 	handleCancel = () => {
 		this.props.onClose();
 	};
@@ -44,7 +39,7 @@ class CreateModalForm extends Component {
 		<div key={props.name}>
 			{this.mapFields(props.fields)}
 		</div>
-	) : <Field
+	) : (props.visibleFunc && props.visibleFunc(this.props.formValues || {}) || !props.visibleFunc) && <Field
 		{...props}
 		component={props.component || this.props.renderField}
 		key={props.name}
@@ -99,7 +94,8 @@ CreateModalForm = connect((state, props) => {
 
 	return {
 		crudCreateModalLoading: state.crudCreateModalLoading,
-		options
+		options,
+        formValues: getFormValues('createModel')(state)
 	}
 }, {})(CreateModalForm);
 

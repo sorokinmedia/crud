@@ -22942,7 +22942,7 @@ var createGetFormValues = function createGetFormValues(_ref) {
   };
 };
 
-createGetFormValues(structure);
+var getFormValues = createGetFormValues(structure);
 
 var createGetFormInitialValues = function createGetFormInitialValues(_ref) {
   var getIn = _ref.getIn;
@@ -26814,7 +26814,7 @@ function (_Component) {
       return fields.map(function (props) {
         return props.fields ? React__default.createElement("div", {
           key: props.name
-        }, _this.mapFields(props.fields)) : React__default.createElement(Field, _extends$32({}, props, {
+        }, _this.mapFields(props.fields)) : (props.visibleFunc && props.visibleFunc(_this.props.formValues) || !props.visibleFunc) && React__default.createElement(Field, _extends$32({}, props, {
           component: props.component || _this.props.renderField,
           key: props.name,
           options: _this.props.options[props.optionsKey] || props.options || []
@@ -26826,9 +26826,6 @@ function (_Component) {
   }
 
   _createClass$14(CreateModalForm, [{
-    key: "componentDidMount",
-    value: function componentDidMount() {}
-  }, {
     key: "render",
     value: function render() {
       var _this$props = this.props,
@@ -26892,7 +26889,8 @@ CreateModalForm = connect(function (state, props) {
   }, {});
   return {
     crudCreateModalLoading: state.crudCreateModalLoading,
-    options: options
+    options: options,
+    formValues: getFormValues('createModel')(state)
   };
 }, {})(CreateModalForm);
 var CreateModel = CreateModalForm;
@@ -27482,7 +27480,7 @@ CrudFull.defaultProps = {
   uploadFilesSettings: null,
   tableProps: {}
 };
-var crudFull = connect(function (state, props) {
+var crudFull = connect(function (state) {
   return {
     objectModal: state.modelModalForm,
     isModalOpen: state.isOpenModelModal
@@ -29117,6 +29115,7 @@ function fetchCrudModelsSaga(action) {
             page: page
           })) : '';
           paramsArr = [params];
+          console.log(params);
           if (payload.filters) Object.keys(payload.filters).forEach(function (key) {
             if (payload.filters[key] && payload.filters[key].constructor === Array) {
               paramsArr.push(dist_7(payload.filters[key], key));
@@ -29127,14 +29126,14 @@ function fetchCrudModelsSaga(action) {
             var delimiter = acc && e ? '&' : '';
             return acc + start + delimiter + e;
           }, '');
-          _context2.next = 19;
+          _context2.next = 20;
           return put(dist_1(_objectSpread$3({}, action, {
             method: 'GET',
             auth: true,
             url: "".concat(url).concat(paramsStr)
           })));
 
-        case 19:
+        case 20:
         case "end":
           return _context2.stop();
       }
