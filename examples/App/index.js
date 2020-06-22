@@ -72,11 +72,14 @@ class CrudSiteAlerts extends React.Component {
 					onDeleteConfirmMessageFunc={() => 'Удалить запись?'}
 					// fixActionColumn={false}
 					// rowSelection={rowSelection}
-					tableProps={{ scroll: { y: 240, x: 1500 } }}
+					tableProps={{
+                      fixedColumns: [{ fixed: 'left', id: 'name', width: 200 }],
+					  scroll: { y: 240, x: 1500 }
+					}}
 					scrollX={1500}
 				/>
-				<br/>
-				<br/>
+				<br />
+				<br />
 				<CrudFull
 					crudRead={`/v1/owner/object/103/share/invites`}
 					modelName="objectInvites"
