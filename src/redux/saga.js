@@ -25,7 +25,7 @@ function getFiltersValues(filters, columns) {
 	const res = Object.keys(filters).reduce((acc, key) => ({
 		...acc,
 		[key]: isDateColumn(columns, key) ? (filters[key] instanceof Array || null) ? null : moment(filters[key]).unix()
-			: filters[key].constructor !== Array ? filters[key]
+			: filters[key] && filters[key].constructor !== Array ? filters[key]
 				: null
 	}), {});
 	// buildUrlSearchForArray(filters[key], key)
