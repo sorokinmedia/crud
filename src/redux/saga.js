@@ -41,23 +41,18 @@ export function* fetchCrudModelsSaga(action) {
 		order, order_by, page, modelName, url: passedUrl
 	} = payload.params || {};
 	const crudParams = yield select(selectCrudParams);
-
 	const url = passedUrl || crudParams[modelName].crudRead;
-
 	const model = yield select(selectColumns(modelName));
-
 	const columns = model && model.data ? model.data.columns : [];
 	const filters = yield getFiltersValues(payload.filters || {}, columns);
-
+	const urlHasSearch = url.includes('?');
 	const params = payload ? buildUrlSearch({
 		...filters,
 		order: !order ? null : order === 'ascend' ? SORT_ASC : SORT_DESC,
 		order_by,
 		page
 	}) : '';
-
 	const paramsArr = [params];
-	console.log(params)
 
 	if (payload.filters) Object.keys(payload.filters).forEach((key) => {
 		if (payload.filters[key] && payload.filters[key].constructor === Array) {
@@ -76,7 +71,10 @@ export function* fetchCrudModelsSaga(action) {
 		...action,
 		method: 'GET',
 		auth: true,
-		url: `${url}${paramsStr}`
+		url: `${url}${urlHasSearch && paramsStr
+			? '&' + paramsStr.substr(1, paramsStr.length - 1) // replace ? symbol
+			: paramsStr
+		}`
 	}))
 }
 

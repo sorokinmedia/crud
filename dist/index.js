@@ -29112,7 +29112,7 @@ var selectColumns = function selectColumns(modelName) {
   };
 };
 function fetchCrudModelsSaga(action) {
-  var payload, _ref, order, order_by, page, modelName, passedUrl, crudParams, url, model, columns, filters, params, paramsArr, paramsStr;
+  var payload, _ref, order, order_by, page, modelName, passedUrl, crudParams, url, model, columns, filters, urlHasSearch, params, paramsArr, paramsStr;
 
   return runtimeModule.wrap(function fetchCrudModelsSaga$(_context2) {
     while (1) {
@@ -29137,13 +29137,13 @@ function fetchCrudModelsSaga(action) {
 
         case 12:
           filters = _context2.sent;
+          urlHasSearch = url.includes('?');
           params = payload ? dist_6(_objectSpread$3({}, filters, {
             order: !order ? null : order === 'ascend' ? SORT_ASC : SORT_DESC,
             order_by: order_by,
             page: page
           })) : '';
           paramsArr = [params];
-          console.log(params);
           if (payload.filters) Object.keys(payload.filters).forEach(function (key) {
             if (payload.filters[key] && payload.filters[key].constructor === Array) {
               paramsArr.push(dist_7(payload.filters[key], key));
@@ -29158,7 +29158,8 @@ function fetchCrudModelsSaga(action) {
           return put(dist_1(_objectSpread$3({}, action, {
             method: 'GET',
             auth: true,
-            url: "".concat(url).concat(paramsStr)
+            url: "".concat(url).concat(urlHasSearch && paramsStr ? '&' + paramsStr.substr(1, paramsStr.length - 1) // replace ? symbol
+            : paramsStr)
           })));
 
         case 20:
