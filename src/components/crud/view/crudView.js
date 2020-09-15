@@ -11,7 +11,7 @@ import ColumnSelect from '../columnSelect';
 
 const { fetchCrudModels, fetchCrudChildren, setCrudParams } = crudActions;
 const viewWidth = Math.min(window.innerWidth, screen.width);
-const isNotMiddleSizeWindow = viewWidth > 1640 || viewWidth < 800;
+const isNotMiddleSizeWindow = viewWidth < 800;
 
 class CrudView extends Component {
 	componentDidMount() {
