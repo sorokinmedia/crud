@@ -17067,7 +17067,7 @@ var fetchCrudModels = actions.fetchCrudModels,
     fetchCrudChildren = actions.fetchCrudChildren,
     setCrudParams = actions.setCrudParams;
 var viewWidth = Math.min(window.innerWidth, screen.width);
-var isNotMiddleSizeWindow = viewWidth > 1640 || viewWidth < 800;
+var isNotMiddleSizeWindow = viewWidth < 800;
 
 var CrudView =
 /*#__PURE__*/
