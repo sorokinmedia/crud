@@ -1371,10 +1371,16 @@ var actions = {
   TOGGLE_CREATE_MODEL_MODAL: 'TOGGLE_CREATE_MODEL_MODAL',
   SET_MODEL_MODAL_FORM: 'SET_MODEL_MODAL_FORM',
   FETCH_CRUD_CHILDREN: 'FETCH_CRUD_CHILDREN',
+  CLEAR_CRUD_CHILDREN: 'CLEAR_CRUD_CHILDREN',
   SET_UPLOADER_FILES: 'SET_UPLOADER_FILES',
   SET_UPLOADER_DEFAULT_FILE_LIST: 'SET_UPLOADER_DEFAULT_FILE_LIST',
   FETCH_FILE_CONFIG: 'FETCH_FILE_CONFIG',
   SET_CRUD_COLUMNS: 'SET_CRUD_COLUMNS',
+  clearCrudChildren: function clearCrudChildren() {
+    return {
+      type: actions.CLEAR_CRUD_CHILDREN
+    };
+  },
   setCrudColumns: function setCrudColumns(columns, modelName) {
     return {
       type: actions.SET_CRUD_COLUMNS,
@@ -27583,6 +27589,10 @@ var childrenReducer = function childrenReducer() {
 
   if (type === actions.FETCH_CRUD_CHILDREN + SUCCESS$1) {
     return _objectSpread$2({}, state, _defineProperty$15({}, payload.id, response.data.items));
+  }
+
+  if (type === actions.CLEAR_CRUD_CHILDREN) {
+    return {};
   }
 
   return state;

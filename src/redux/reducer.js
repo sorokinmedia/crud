@@ -53,6 +53,9 @@ export const childrenReducer = (state = {}, action) => {
 			[payload.id]: response.data.items
 		}
 	}
+	if (type === actions.CLEAR_CRUD_CHILDREN) {
+		return {}
+	}
 	return state;
 };
 
