@@ -36,7 +36,7 @@ export default (name, type, options) => ({ setSelectedKeys, selectedKeys, confir
 						<Option
 							value={opt.value}
 					        key={opt.value}
-					        onClick={(e) => {
+					        onClick={() => {
 						        setSelectedKeys(opt.value); setTimeout(() => confirm(), 100);
 					        }}
 						>
@@ -45,16 +45,18 @@ export default (name, type, options) => ({ setSelectedKeys, selectedKeys, confir
 					))}
 				</Select>
 			)
-				: type === 'date' ? (
-					<DatePicker
-						value={selectedKeys && !(selectedKeys instanceof Array)
-							? moment(selectedKeys, 'DD/MM/YYYY').locale('ru')
+				: type === 'date_range' ? (
+					<DatePicker.RangePicker
+						value={selectedKeys && (selectedKeys instanceof Array) && selectedKeys.length
+							? [
+								moment(selectedKeys[0], 'DD.MM.YYYY').locale('ru'),
+								moment(selectedKeys[1], 'DD.MM.YYYY').locale('ru')]
 							: null
 						}
 						onChange={value => setSelectedKeys(value)}
 						onPressEnter={() => { confirm() }}
-						placeholder="Выберите дату"
-						format={'DD/MM/YYYY'}
+						placeholder={['От', 'До']}
+						format="DD.MM.YYYY"
 						style={{ marginRight: '8px' }}
 					/>
 				)

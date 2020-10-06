@@ -90,7 +90,7 @@ class CrudSiteAlerts extends React.Component {
 				<br/>
 				<br/>
 				<CrudFull
-					crudRead="/v1/owner/stat"
+					crudRead="/v1/owner/tenant/116/actions"
 					modelName="ownerStat"
 					// customActionsFunc={this.actionsFunc}
 					getChildrenUrl={id => `/v1/owner/stat/child/${id}`}

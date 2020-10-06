@@ -17,7 +17,7 @@ export function* notifySaga(action) {
 }
 
 function isDateColumn(columns, key) {
-	return !!columns.find(e => e.type === 'date' && e.id === key);
+	return !!columns.find(e => e.type === 'date_range' && e.id === key);
 }
 
 function getFiltersValues(filters, columns) {
@@ -55,11 +55,14 @@ export function* fetchCrudModelsSaga(action) {
 	const paramsArr = [params];
 
 	if (payload.filters) Object.keys(payload.filters).forEach((key) => {
-		if (payload.filters[key] && payload.filters[key].constructor === Array) {
-			paramsArr.push(buildUrlSearchForArray(payload.filters[key], key))
+		const value = payload.filters[key];
+		if (value && value.constructor === Array) {
+			if (isDateColumn(columns, key)) {
+				value.forEach((d, i) => { value[i] = d.unix() })
+			}
+			paramsArr.push(buildUrlSearchForArray(value, key))
 		}
 	});
-
 	const paramsStr = paramsArr.reduce((acc, e, i) => {
 		const start = i && !acc && e ? '?' : '';
 		const delimiter = (acc && e ? '&' : '');
