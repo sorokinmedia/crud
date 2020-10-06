@@ -6343,23 +6343,23 @@ var filterDropdown = (function (name, type, options) {
       return React__default.createElement(Option, {
         value: opt.value,
         key: opt.value,
-        onClick: function onClick(e) {
+        onClick: function onClick() {
           setSelectedKeys(opt.value);
           setTimeout(function () {
             return confirm();
           }, 100);
         }
       }, opt.text);
-    })) : type === 'date' ? React__default.createElement(antd.DatePicker, {
-      value: selectedKeys && !(selectedKeys instanceof Array) ? moment(selectedKeys, 'DD/MM/YYYY').locale('ru') : null,
+    })) : type === 'date_range' ? React__default.createElement(antd.DatePicker.RangePicker, {
+      value: selectedKeys && selectedKeys instanceof Array && selectedKeys.length ? [moment(selectedKeys[0], 'DD.MM.YYYY').locale('ru'), moment(selectedKeys[1], 'DD.MM.YYYY').locale('ru')] : null,
       onChange: function onChange(value) {
         return setSelectedKeys(value);
       },
       onPressEnter: function onPressEnter() {
         confirm();
       },
-      placeholder: "\u0412\u044B\u0431\u0435\u0440\u0438\u0442\u0435 \u0434\u0430\u0442\u0443",
-      format: 'DD/MM/YYYY',
+      placeholder: ['От', 'До'],
+      format: "DD.MM.YYYY",
       style: {
         marginRight: '8px'
       }
@@ -29104,7 +29104,7 @@ function notifySaga(action) {
 
 function isDateColumn(columns, key) {
   return !!columns.find(function (e) {
-    return e.type === 'date' && e.id === key;
+    return e.type === 'date_range' && e.id === key;
   });
 }
 
@@ -29155,8 +29155,16 @@ function fetchCrudModelsSaga(action) {
           })) : '';
           paramsArr = [params];
           if (payload.filters) Object.keys(payload.filters).forEach(function (key) {
-            if (payload.filters[key] && payload.filters[key].constructor === Array) {
-              paramsArr.push(dist_7(payload.filters[key], key));
+            var value = payload.filters[key];
+
+            if (value && value.constructor === Array) {
+              if (isDateColumn(columns, key)) {
+                value.forEach(function (d, i) {
+                  value[i] = d.unix();
+                });
+              }
+
+              paramsArr.push(dist_7(value, key));
             }
           });
           paramsStr = paramsArr.reduce(function (acc, e, i) {
