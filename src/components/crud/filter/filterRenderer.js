@@ -8,8 +8,8 @@ export default function filterRenderer(filterType, columnName, options) {
 		return filterDropdown(columnName, 'number');
 	case 'input_text':
 		return filterDropdown(columnName, 'text');
-	case 'date_picker':
-		return filterDropdown(columnName, 'date');
+	case 'date_range':
+		return filterDropdown(columnName, 'date_range');
 	case 'select_one':
 		return filterDropdown(columnName, 'select', options);
 	case 'boolean':

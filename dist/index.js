@@ -6312,7 +6312,7 @@ var filterDropdown = (function (name, type, options) {
         clearFilters = _ref.clearFilters;
     return React__default.createElement("div", {
       className: "custom-filter-dropdown"
-    }, type === 'checkbox' ? React__default.createElement("span", null, React__default.createElement(antd.Checkbox, {
+    }, console.log(type), type === 'checkbox' ? React__default.createElement("span", null, React__default.createElement(antd.Checkbox, {
       value: selectedKeys,
       onChange: function onChange(e) {
         return setSelectedKeys(e.target.checked.toString());
@@ -6394,8 +6394,8 @@ function filterRenderer(filterType, columnName, options) {
     case 'input_text':
       return filterDropdown(columnName, 'text');
 
-    case 'date_picker':
-      return filterDropdown(columnName, 'date');
+    case 'date_range':
+      return filterDropdown(columnName, 'date_range');
 
     case 'select_one':
       return filterDropdown(columnName, 'select', options);
