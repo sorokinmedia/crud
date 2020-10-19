@@ -6312,7 +6312,7 @@ var filterDropdown = (function (name, type, options) {
         clearFilters = _ref.clearFilters;
     return React__default.createElement("div", {
       className: "custom-filter-dropdown"
-    }, console.log(type), type === 'checkbox' ? React__default.createElement("span", null, React__default.createElement(antd.Checkbox, {
+    }, type === 'checkbox' ? React__default.createElement("span", null, React__default.createElement(antd.Checkbox, {
       value: selectedKeys,
       onChange: function onChange(e) {
         return setSelectedKeys(e.target.checked.toString());
@@ -29104,7 +29104,7 @@ function notifySaga(action) {
 
 function isDateColumn(columns, key) {
   return !!columns.find(function (e) {
-    return e.type === 'date_range' && e.id === key;
+    return e.type === 'date' && e.id === key;
   });
 }
 

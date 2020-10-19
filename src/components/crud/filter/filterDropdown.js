@@ -9,7 +9,6 @@ export default (name, type, options) => ({ setSelectedKeys, selectedKeys, confir
 	<div
 		className="custom-filter-dropdown"
 	>
-		{console.log(type)}
 		{type === 'checkbox' ? (
 			<span>
 				<Checkbox

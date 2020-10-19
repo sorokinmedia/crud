@@ -17,7 +17,7 @@ export function* notifySaga(action) {
 }
 
 function isDateColumn(columns, key) {
-	return !!columns.find(e => e.type === 'date_range' && e.id === key);
+	return !!columns.find(e => e.type === 'date' && e.id === key);
 }
 
 function getFiltersValues(filters, columns) {
