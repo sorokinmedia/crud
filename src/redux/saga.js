@@ -22,15 +22,12 @@ function isDateColumn(columns, key) {
 
 function getFiltersValues(filters, columns) {
 
-	const res = Object.keys(filters).reduce((acc, key) => ({
+	return Object.keys(filters).reduce((acc, key) => ({
 		...acc,
-		[key]: isDateColumn(columns, key) ? (filters[key] instanceof Array || null) ? null : moment(filters[key]).unix()
+		[key]: isDateColumn(columns, key) ? (filters[key] instanceof Array) ? null : moment(filters[key]).unix()
 			: filters[key] && filters[key].constructor !== Array ? filters[key]
 				: null
 	}), {});
-	// buildUrlSearchForArray(filters[key], key)
-
-	return res;
 }
 
 export const selectColumns = modelName => state => state.crudModels[modelName];
@@ -55,10 +52,10 @@ export function* fetchCrudModelsSaga(action) {
 	const paramsArr = [params];
 
 	if (payload.filters) Object.keys(payload.filters).forEach((key) => {
-		const value = payload.filters[key];
+		const value = JSON.parse(JSON.stringify(payload.filters[key]));
 		if (value && value.constructor === Array) {
 			if (isDateColumn(columns, key)) {
-				value.forEach((d, i) => { value[i] = d.unix() })
+				value.forEach((d, i) => { value[i] = moment(d).unix() })
 			}
 			paramsArr.push(buildUrlSearchForArray(value, key))
 		}

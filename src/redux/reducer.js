@@ -134,7 +134,7 @@ export const modelModalFormReducer = (state = {}, action) => {
 };
 
 export const crudParamsReducer = (state = {}, action) => {
-	const { type, response, error, payload } = action;
+	const { type, payload } = action;
 
 	switch (type) {
 	case actions.SET_CRUD_PARAMS:
