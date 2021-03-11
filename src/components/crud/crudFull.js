@@ -1,14 +1,14 @@
 /* eslint-disable indent */
-import React, { Component } from 'react'
-import PropTypes from 'prop-types'
-import { connect } from 'react-redux'
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import actions from '../../redux/actions';
-import CrudView from './view/crudView'
-import CreateModel from './create/createModelPopup'
-import CreateModelView from './create/createModelPage'
-import ShowModelView from './view/modelView'
+import CrudView from './view/crudView';
+import CreateModel from './create/createModelPopup';
+import CreateModelView from './create/createModelPage';
+import ShowModelView from './view/modelView';
 import { Button } from 'antd';
-import '../../style.css'
+import '../../style.css';
 
 const {
 	toggleCreateModelModal,
@@ -24,6 +24,19 @@ const {
 export class CrudFull extends Component {
 
 	componentDidMount() {
+		const { user } = this.props;
+
+		console.log('User', user)
+		if (user) {
+			console.log('User reducer is initialized', user)
+			try {
+				const mt = require('moment-timezone');
+				mt.tz.setDefault(user.data.timezone.name);
+			} catch (ex) {
+				console.error('CRUD_ERROR: ' + ex);
+			}
+		}
+
 		this.props.setCrudActionsFunc(this.actionsFunc, this.props.modelName);
 		this.props.setCrudParams({
 			crudRead: this.props.crudRead,
@@ -33,7 +46,7 @@ export class CrudFull extends Component {
 			initialValues: this.props.initialValues,
 			iconsProvider: this.props.iconsProvider,
 			uploadFilesSettings: this.props.uploadFilesSettings
-		})
+		});
 	}
 
 	actionsFunc = (action, elem) => {
@@ -253,7 +266,8 @@ CrudFull.propTypes = {
 	]),
 	uploadFilesSettings: PropTypes.string,
 	bordered: PropTypes.bool,
-	tableProps: PropTypes.object
+	tableProps: PropTypes.object,
+	user: PropTypes.shape({ data: PropTypes.shape({ timezone: PropTypes.shape({ name: PropTypes.string }) }) })
 };
 
 CrudFull.defaultProps = {
@@ -274,9 +288,10 @@ CrudFull.defaultProps = {
 	tableProps: {}
 };
 
-export default connect((state) => ({
+export default connect((state, props) => ({
 	objectModal: state.modelModalForm,
-	isModalOpen: state.isOpenModelModal
+	isModalOpen: state.isOpenModelModal,
+	user: props.canTryToGetUserc ? state.user : null
 }), {
 	toggleCreateModelModal,
 	deleteModel,

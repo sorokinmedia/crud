@@ -1,8 +1,8 @@
 /* eslint-disable react/no-array-index-key */
 import React, { Fragment, useState } from 'react';
-import Action from '../crud/action'
-import moment from 'moment'
-import { Icon } from 'antd'
+import Action from '../crud/action';
+import moment from 'moment';
+import { Icon } from 'antd';
 
 const DateCell = data => <p>{moment(data).format('DD.MM.YYYY')}</p>;
 const TextCell = text => <span>{text}</span>;

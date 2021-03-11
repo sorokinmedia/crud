@@ -27379,6 +27379,21 @@ function (_Component) {
   _createClass$17(CrudFull, [{
     key: "componentDidMount",
     value: function componentDidMount() {
+      var user = this.props.user;
+      console.log('User', user);
+
+      if (user) {
+        console.log('User reducer is initialized', user);
+
+        try {
+          var mt = require('moment-timezone');
+
+          mt.tz.setDefault(user.data.timezone.name);
+        } catch (ex) {
+          console.error('CRUD_ERROR: ' + ex);
+        }
+      }
+
       this.props.setCrudActionsFunc(this.actionsFunc, this.props.modelName);
       this.props.setCrudParams({
         crudRead: this.props.crudRead,
@@ -27518,7 +27533,14 @@ CrudFull.propTypes = {
   CustomButtons: propTypes.oneOfType([propTypes.func, propTypes.object]),
   uploadFilesSettings: propTypes.string,
   bordered: propTypes.bool,
-  tableProps: propTypes.object
+  tableProps: propTypes.object,
+  user: propTypes.shape({
+    data: propTypes.shape({
+      timezone: propTypes.shape({
+        name: propTypes.string
+      })
+    })
+  })
 };
 CrudFull.defaultProps = {
   createButtonTitle: 'Добавить',
@@ -27547,10 +27569,11 @@ CrudFull.defaultProps = {
   uploadFilesSettings: null,
   tableProps: {}
 };
-var crudFull = connect(function (state) {
+var crudFull = connect(function (state, props) {
   return {
     objectModal: state.modelModalForm,
-    isModalOpen: state.isOpenModelModal
+    isModalOpen: state.isOpenModelModal,
+    user: props.canTryToGetUserc ? state.user : null
   };
 }, {
   toggleCreateModelModal: toggleCreateModelModal,
