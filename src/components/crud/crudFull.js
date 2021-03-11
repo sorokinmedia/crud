@@ -291,7 +291,7 @@ CrudFull.defaultProps = {
 export default connect((state, props) => ({
 	objectModal: state.modelModalForm,
 	isModalOpen: state.isOpenModelModal,
-	user: props.canTryToGetUserc ? state.user : null
+	user: props.canTryToGetUser ? state.user : null
 }), {
 	toggleCreateModelModal,
 	deleteModel,
