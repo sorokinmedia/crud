@@ -4,7 +4,10 @@ import Action from '../crud/action';
 import moment from 'moment';
 import { Icon } from 'antd';
 
-const DateCell = data => <p>{moment(data).format('DD.MM.YYYY')}</p>;
+const DateCell = (data) => {
+	console.log(moment())
+	return <p>{moment(data).format('DD.MM.YYYY')}</p>;
+}
 const TextCell = text => <span>{text}</span>;
 const BooleanCell = value => (
 	<span>
@@ -46,7 +49,9 @@ const renderer = (value, type, dateFormat) => {
 		return value;
 	}
 };
-const ArrayCell = ({ values, type, delimiter, style, isHtml, dateFormat, viewLimit }) => {
+const ArrayCell = ({
+	values, type, delimiter, style, isHtml, dateFormat, viewLimit
+}) => {
 	if (!Array.isArray(values) || !values.length) return null;
 
 	const handledValues = values.map((value, index) => (
