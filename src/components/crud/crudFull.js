@@ -24,19 +24,6 @@ const {
 export class CrudFull extends Component {
 
 	componentDidMount() {
-		const { user } = this.props;
-
-		console.log('User', user)
-		if (user) {
-			console.log('User reducer is initialized', user)
-			try {
-				const mt = require('moment-timezone');
-				mt.tz.setDefault(user.data.timezone.name);
-			} catch (ex) {
-				console.error('CRUD_ERROR: ' + ex);
-			}
-		}
-
 		this.props.setCrudActionsFunc(this.actionsFunc, this.props.modelName);
 		this.props.setCrudParams({
 			crudRead: this.props.crudRead,
@@ -136,7 +123,8 @@ export class CrudFull extends Component {
 			CustomButtons,
 			rowSelection,
 			bordered,
-			tableProps
+			tableProps,
+			moment
 		} = this.props;
 
 		const { title, titleEdit, fields } = createFormOptions || {};
@@ -207,6 +195,7 @@ export class CrudFull extends Component {
 					rowSelection={rowSelection}
 					bordered={bordered}
 					tableProps={tableProps}
+					moment={moment}
 				/>
 				{isModalOpen === modelName && !createDisabled
 					? (
@@ -288,10 +277,9 @@ CrudFull.defaultProps = {
 	tableProps: {}
 };
 
-export default connect((state, props) => ({
+export default connect(state => ({
 	objectModal: state.modelModalForm,
-	isModalOpen: state.isOpenModelModal,
-	user: props.canTryToGetUser ? state.user : null
+	isModalOpen: state.isOpenModelModal
 }), {
 	toggleCreateModelModal,
 	deleteModel,

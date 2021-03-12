@@ -94,7 +94,8 @@ class CrudView extends Component {
 			rowSelection,
 			bordered,
 			tableProps,
-			filteredColumns
+			filteredColumns,
+			moment
 		} = this.props;
 
 		if (items && !items.data && items.loading) return <Loader />;
@@ -114,7 +115,7 @@ class CrudView extends Component {
 				? 'right' : this.getTablePropValue(col, 'fixed'),
 			width: col.id === 'actions' && !isNotMiddleSizeWindow && fixActionColumn
 				? 150 : this.getTablePropValue(col, 'width') || 'auto',
-			render: object => dataRenderer(object, col, modelName, iconTheme),
+			render: object => dataRenderer(object, col, modelName, iconTheme, moment),
 			filters: this.getFilterValues(col),
 			filterIcon: col.filter.can
 				? filtered => (

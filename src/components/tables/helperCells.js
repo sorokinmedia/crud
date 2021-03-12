@@ -4,10 +4,7 @@ import Action from '../crud/action';
 import moment from 'moment';
 import { Icon } from 'antd';
 
-const DateCell = (data) => {
-	console.log(moment())
-	return <p>{moment(data).format('DD.MM.YYYY')}</p>;
-}
+const DateCell = (data, m) => <p>{(m || moment)(data).format('DD.MM.YYYY')}</p>
 const TextCell = text => <span>{text}</span>;
 const BooleanCell = value => (
 	<span>

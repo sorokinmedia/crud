@@ -12,7 +12,7 @@ import {
 import { Link } from 'react-router-dom'
 
 
-export default (row, column, modelName, iconTheme) => {
+export default (row, column, modelName, iconTheme, moment) => {
 	if (row[column.id] !== 0 && !row[column.id] && row[column.id] !== false) return null;
 	switch (column.type) {
 	case 'object':
@@ -26,7 +26,7 @@ export default (row, column, modelName, iconTheme) => {
 	case 'array_objects':
 	    return ArrObjectCell(row[column.id]);
 	case 'date':
-		return DateCell(Number(row[column.id]) * 1000);
+		return DateCell(Number(row[column.id]) * 1000, moment);
 	case 'link':
 		const link = row[column.id];
 		if (link.url && link.name) return (

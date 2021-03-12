@@ -1,11 +1,13 @@
 import 'antd/dist/antd.css';
 import PropTypes from 'prop-types'
 import React from 'react';
-import { connect } from 'react-redux'
-import { CrudFull } from '../../src/index';
-import { Button } from 'antd'
-import FormFields from './FormFields/index'
-import actions from '../redux/actions'
+import { connect } from 'react-redux';
+import { CrudFull } from '../../src';
+import { Button } from 'antd';
+import FormFields from './FormFields/index';
+import actions from '../redux/actions';
+import mt from 'moment-timezone';
+import moment from "moment";
 import { API } from '../redux/sagas';
 import { getCookie } from '../../src/redux/requestSaga';
 
@@ -20,6 +22,7 @@ class CrudSiteAlerts extends React.Component {
 	}
 
 	componentDidMount() {
+		mt.tz.setDefault('Pacific/Kiritimati')
 	}
 
 
@@ -77,6 +80,7 @@ class CrudSiteAlerts extends React.Component {
 					  scroll: { y: 240, x: 1500 }
 					}}
 					scrollX={1500}
+					moment={moment}
 				/>
 				<br />
 				<br />
