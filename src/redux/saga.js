@@ -1,12 +1,12 @@
-import moment from 'moment'
+import moment from 'moment';
 import { stopSubmit } from 'redux-form';
 import { all, fork, put, select, takeEvery, call } from 'redux-saga/effects';
-import requestMiddleware, { request } from 'sm-redux-saga-request'
-import { buildUrlSearch, buildUrlSearchForArray } from 'sm-string-helper'
-import {ERROR, SORT_ASC, SORT_DESC, START, SUCCESS, SUCCESS_REQ} from '../constants';
+import requestMiddleware, { request } from 'sm-redux-saga-request';
+import { buildUrlSearch, buildUrlSearchForArray } from 'sm-string-helper';
+import { ERROR, SORT_ASC, SORT_DESC, START, SUCCESS, SUCCESS_REQ } from '../constants';
 import notification from '../notification';
 import actions from './actions';
-import regeneratorRuntime from 'regenerator-runtime'
+import regeneratorRuntime from 'regenerator-runtime';
 import reduceMessages from '../helpers/reduceMessages';
 
 export const selectCrudParams = state => state.crudParams;
@@ -15,9 +15,9 @@ export function* notifySaga(action) {
 	if (action.error) yield notification('error', action.error.message);
 	if (action.response.status === SUCCESS_REQ) yield notification('success', action.response.message)
 }
-
+const dateTypes = ['date', 'datetime'];
 function isDateColumn(columns, key) {
-	return !!columns.find(e => e.type === 'date' && e.id === key);
+	return !!columns.find(e => dateTypes.includes(e.type) && e.id === key);
 }
 
 function getFiltersValues(filters, columns) {

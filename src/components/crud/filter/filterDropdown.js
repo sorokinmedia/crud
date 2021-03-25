@@ -49,7 +49,7 @@ const renderDropdown = (name, type, options, { setSelectedKeys, selectedKeys, co
 		return (
 			<DatePicker
 				value={selectedKeys && !(selectedKeys instanceof Array)
-					? moment(selectedKeys, 'DD/MM/YYYY').locale('ru')
+					? moment(selectedKeys, 'DD.MM.YYYY').locale('ru')
 					: null
 				}
 				onChange={value => setSelectedKeys(value)}

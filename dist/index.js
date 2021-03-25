@@ -6357,7 +6357,7 @@ var renderDropdown = function renderDropdown(name, type, options, _ref) {
 
     case 'date':
       return React__default.createElement(antd.DatePicker, {
-        value: selectedKeys && !(selectedKeys instanceof Array) ? moment(selectedKeys, 'DD/MM/YYYY').locale('ru') : null,
+        value: selectedKeys && !(selectedKeys instanceof Array) ? moment(selectedKeys, 'DD.MM.YYYY').locale('ru') : null,
         onChange: function onChange(value) {
           return setSelectedKeys(value);
         },
@@ -29149,10 +29149,11 @@ function notifySaga(action) {
     }
   }, _marked);
 }
+var dateTypes = ['date', 'datetime'];
 
 function isDateColumn(columns, key) {
   return !!columns.find(function (e) {
-    return e.type === 'date' && e.id === key;
+    return dateTypes.includes(e.type) && e.id === key;
   });
 }
 
