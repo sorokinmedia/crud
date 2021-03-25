@@ -76,7 +76,9 @@ class CrudSiteAlerts extends React.Component {
 					// fixActionColumn={false}
 					// rowSelection={rowSelection}
 					tableProps={{
-                      fixedColumns: [{ fixed: 'left', id: 'name', width: 200 }],
+						fixedColumns: [{
+							fixed: 'left', id: 'name', width: 200
+						}],
 					  scroll: { y: 240, x: 1500 }
 					}}
 					scrollX={1500}
@@ -85,14 +87,14 @@ class CrudSiteAlerts extends React.Component {
 				<br />
 				<br />
 				<CrudFull
-					crudRead={`/v1/owner/object/103/share/invites`}
+					crudRead="/v1/owner/object/103/share/invites"
 					modelName="objectInvites"
 					createButtonTitleId="sidebar.keys.type.new"
 					fixActionColumn={false}
 					ButtonComponent={Button}
 				/>
-				<br/>
-				<br/>
+				<br />
+				<br />
 				<CrudFull
 					crudRead="/v1/owner/tenant/116/actions"
 					modelName="ownerStat"

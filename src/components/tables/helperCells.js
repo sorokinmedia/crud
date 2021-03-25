@@ -5,6 +5,7 @@ import moment from 'moment';
 import { Icon } from 'antd';
 
 const DateCell = (data, m) => <p>{(m || moment)(data).format('DD.MM.YYYY')}</p>
+const DatetimeCell = (data, m) => <p>{(m || moment)(data).format('DD.MM.YY HH:mm')}</p>
 const TextCell = text => <span>{text}</span>;
 const BooleanCell = value => (
 	<span>
@@ -82,5 +83,6 @@ export {
 	ArrObjectCell,
 	ActionsCell,
 	BooleanCell,
-	HtmlCell
+	HtmlCell,
+	DatetimeCell
 };

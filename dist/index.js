@@ -14054,6 +14054,10 @@ var DateCell = function DateCell(data, m) {
   return React__default.createElement("p", null, (m || hooks)(data).format('DD.MM.YYYY'));
 };
 
+var DatetimeCell = function DatetimeCell(data, m) {
+  return React__default.createElement("p", null, (m || hooks)(data).format('DD.MM.YY HH:mm'));
+};
+
 var TextCell = function TextCell(text) {
   return React__default.createElement("span", null, text);
 };
@@ -16932,6 +16936,9 @@ var dataRenderer = (function (row, column, modelName, iconTheme, moment) {
 
     case 'array_objects':
       return ArrObjectCell(row[column.id]);
+
+    case 'datetime':
+      return DatetimeCell(Number(row[column.id]) * 1000, moment);
 
     case 'date':
       return DateCell(Number(row[column.id]) * 1000, moment);

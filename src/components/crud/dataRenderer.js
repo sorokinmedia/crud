@@ -7,9 +7,11 @@ import {
 	ActionsCell,
 	BooleanCell,
 	ArrObjectCell,
-	HtmlCell, ArrayCell
+	HtmlCell,
+	ArrayCell,
+	DatetimeCell
 } from '../tables/helperCells';
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router-dom';
 
 
 export default (row, column, modelName, iconTheme, moment) => {
@@ -25,6 +27,8 @@ export default (row, column, modelName, iconTheme, moment) => {
 		return ArrayCell(row[column.id]);
 	case 'array_objects':
 	    return ArrObjectCell(row[column.id]);
+	case 'datetime':
+		return DatetimeCell(Number(row[column.id]) * 1000, moment);
 	case 'date':
 		return DateCell(Number(row[column.id]) * 1000, moment);
 	case 'link':
