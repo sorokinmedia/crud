@@ -99,7 +99,7 @@
 		"enzyme-adapter-react-16": "^1.7.1",
 		"enzyme-to-json": "^3.3.5",
 		"immutable": "^3.8.1",
-		"immutable-devtools": "^0.0.7",
+		"immutable-devtools": "^0.1.5",
 		"jsdom": "^13.0.0",
 		"moment": "^2.24.0",
 		"moment-timezone": "^0.5.33",
